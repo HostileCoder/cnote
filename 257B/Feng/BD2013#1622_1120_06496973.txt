@@ -1,0 +1,618 @@
+   978-1-4673-1813-6/13/$31.00 ©2013 IEEE 
+ 1 
+HELIOLIB/MIDL: An Example of Code Reuse Over 
+Mission Lifetime 
+Lawrence E. Brown 
+Johns Hopkins University/Applied 
+Physics Laboratory 
+11100 Johns Hopkins Road, Laurel, 
+Maryland 20723 
+443-778-8720 
+Lawrence.Brown@jhuapl.edu 
+Jon Vandegriff 
+Johns Hopkins University/Applied 
+Physics Laboratory 
+11100 Johns Hopkins Road, Laurel, 
+Maryland 20723 
+443-778-8558 
+Jon.Vandegriff@jhuapl.edu 
+ 
+Abstract— This paper presents an overview of using a single 
+semantic data model (HELIOLIB) and science data analysis 
+code base (MIDL) throughout all phases of a spacecraft 
+mission from integration and testing to archive submission. By 
+using a single code base to create both ground support 
+software and analysis software, we reduce costs and increase 
+the integrity of the final science data product. The detailed, 
+error-prone task of decoding telemetry is coded only once, and 
+is tested early in the instrument development cycle. Not only 
+does this result in better science telemetry processing later on, 
+but can also reveal instrument or data design issues while the 
+instrument is still on the ground. The telemetry processing 
+code is then encapsulated within a data model that allows the 
+code to be used as a pluggable reader module within science 
+analysis tools. The daily use of these tools (MIDL) by 
+instrument scientists helps validate the code. Final archive 
+products can then be created with the same code base (same 
+jar file even), ensuring that the quality of the archive products 
+is as good as the data used routinely by the instrument team.  
+TABLE OF CONTENTS 
+1. INTRODUCTION ................................................ 1	  
+ 2. HELIOLIB SEMANTIC MODEL ...................... 2	  
+ 3. MIDL ............................................................... 4	  
+ 4. CONDUIT: TELEMETRY IN/SCIENCE OUT .... 7	  
+ 5. SUMMARY ......................................................... 7	  
+ REFERENCES ........................................................ 8	  
+ BIOGRAPHIES ....................................................... 9	  
+ APPENDIX ............................................................. 9	  
+  
+1. INTRODUCTION 
+The Mission Independent Data Layer (MIDL) tool suite was 
+developed at the Johns Hopkins University Applied Physics 
+Laboratory and provides quick look data visualization and 
+data discovery, primarily for energetic charged particle and 
+magnetic field instruments on space-based missions. MIDL 
+allows scientists to load a data set and visualize it with one 
+or more analysis tools. “Data set” in this context refers to a 
+specific set of values (energy fluxes, particle count rates, 
+magnetic field strengths, housekeeping numbers, etc.) 
+defined for a significant fraction of the mission lifetime.  
+For low level data, a data set frequently corresponds to a 
+CCSDS (Consultative Committee for Space Data Systems) 
+packet type; examples include "1-minute Averaged 
+Magnetic Field Data" or “High Energy Resolution Spectral 
+Data” or “Non-proton Time of Flight by Energy Rates”.   A 
+“tool” is a particular scientific visualization of the data; 
+examples include Line Plot, Energy Spectrogram, or Data 
+Value Spreadsheet. The tools each take one or more 
+semantic data types as input. 
+ 
+Uniform Data Access
+ Library
+ Bad Data
+ Filtering
+ Subse!ing
+ Identical Internal
+ Data Structure
+ for All Files
+ Basic
+ Visualization Time System
+ Uniformization
+ Detailed
+ Visualization
+ Data
+ Fusion
+ Data-Model
+ Comparisons
+ Data
+ Mining
+ Ingestion of
+ Data into
+ Models
+ Unit
+ Conversion
+ Dataset Reader
+  Modules  
+Figure 1 - Schematic overview of uses of the HELIOLIB semantic data model 
+ 
+ 
+ 2 
+Mission 
+Operations
+ CONDUIT
+ Science 
+Pipeline
+ EDR/
+ Level 
+1
+ Label 
+Generator Uncalibrated 
+Science Data 
+Science 
+Analysis 
+Software/ 
+MIDL
+ MIDL-
+ Based 
+CDR 
+Generator
+ Calibrated 
+Science 
+Data
+ Data Archive 
+(PDS,CDAWEB,
+ NSSDC...)
+ HELIOLIB
+ HELIOLIB
+  
+Figure 2 – Typical data flow through the CONDUIT/MIDL system (Peach – External sources or destinations; Green – 
+Science data pipeline, i.e. the subject of this paper; Yellow – Science team) 
+ 
+Figure 1 captures this architecture where tools operate on 
+a generic data model and are thus independent of data 
+storage details. Such an architecture simplifies multi-
+ mission development, because adding new data sources 
+only requires the creation of reader modules for any new 
+data types, and then the data can be viewed with any of 
+the display tools in MIDL. For data in self-describing 
+formats (CDF, netCDF, HDF, etc.), existing readers may 
+work with little configuration, and current work is 
+focused on self-configuring readers.  We have also 
+written a reader to accept the output of our telemetry 
+processing code (Section 3) so that telemetry data can be 
+fed directly into MIDL. (Figure 2)  
+Besides visualization, other common data processing 
+tasks are simplified through the use of a common 
+semantic data model. For example, the creation of 
+calibrated data products (“Level 2,3,4, etc”) can be 
+implemented as another type of non-interactive tool. 
+A key benefit to using a single analysis system that can 
+read both telemetry and science data files is the 
+elimination of duplicate effort, which results in a more 
+robust processing chain. Because different groups usually 
+handle instrument development and science analysis 
+regimes, instrument scientists often use one version of 
+ground support software during integration and testing 
+and a completely different one during flight and perhaps a 
+hybrid during commissioning.  However, using a single 
+code base and tool chain means that different stages of the 
+instrument development and evaluation can be fed by the 
+same data stream, allowing teams to test science analysis 
+software before launch. 
+Finally, the modular nature of the tools allows us to 
+present a completely different view of the same system.  
+Custom tools can be developed for new missions. There is 
+also an option for users who just want to view the data 
+without learning to use the software: a simplified version 
+of the tool launches with a pre-defined set of plots that 
+provide an overview of one or more datasets. In non-
+ interactive mode, this same tool can be used to create 
+static summary plots (often one plot per day or per orbit).  
+ 
+ 
+2. HELIOLIB SEMANTIC MODEL  
+The Basic Semantic Model 
+HELIOLIB is a universal reader library for reading and 
+semantically interpreting time-series Heliophysics science 
+data.  For each science data type (Magnetic Field Data, 
+Plasma Data, Energetic Particle Data, Event Data, 
+Ephemeris Data, etc.), an interface is defined that captures 
+the science characteristics of any dataset of this type. 
+Each reader implements one science interface, either with 
+custom code or through configuration of a reader for a 
+standard format. [1] 
+The semantic model is layered such that the fundamental 
+layer describes basic tabular data, and each layer adds 
+more information and complexity to capture increasingly 
+detailed science content.  The current version of the 
+model is the result of several significant revisions. Here 
+we describe three distinctive design features of the current 
+HELIOLIB data model. 
+ 
+ 3 
+1. Values in the data model are accessed by indices only 
+(no arrays). This gives the greatest flexibility in 
+representing different data sources. Earlier versions 
+of the model returned array objects, but if underlying 
+data was not available as arrays (or needed 
+calibrating or re-arranging before going out through 
+the interface), one or more copies of the data had to 
+be generated. We have found that the computational 
+cost of creating data values on demand is worth the 
+significantly smaller memory footprint.  Convenience 
+utility methods do exist to generate arrays from 
+HELIOLIB tables, but these can be used judiciously 
+as the last step before plotting, for instance, so that 
+multiple copies of the data do not proliferate through 
+the code. 
+2.  All data must live “on the table”. The layered data 
+model allows the semantic requirements for more 
+detailed science interfaces to show up as additional 
+columns on the table.  Because this is a science data 
+model, it was important not to “lose” information on 
+the trip from input file to semantic representation. 
+The semantic interfaces in HELIOLIB for all higher-
+ level quantities (e.g. magnetic field, proton 
+differential energy flux, etc.) only return indices on 
+the underlying table.  This ensures two things: a) 
+even the semantically correct data is still just a table 
+and b) any data fields not used or recognized by the 
+semantic representation are still available (for 
+plotting, output, data filtering, etc.). No values from 
+the original data file (or stream) are hidden from the 
+end user. 
+An example of point 2a:  Consider a data reader that 
+produces Energetic Particle Data.  Because this semantic 
+object is still just a table, the particle data may be 
+examined using any tool that takes a table object as an 
+input. The additional columns on the table containing the 
+calibrated particle flux values are just ordinary columns. 
+An example of point 2b:  A scientist plots Magnetic Field 
+that has a semantic representation containing only the 
+quantities B-total, B-x, B-y, B-z, and their uncertainties. 
+Upon noticing unusual features in a specific time interval, 
+the scientist can view the underlying data table and 
+notices an additional column labeled "Data Quality" that 
+changes from 0 to 1 during the time of the unusual 
+features. Thus the extra data column can be used as a 
+filter even though it is not part of the semantic 
+interpretation. 
+3. Data Reader/Loader interfaces produce Adaptable 
+Data objects that can be interrogated about the 
+interfaces they implement.  Reader objects in 
+HELIOLIB return generic data items that advertise 
+the semantic levels to which they can be interpreted. 
+This allows an automatic pairing of tools with data 
+sources because the tools can detect the data sources 
+they would be capable of rendering. Some tools 
+operate on generic table objects whereas some tools 
+require a specific science type. For example, the line 
+plotter tool can take three inputs, one of Energetic 
+Particle Data, one of Magnetic Field data, and one of 
+Ephemeris data, and then presents the user with the 
+ability to filter by pitch angles (angle between 
+particle flow direction and magnetic field) and plot 
+the data versus spacecraft location or magnetic L 
+shell, etc.  The line plot tool can also take just a table, 
+in which case it will not present as many options (no 
+pitch angle filter, for example).  
+ 
+Time 
+Because HELIOLIB deals with time series data, the 
+treatment of time values is of special importance.  Time is 
+a surprisingly complex subject in scientific space 
+missions.  Uncertainties in which time system is being 
+used (UTC, TAI, TDB, etc.) can lead to actual errors in 
+scientific analysis.   Furthermore, nearly all of the 
+missions we support use some form of mission elapsed 
+time (MET) as a fundamental time quantity, and these 
+values must be carefully curated in the analysis 
+environment and always require custom handling when 
+converting to common time systems. Here we describe 
+our unique mechanism for managing time values in a 
+generic way. 
+Every time value in HELIOLIB is represented by a totally 
+opaque object (note that its an object, not a primitive 
+type) that represents a instant in time. The TSEpoch class 
+has no public methods or fields. (So only code within the 
+same Java package can access the internals.) To render a 
+TSEpoch into a value (double or string) in a given time 
+system, you must explicitly specify the target 
+TimeSystem. A framework is provided to convert 
+between several common time systems, and user-supplied 
+time systems can be plugged into the framework at 
+runtime.  A TimeSystem specification also must define 
+how to construct differences between time values. The 
+built-in time systems include UTC, TAI, Ephemeris Time 
+(also called TDB), and a high precision (two doubles) 
+version of Ephemeris Time. Each mission also registers a 
+custom time system for managing the MET values for that 
+mission. HELIOLIB includes core utilities allowing a 
+fairly generic treatment of spacecraft clocks (based on the 
+SPICE framework from the NAIF group at JPL [2]. 
+ 
+ 4 
+Tools
+ DATASETS
+  
+Figure 3 - Main MIDL launch window
+  
+ 
+3. MIDL ANALYSIS 
+All the elements of HELIOLIB are brought together in 
+MIDL, a data analysis package that allows scientists to 
+interact with the data. The modular design of MIDL 
+benefits the scientists in multiple ways. First, it offers an 
+interactive, GUI-driven set of quick look data analysis, 
+visualization, and discovery tools.  Second, continued and 
+regular use of the mission-specific reading/calibrating 
+code serves as an excellent way to validate this code. This 
+section explains each of these points further. The main 
+MIDL window (Figure 3) allows users to select from a list 
+of datasets (magnetic field data, spectra taken at different 
+resolutions and cadences, etc.), and offers a list of 
+analysis tools.  Each tool can interact with or render one 
+or more types or combinations of types of data.  The user 
+selects a dataset of interest, and then manually chooses a 
+tool with which to display the data. In many cases, 
+secondary datasets are automatically selected to provide 
+context for the primary data of interest. For example, 
+ephemeris data and magnetic field data both can provide 
+essential context for in-situ particle measurements.  
+ 
+ 
+ 5 
+ 
+Figure 4a – Static summary plot: A simple web application allows the user to “flip” through pre-generated PNG files, 
+each covering one day or one orbit of data. 
+ 
+ 
+ 6 
+ 
+Figure 4b - Interactive summary plot: The user can choose an arbitrary time range and most of the standard Autoplot 
+interactive data tools are available on individual plots.
+  
+ 
+The modular design of MIDL also allows flexible 
+application development. One particular MIDL tool is 
+focused on creating static summary plots from simple 
+configuration information. These plots are periodic, often 
+one per day or one per orbit (Figure 4a).  But this 
+summary plot tool can also be run in interactive mode, 
+using the same configuration information, but providing a 
+live version of the plot where the time range or axis 
+ranges can be a zoomed or panned interactively, 
+spectrograms can be “sliced”, etc. (Figure 4b). From the 
+interactive summary plot tool, it is also possible to view 
+the underlying data by launching a spreadsheet style 
+representation of the underlying HELIOLIB data objects 
+used in producing a given plot.  From the spreadsheet 
+other plotting options are available. The summary plot 
+tool provides a separate “easy learning curve” point of 
+entry to MIDL analysis for a wide range of simple tasks.  
+ 
+ 7 
+Generation of Calibrated Data 
+When scientists use MIDL to view and analyze their data, 
+they are also validating the data reading code. Because the 
+first version of the readers works with raw data, 
+subsequent versions of the readers are modified to apply 
+calibration procedures to the data. Any problems with the 
+calibration process are noticed quickly, because this is the 
+first and only way the calibrated data is made available to 
+the instrument team. When it is time to create an archive 
+data set, there is a high degree of confidence in the 
+calibrated numbers from the mission-specific readers, 
+because these are what the science team has been relying 
+on for analysis and publications. Standardized data file 
+creation modules that accept data via the HELIOLIB data 
+model and dump data into standard formats (so far we 
+support CDF, ASCII-CSV, and FITS), produce calibrated 
+archive products. Having generic output modules that rely 
+on well-tested calibration procedures can result in a 
+significant savings of time and money.  
+4. CONDUIT: TELEMETRY IN/SCIENCE OUT  
+Conduit model 
+We have developed another framework, CONDUIT, for 
+addressing common aspects of telemetry pipeline 
+processing for space missions. CONDUIT is separate 
+from HELIOLIB because it handles the more focused 
+problem of interpreting compact telemetry streams and 
+expanding them into science values.  In many cases, 
+during integration and testing, and even commissioning, 
+engineering teams will use ad-hoc telemetry interpretation 
+mechanisms based on specific GSE tools. This telemetry 
+handling code must then be re-implemented in a science 
+pipeline, because the science pipeline must operate 
+separate from the GSE. With CONDUIT, it is possible to 
+take telemetry and feed it into the same analysis tools 
+(MIDL) that the scientists will use during regular 
+operations. 
+The coupling of CONDUIT output to HELIOILIB readers 
+is done through a simple generic adapter class which 
+produces a TableWithTime object (see Appendix). If 
+desired, calibration information can be added to this data 
+via the same mechanism used when reading the level 0 
+files.  
+Without this ability to feed telemetry into the science 
+analysis system, often, due to funding or scheduling 
+issues, the science team would never see the data in a 
+science format or exercise the data analysis software until 
+the instrument is in flight.  This means the analysis 
+software is often buggy and difficult to use and the 
+instrument itself might be configured in a non-optimal 
+way, requiring complex reprogramming or reconfiguring 
+in space. 
+CONDUIT consists of a library of generic telemetry 
+processing code with a data model that can be simply 
+adapted to HELIOLIB data structures and a set of scripts 
+and driver routines to create “level 0” files.  However, 
+since adaptation to HELIOLIB classes is so simple, the 
+CONDUIT readers can also be reused as HELIOLIB 
+readers so that the science team can examine their data in 
+“flight-like” conditions and solve problems with either the 
+analysis software or the instrument configuration.    
+One might ask why CONDUIT uses its own data model 
+and uses adapters to create HELIOLIB tables.  The 
+problems with that approach are twofold: 
+1. The timeseries library that MIDL is built around 
+is large and complex.  Keeping the pipeline clear 
+of entanglements to it allows for clean 
+maintenance, validation, and configuration 
+control. 
+2. One of the goals of the CONDUIT design was to 
+avoid losing any telemetry information until a 
+specific output format was chosen.  Since the 
+HELIOLIB library treats all Numbers as Double 
+Precision Real numbers, in order to preserve data 
+type information in the CONDUIT internal data 
+model, we needed to use something other than 
+the pure HELIOLIB model.    
+5. SUMMARY 
+Before developing HELIOLIB, MIDL, and CONDUIT, 
+our instrument teams would implement “Level 0” file 
+generators.  A separate person or group would write 
+readers to ingest that data into IDL.  That person or 
+another would write a calibrated data generator.  Someone 
+else would be tasked with validating the calibrated data.  
+And, in really unfortunate circumstances, another group 
+entirely might be tasked with creating metadata “labels” 
+for the calibrated data for final archive ingestion.  With 
+our integrated set of tools, all feeding into a single 
+semantic data model, we have been able to collapse most 
+of this into a single process, so we only have to add 
+semantic information once, gather and inject metadata 
+once, and spread the cost (in time and funding) over 
+multiple missions and multiple phases of the same 
+mission.  
+ 
+ 8 
+ 
+Missions/Instruments which have contributed to the 
+development of this framework and used at least some of 
+the modular components include: 
+• Voyager/LECP 
+• Cassini/MIMI/CAPS 
+• MESSENGER/EPPS 
+• New Horizons/PEPSSI 
+• JUNO/JEDI 
+• RBSP/RBSPICE 
+• MMS/EIS 
+REFERENCES  
+[1] A framework for reading and unifying heliophysics 
+time series data, J. Vandegriff, L. Brown, Earth Science 
+Informatics, Volume 3, Numbers 1-2, Pages 75-86, 
+June, 2010, Springer Berlin / Heidelberg, DOI: 
+10.1007/s12145-010-0044-5 
+ [2] SPICE Website:  
+http://naif.jpl.nasa.gov/naif/toolkit.html 
+ 
+BIOGRAPHIES 
+Lawrence Brown received a B.S. in 
+Mathematical Physics from 
+Southwestern Adventist University, 
+Keene, TX in 1985, a PhD in Physics 
+from the University of Chicago in 
+1991 and has worked at Clemson 
+University (4 years), Godard Space 
+Flight Center (9 years) and Johns Hopkins University 
+Applied Physics Laboratory (7 years) designing and 
+developing data analysis and visualization software for x-
+ ray, gamma-ray, and charged particle spacecraft 
+observations.  
+Jon Vandegriff received a B.S in 
+Physics in 1991 from Taylor 
+University, Upland IN, and a M.S. 
+and PhD in Physics from The Ohio 
+State University in 1997. He served 
+for 3 years as software lead in the 
+science operations center for the X-
+ ray Timing Explorer mission at Goddard Space Flight 
+Center, and has supported science teams at the Johns 
+Hopkins University Applied Physics Laboratory for 12 
+years. 
+ 
+ 9 
+APPENDIX 
+ 
+ 
+SCHEMATICE SUMMARY OF MAJOR HELIOLIB INTERFACES: 
+ 
+BASIC HELIOLIB TIMESERIES/SYNTACTIC INTERFACES 
+ 
+enum DataType  
+{ 
+   OBJECT,DOUBLE,STRING,TIME,VECTORIJK; 
+} 
+Indexable<R> { 
+   R get(int index); 
+   public int size(); 
+} 
+DataArray<T> extends Indexable<T> 
+{ 
+   DataIdentity getIdentity(); 
+   DataType getType(); 
+   MaplikeMetadata getMetadata(); 
+} 
+Table { 
+   String getName(); 
+   IMaplikeMetadata getTableMetadata(); 
+   int getNumCols(); 
+   DataArray<?> getColumn(int i); 
+ 
+} 
+TableWithTime extends Table 
+{ 
+   int getTimeArrayIndexForColumn(int dataColIndex); 
+} 
+TableWithDetailedTime extends TableWithTime 
+{ 
+   int getMeasurementWindowColIndex(int dataColIndex); 
+   int getExposureTimeColIndex(int dataColIndex); 
+   ITimeSystem<?> getTimeSystem(); 
+}  
+MagneticFieldData extends TableWithDetailedTime 
+{ 
+   MagColIndices getMagColIndices(); 
+   MagDatasetContentInfo getDatasetContentInfo(); 
+}  
+ 
+ 10 
+REPRESENTATIVE HELIOLIB SCIENCE/SEMANTIC INTERFACES 
+ 
+MAGNETIC FIELD DATA 
+ 
+MagDatasetContentInfo extends CoordFrameSrc 
+{ 
+   boolean hasBTotal(); 
+   boolean hasBTotalUncertainty(); 
+   boolean hasBVector(ICoordFrame frame); 
+   boolean hasBVectorUncertainties(ICoordFrame frame); 
+   String getDataSetName(); 
+} 
+MagneticFieldData extends TableWithDetailedTime 
+{ 
+   MagColIndices getMagColIndices(); 
+   MagDatasetContentInfo getDatasetContentInfo(); 
+} 
+ 
+ENERGETIC PARTICLE DATA 
+ 
+PChannelInfo 
+{ 
+   String getParameterKey(); 
+   String getName(); 
+   String getDescription(); 
+   Set<IParticleCalibration> getCalibrations(); 
+   IParticleSpecies getSpecies(); 
+   IParticleChannelBounds getBounds(); 
+   IFOVKey getFOVKey(); 
+} 
+ParticleInfoSrc extends ICoordFrameSrc 
+{ 
+   int getNumChannels(); 
+   IPChannelInfo getChannelInfo(int chnlIdx); 
+   String getDataName(); 
+   ISpectralInfo getSpectralInfo(); 
+} 
+ParticleData extends TableWithDetailedTime, ParticleInfoSrc 
+{ 
+   int getValueColumnIndexForChannel(int channelIndex, ParticleCalibration cal); 
+   int getUncertColumnIndexForChannel(int channelIndex, ParticleCalibration cal); 
+int getParticleFlowDirectionVectorIJKIndex(int channelIndex, ICoordFrame coordFrame); 
+}  
+ 
+EVENT DATA has no interface, it’s just and “Info” interface added to a TableWithTime 
+ 
+ 11 
+ 
+CONDUIT Interfaces 
+ 
+Timestamp { 
+public abstract boolean hasTimestamp(); 
+public abstract TSEpoch getEpoch(); 
+boolean hasMET(); 
+public abstract MET getMET(); 
+} 
+PacketHeader extends Timestamp { 
+int offsetBytesToCargo(); 
+ void movePositionToStartOfNextPacket(ByteBuffer inputBuffer); 
+ int cargoLength(); 
+} 
+TelemetryRecord extends Timestamp{ 
+ int getNumFields(); 
+ Field getField(int fieldNum); 
+ Field getField(String fieldName); 
+  
+} 
+TelemetryRecordSource { 
+ int getNumberOfRecords(); 
+ TelemetryRecord getTelemetryRecord(int recordNum); 
+ Object getPacketType();//this is usually an instrument-specific enum value 
+} 
+Subpacket extends Comparable<Subpacket>,TelemetryRecordSource { 
+ IPacketHeader getIPacketHeader(); 
+} 
+ 
+ 
+ 

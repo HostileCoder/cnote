@@ -1,0 +1,891 @@
+Harbour Surveillance with Cameras Calibrated
+ with AIS Data
+ Francesco A. N. Palmieri, Francesco Castaldo and Guglielmo Marino
+ Dipartimento di Ingegneria Industriale e dellÕInformazione
+ Seconda Universita« di Napoli (SUN), via Roma 29, 81031 Aversa (CE), ITALY
+ francesco.palmieri@unina2.it; france.castaldo@gmail.com; guglielmo.marino@studenti.unina2.it
+ AbstractÑThe inexpensive availability of surveillance cameras,
+ easily connected in network configurations, suggests the deploy-
+ ment of this additional sensor modality in port surveillance. Ves-
+ sels appearing within cameras fields of view can be recognized
+ and localized providing to fusion centers information that can
+ be added to data coming from Radar, Lidar, AIS, etc. Camera
+ systems, that are used as localizers however, must be properly
+ calibrated in changing scenarios where often there is limited
+ choice on the position on which they are deployed. Automatic
+ Identification System (AIS) data, that includes position, course
+ and vesselÕs identity, freely available through inexpensive re-
+ ceivers, for some of the vessels appearing within the field of
+ view, provide the opportunity to achieve proper camera cali-
+ bration to be used for the localization of vessels not equipped
+ with AIS transponders. In this paper we assume a pinhole
+ model for camera geometry and propose perspective matrices
+ computation using AIS positional data. Images obtained from
+ calibrated cameras are then matched and pixel association is
+ utilized for other vesselÕs localization. We report preliminary
+ experimental results of calibration and localization using two
+ cameras deployed on the Gulf of Naples coastline. The two cam-
+ eras overlook a section of the harbour and record short video
+ sequences that are synchronized offline with AIS positional
+ information of easily-identified passenger ships. Other small
+ vessels, not equipped with AIS transponders, are localized using
+ camera matrices and pixel matching. Localization accuracy is
+ experimentally evaluated as a function of target distance from
+ the sensors.
+ TABLE OF CONTENTS
+ 1 INTRODUCTION . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1
+ 2 PINHOLE CAMERA MODEL . . . . . . . . . . . . . . . . . . . . . 2
+ 3 CAMERA CALIBRATION . . . . . . . . . . . . . . . . . . . . . . . . . 3
+ 4 3D-LOCALIZATION . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 4
+ 5 HARBOUR SCENARIO . . . . . . . . . . . . . . . . . . . . . . . . . . . . 4
+ 6 CAMERA CALIBRATION USING AIS . . . . . . . . . . . . 5
+ 7 EXPERIMENTS IN THE GULF OF NAPLES . . . . . . . 6
+ 8 CONCLUSIONS . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 7
+ ACKNOWLEDGMENTS . . . . . . . . . . . . . . . . . . . . . . . . . . . 8
+ REFERENCES . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 8
+ BIOGRAPHY . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 8
+ 1. INTRODUCTION
+ Future surveillance systems will be based on the integration
+ of large amounts of heterogeneous data coming from different
+ sensor modalities. The availability of low-cost sensors poses
+ new challenges to the harbour management systems that will
+ have to make intelligent use of current information coming
+ This project is partially sponsored by: Ministero Infrastrutture e Trasporti,
+ PON01-01936, Harbour Traffic Optimization System (HABITAT) with Con-
+ sorzio Nazionale Interuniversitario per le Telecomunicazioni (CNIT).
+ 978-1-4673-1813-6/13/$31.00 c©2013 IEEE.
+ Figure 1. Harbour scenario with surveillance cameras
+ from Radar, Lidar, satellite sensors, surveillance networks,
+ etc. Low-cost networked cameras (in the visible and/or
+ infrared spectra) add an interesting opportunity to provide ad-
+ ditional information to the harbour management, specially in
+ critical conditions for localization of non cooperative vessels.
+ Security and near-coast collision avoidance will benefit from
+ rich data fusion that utilizes anything available at anytime.
+ In this work we analyze the problem of fusing information
+ from surveillance cameras arbitrarily displaced on the har-
+ bour coastline as shown in Figure 1. Off-the-shelf low-
+ cost cameras may have different accuracies, be deployed
+ with no special provisions, record data asynchronously at
+ different rates, cover different sea sections and be subject to
+ lossy transmission. Useful combination of such information
+ requires robust techniques for camera calibration and feature
+ extraction. Camera calibration is a well-known topic in
+ the computer vision literature, with Tsai [1] and Zhang [2]
+ the standard reference methods that require known anchor
+ points in order to extract the mapping model between cameras
+ and the 3D world. In this paper we propose that camera
+ calibration be based on some vessel GPS positions available
+ from the AIS network [3] [4] [5]. AIS is a well-known au-
+ tomatic identification system that provides information about
+ the status of registered ships. However, not all ships below a
+ certain class are required to be equipped with such a system
+ (small sailboats, motorboats, etc.) and sometimes these are
+ the most critical ones in harbour safety and security.
+ It is enough that an AIS-equipped vessel appears at least few
+ times in each camera field of view to grab useful information
+ for calibration. Once cameras have been calibrated it is
+ possible to fuse all images for localizing other targets. In this
+ paper we apply calibration and localization algorithms to the
+ harbour scenario reviewing the corresponding mathematical
+ models. We include experimental results of such a procedure
+ for images grabbed with two commercial cameras in the Gulf
+ of Naples using two passenger ships for calibration.
+ 1
+Figure 2. Pinhole camera model with image plane parallel
+ to (Xc, Yc)
+ The paper is structured as follows. In Section 2 we review
+ the camera model and in Section 3 and 4 camera calibration
+ and 3D-localization procedures are explained. In Section 5
+ we show how such a technique is applied to the harbour
+ scenario. In Section 6 the theoretical results are applied to our
+ case study. Section 7 reports the results obtained in different
+ experiments in the Gulf of Naples harbour. Section 8 draws
+ conclusions and suggests future developments.
+ 2. PINHOLE CAMERA MODEL
+ A camera is a mapping between 3D world objects and a 2D
+ image. We consider the simplest camera model, the so-called
+ pinhole model [6]. From Figure 2 point C, to which all
+ viewing rays from 3D space points converge, is the origin of
+ the Euclidean coordinate system and it is called the center
+ of projection. The center of projection is also called the
+ camera center or the optical center. This model emerges as
+ the equivalent of a classical camera setup in which the camera
+ plane (also called image plane) is behind the camera center
+ C. The image that is formed upside down on the camera
+ plane is transposed in front of the camera center where the
+ image appears in its natural orientation and with the same
+ dimensions. Such a plane Zc = f is the new image plane, as
+ shown in Figure 2. The line that heads perpendicularly from
+ the camera center to the image plane is called the principal
+ axis for the camera. The intersection p of the principal axis
+ and the image plane is called principal point. A 3D point
+ ÷Xc = (Xc, Yc, Zc)T in the Euclidean space (Xc, Yc, Zc)
+ centered in C (called the camera standard reference frame)
+ is mapped to a point x÷ = (x, y)T on the image plane where
+ the viewing line of ÷Xc meets the image plane. The image
+ reference frame is centered in p with x and y axes parallel to
+ Xc and Yc.
+ Considering the plane (Yc, Zc) as shown in Figure 3, by
+ similarity of ( ?CZcYc) and (?Czy), we can write y = fYCZC .
+ By the same reasoning, in the plane (Xc, Zc) we have x =
+ fXC
+ ZC . Therefore the point (XC , YC , ZC)T is mapped to the
+ point (fXC/ZC , fYC/ZC , f)T , that lies on the image plane.
+ Ignoring the obvious third coordinate, we can write
+ ÷Xc = (Xc, Yc, Zc)T ? x÷ = (x, y)T = (fXcZc ,
+ fYc
+ Zc
+ )T . (1)
+ Note that we cannot write (1) in terms of matrix multiplica-
+ tions, due to the non-linearity of the mapping between the
+ Figure 3. Relation of coordinates system to focal length
+ coordinates of ÷Xc and x÷. It is convenient (as it has become
+ standard in the literature) to define world and image points by
+ the augmented vectors
+ Xc =
+ (
+ ÷Xc
+ 1
+ )
+ , x =
+ (
+ x÷
+ 1
+ )
+ ,
+ called homogeneous coordinates [6]. Observing that( fXcfYc
+ Zc
+ )
+ =
+ [ f 0 0 0
+ 0 f 0 0
+ 0 0 1 0
+ ]?
+ ?? XcYcZc
+ 1
+ ?
+ ?? , (2)
+ multiplying and dividing the first member of (2) by Zc we can
+ write
+ Zc
+ ?? fXcZcfYc
+ Zc
+ 1
+ ?? = Zcx,
+ and then write
+ Xc ? Zcx =
+ ( fXcfYc
+ Zc
+ )
+ =
+ [ f 0 0 0
+ 0 f 0 0
+ 0 0 1 0
+ ]?
+ ?? XcYcZc
+ 1
+ ?
+ ?? .
+ More compactly, we have
+ ?x = PXc, (3)
+ where ? is a generic scale factor that depends on the specific
+ point Xc. Another way to write this expression is
+ x ' PXc,
+ where ' denotes equalities up to a scale factor. Matrix
+ P =
+ [ f 0 0 0
+ 0 f 0 0
+ 0 0 1 0
+ ]
+ ,
+ is called the camera projection matrix. The camera model
+ just presented above is the simplest one and it is idealized
+ because we have assumed that the origin of coordinates in the
+ image plane is at the principal point and that the image plane
+ is parallel to the (Xc, Yc) plane. However, cameras deployed
+ in arbitrary position and orientation need to be described
+ in a more general reference system. A first generalization
+ assumes that the origin of image coordinates is not in in the
+ principal point p. Denoting p = (px, py)T , we can write
+ ÷Xc ? x÷ = (fXc/Zc + px, fYc/Zc + py)T ,
+ 2
+Figure 4. Image coordinate system with principal point
+ translation
+ Figure 5. World-to-camera coordinate frames
+ that in homogeneous coordinates is
+ Xc ? ?x =
+ ( fXc + ZcpxfYc + Zcpy
+ Zc
+ )
+ = P
+ ?
+ ?? XcYcZc
+ 1
+ ?
+ ?? , (4)
+ where
+ P =
+ [ f 0 px 0
+ 0 f py 0
+ 0 0 1 0
+ ]
+ = K[I3 | 0],
+ with
+ K =
+ [ f 0 px
+ 0 f py
+ 0 0 1
+ ]
+ ,
+ and I3 the 3 ? 3 identity matrix. K is called the camera
+ calibration matrix. Generalizing the standard camera coordi-
+ nate frame (Xc, Yc, Zc) to generic coordinates, known as the
+ world coordinate frame (X, Y, Z), as shown in Figure 5, we
+ can relate the two coordinate frames through a rotation matrix
+ R and a translation vector t. Therefore
+ ÷Xc = R
+ (( X
+ Y
+ Z
+ )
+ ?
+ ( Cx
+ Cy
+ Cz
+ ))
+ = R( ÷X ? ÷C),
+ where ÷X = (X, Y, Z)T and ÷C = (Cx, Cy, Cz)T represent
+ respectively the generic 3D point and the camera center in
+ the world reference frame. In homogeneous coordinates we
+ can write
+ Xc =
+ [
+ R ?R ÷C
+ 0 1
+ ]?
+ ?? XYZ
+ 1
+ ?
+ ?? = [ R ?R ÷C0 1 ]X, (5)
+ where x =
+ (
+ x÷
+ 1
+ )
+ is the generic point in homogeneous
+ image coordinates. Therefore, putting (4) and (5) together,
+ we have
+ ?x = PX, (6)
+ with P = KR[I3 | ? ÷C]. We can decide not to show
+ explicitly the camera center ÷C and write the transformation
+ as ÷Xc = R ÷X + t , with t = ?R ÷C. Therefore the camera
+ matrix is
+ P = K[R | t].
+ Another element that we should take into account is the pos-
+ sibility of different scaling along both image coordinates. In
+ the model derived above we assumed that image coordinates
+ are Euclidean with equal scales in both axes directions. In
+ transfering the coordinates to pixels, we will need to multiply
+ the original coordinates by scale factors mx and my as pixels
+ may have different equivalent dimensions in x and y (the
+ number of pixel per unit distance in x and y direction may
+ be different). Matrix K becomes
+ K =
+ [
+ ?x 0 x0
+ 0 ?y y0
+ 0 0 1
+ ]
+ with ?x = fmx and ?y = fmy and x0 = mxpx and
+ y0 = mypy the coordinates of the principal points in terms
+ of pixels in x and y direction. In the form derived above
+ the parameters contained in K {f, ?x, ?y, x0, y0} are called
+ internal or intrinsic parameters, and the parameters in R and
+ t are called external or extrinsic parameters. This camera
+ model has 10 degrees of freedom ({?x, ?y, x0, y0, f} form a
+ set of four independent parameters plus we have three for R
+ and three for t).
+ 3. CAMERA CALIBRATION
+ The goal of camera calibration is to calculate the camera pro-
+ jection matrix P defined above when the sensor is deployed
+ in arbitrary locations. We assume to know a certain number
+ of point correspondences {xi,Xi} between 3D points Xi
+ and 2D image points xi (projections on the image plane of
+ Xi), and we are required to find the matrix P such that
+ ?xi = PXi, as shown in (6), for all i. World points may be
+ extracted from known landmarks or objects. There are several
+ ways to accomplish calibration. One possible approach [7] is
+ to rewrite the equation as( ?xi
+ ?yi
+ ?
+ )
+ =
+ [
+ p11 p12 p13 p14
+ p21 p22 p23 p24
+ p31 p32 p33 p34
+ ]?
+ ?? XYZ
+ 1
+ ?
+ ?? , (7)
+ where ( ?xi
+ ?yi
+ ?
+ )
+ = ?xi = ?
+ (
+ xi
+ yi
+ 1
+ )
+ ,
+ and
+ P =
+ [
+ p11 p12 p13 p14
+ p21 p22 p23 p24
+ p31 p32 p33 p34
+ ]
+ , (8)
+ with
+ xi =
+ ?xi
+ ? =
+ p11Xi+p12Yi+p13Zi+p14
+ p31Xi+p32Yi+p33Zi+p34
+ yi = ?yi? =
+ p21Xi+p22Yi+p23Zi+p24
+ p31Xi+p32Yi+p33Zi+p34
+ . (9)
+ We can write a homogeneous linear system using (9) for each
+ known correspondence. In our model P has 10 degrees of
+ freedom, therefore we need at least 5 world-images point
+ matches, but in general, using a calibration pattern, we can
+ obtain many more correspondences and consequently calcu-
+ late a more accurate solution through a least-squares method.
+ In fact, given N correspondences, we can write
+ 3
+Ap=0,
+ with
+ A =
+ ?
+ ???????
+ X1 Y1 Z1 1 0 0 0 0 ? x1X1 ? x1Y1 ? x1Z1 ? x1
+ 0 0 0 0 X1 Y1 Z1 1 ? y1X1 ? y1Y1 ? y1Z1 ? y1
+ X2 Y2 Z2 1 0 0 0 0 ? x2X2 ? x2Y2 ? x2Z2 ? x2
+ 0 0 0 0 X2 Y2 Z2 1 ? y2X2 ? y2Y2 ? y2Z2 ? y2
+ . . . . . . . . . . . .
+ . . . . . . . . . . . .
+ . . . . . . . . . . . .
+ XN YN ZN 1 0 0 0 0 ? xNXN ? xNYN ? xNZN ? xN
+ 0 0 0 0 XN YN ZN 1 ? yNXN ? yNYN ? yNZN ? yN
+ ?
+ ???????
+ and
+ p = [p11, p12, ..., p33, p34]T .
+ We have to solve a set of homogeneous equations in which
+ there are more equations than unknowns. The obvious so-
+ lution p = 0 is not of interest, therefore we have to pick a
+ constraint in order to impose the minimization problem. A
+ reasonable constraint would be ||p|| = 1; we also observe
+ that if p is a solution, then so is kp for any scalar k. Therefore
+ the least-squares problem can be stated as finding p that
+ minimizes ||Ap|| subject to ||p|| = 1. Using the SVD we
+ know that A = U?V T , then the problem requires to min-
+ imize ||U?V T p||. However, ||U?V T p|| = ||?V T p|| and
+ ||p|| = ||V T p|| (using the properties of orthonormal matrices
+ U and V ). Therefore, we have to minimize ||?V T p|| subject
+ to ||V T p|| = 1. If we put y = V T p, the problem becomes
+ to minimize ||?y|| subject to ||y|| = 1. Since ? is a diagonal
+ matrix with its elements in descending order, the minimum
+ solution is simply y = (0, 0, ..0, 1)T , and since p = V y
+ is simply the last column of V . Rearranging p we can
+ obtain P . Improvements of the resulting P can be achieved
+ implementing data normalization and iterative procedures to
+ reduce the error [6].
+ 4. 3D-LOCALIZATION
+ Assuming that projection matrices P i are known for each
+ camera i, we can localize a generic 3D point X using camera
+ matrices and corresponding 2D points xi on each camera, that
+ are the projection of the same X onto the two image planes.
+ A separate problem is the identification of corresponding
+ points in different images (i.e. given one pixel in the first im-
+ age find automatically its homologous in the second image)
+ [7]. In this paper we do not address such a problem, and in
+ the experiments that will follow we have manually localized
+ homologous points in pairs of images. Object identification
+ is a important larger problem that we will address elsewhere.
+ Going back to the 3D inversion, if we have available only two
+ cameras, the problem, also known as camera intersection [8],
+ can be stated as follows. From (6) applied to both cameras,
+ we have
+ ?1x1 = P1X
+ ?2x2 = P2X.
+ This pair of equations can be rearranged in matrix form as
+ AX? = 0, (10)
+ with
+ A =
+ [
+ P 1 x1 0
+ P 2 0 x2
+ ]
+ ,
+ Figure 6. 3D world points on the sea plane framed by a
+ camera
+ and
+ X? =
+ ?
+ ?????
+ X
+ Y
+ Z
+ 1
+ ??1
+ ??2
+ ?
+ ????? .
+ We can solve the system via a least-squares method (as the
+ one presented for camera calibration) and obtain X?, from
+ which extract X (first 4 elements of X?). The method can be
+ applied to an arbitrary number of cameras: assuming to have
+ N cameras and to know N 2D points xi, projections of the
+ 3D point X that needs to be reconstructed, we get equation
+ (10), with
+ A =
+ ?
+ ???????
+ P 1 x1 0 0 . . . 0
+ P 2 0 x2 0 . . . 0
+ P 3 0 0 x3 . . . 0
+ . . . . .
+ . . . . .
+ . . . . .
+ PN 0 0 0 . . . xN
+ ?
+ ??????? ,
+ and
+ X? =
+ ?
+ ?????????
+ X
+ ??1
+ ??2
+ ??3
+ .
+ .
+ .
+ ??N
+ ?
+ ?????????
+ .
+ 5. HARBOUR SCENARIO
+ In the harbour application we constrain the world points X to
+ lie on the two-dimensional sea plane. Our world coordinates
+ are latitude and longitude, as shown in Figure 6. In this case
+ the relationship to consider is
+ ?x = HX, (11)
+ with X that now, with an abuse of notation, indicates a GPS
+ 2D point in homogeneous coordinates, and H is a 3?3 matrix
+ usually called homography matrix. The relationship between
+ homography H and projective matrix P presented above is[ h11 h12 h13
+ h21 h22 h23
+ h31 h32 h33
+ ]
+ =
+ [
+ p11 p12 p14
+ p21 p22 p24
+ p31 p32 p34
+ ]
+ ,
+ 4
+i.e. matrix H is P without the third column. In order to
+ execute the calibration we have to consider pairs of corre-
+ spondences between 2D points {xi,Xi}. The equation to
+ consider is ?xi = HXi, for all i, and the goal is to find
+ the homography matrix H . In order to use the procedure
+ presented above, we can simply note that( ?xi
+ ?yi
+ ?
+ )
+ =
+ [ h11 h12 h13
+ h21 h22 h23
+ h31 h32 h33
+ ]( Xi
+ Yi
+ 1
+ )
+ ,
+ with
+ xi =
+ ?xi
+ ? =
+ h11Xi+h12Yi+h13
+ h31Xi+h32Yi+h33
+ yi = ?yi? =
+ h21Xi+h22Yi+h23
+ h31Xi+h32Yi+h33
+ . (12)
+ Therefore, just as above, we can consider N correspondences
+ and write
+ Ah = 0,
+ with
+ A =
+ ?
+ ???????
+ X1 Y1 1 0 0 0 ?x1X1 ?x1Y1 ?x1
+ 0 0 0 X1 Y1 1 ?y1X1 ?y1Y1 ?y1
+ X2 Y2 1 0 0 0 ?x2X2 ?x2Y2 ?x2
+ 0 0 0 X2 Y2 1 ?y2X2 ?y2Y2 ?y2
+ . . . . . . . . .
+ . . . . . . . . .
+ . . . . . . . . .
+ XN YN 1 0 0 0 ?xNXN ?xNYN ?xN
+ 0 0 0 XN YN 1 ?yNXN ?yNYN ?yN
+ ?
+ ??????? ,
+ and
+ h = [h11, h12, ..., h33]T .
+ Through singular value decomposition we can find the least-
+ squares solution and, rearranging h, we obtain H . Regarding
+ camera intersection, for two cameras we have to consider (11)
+ and write
+ ?1x1 = H1X,
+ ?2x2 = H2X,
+ that in matrix form is
+ AX? = 0, (13)
+ with
+ A =
+ [
+ H1 x1 0
+ H2 0 x2
+ ]
+ ,
+ and
+ X? =
+ ?
+ ???
+ X
+ Y
+ 1
+ ??1
+ ??2
+ ?
+ ??? .
+ Solving the system we extract X. Similarly with N cameras
+ we have equation (13) with
+ A =
+ ?
+ ???????
+ H1 x1 0 0 . . . 0
+ H2 0 x2 0 . . . 0
+ H3 0 0 x3 . . . 0
+ . . . . .
+ . . . . .
+ . . . . .
+ HN 0 0 0 . . . xN
+ ?
+ ??????? ,
+ and
+ X? =
+ ?
+ ?????????
+ X
+ ??1
+ ??2
+ ??3
+ .
+ .
+ .
+ ??N
+ ?
+ ?????????
+ .
+ 6. CAMERA CALIBRATION USING AIS
+ The algorithm developed in this work implements camera
+ calibration using AIS data coming from various ships sailing
+ near the coast.
+ AIS (Automatic Identification System) [3] [4] [5] is an auto-
+ matic tracking system used on ships and by VTS (Vessel Traf-
+ fic Services) to identify and locate vessels, in real-time, by
+ electronically exchanging data through VHF transmissions
+ with other nearby ships and AIS base stations. AIS principal
+ functions are to allow information exchange between vessels
+ within VHF range or shore station, increasing situational
+ awareness, improving traffic management in congested wa-
+ terways and sending safety related information. AIS cannot
+ replace radar (not all the ships are equipped with AIS and the
+ system cannot detect land masses or navigational beacons),
+ but it can be used in conjunction with it, improving vessel
+ tracking (no target swap), providing a wider geographical
+ coverage, a greater positional accuracy (dependent on the
+ position input sensor), information in radar shadow area
+ (ÕseesÕ around bends and behind islands), near real-time
+ maneuvering data and no loss of targets in sea, rain and snow
+ clutter. Dynamic messages given by the system provide real-
+ time information on the trip such as shipÕs position, speed,
+ course and time stamp in UTC, automatically updated from
+ the ship sensors connected to AIS.
+ We propose to use GPS information coming from the AIS
+ network fused with images to provide the necessary cali-
+ bration. GPS coordinates are provided in decimal degrees
+ and are assumed to be the Cartesian coordinated on the sea
+ plane. Distances of interest allow us to ignore the terrestrial
+ curvature. The cameras are placed on the harbour coastline
+ in fixed positions (any change of camera position or orien-
+ tation implies a significant variation of extrinsic parameters
+ of camera matrix K). In order to implement the camera
+ calibration algorithm presented above, we need at least 5 cor-
+ respondences between image points and world points. In our
+ scenario, image points for calibration are the pixel positions
+ of one or more well-identified ships (with AIS on board), and
+ world points are GPS positions of the same ships, grabbed
+ from the AIS network. Vessels and ships are basically on
+ the same ÒplaneÓ (the small portion of the sea we frame with
+ cameras), therefore we use 2D-constrained geometry for the
+ world coordinates (homography) and equation (11), with x
+ that denotes image coordinates of the ship and X representing
+ latitude and longitude (in homogeneous coordinates) of the
+ framed vessel. By framing the same ship during its navigation
+ we can obtain a good number of correspondences, because
+ pixel coordinates of the vessel are easily extracted from the
+ images and GPS coordinates are provided by AIS. Of course
+ ships on the image may occupy more than one pixel, therefore
+ we have to choose a criterion to decide what is the pixel that
+ best defines the object position: it can be the shipÕs center,
+ the last point in contact with the sea, etc. In the following
+ sections we will comment further on our specific choice.
+ Using more than one ship for calibration, we can provide a
+ ÒrichÓ set of pairs {xi,Xi} to the algorithm and obtain a well-
+ conditioned matrix H . This process is applied to each camera
+ using information about different moving vessels appearing
+ within their own field of view.
+ Localization of a generic vessel framed by two or more
+ calibrated cameras is the final step of the procedure. Using
+ the camera intersection presented above (13) we first validate
+ the model by localizing ships for which AIS data is known.
+ Subsequently we reconstruct the position of vessels without
+ AIS on board; clearly, the estimation of ship positions will
+ 5
+Figure 7. A frame from Camera 1 used for calibration
+ benefit from the use of as many views as possible.
+ 7. EXPERIMENTS IN THE GULF OF NAPLES
+ In this experimental setup we have used two inexpensive
+ commercial cameras: Toshiba Camileo P20 (1920x1080)
+ (Camera 1) and Panasonic SDR-H90 (1024x576) (Camera 2).
+ The two cameras have clocks synchronized with an accuracy
+ of a few seconds. The two sensors have different intrinsic
+ parameters and must be calibrated separately. One of the
+ two cameras has been purposely tilted to show the robustness
+ of the procedure. Two typical frames are shown in Figures
+ 7 and 8. The two fields of view are drawn in Figure 9,
+ where only a portion of the monitored area is in common.
+ The two cameras have been deployed in via Posillipo in
+ Naples in June 2012, and they were placed with no special
+ provision on the observation railing. No intrinsic or extrinsic
+ parameter is known a priori. Only image sequences have
+ been used in our calibration procedure. We have waited
+ for two passenger ships to appear within the field of view
+ (Abundo and Nomentana) and we have recorded two short
+ image sequences with a rate of 30 and 25 frames per second
+ respectively for the two cameras. We have collected AIS data
+ from a publicly available website [9], which provides free
+ almost real-time information about ship movements across
+ the coastlines of many countries around the world. AIS
+ data were downloaded later and imported off-line in Matlab
+ along with the video sequences. We have chosen the pixel
+ defining the ship as the rightmost one in contact with sea
+ surface as shown in Figures 7 and 8. The fields of view for
+ the two cameras were estimated calculating (through linear
+ interpolation with AIS data) the position of a ship which
+ appears and disappears from the camera views.
+ To estimate homographies H1 and H2, at least 5 calibration
+ points and hand-selected image points are needed for each
+ camera. We have extracted six calibration points for Abundo
+ and eight for Nomentana. An example of a selected point
+ for both cameras is shown in Figures 7 and 8 while Table 7
+ shows the fourteen calibration coordinates and the respective
+ image points for both cameras.
+ Model ValidationÑTo validate our procedure, we have run
+ few experiments using thirteen points extracted from Table
+ 7 to calibrate, leaving one point out for testing. The re-
+ constructed points coordinates (longitude and latitude) are
+ respectively: (14.2427, 40.7957) and (14.2541, 40.7875),
+ which are fairly close to the real AIS position data, that
+ are (14.2432, 40.7960) for AbundoÕs position and (14.2562,
+ 40.7864) for NomentanaÕs position. The obtained results
+ Figure 8. A frame from Camera 2 used for calibration
+ TABLE 1
+ Coordinates of the calibration points and respective image
+ points for the two cameras.
+ Calibration points Image pixel points Image pixel points
+ latitude and longitude degrees First camera Second camera
+ Abundo
+ (14.2432, 40.7960) (1543, 994) (642, 329)
+ (14.2455, 40.7968) (1383, 872) (527, 322)
+ (14.2478, 40.7976) (1226, 758) (415, 320)
+ (14.2503, 40.7989) (1075, 636) (304, 322)
+ (14.2529, 40.8002) (929, 524) (193, 319)
+ (14.2555, 40.8014) (779, 416) (86, 317)
+ Nomentana
+ (14.2699, 40.7967) (663, 323) (18, 318)
+ (14.2681, 40.7954) (776, 406) (104, 318)
+ (14.2663, 40.7940) (890, 496) (188, 317)
+ (14.2641, 40.7924) (1006, 583) (274, 317)
+ (14.2620, 40.7908) (1120, 669) (360, 320)
+ (14.2598, 40.7892) (1238, 756) (441, 320)
+ (14.2577, 40.7876) (1348, 846) (526, 318)
+ (14.2562, 40.7864) (1468, 931) (609, 324)
+ are also shown in Figure 9 where the red triangles represent
+ AbundoÕs positions given by AIS, the cyan triangles indicate
+ NomentanaÕs positions given by AIS, the green triangles in-
+ dicate reconstructed Nomentana and AbundoÕs test positions
+ and the green stars indicate the camera positions.
+ Vessel without AIS localizationÑFinally localization of a
+ small vessel not equipped with AIS has been considered.
+ Cameras calibrated using all the fourteen points shown in
+ Table 7 have captured different images during the transit of
+ other vessels. We have chosen one of these boats to be our
+ target, and, after hand-selection of the corresponding image
+ pixels (shown in Figures 10 and 11), we have estimated
+ the boatÕs position. The obtained coordinates are (14.2231,
+ 40.8151) and they are represented with a green circle in
+ Figure 9. We have no ground truth for this localization
+ (because the vessel has no AIS on board), but approximate
+ visual estimate seem to match well the result of our automatic
+ procedure.
+ Localization AccuracyÑTo evaluate localization accuracy we
+ have varied the image points corresponding to the vesselÕs
+ position between ?10 and +10 pixels in two orthogonal
+ directions (direction of motion and its normal). Figure 12 (a)
+ and (b) show the test points for the small vessel from Camera
+ 1 and 2 respectively. For each homologous pair on the cross
+ pattern we have performed position estimation, as shown
+ in Figure 13 (a), that visualizes position error covariance.
+ 6
+Figure 9. A map of the area with fields of view and
+ localization points
+ Figure 10. A frame and the image points from Camera 1 for
+ the vessel without AIS
+ By applying the same procedure to one of the previously
+ estimated position for both passenger ships, as shown in
+ Figure 13 (b) and (c), we obtain a much more stretched
+ estimated covariance. Clearly, localization accuracy in range
+ is much smaller than in azimuth, and it is a function of target
+ distance from the sensors. All the results are superimposed
+ as green points in Figure 13 (d), observing that the crosses
+ keep their shape near the coast and collapse with increasing
+ distance.
+ 8. CONCLUSIONS
+ This paper has proposed an innovative calibration technique
+ for cameras displaced on harbour coastline, in which the
+ calibration points are obtained from AIS data from ships
+ sailing in the cameras fields of views.
+ Our experimental results have showed that the procedure
+ localizes well vessels appearing in the two camera fields of
+ view. Future work will focus on the deployment of larger
+ arrays of cameras. A configuration with N cameras implies
+ a longer calibration phase, but any increase in view diversity
+ would contribute to an increase in localization precision. The
+ procedure must be inherently adaptive also because a generic
+ vessel could be seen only by a subset of the sensor array at
+ any given time. Therefore localization of a vessel requires
+ a combination of solutions of different systems (13) for best
+ use of available information.
+ Figure 11. A frame and the image points from Camera 2 for
+ the vessel without AIS
+ Figure 12. Pixel cross-variation for Camera 1 (a) and
+ Camera 2 (b) to evaluate localization accuracy
+ Figure 13. Error position covariance for vessel without AIS
+ (a), Abundo (b) and Nomentana (c)
+ 7
+Another important issue is the positioning of cameras in the
+ harbour. It is well-known that the localization accuracy is
+ strongly dependent on the distance from the vessels (range),
+ but an intelligent displacement of cameras (with their fields
+ of view properly intersected to cover almost the same portion
+ of the sea plane) could increase the strength of the whole
+ process.
+ ACKNOWLEDGMENTS
+ We would like to thank Prof. Carlo Regazzoni from Univer-
+ sita« di Genova for very stimulating discussions on data fusion
+ and for letting us use his precious class notes.
+ REFERENCES
+ [1] R. Tsai, ÒA versatile camera calibration technique for
+ high-accuracy 3d machine vision metrology using off-
+ the-shelf tv cameras and lenses,Ó IEEE Journal of
+ Robotics and Automation, vol. 3, no. 4, pp. 323-344,
+ August, 1987.
+ [2] Z. Zhang, ÒA flexible new technique for camera cal-
+ ibration,Ó IEEE Transactions on Pattern Analysis and
+ Machine Intelligence, vol. 22, no. 11, pp. 1330-1334,
+ November, 2000.
+ [3] Technical characteristics for an automatic identifica-
+ tion system using time-division multiple access in the
+ VHF maritime mobile band. Recommendation ITU-R
+ M.1371-4, April, 2011.
+ [4] IALA Guideline No. 1082 On an Overview of AIS. In-
+ ternational Association of Marine Aids to Navigation and
+ Lighthouse, June, 2011.
+ [5] International Convention for the Safety of Life at Sea
+ (SOLAS). IMO, May, 2011.
+ [6] R. Hartley and A. Zisserman, Multiple View Geometry in
+ Computer Vision, 2ed. Cambridge, 2003.
+ [7] E. Trucco and A. Verri, Introductory Techniques for 3-D
+ Computer Vision. Prentice Hall, 1998.
+ [8] G. Medioni and S. B. Kang, Emerging Topics in Com-
+ puter Vision. Prentice Hall, 2004.
+ [9] ÒMarine traffic,Ó http://www.marinetraffic.com/ais/,
+ 2012.
+ BIOGRAPHY[
+ Francesco A.N. Palmieri received his
+ Laurea in Ingegneria Elettronica from
+ UniversitaÕ degli Studi di Napoli Fed-
+ erico II, Italy, in 1980. In 1981 he served
+ as a 2nd Lieutenant in the Italian Army
+ in fullfillment of draft duties. In 1982
+ and 1983 he was with the ITT firms:
+ FACE SUD Selettronica in Salerno (cur-
+ rently Alcatel), Italy, and Bell Telephone
+ Manufacturing Company in Antwerpen,
+ Belgium, as a designer of digital telephone systems. In
+ 1983 he was awarded a Fulbright scholarship to conduct
+ graduate studies at the University of Delaware (USA) where
+ he received a MasterÕs degree in Applied Sciences and a PhD
+ in Electrical Engineering in 1985 and 1987, respectively. He
+ was appointed Assistant professor in Electrical and Systems
+ Engineering at the University of Connecticut, Storrs (USA)
+ in 1987, where he was awarded tenure and promotion to
+ Associate Professor in 1993. In the same year, he was
+ awarded the position of Professore Associato at the Dipar-
+ timento di Ingegneria Elettronica e delle Telecomunicazioni
+ at Universita« degli Studi di Napoli Federico II, Italy, where
+ he has been until October 2000 when he became Professore
+ Ordinario di Telecomunicazioni and moved to the Diparti-
+ mento di Ingegneria dellInformazione , Seconda Universita« di
+ Napoli, Aversa, Italy. His research interests are in the areas of
+ signal processing, data fusion, communications, information
+ theory and neural networks.
+ Francesco Castaldo received his Lau-
+ rea in 2009 and his Laurea Magistrale
+ in 2012, both in Ingegneria Informatica
+ from Seconda UniversitaÕ degli Studi di
+ Napoli (SUN). He has cooperated dur-
+ ing his thesis work with the PRISMA
+ lab at Universita« degli Studi di Napoli
+ Federico II with prof. B. Siciliano and
+ prof. V. Lippiello. He is currently a post-
+ graduate fellow with the Dipartimento
+ di Ingegneria Industriale e dellÕInformazione at SUN. His
+ research interests are in image processing, computer vision
+ and data fusion applied to robotics and home automation.
+ Guglielmo Marino received his Lau-
+ rea in Ingegneria Elettronica at Seconda
+ Univerita« degli Studi di Napoli (SUN) in
+ December 2012. His final thesis project
+ has been on data fusion of digital images
+ with AIS data in harbor management.
+ 8

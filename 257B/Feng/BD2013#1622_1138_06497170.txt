@@ -1,0 +1,535 @@
+   978-1-4673-1813-6/13/$31.00 ©2013 IEEE 
+ 1
+ Configurable Test bed Design for Nanosats to Qualify 
+Commercial and Customized Integrated Circuits  
+William Guareschi, José Azambuja, 
+Fernanda Kastensmidt,  
+Ricardo Reis 
+UFRGS 
+PGMICRO - PPGC 
+Av. Bento Gonçalves 9500 
+Porto Alegre, RS – Brazil 
+{wnguareschi, jrfazambuja, fglima, 
+reis}@inf.ufrgs.br 
+Otavio Durão1, Nelson Schuch2
+ Instituto Nacional de Pesquisas 
+Espaciais 
+1Av. dos Astronautas 1758 
+São José dos Campos, SP – Brazil 
+2Av. Roraima 1000, INPE-CRS 
+Santa Maria, RS – Brazil 
+durao@dir.inpe.br, 
+njschuch@lacesm.ufsm.br  
+Gustavo Dessbesel
+ Santa Maria Design House 
+Av. Roraima 1000, INPE-CRS 
+Santa Maria, RS – Brazil 
+gustavo.dessbesel@smdh.org 
+ 
+Abstract—The use of small satellites has increased substantially 
+in recent years due to the reduced cost of their development 
+and launch, as well to the flexibility offered by commercial 
+components. The test bed is a platform that allows components 
+to be evaluated and tested in space. It is a flexible platform, 
+which can be adjusted to a wide quantity of components and 
+interfaces.  This work proposes the design and implementation 
+of a test bed suitable for test and evaluation of commercial 
+circuits used in nanosatellites. The development of such a 
+platform allows developers to reduce the efforts in the 
+integration of components and therefore speed up the overall 
+system development time. The proposed test bed is a 
+configurable platform implemented using a Field 
+Programmable Gate Array (FPGA) that controls the 
+communication protocols and connections to the devices under 
+test. The Flash-based ProASIC3E FPGA from Microsemi is 
+used as a control system. This adaptive system enables the 
+control of new payloads and softcores for test and validation in 
+space. Thus, the integration can be easily performed through 
+configuration parameters. It is intended for modularity. Each 
+component connected to the test bed can have a specific 
+interface programmed using a hardware description language 
+(HDL). The data of each component is stored in embedded 
+memories. Each component has its own memory space. The 
+size of the allocated memory can be also configured. The data 
+transfer priority can be set and packaging can be added to the 
+logic, when needed. Communication with peripheral devices 
+and with the Onboard Computer (OBC) is done through the 
+pre-implemented protocols, such as I2C (Inter-Integrated 
+Circuit), SPI (Serial Peripheral Interface) and external 
+memory control. In loco primary tests demonstrated the 
+control system’s functionality. The commercial ProASIC3E 
+FPGA family is not space-flight qualified, but tests have been 
+made under Total Ionizing Dose (TID) showing its robustness 
+up to 25 krads (Si). When considering proton and heavy ions, 
+flash-based FPGAs provide immunity to configuration loss and 
+low bit-flips susceptibility in flash memory. In this first version 
+of the test bed two components are connected to the controller 
+FPGA: a commercial magnetometer and a hardened test chip. 
+The embedded FPGA implements a Single Event Effects (SEE) 
+hardened microprocessor and few other soft-cores to be used 
+in space.  This test bed will be used in the NanoSatC-BR1, the 
+first Brazilian Cubesat scheduled to be launched in mid-2013. 
+ 
+ 
+ 
+TABLE OF CONTENTS 
+1. INTRODUCTION ................................................. 1 
+2. THE DEVELOPED CONFIGURABLE TEST BED 
+DESIGN .................................................................. 2 
+3. THE NANOSATC-BR1 MISSION AND THE 
+PAYLOAD DEVELOPMENT DESCRIPTION ............. 3 
+4. CURRENT DEVELOPMENT STATUS OF 
+NANOSATC-BR1 .................................................... 4 
+SUMMARY AND FUTURE WORK ........................... 5 
+ACKNOWLEDGMENT ............................................ 5 
+REFERENCES ......................................................... 6 
+BIOGRAPHIES ........................................................ 6 
+ 
+1. INTRODUCTION 
+The use of small satellites has increased substantially in past 
+years due to the reduced cost of their development and 
+launch, as well to the flexibility offered by commercial 
+components. Furthermore, the standardization of Cubesat 
+systems and the development of devices that are easier to 
+integrate, such as the Space Plug-and-play Architecture 
+(SPA) set of circuits, are decreasing significantly the time of 
+spacecraft development [1]. The use of Field Programmable 
+Gate Arrays (FPGAs) in nanosatellite design contributes to 
+save time and costs, due to their flexibility and 
+reprogrammability, either for the test and validation stages 
+or for the satellite flight. In addition, modern high 
+performance FPGAs can implement a complete system for 
+spacecraft onboard computation. A System-On-Chip (SOC), 
+composed of hard microprocessors, high density embedded 
+memories, analog and digital components can be mapped in 
+the programmable architecture of a FPGA, benefiting the 
+subsystems integration and reducing design complexity. 
+Another benefit is that FPGAs are a less expensive option 
+than traditionally utilized devices such as Application 
+Specific Integrated Circuits (ASICs) [2] in small series. 
+This work aims at reducing the complexity of the validation 
+of new custom integrated circuits and to make easier the 
+integration and the control of new commercial devices in the 
+payload board. In order to achieve this goal a configurable 
+ 
+ 2
+ test bed platform, based in a flexible FPGA architecture, is 
+proposed. 
+It is well known that FPGAs working in space are affected 
+by damages due to long term ionizing and by transient 
+ionization, due to their interaction with the spectrum of 
+radioactive particles [3,4]. The options of protected devices 
+for space application are several times more expensive than 
+Commercial Off The Shelf (COTS) components, which 
+sometimes are unavailable for purchase. Protected devices 
+are expensive for using in nanosatellites. Considering the 
+radiation dose that satellites operating at Low Earth Orbit 
+are facing [5,6], in many cases it is possible to use robust 
+prequalified COTS circuits and radiation hardening 
+techniques. 
+This work is designed and implemented in a configurable 
+test bed platform, using a commercial Flash-based 
+ProASIC3E FPGA Family from Microsemi. This FPGA 
+family is not space-flight qualified, but tests have been 
+made under Total Ionizing Dose (TID) showing its 
+robustness up to 25 krads (Si) [7]. When considering 
+neutron and alpha particle hitting, Flash-based FPGAs 
+provide immunity to configuration loss due to Single Event 
+Effects (SEE) [8]. 
+The test bed platform allows components to be evaluated 
+and tested in space and is a flexible system. It can be 
+adjusted to a wide quantity of components and interfaces, 
+suitable for test and evaluation of different commercial 
+circuits for use in nanosatellite missions. The development 
+of such a platform allows developers to reduce their efforts 
+in the integration of components and therefore speed up 
+overall system development time. 
+This adaptive system eases the control of new payloads and 
+softcores for test and validation in space, and integration can 
+be readily performed, through configuration parameters and 
+modularity. Each component connected to the test bed can 
+have a specific interface programmed using a hardware 
+description language (HDL). The data for component is 
+stored in embedded memory and each component has its 
+own memory space. The size of the allocated memory can 
+be also configured. The data transfer priority can be set and 
+packaging can also be added to the logic, when needed. 
+Communication with peripheral devices and the onboard 
+computer is done through pre-implemented protocols, such 
+as I2C, SPI and external memory control. 
+In the first application of the test bed, two components were 
+connected to the controller FPGA: a commercial 
+magnetometer and a hardened test chip. The FPGA has 
+embedded a microprocessor and a few other soft cores to be 
+used in space.  This test bed will be used in the NanoSatC-
+ BR1, the first Brazilian Cubesat scheduled to be launched in 
+mid-2013. 
+ 
+2. THE DEVELOPED CONFIGURABLE TEST BED 
+DESIGN  
+The ProASIC3E from Microsemi is a Flash-based family of 
+FPGAs, which offer a low-power and low-cost COTS 
+solution. This FPGA is based on a nonvolatile technology 
+that is far less susceptible to radiation-induced failures than 
+Static Random Access Memories (SRAM) based FPGAs. 
+Several studies demonstrated the vulnerabilities of SRAM-
+ based FPGAs, such as the highly used Xilinx Virtex-4 
+FPGA, when applied in space applications [9]. Moreover, 
+the Flash-based devices retain their configuration when 
+power is removed from the FPGA, whilst the SRAM-based 
+lose their data and configuration and need to be 
+reprogrammed during power-up. Despite the configuration 
+retaining of the ProASIC3E FPGA, it has some blocks of 
+radiation unhardened embedded SRAM available for user 
+applications. For this reason fault detection techniques were 
+applied to some cores implemented inside the device. 
+Test Bed Adaptability 
+The Microsemi Corporation provides some IP (Intellectual 
+Property) Cores within their Libero IDE development tool 
+which implements different features, like bus interface 
+controllers, clock management, digital signal processors 
+(DSP), memory controllers, error detection and correction 
+(EDAC) blocks, peripheral communication protocols, soft 
+processors, etc. 
+Some of the Microsemi IP Cores were implemented for the 
+control, management and communication with different 
+commonly used nanosatellite payloads. Customized cores 
+can be incorporated into the FPGA to test and validate new 
+payloads before flight. By applying these Microsemi IP 
+Cores and the implemented configurable blocks, modularity 
+is achieved, since the functionality configuration of each 
+module is done through parameters, and can be altered to 
+comply with new project objectives. 
+The FPGAs has its structure adaptable, and with the use of 
+IP Cores and the blocks developed to control the Microsemi 
+Cores and interfaces with other payloads, it is possible to 
+attach almost every electronic device (e.g. sensors) in the 
+test bed board. These devices are easily controlled with 
+common communication protocols already implemented, or 
+by developing a specific control for a payload with a 
+specific interface. 
+Memory Space Allocation 
+Several modules perform different tasks, and memory 
+spaces can be configured for each module. The size of the 
+memory is configurable (within the range of available 
+SRAM) from module to module. The reading and writing of 
+data can be done either by the module or by a central 
+control. Memory space division improves the reliability of 
+the system, so that a transient fault in one module’s memory 
+should not affect other modules. 
+ 
+ 3
+ Handling With the Integration of Various Components 
+The central block controls and communicates with the 
+remaining modules present in the FPGA. The changing of 
+functionalities or addition of new payloads to the project is 
+done by altering these configuration parameters, in the top 
+module of the circuit and in the central block. Occasionally 
+some features are added into the specific modules (Fig. 1). 
+In next section, the development of the NanoSatC-BR1 
+payload will be described. The payload contains various 
+devices and IP Cores. Different teams were commissioned 
+with the development the payloads, and at the moment of 
+the development of the configurable test bed platform, not 
+all the devices and Cores were completely described. In the 
+first phase of the design, were defined the main 
+functionalities of the payloads. When a payload was 
+designed and integrated to the platform, changes were 
+necessary in former implementations. The attachment could 
+be more easily done, since just few parameters needed to be 
+altered in the controller FPGA. 
+ 
+3. THE NANOSATC-BR1 MISSION AND THE 
+PAYLOAD DEVELOPMENT DESCRIPTION 
+The NANOSATC-BR is the first Brazilian Scientific 
+Nanosatellite. The goal is to monitor in real time, the 
+Geospace, the particle precipitation and the disturbances at 
+the Earth's magnetosphere over the Brazilian Territory, and 
+the determination of their effects on regions such as the 
+South Atlantic Magnetic Anomaly (SAMA) and the 
+Brazilian sector of the Ionosphere Equatorial Electrojet [10]. 
+In order to monitor the disturbances at the SAMA region, 
+ 
+Figure 2 – The NanoSatC-BR1 functional blocks and payload board interconnections 
+ 
+Figure 1 - An example of the configurable test bed platform 
+ 
+ 4
+ the satellite’s first payload will consist of a magnetometer, 
+the XEN1210 from Xensor Integration (Fig. 2). It is 
+expected to create a global magnetic profile. The 
+magnetometer control interface is digital. It performs the 
+readout and programming via SPI protocol.  
+The second payload will consist of a Brazilian radiation-
+ hardened test chip, entirely designed by Santa Maria Design 
+House (SMDH). It is intended to both validate the in-flight 
+functional correctness and to check the sensitivity of this 
+specific circuit to TID and SEEs. After the validation of this 
+circuit, it will be used in other Brazilian satellites. 
+Finally, the last payload in the flight model to be mentioned 
+is the ProASIC3E, the FPGA from Microsemi. The FPGA 
+will centralize the control of other payloads, configuring the 
+test bed design for such end. 
+The payload board contains some other circuits: sensors for 
+housekeeping, electrical connection regulators, analog to 
+digital converters and a clock generator. 
+Besides the previously cited payloads and circuits present 
+onboard, the FPGA will also embed a fault-tolerant MIPS 
+(Microprocessor without Interlocked Pipeline Stages) 
+softcore for in-flight validation. This custom softcore is a 
+32-bit microprocessor adapted version of the well-known 
+MIPS architecture, with a non-intrusive hybrid fault 
+detection approach that combines hardware and software 
+techniques to detect transient faults in the microprocessor. 
+Fault injection tests show the efficiency of this method in 
+detecting 100% of faults, as well as minimal memory area 
+and execution time overhead compared to original MIPS 
+architecture [11]. 
+The detailed modules of the FPGA are presented in Fig. 3. 
+ 
+4. CURRENT DEVELOPMENT STATUS OF 
+NANOSATC-BR1  
+The case study payload test bed for NanoSatC-BR1 was 
+partially developed and synthesized for the part A3PE1500-
+ PQ208, and includes the controllers for magnetometer, 
+SMDH ASIC, MIPS and I2C slave interface. It resulted in 
+the occupation of 21,281 Versatiles (55% available in this 
+part, which implement approximately 831,269 equivalent 
+logic gates), 51 user Inputs/Outputs (34.7% of available 
+IOs), 1 PLL (out of 2 Phase-Locked Loops) and 39 blocks 
+of embedded SRAM (from 60 4,608-bit blocks).  
+A clock source of 10MHz for the payload is supplied and it 
+is compliant with the NanoSatC-BR1 requisites. 
+Nevertheless, a maximum frequency of more than 20MHz is 
+achievable for the entire payload system. But this higher 
+frequency is not necessary and not desired for the sake of 
+energy reserve. 
+The post-place and route simulation was performed through 
+Modelsim, with a simulation model emulating a OBC 
+requisition and I2C data transmissions, magnetometer 
+readouts, MIPS computations and SMDH ASIC 
+transactions, all running in parallel. The generated vsim file 
+was used as input into the SmartPower tool, to calculate the 
+power consumed by the device. The result is 152mW of 
+total power consumption with a temperature of 70 degrees 
+Celsius.  
+Downlink Bandwidth 
+The launch is still under negotiation and it is expected that 
+the NanoSatC-BR1 will be deployed at an orbital height of 
+700km with a declination angle of 98 degrees. In this 
+condition, the nanosatellite will do an average of 14 orbits 
+per day. For a low data volume case is considered a 
+downlink rate of 1.2kbps and a reasonable 25% of overhead 
+protocol losses and will result in 0.09MB data volume per 
+ 
+Figure 3 – The ProASIC3E Cores and interfaces implemented for NanoSatC-BR1 
+ 
+ 5
+ day. As a high data volume case, a downlink rate of 9.6 
+kbps and a 25% of overhead protocol losses, resulting in 
+1.96MB of data volume per day, is considered.  
+Analysis of battery capacities and mission data volume 
+requisites are still needed for the sake of energy saving and 
+downlink bandwidth. The preliminary results are not 
+consistent in this moment, since other subsystems power 
+consumption analysis is not available so far.  
+The complete placement and floorplanning of the designed 
+payload is illustrated in the Fig. 4. 
+ 
+Figure 4 – The ProASIC3E complete placement and 
+floorplaning for the NanoSatC-BR1 payload 
+ 
+5. SUMMARY AND FUTURE WORK 
+The test bed platform operation was demonstrated by using 
+a prototype board. Several functional tests were performed 
+connecting the test bed platform to the magnetometer 
+payload, and interfacing the ProASIC3E test bed to other 
+FPGA through I2C bus. The second FPGA simulates the 
+NanoSatC-BR1 onboard computer. The SMDH ASIC 
+behavior was emulated inside the ProASIC3E (since the test 
+chip was not available during the test setup). The FPGA 
+OBC requested data from FPGA slave (test bed platform) 
+through I2C bus, the same way the NanoSatC-BR1 OBC 
+will request the data when its development is completed. 
+After the request acknowledgment, the ProASIC3E starts to 
+send data from MIPS, SMDH ASIC tests and magnetometer 
+measurements, following a prescribed priority.  
+The data are received in the FPGA OBC and sent back to a 
+computer, and logged for later analysis (Fig. 5). The results 
+from MIPS and SMDH ASIC are conformed to the golden 
+model, while the readouts from the magnetometer are 
+compared to other measured sensors in the same 
+environment. These were equivalent during all test 
+conditions. 
+As near future work, the missing modules will be 
+implemented to control the housekeeping circuits. New 
+functional tests need to be performed with the real OBC and 
+the SMDH test chip, and new consumption analysis needs to 
+be remade, considering orbital patterns and battery 
+capacities. 
+A more generic central block is intended to simplify the 
+integration, configuration and control of new payloads and 
+soft cores. The inclusion of different power modes can 
+optimize battery capabilities and/or increase performance. A 
+second nanosatellite mission project is under analysis, and 
+the application of the test bed platform is been considered 
+since the initial stages, to facilitate the partial integration of 
+the payloads, and even to be embedded in the flight model. 
+ACKNOWLEDGMENTS 
+The authors acknowledges the Brazilian Institutions: 
+Coordenação de Aperfeiçoamento de Pessoal de Nível 
+Superior – CAPES/MEC (for the schollarship), the 
+Microeletronics Graduate Program of Universidade Federal 
+do Rio Grande do Sul – PGMICRO/UFRGS, for financial 
+support, and the Brazilian Space Agency. 
+ 
+Figure 3 – The experimental setup hardware 
+ 
+ 6
+ REFERENCES  
+[1] C. Kief et al., “The Advent of the PnP Cube Satellite”, 
+IEEE Aerospace Conference, March 2012. 
+[2] M. Berg et al., “A Comprehensive Methodology for 
+Complex Field Programmable Gate Array Single Event 
+Effects Test and Evaluation”, IEEE Transactions on 
+Nuclear Science, vol. 56, no. 2, pp. 366-374, April 
+2009. 
+[3] T. Oldham, F. McLean, “Total Ionizing Dose Effects in 
+MOS Oxides and Devices,” IEEE Transactions on 
+Nuclear Science, vol. 50, no. 3, pp. 483–498, December 
+2003. 
+[4] H. Barnaby, “Total-Ionizing-Dose Effects in Modern 
+CMOS Technologies”, IEEE Transactions on Nuclear 
+Science, vol. 53, no. 6, pp. 3103–3121, December 2006. 
+[5] J. Barth, “Modeling Space Radiation Environments”, 
+IEEE Nuclear and Space Radiation Effects Conference, 
+Short Course, July 1997. 
+[6] E. Stassinopoulos, “Radiation Environment in Space”, 
+IEEE Nuclear and Space Radiation Effects Conference, 
+Short Course, 1990. 
+[7] J. Tarrillo et al., “Analyzing the Effects of TID in an 
+Embedded System Running in a Flash-Based FPGA”, 
+IEEE Transactions on Nuclear Science, vol. 58, no. 6, 
+pp. 2855-2862, December 2011. 
+[8] Microsemi Corp., “FPGA Reliability and the Sunspot 
+Cycle”, white paper, September 2011. 
+[9] H. Quinn et al., “Flight Experience of the Xilinx Virtex-
+ 4 FPGA”, Proceedings of the RADECS 2012, 
+September 2012. 
+[10] N. Schuch et al., “Progress in the NanoSatC-Br – 
+Cubesats Development”, 62nd International 
+Astronautical Congress, October 2011. 
+[11] J. Azambuja et al., “Detecting SEEs in 
+Microprocessors Through a Non-Intrusive Hybrid 
+Technique,” IEEE Transactions on Nuclear Science, 
+vol. 58, no. 3, pp. 993–1000, December 2011. 
+Biographies 
+William Guareschi received a B.S. 
+in Computer Science from 
+Universidade Federal de Santa 
+Maria, Santa Maria in 2011. He is a 
+M.S candidate in Microelectronics 
+at UFRGS, Porto Alegre. His main 
+research interests are FPGAs, 
+computer architectures, fault 
+tolerant systems and small 
+nanosatellites systems. William is an IEEE student 
+member, participating in the Circuits and Systems 
+Society. 
+José Rodrigo Azambuja received a 
+B.S. in Computer Engineering and 
+M.S. in Computer Science from 
+Universidade Federal do Rio 
+Grande do Sul, Porto Alegre in 
+2008 and 2010. He is a Ph.D. 
+candidate at the UFRGS. His main 
+research interests are computer 
+architectures and fault tolerant systems.  
+Fernanda Kastensmidt received a 
+B.S. in Electrical Engineering and 
+M.S. and Ph.D. in Computer 
+Science from Universidade Federal 
+do Rio Grande do Sul, Porto Alegre, 
+in 1997, 1999 and 2003, 
+respectively. She joined the Instituto 
+de Informática faculty as a 
+professor in 2005. Her current 
+research focuses on soft error mitigation techniques for 
+SRAM-based FPGAs and integrated circuits, such as 
+microprocessors, memories and network-on-chips 
+(NoCs), and the analysis and modeling of radiation 
+effects in those circuits. She currently advises M.S. and 
+Ph.D. theses at the Computer Science Graduation 
+Program (PPGC) and at the Microelectronics Program 
+(PGMICRO). Fernanda has published the book Fault-
+ Tolerance Techniques for SRAM-based FPGAs in 2006. 
+She is an IEEE member.  
+Ricardo Reis received a B.S. in 
+Electrical Engineering (1978) and 
+M.S. in Computer Science (1979) 
+from Universidade Federal do Rio 
+Grande do Sul, Porto Alegre. He 
+received a DEA in Electronics and 
+Radio communications and Ph.D. in 
+Informatics at Institut National 
+Polytechnique (INPG), Grenoble, in 1980 and 1983. His 
+Postdoctoral work was at Laboratoire TIM3-
+ IMAG/INPG, 1986. He is a professor at UFRGS and the 
+Graduate Program in Microelectronics Coordinator. His 
+main areas of research are Microelectronics, CAD, 
+Physical Design, VLSI Design, VLSI CAD and radiation 
+tolerant ASIC projects. Ricardo is a former IEEE Circuits 
+ 
+ 7
+ and Systems Society Vice-President and former Brazilian 
+Computer Society President. He is an IEEE Senior 
+Member. 
+Otavio Durão received a B.S. in 
+Civil Engineering from 
+Universidade Católica do Rio de 
+Janeiro, Rio de Janeiro, in 1974, 
+M.S. in Industrial Automation and 
+Operational Research (1980) and 
+Ph.D. in Industrial Automation 
+(1986) from Pennsylvania State 
+University. At INPE, he is the Deputy Planning 
+Coordinator, the former Head of the Space Mechanics 
+and Control Division, and Engineer since 1986. Otavio is 
+also the coordinator of the Space Politics Committee 
+from Brazilian Aerospace Association, and a founding 
+member of the Association. Committee member at 
+Brazilian Space Agency representing INPE for two R&D 
+programs. He is currently engaged in projects of 
+development of small satellite in cooperation with 
+Brazilian universities.  
+Nelson Schuch received a Lic.es 
+Sci. in Physics from Universidade 
+Federal de Santa Maria, Santa 
+Maria, in 1972, M.S. in 
+Astrophysics from Universidade 
+Presbiteriana Mackenzie, São 
+Paulo, in 1975, Ph.D. (1979) and 
+Pos Doctor (1980) in Physics – 
+Astrophysics from University of Cambridge, England. He 
+is the mentor of the actions for the development and 
+construction of the INPE’s Southern Regional Space 
+Research Center and the Southern Space Observatory. 
+His activities are related to high energy astrophysics, 
+Sun-Earth interactions, space weather, geomagnetic 
+storms and spatial geophysics. He leads nanosatellite 
+developments project. Nelson is consultant and counselor 
+of Brazilian Aerospace Association. 
+Gustavo Dessbesel received a B.S. 
+in Computer Science from 
+Universidade Federal de Santa 
+Cruz do Sul, Santa Cruz do Sul, in 
+2003, and M.S. in Electrical 
+Engineering from Universidade 
+Federal de Santa Maria, Santa 
+Maria, in 2008. His work is related 
+to electronic circuits, and the main topics are FPGAs, 
+image processing, computational view, digital filters, 
+embedded systems and digital ASICs design. Gustavo is 
+currently an ASIC designer and Project Leader at Santa 
+Maria Design House.   
+ 

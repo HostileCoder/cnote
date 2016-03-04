@@ -1,0 +1,1135 @@
+Rover Odometry Aided by a Star Tracker
+ Jonathan D. Gammell, Chi Hay Tong, Peter Berczi, Sean Anderson, and Timothy D. Barfoot
+ Institute for Aerospace Studies
+ University of Toronto
+ Toronto, Ontario, Canada
+ fjon.gammell, chihay.tong, tim.barfootg@utoronto.ca, fpeter.berczi, sean.andersong@mail.utoronto.ca
+ John Enright
+ Department of Aerospace Engineering
+ Ryerson University
+ Toronto, Ontario, Canada
+ jenright@ryerson.ca
+ Abstract—This paper develops a practical framework for es-
+ timating rover position in full-dark conditions by correcting
+ relative odometric estimates with periodic, absolute-attitude
+ measurements from a star tracker. The framework is validated
+ using just under 2.5 kilometres of field data gathered at the
+ University of Toronto’s Koffler Scientific Reserve at Jokers
+ Hill (KSR) comprised of both wheel odometry and lidar-based
+ Visual Odometry (VO). It is shown that for the wheel odom-
+ etry solution, the final estimate of rover position was within
+ 21 metres of the groundtruth as calculated by a differential GPS
+ receiver, or 0.85% of the total traverse distance. When the star
+ tracker measurements are artificially limited to occurring ap-
+ proximately every 250 metres, the algorithm still performs well,
+ giving a final position error of 75.8 metres or 3.0%. Preliminary
+ results to replace wheel odometry with lidar-based VO for the
+ development a full-dark visual solution are also presented. The
+ lidar-based VO solution is shown to be capable of outperforming
+ wheel odometry, but more work is required to develop methods
+ to handle the variety of terrain conditions encountered.
+ TABLE OF CONTENTS
+ 1 INTRODUCTION . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1
+ 2 ALGORITHM . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 2
+ 3 EXPERIMENT . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 5
+ 4 RESULTS . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6
+ 5 DISCUSSION & FUTURE WORK . . . . . . . . . . . . . . . . . 7
+ 6 CONCLUSIONS . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 8
+ APPENDICES . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 9
+ A MATRIX OPERATOR DEFINITIONS . . . . . . . . . . . . . . 9
+ B MATRIX OPERATOR IDENTITIES . . . . . . . . . . . . . . . . 9
+ ACKNOWLEDGMENTS . . . . . . . . . . . . . . . . . . . . . . . . . . . 9
+ REFERENCES . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 9
+ BIOGRAPHY . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 10
+ 1. INTRODUCTION
+ Accurately estimating the position of rovers in the absence of
+ a Global Positioning System (GPS) is an ongoing challenge
+ in robotics. The additional weight and power limitations
+ of extraterrestrial operations, such as during missions to the
+ Moon or Mars, further complicate this problem. The simplest
+ solution, wheel odometry, is computationally inexpensive and
+ readily available but is prone to wheel slip on loose terrain
+ and during turns, resulting in poor orientation estimates. A
+ common solution has been to supplement wheel odometry
+ with periodic, absolute-orientation measurements.
+ 978-1-4673-1813-6/13/$31:00 c 2013 IEEE.
+ Figure 1. The ASRL Clearpath Husky A200 equipped with
+ a laser rangefinder, star tracker, and inclinometer.
+ Volpe [1] augmented wheel odometry with a sun sensor to
+ calculate rover heading and reported a cross-track error of 6%
+ of distance travelled over a 1 kilometre traverse. Bakambu et
+ al. [2] used a fibre-optic gyroscope and an inclinometer to
+ calculate heading and correct the wheel odometry estimates
+ of autonomous mining vehicles through a Kalman Filter.
+ Baumgartner et al. [3] and Balaram [4] discussed adding a
+ sun sensor to inertial navigation sensors and wheel odometry
+ for long-range Martian autonomy. Lamon and Siegwart [5]
+ developed algorithms to fuse inertial navigation systems with
+ wheel odometry and demonstrated their algorithm’s ability to
+ traverse 3D obstacles.
+ Alternatively, missions such as the Mars Exploration Rovers
+ (MERs) and the Mars Science Laboratory (MSL) have em-
+ ployed stereo Visual Odometry (VO) [6] to estimate relative
+ motion in place of wheel odometry. VO does not suffer
+ from wheel slip and is quite accurate over short-to-medium
+ distances even on loose terrain [7]; however, the error grows
+ super-linearly over kilometer-long traverses [8].
+ As with wheel odometry, previous VO work has focused on
+ incorporating attitude measurements from a sun sensor and
+ an inclinometer to correct for systematic errors [9], [10].
+ These additional sensors come at a near-negligible extra
+ mass, power, and computational cost to the rover platform
+ while exploiting the existing dependence of the stereo camera
+ on the presence of the sun as a light source. Lambert et al.
+ [11] demonstrated both continuous and periodic corrections
+ from the sun sensor and inclinometer, reporting errors of less
+ than 1% of distance travelled over a 10 kilometre data set.
+ 1
+(a)
+ (b) (c)
+ Figure 2. The rover sensor payload with (a) a SICK lidar, (b)
+ an inclinometer, and (c) a Sinclair Interplanetary star tracker.
+ All these algorithms depend on the sun (sun-sensors) or well-
+ known magnetic fields (digital compasses) for their absolute
+ heading. Recently, there has been an increase in scientific
+ interest around the lunar poles, specifically the South Pole.
+ It is hypothesized that volatiles, such as water ice, may be
+ trapped in permanently shadowed craters [12] and that a rover
+ mission could be used to investigate. The lack of atmosphere,
+ combined with low sun elevation, create an environment at
+ the poles where sensors would be exposed to both direct
+ sun illumination and complete darkness. This is a difficult
+ environment for passive stereo cameras or sun sensors, and
+ the magnetic field is insufficient for digital compasses.
+ We can address these issues by replacing the stereo camera in
+ VO with lighting-invariant sensors; possible systems include
+ actively-illuminated stereo cameras [13], [14] and lidar for
+ VO [15], [16]. These systems have similar biases and errors
+ as stereo-camera VO, and similarly benefit from absolute-
+ heading corrections.
+ One system that is analogous to the sun sensor (working in
+ full-dark conditions without relying on magnetic fields) is a
+ star tracker. Star trackers calculate absolute attitude in three
+ dimensions from celestial measurements. Sigel and Wetter-
+ green [17] developed simulations that used a star tracker to
+ calculate rover position for a lunar rover, but not full heading.
+ Xiaolin and Jiancheng [18] developed algorithms for calcu-
+ lating rover position from star elevation measurements and
+ tested them in hardware-in-the-loop simulations.
+ In this paper, we present a star-tracker-based attitude correc-
+ tion algorithm for use with full-dark odometry. This paper
+ provides the concept, theory, and the results from outdoor
+ experiments using a real rover (Figure 1), inclinometer, and
+ star tracker (Figure 2). To the best of the authors’ knowledge,
+ this represents the first time a star tracker has been deployed
+ on a real rover. The data consists of 7 hours of rover
+ operations and just under 2.5 kilometres of driving (Figure
+ 3), with a range of elevations (Figure 4). The estimates from
+ wheel odometry and VO are compared with and without the
+ star tracker measurements. This algorithm is suitable for
+ odometry generated from wheel encoders, active stereo VO,
+ lidar-based VO, or other sources of odometry that do not
+ require the presence of ambient light.
+ This paper is structured as follows. Section 2 presents
+ the algorithms used to calculate absolute heading, as first
+ 300m
+ Finish
+ Start
+ Figure 3. The path taken by the rover as calculated by post-
+ processed DGPS.
+ presented by Enright et al. [19], and calculates the optimal
+ estimate of the global rover positions. Section 3 presents the
+ methods used to collect the experimental data while Section
+ 4 presents the results of the proposed algorithms on the col-
+ lected data. Section 5 discusses the challenges encountered
+ and the ongoing work to address them.
+ 2. ALGORITHM
+ This section is divided into two parts. In the first section
+ we present the algorithm to calculate rover attitude from
+ star tracker measurements and in the second we provide the
+ batch optimization formulation to combine relative odometry
+ measurements with absolute orientation measurements. For
+ generality, we assume that the odometry measurements are
+ 6 Degree-of-Freedom (DOF) transformation matrices, and
+ the orientation measurements are 3 DOF rotation matrices.
+ The estimate is a batch optimization completed at the end
+ of the traverse, but it could also be carried out in an online
+ filtering mode. The batch approach allows infrequent attitude
+ measurements to correct the entire traverse and it also enables
+ loop closure to be incorporated into future work which plans
+ to use a place-recognition algorithm [20].
+ Star Tracker Attitude Measurements
+ As described by Enright et al. [19], star tracker measurements
+ can be post-processed to remove the effect of atmospheric
+ refraction using the gravity vector calculated from the in-
+ clinometer. After correction, the star vectors are rematched
+ to the star catalogue generating revised attitude estimates
+ (Figure 5). These raw measurements are estimates of the star
+ tracker orientation in the Earth-Centred Inertial (ECI) frame
+ at time k, CSkI , and, in order to provide meaningful attitude
+ data, must be transformed to measurements relative to the
+ Earth-Centred Earth-Fixed (ECEF) frame (Table 1),
+ CSkF := CSkICIF ;
+ 2
+Table 1. Frame Definitions
+ Frame Designation X Y Z
+ Earth Centred Inertial (J2000) I Vernal Equinox – North Pole
+ Earth Centred, Earth Fixed F Prime Meridian – North Pole
+ Star Tracker S Data Connector – Lens Boresight
+ Vehicle V Rover Heading – Parallel to Star Tracker z-axis
+ 0 500 1000 1500 2000 2500
+ ?10
+ ?5
+ 0
+ 5
+ 10
+ 15
+ Relative elevation [m
+ ]
+ Distance travelled [m]
+ Figure 4. Elevation versus distance travelled.
+ so that the effects of the Earth’s rotation are removed. The
+ transformation from ECI to ECEF, CIF , is computed via the
+ Greenwich Apparent Sidereal Time, from any available and
+ reliable clock reference. The initial orientation of the sensor,
+ CS0F , is averaged before the start of the rover traverse to
+ reduce error. During the traverse, the relative orientation of
+ the k-th measurement, CSkS0 , is then
+ CSkS0 = CSkICIFCFS0 : (1)
+ We can estimate the covariance of the relative attitude by
+ considering a first-order model of error propagation. We
+ perturb the measurements in (1) in terms of error rotations,  ,
+ ignoring any contributions from the initial orientation, CFS0 ,
+ to obtain
+  
+1   SkS0
+  
+CSkS0 =
+  
+1   SkI
+  
+CSkI (2)
+  
+ 
+1   IF
+  
+CIFCFS0 ;
+ where 1 is the identity matrix and the operator, ( ) , is
+ defined for a 3 1 vector, u, as
+ u =
+ "
+ u1
+ u2
+ u3
+ # 
+:=
+ "
+ 0  u3 u2
+ u3 0  u1
+  u2 u1 0
+ #
+ :
+ Expanding and discarding second-order terms, (2) simplifies
+ to
+  SkS0   SkI +CSkI IF ; (3)
+ where the error vector,  IF , captures the uncertainty in time.
+ As this is a pure z-axis rotation, we can note that this error
+ will be a function of the Earth sidereal rate, !e, and the
+ 0 500 1000 1500 2000
+ 200
+ 400
+ 600
+ 800
+ 1000
+ 1200
+ 1400
+ 1600
+ 1800
+ 2000
+ Column
+ Ro
+ w
+  
+ 
+Measured Star
+ Matched Star
+ Figure 5. A sample measurement showing the star tracker
+ detecting stars ( ) and matching them to a catalogue of
+ known stars ( ).
+ uncertainty in time,  t, which is of the form
+  IF =
+ "
+ 0
+ 0
+ !e t
+ #
+ : (4)
+ The covariance of the measurement, PSkS0 , is defined as
+ PSkS0 := E
+ h
+  SkS0 
+T
+ SkS0
+ i
+ :
+ Assuming uncorrelated errors and substituting (3), this sim-
+ plifies to
+ PSkS0 = PSkI +CSkIPIFCISk ;
+ where
+ PSkI := E
+ h
+  SkI 
+T
+ SkI
+ i
+ ;
+ PIF := E
+ h
+  IF 
+T
+ IF
+ i
+ ;
+ are the covariance contributions of the inertial-attitude and
+ Earth-rotation, respectively. Using Schuster’s information
+ matrix formulation [21], we can calculate the inertial-attitude
+ covariance, PSkI , from the inertial-frame star vectors, m, as
+ P 1SkI =
+ X
+ i
+ 1
+  2i
+  
+1 mimTi
+  
+;
+ 3
+Figure 6. The S3S ST16 star tracker.
+ where  2i is the angular variance associated with the i-th star
+ vector, mi. From (4), the Earth-rotation contribution to the
+ covariance, PIF , expressed in the I-frame, must have the
+ form
+ PIF =
+ "
+ 0 0 0
+ 0 0 0
+ 0 0 !2e 
+2
+ t
+ #
+ ;
+ where  2t is the variance associated with the time measure-
+ ment. Table 2 shows the numerical values used for these
+ parameters for this paper.
+ Rover Pose Estimation
+ We wish to obtain an accurate estimate of the global posi-
+ tions of the rover throughout its traverse. Given a series of
+ relative odometric measurements as 6 DOF transformation
+ matrices, ~TVkVk 1 , with associated covariances, UVkVk 1 ,
+ as well as periodic, absolute orientation measurements as
+ 3 DOF rotation matrices, ~CSkS0 , with associated covariances,
+ PSkS0 , we can achieve this by finding the optimal estimate
+ of the global transformations from the first pose, T VkV0 , that
+ minimizes a cost function,
+ J :=
+ 1
+ 2
+ X
+ k
+ (  TVkVk 1U
+  1
+ VkVk 1
+   VkVk 1 (5)
+ +   TSkS0P
+  1
+ SkS0
+   SkS0
+  
+:
+ Our errors at the current iteration,   VkVk 1 and   SkS0 , are
+ defined as
+ e
+     VkVk 1 := ~TVkVk 1TVk 1V0T
+  1
+ VkV0
+ ; (6)
+ e   
+ 
+SkS0 := ~CSkS0C
+ T
+ V SC
+ T
+ VkV0CV S : (7)
+ with the operator, ( ) , defined for a 6 1 vector, w, as
+ w =
+  
+u
+ v
+   
+:=
+  
+v  u
+ 0T 0
+  
+:
+ Our pose estimates, TVkV0 , are transformation matrices con-
+ sisting of the rotation from V0 to Vk, CVkV0 , and translation
+ Start
+ Figure 7. Locations of odometry measurements (green), star
+ tracker measurements (black) and subsampled star tracker
+ measurements (red).
+ Table 2. Numerical quantities for absolute orientation
+ calculations.
+ Quantity Value
+  t 1 s
+ !e 7:2925 10 5 rad=s
+  i 5:36 10 5 rad
+ from V0 to VK expressed in frame V0, r
+ VkV0
+ V0
+ ,
+ TVkV0 =:
+  
+CVkV0  CVkV0r
+ VkV0
+ V0
+ 0T 1
+  
+:
+ Assuming that the differences between estimates at subse-
+ quent iterations are small, we can express the new estimate in
+ terms of perturbations,   VkV0 and   VkV0 , on the previous
+ estimates, TVkV0 and CVkV0 ,
+ TVkV0 := e
+     VkV0TVkV0 ; (8)
+ CVkV0 := e
+     VkV0CVkV0 ; (9)
+ and define the errors at the previous iteration,   VkVk 1 and
+   SkS0 , analogously to (6) and (7) as
+ e
+     VkVk 1 := ~TVkVk 1TVk 1V0T
+  1
+ VkV0 ; (10)
+ e   
+ 
+SkS0 := ~CSkS0C
+ T
+ V SC
+ T
+ VkV0CV S : (11)
+ Substituting (8) and (9) into (6) and (7) yields
+ e
+     VkVk 1 := ~TVkVk 1e
+     Vk 1V0TVk 1V0T
+  1
+ VkV0e
+    VkV0 ;
+ e   
+ 
+SkS0 := ~CSkS0C
+ T
+ V SC
+ T
+ VkV0e
+    VkV0CV S :
+ 4
+Start
+ Figure 8. Estimates produced from wheel odometry cor-
+ rected with all star tracker attitude measurements (blue) plot-
+ ted with the initial condition (green), the DGPS groundtruth
+ (black), and the wheel odometry (red)
+ Rearranging and applying (10) and (11), respectively, we are
+ left with
+ e
+     VkVk 1  e
+     VkVk 1
+  e
+  
+ T
+  
+VkV0
+   Vk 1V0
+   
+e  
+ 
+VkV0 ;
+ e   
+ 
+SkS0  e   
+ 
+SkS0 e(C
+ T
+ V S  VkV0)
+  
+:
+ This can be rewritten finally as
+   VkVk 1    VkVk 1  Hk;k 1Bk;k 1 x;
+   SkS0    SkS0  Gk;0Bk;0 x;
+ where
+ Hk;k 1 :=
+ h
+ 1  T
+  
+VkV0
+ i
+ ;
+ Gk;0 :=
+  
+0 CTV S 0 0
+  
+;
+  xk;k 1 =: Bk;k 1 x;
+  xk;k 1 :=
+  
+  VkV0
+   Vk 1V0
+  
+;
+   VkV0 :=
+  
+  VkV0
+   VkV0
+  
+;
+ and the operator, ( ) , is defined for any transformation
+ matrix, T, as
+ T =
+  
+C  Cr
+ 0T 1
+   
+:=
+  
+C Cr 
+0 C
+  
+:
+ The minimum of (5) may be found be setting
+ @J
+ @ x
+ T
+ = 0;
+ 0 500 1000 1500 2000 2500
+ ?60
+ ?40
+ ?20
+ 0
+ 20
+ 40
+ 60
+ Distance travelled [m]
+ Error [m
+ ]
+  
+ 
+||?||
+ ?
+ x
+ ?y
+ ?
+ z
+ Figure 9. The estimate error plotted versus distance travelled
+ for the entire 2845 star tracker data set. The increase in error
+ variability in the ranges 350 m – 410 m and 925 m – 975 m is
+ the result of error in the groundtruth GPS estimate.
+ Table 3. Error for the frequent star-tracker-measurement
+ solution,  , in meters expressed in the local rover frames
+ Mean St. Dev. Min. Max. Final
+ jj jj 31.9 16.5 0.9 59.7 21.0
+  x -1.5 24.1 -52.2 44.2 -10.5
+  y 0.5 21.9 -36.5 52.9 -17.7
+  z 12.4 8.8 -5.4 34.0 4.2
+ whereupon we arrive at a system of equations,
+ V  x =  v; (12)
+ where
+ V :=
+ X
+ k
+  
+BTk;k 1H
+ T
+ k;k 1U
+  1
+ VkVk 1
+ Hk;k 1Bk;k 1
+ + BTk;0Gk;0P
+  1
+ SkS0
+ Gk;0Bk;0
+  
+;
+ v :=  
+X
+ k
+  
+BTk;k 1H
+ T
+ k;k 1U
+  1
+ VkVk 1
+   VkVk 1
+ + BTk;0Gk;0P
+  1
+ SkS0
+   SkS0
+  
+:
+ Assuming an initial estimate from the odometry, we can solve
+ (12) for  x and get updated estimates from
+ TVkV0  e
+     VkV0TVkV0 :
+ We iterate these steps until the estimate update is tolerably
+ small to obtain a pose graph of absolute transformations from
+ the first pose, T VkV0 . This representation allows for future
+ problems to include loop closures and for measurements to
+ affect estimates at all both future and past timesteps.
+ 3. EXPERIMENT
+ The algorithm was tested on experimental data collected
+ with a real rover and star tracker (Figure 2). A Clearpath
+ 5
+Start
+ Figure 10. Estimates produced from wheel odometry
+ corrected with only 10 star tracker attitude measurements
+ (blue) plotted with the initial condition (green), the DGPS
+ groundtruth (black), and the wheel odometry (red).
+ Husky A200 (Figure 1) was equipped with a DGPS, and a
+ Sinclair Interplanetary S3S ST-16 star tracker (Figure 6) and
+ driven just under 2:5 kilometres through the Koffler Scientific
+ Reserve at Jokers Hill (KSR) (Figure 3) on the night of
+ September 16th, 2012, a day after a new moon, in clear
+ conditions.
+ The A200 is a 4-wheel differential-drive rover with two
+ motors, each equipped with quadrature encoders with a reso-
+ lution of approximately 20000 pulse/metre. While the rover
+ is electric, it was equipped for long-term autonomy with a
+ kilowatt gasoline generator. In order to calculate the actual
+ rover position during the traverse, the rover was equipped
+ with a differential GPS receiver and an RTK base station was
+ deployed at a central location.
+ The rover was driven manually via remote control for the
+ duration of the experiment. Wheel odometry was logged at
+ 10 Hz and star tracker attitude at 1 Hz. It was expected that
+ the rover motion would frequently interfere with star tracker
+ measurements, as the images are blurred when rotational
+ motion exceeds 2–3  /s. In practice, however, it was found
+ that rates this fast were rare, and the star tracker was capa-
+ ble of measuring attitude continuously during rover motion
+ (Figure 7). As a result, the rover was driven continuously for
+ the 7 hours that it took to travel the almost 2.5 kilometres.
+ The route had significant elevation change, dropping more
+ than 8 meters below the starting position and rising almost
+ 12 meters above it (Figure 4).
+ Star Tracker
+ The Sinclair Interplanetary S3S ST-16 (Figure 6) is an auton-
+ omous star tracker designed for nanosatellite applications
+ featuring low mass (90 g), low power (< 1 W), small volume
+ (59 mm  56 mm  32:5 mm), and a relatively large Field
+ of View (FOV) (15  21 ). These features also make it an
+ attractive option for mobile rovers and long-term autonomy.
+ 0 500 1000 1500 2000 2500
+ ?150
+ ?100
+ ?50
+ 0
+ 50
+ 100
+ 150
+ Distance travelled [m]
+ Error [m
+ ]
+  
+ 
+||?||
+ ?
+ x
+ ?y
+ ?
+ z
+ Figure 11. The estimate error plotted versus distance
+ travelled for the 10 star tracker data set. The increase in error
+ variability in the ranges 350 m – 410 m and 925 m – 975 m is
+ the result of error in the groundtruth GPS estimate.
+ Table 4. Error for the subsampled star-tracker-measurement
+ solution,  , in metres expressed in the local rover frames
+ Mean St. Dev. Min. Max. Final
+ jj jj 77.3 39.6 0.9 143.4 75.8
+  x 1.5 51.4 -111.0 140.3 -68.0
+  y 7.5 66.9 -103.4 136.2 -31.4
+  z 9.0 17.3 -15.2 39.5 -11.4
+ The large FOV gives the S3S the ability to detect an increased
+ number of stars compared to other star trackers, allowing for
+ a design that relies on the detection of bright stars (magnitude
+ 5.75 or brighter) over a wide area of the sky instead of dimmer
+ stars distributed in a smaller area. This design is advanta-
+ geous for atmospheric operations, as viewing conditions (e.g.,
+ light pollution, clouds, etc.) place a lower bound on the
+ visibility of dim stars. Thus, the S3S should be more reliable
+ in these applications than other sensors that require the detec-
+ tion of dimmer stars. The sensor telemetry includes attitude
+ relative to the J2000 Earth-Centred Inertial frame (Table
+ 1), attitude covariance, and extended information about the
+ stars in view. While not used in these experiments, the
+ firmware can also correct for atmospheric refraction online
+ eliminating the need for post-processing. For the purpose
+ of these experiments, the Greenwich Apparent Sidereal Time
+ was calculated in post-processing from the GPS clock.
+ 4. RESULTS
+ In this section we discuss the results of two simulated exper-
+ iments generated from the one data set: (i) a experiment con-
+ taining 2845 star tracker measurements, and (ii) a experiment
+ containing only 10 star tracker measurements.
+ Frequent Star Tracker Measurements
+ The wheel odometry was post-processed into 5-second in-
+ crements and assigned the nearest star tracker measurement
+ that occurred within 1 second. This resulted in a traverse of
+ 5123 poses with 2845 star tracker measurements that were
+ 6
+Start
+ Figure 12. Estimates produced from star-tracker-corrected
+ lidar VO (blue) and wheel odometry (red) plotted with the
+ DGPS groundtruth (black).
+ used to verify the algorithm described in Section 2. The batch
+ optimization initial conditions consisted of a poor-man’s sen-
+ sor fusion that replaced the odometric rotation estimate with
+ the star tracker measurement whenever available (Figure 8).
+ The results of the optimization, xest, were compared to post-
+ processed differential GPS measurements, xgps, of the rover’s
+ actual location during the traverse. The first 100 poses,
+ approximately 100 m, were used to calculate the rotation
+ from GPS frame to vehicle frame.
+ The resulting position error,
+  := xgps  xest; (13)
+ was found to be significantly better than simple wheel odom-
+ etry (Figure 8). The error of the final position was found to
+ be 21 m, or 0.85% of the distance travelled. (Figure 9, Table
+ 3).
+ The optimization was performed in Matlab on an Intel Core
+ i7 2.67 GHz processor running 64bit Ubuntu Linux with
+ 4 GB of memory. The presented wheel odometry results took
+ approximately 2.75 hours of processing time.
+ Subsampled Star Tracker Measurements
+ To emulate applications where rover speed does not permit
+ continuous operation of the star tracker, the attitude measure-
+ ments were subsampled to approximately a spacing of every
+ 250 metres (Figure 7). The resulting 10 measurements were
+ used as attitude corrections on the 5123 rover poses in a sec-
+ ond optimization problem and the results of the optimization
+ are presented. Poor-man’s sensor fusion was again used as
+ the initial conditions. As in the previous section, the first
+ 100 poses of the solution, approximately 100 m, were used to
+ calculate the rotation from GPS frame to vehicle frame and
+ the results were compared to the differential GPS.
+ The resulting position error was found to be significantly
+ better than simple wheel odometry and the poor-man’s sensor
+ 0 200 400 600 800 1000
+ 0
+ 10
+ 20
+ 30
+ 40
+ 50
+ 60
+ 70
+ Distance travelled [m]
+ Error [m
+ ]
+  
+ 
+WO + ST
+ VO + ST
+ Figure 13. The 3D estimate error for visual- (blue) and
+ wheel- (red) odometry estimates corrected by the full star
+ tracker measurements versus distance travelled over the first
+ 1 km of the traverse. The increase in error variability between
+ 350 m – 410 m and 925 m – 975 m is the result of error in the
+ groundtruth GPS estimate.
+ fusion (Figure 10). The error of the final position was found
+ to be 75.8 m, or 3.0% of the distance travelled. (Figure 11,
+ Table 4).
+ The optimization was performed in Matlab on an Intel Core
+ i7 2.67 GHz processor running 64bit Ubuntu Linux with
+ 4 GB of memory. The presented wheel odometry results took
+ 45 minutes of processing.
+ 5. DISCUSSION & FUTURE WORK
+ The results of Section 4 demonstrate that, when the rover is
+ driving slow enough to collect frequent star tracker measure-
+ ments (Figure 7), the batch optimization presented in Section
+ 2 provides a better estimate than the wheel odometry; how-
+ ever, it is not sufficiently more accurate than the poor-man’s
+ sensor fusion that replaces the odometric rotation estimate
+ with the star tracker measurement whenever available. In
+ this case, an Extended Kalman Filter (EKF) may provide a
+ sufficient improvement to the of poor-man’s sensor fusion
+ without the cost of a batch estimate.
+ If, however, the rover operates at speeds too high to collect
+ star tracker measurements, or the star tracker measurements
+ are otherwise very infrequent, the presented batch algorithm
+ clearly provides a better estimate than wheel odometry alone
+ or the poor-man’s sensor fusion. The batch formulation
+ allows for measurements to affect estimates at all timesteps,
+ resulting in a smoother and more accurate solution, and
+ allowing for the future inclusion of place recognition and loop
+ closure.
+ The timing results in this paper are from an unoptimized
+ Matlab implementation. It is expected that the computational
+ performance could be significantly improved by efficient
+ implementations or advanced techniques, such as Incremental
+ Smoothing and Mapping (iSAM) [22]. As is, however, the
+ estimator still ran in less time than the rover took to drive the
+ 2.5 kilometre traverse.
+ 7
+0 200 400 600 800 1000
+ ?15
+ ?10
+ ?5
+ 0
+ 5
+ 10
+ 15
+ 20
+ 25
+ 30
+ Distance travelled [m]
+ z?axis Error [m
+ ]
+  
+ 
+WO + ST
+ VO + ST
+ Figure 14. The z component of estimate error for visual-
+ (blue) and wheel- (red) odometry estimates corrected by the
+ full star tracker measurements versus distance travelled over
+ the first 1 km of the traverse. The increase in error variability
+ between 350 m – 410 m and 925 m – 975 m is the result of
+ error in the groundtruth GPS estimate.
+ The combination of wheel odometry, the star tracker, and the
+ batch optimization make the presented results quite attractive
+ in terms of accuracy and simplicity. The presented results ri-
+ val VO with simpler sensors; however, there remain areas for
+ improvement. Wheel odometry alone can only estimate rover
+ motion on a 2D plane, and wheel slip makes it inaccurate
+ over long distances. For these reasons, lighting-invariant VO
+ is worth investigating for further improvements. While there
+ has been some success in using light sources in conjunction
+ with stereo cameras and traditional VO [13], [14], they would
+ require design and operational procedures to mitigate light
+ pollution for the star tracker. Regardless of the VO solution,
+ optical contamination created by the rover, e.g., dust, would
+ remain an important, but ultimately tractable, deployment
+ problem.
+ Success by McManus et al. [15] and Dong and Barfoot [16]
+ using lidar intensity images for VO suggest that a lidar is
+ a natural choice for improved odometric measurements for
+ this mission scenario. In order to investigate this potential,
+ the Husky A200 was also equipped with a SICK scanning
+ lidar during the experiment (Figure 15). The SICK was
+ mounted in a vertical-scan configuration on a pan-tilt unit
+ that oscillated it left-to-right. Intensity-based VO using the
+ resulting data provided better odometric estimates than wheel
+ odometry for portions of the traverse (Figure 13). After
+ approximately 1 kilometre, the lidar-VO-based estimate with
+ star tracker measurements has less error than the equivalent
+ wheel-odometry-based estimate (51.0 m to 57.7 m, Figure
+ 12). As VO provides full 6 DOF estimates, the z-component
+ of the resulting error is significantly lower (Figure 14). After
+ this first kilometre, we experienced a large grass section
+ around the northern-most turn of the traverse and were unable
+ to track features for an extended period of time, leading to
+ poor estimator performance. As with stereo-camera VO,
+ tracking features in grass remains a formidable challenge
+ and more work is required to address the issues arising from
+ vegetation. In general, performing VO on data collected from
+ a sensor with such high levels of motion distortion is an
+ ongoing research topic [23].
+ Figure 15. The intensity-image VO pipeline. An intensity
+ image (a) is acquired from the SICK lidar and processed for
+ SURF features (b). Features are matched between frames (c)
+ to provide a motion estimate.
+ 6. CONCLUSIONS
+ This paper presented a method to correct odometric estimates
+ for drift and/or bias using a star tracker during full-dark
+ rover operations. The algorithm was tested on a real rover
+ with a star tracker and inclinometer, which, to the best
+ of the authors’ knowledge, is a robotic first. The results
+ presented show that the algorithm is extremely successful
+ at creating an accurate estimate despite using simple, low-
+ computational-cost sensors, such as wheel odometry, over
+ extended distances. When using the entire set of attitude
+ measurements the final position error was 21 metres over
+ a traverse of just under 2.5 kilometres, or 0.85% of the
+ total distance travelled. When the attitude measurements
+ were limited to approximately every 250 metres, only 10
+ for the entire traverse, the resulting final position error was
+ 75.8 metres, or 3.0% of the total distance travelled.
+ The results also highlight the challenges of using lidar-based
+ VO instead of wheel odometry. When there were sufficient
+ features, the lidar-based VO outperformed the wheel odom-
+ etry; however, significant periods without adequate features
+ made the complete estimate inaccurate. This is a challenge
+ that was further amplified by the scanning nature of the SICK
+ lidar and the vegetation-heavy test environment at KSR;
+ however, based on these results, we believe that star trackers
+ will provide suitable attitude correction for lidar VO.
+ 8
+APPENDICES
+ A. MATRIX OPERATOR DEFINITIONS
+ Given
+ w :=
+  
+u
+ v
+  
+; u :=
+ "
+ u1
+ u2
+ u3
+ #
+ ; v :=
+ "
+ v1
+ v2
+ v3
+ #
+ ;
+ and
+ T =
+  
+C  Cr
+ 0T 1
+  
+;
+ the following operators are defined:
+ u :=
+ "
+ 0  u3 u2
+ u3 0  u1
+  u2 u1 0
+ #
+ ; w :=
+  
+v  u
+ 0T 0
+  
+;
+ T :=
+  
+C Cr 
+0 C
+  
+:
+ B. MATRIX OPERATOR IDENTITIES
+ Given the definitions in Appendix A, we have the following
+ identities:
+ ( u+  v)   u +  v ;
+ u 
+T
+   u ; u u  0; u v   v u;
+ (T1T2)
+   T 1 T
+  
+2 ; T
+   1  T 1
+  
+;
+ e(T
+  w)  Tew
+  
+T 1;
+ (Cu)  Cu CT ;
+ e(Cu)
+  
+ Ceu
+  
+CT ;
+ where  and  are scalars, T is a transformation matrix, C is
+ a rotation matrix, and u, v, and w are vectors as defined in
+ Appendix A.
+ ACKNOWLEDGMENTS
+ The authors wish to thank University of Toronto’s Koffler
+ Scientific Reserve at Jokers Hill for the use of their facilities
+ for this field test, Mr. Doug Sinclair from Sinclair Inter-
+ planetary for donation of the engineering model S3S ST-16
+ star tracker, Clearpath Robotics for the Husky A200, and
+ the Defence Research and Development Canada (DRDC),
+ the Natural Sciences and Engineering Research Council of
+ Canada (NSERC), and MDA Space Systems for their finan-
+ cial and in-kind support.
+ REFERENCES
+ [1] R. Volpe, “Mars rover navigation results using sun
+ sensor heading determination,” in Proc. of the IEEE/RSJ
+ Int. Conf. on Intelligent Robots and Systems (IROS),
+ vol. 1, 1999, pp. 460–467.
+ [2] J. Bakambu, V. Polotski, and P. Cohen, “Heading-aided
+ odometry and range-data integration for positioning of
+ autonomous mining vehicles,” in Proc. of the IEEE Int.
+ Conf. on Control Applications, 2000, pp. 279–284.
+ [3] E. T. Baumgartner, H. Aghazarian, A. Trebi-Ollennu,
+ T. L. Huntsberger, and M. S. Garrett, “State estima-
+ tion and vehicle localization for the fido rover,” Proc.
+ of SPIE Sensor Fusion and Decentralized Control in
+ Robotic Systems III, vol. 4196, pp. 329–336, 2000.
+ [4] J. B. Balaram, “Kinematic state estimation for a mars
+ rover,” Robotica, vol. 18, no. 03, pp. 251–262, 2000.
+ [5] P. Lamon and R. Siegwart, “Inertial and 3d-odometry
+ fusion in rough terrain - towards real 3d navigation,” in
+ Proc. of the IEEE/RSJ Int. Conf. on Intelligent Robots
+ and Systems (IROS), vol. 2, 28 Sep. - 2 Oct. 2004, pp.
+ 1716–1721.
+ [6] L. Matthies and S. Shafer, “Error modeling in stereo
+ navigation,” IEEE Journal of Robotics and Automation,
+ vol. 3, no. 3, pp. 239 –248, Jun. 1987.
+ [7] K. Ali, C. Vanelli, J. Biesiadecki, M. Maimone,
+ Y. Cheng, A. San Martin, and J. Alexander, “Attitude
+ and position estimation on the mars exploration rovers,”
+ in Proc. of the IEEE Int. Conf. on Systems, Man and
+ Cybernetics, vol. 1, Oct. 2005, pp. 20–27.
+ [8] C. F. Olson, L. H. Matthies, M. Schoppers, and M. W.
+ Maimone, “Rover navigation using stereo ego-motion,”
+ Robotics and Autonomous Systems, vol. 43, no. 4, pp.
+ 215 – 229, 2003.
+ [9] J. Enright, P. Furgale, and T. Barfoot, “Sun sensing
+ for planetary rover navigation,” in Proc. of the IEEE
+ Aerospace Conf., Mar. 2009, pp. 1–12.
+ [10] P. Furgale, J. Enright, and T. Barfoot, “Sun sensor
+ navigation for planetary rovers: Theory and field test-
+ ing,” IEEE Transactions on Aerospace and Electronic
+ Systems, vol. 47, no. 3, pp. 1631 –1647, Jul. 2011.
+ [11] A. Lambert, P. T. Furgale, T. D. Barfoot, and J. Enright,
+ “Field testing of visual odometry aided by a sun sensor
+ and inclinometer,” Journal of Field Robotics, special
+ issue on “Space Robotics”, vol. 29, no. 3, pp. 426–444,
+ May - Jun. 2012.
+ [12] A. Colaprete, P. Schultz, J. Heldmann, D. Wooden,
+ M. Shirley, K. Ennico, B. Hermalyn, W. Marshall,
+ A. Ricco, R. C. Elphic, D. Goldstein, D. Summy,
+ G. D. Bart, E. Asphaug, D. Korycansky, D. Landis, and
+ L. Sollitt, “Detection of water in the LCROSS ejecta
+ plume,” Science, vol. 330, no. 6003, pp. 463–468, 2010.
+ [13] K. Husmann and L. Pedersen, “Strobe lit high dynamic
+ range stereo imagery for dark navigation,” in Proc. of
+ the 9th Int. Symp. on Artificial Intelligence for Robotics
+ and Automation (iSAIRAS), Los Angeles, USA, 26–29
+ Feb. 2008.
+ [14] L. Pedersen, C. S. Han, and M. Vitus, “Dark navigation:
+ Sensing and rover navigation in permanently shadowed
+ lunar craters,” in Proc. of the 9th Int. Symp. on Artificial
+ Intelligence for Robotics and Automation (iSAIRAS),
+ Los Angeles, USA, 26–29 Feb. 2008.
+ [15] C. McManus, P. T. Furgale, and T. D. Barfoot, “Towards
+ appearance-based methods for lidar sensors,” in Proc.
+ of the IEEE Int. Conf. on Robotics and Automation
+ (ICRA), Shanghai, China, 9–13 May 2011, pp. 1930–
+ 1935.
+ [16] H. J. Dong and T. D. Barfoot, “Lighting-invariant visual
+ odometry using lidar intensity imagery and pose inter-
+ polation,” in Proc. of the Int. Conf. on Field and Service
+ Robotics (FSR), Matsushima, Japan, 16–19 Jul. 2012.
+ 9
+[17] D. Sigel and D. Wettergreen, “Star tracker celestial
+ localization system for a lunar rover,” in Proc. of the
+ IEEE/RSJ Int. Conf. on Intelligent Robots and Systems
+ (IROS), 29 Oct. - 2 Nov. 2007, pp. 2851–2856.
+ [18] N. Xiaolin and F. Jiancheng, “A new autonomous celes-
+ tial navigation method for the lunar rover,” Robotics and
+ Autonomous Systems, vol. 57, no. 1, pp. 48 – 54, 2009.
+ [19] J. Enright, T. Barfoot, and M. Soto, “Star tracking for
+ planetary rovers,” in Proc. of the IEEE Aerospace Conf.,
+ Mar. 2012, pp. 1–13.
+ [20] M. Cummins and P. Newman, “FAB-MAP: Probabilis-
+ tic localization and mapping in the space of appear-
+ ance,” The Int. Journal of Robotics Research, vol. 27,
+ no. 6, pp. 647–665, 2008.
+ [21] M. Shuster and S. Oh, “Three-axis attitude determi-
+ nation from vector observations,” Journal of Guidance
+ and Control, vol. 4, no. 1, pp. 70–77, 1981.
+ [22] M. Kaess, H. Johannsson, R. Roberts, V. Ila, J. J.
+ Leonard, and F. Dellaert, “iSAM2: Incremental smooth-
+ ing and mapping using the bayes tree,” The Int. Journal
+ of Robotics Research (IJRR), vol. 31, no. 2, pp. 216–
+ 235, 2012.
+ [23] C. Tong and T. D. Barfoot, “Gaussian Process Gauss-
+ Newton for 3D laser-based visual odometry,” in Proc.
+ of the IEEE Conf. on Robotics and Automation (ICRA),
+ to appear, Karlsruhe, Germany, 6–10 May 2013.
+ BIOGRAPHY[
+ Jonathan D. Gammell is a Ph.D. stu-
+ dent at the University of Toronto In-
+ stitute for Aerospace Studies (UTIAS),
+ and a member of the Autonomous Space
+ Robotics Lab (ASRL). He holds a
+ B.A.Sc. degree (2006) from the Univer-
+ sity of Waterloo (UW) in Mechanical
+ Engineering (Physics Option, With Dis-
+ tinction, Dean’s Honours List), and a
+ M.A.Sc. (2010) from the University of
+ Toronto (UofT) in Aerospace Science and Engineering in
+ the Space Robotics Group. His current research focus is
+ developing planning techniques for rovers in unstructured
+ terrain in order to minimize their final positional uncertainty.
+ Chi Hay Tong is a Ph.D. candidate
+ at the University of Toronto Institute
+ for Aerospace Studies (UTIAS), and
+ a member of the Autonomous Space
+ Robotics Lab (ASRL). He holds a
+ B.A.Sc. degree (2008) from the Uni-
+ versity of Toronto (UofT) in Engineer-
+ ing Science (Computer Option), and his
+ recent research focus is on laser-based
+ mapping and navigation.
+ Peter Berczi is a M.A.Sc. student at the
+ University of Toronto Institute for Aero-
+ space Studies (UTIAS) with the Auton-
+ omous Space Robotics Lab (ASRL). He
+ has a B.A.Sc. (Honours, 2012) from
+ the University of Toronto (UofT) in En-
+ gineering Science (Aerospace Option).
+ His research is focused on developing a
+ terrain assessment framework for mobile
+ robots, particularly for robots operating
+ on the Moon or Mars.
+ Sean Anderson received a B.A.Sc. de-
+ gree in Mechatronics Engineering (With
+ Distinction, Dean’s Honours List) from
+ the University of Waterloo (UW) in
+ 2011. Currently, he is a Ph.D. student
+ in the Autonomous Space Robotics Lab
+ (ASRL) at the University of Toronto In-
+ stitute for Aerospace Studies (UTIAS).
+ His main research interest is in im-
+ proving Simultaneous Localization and
+ Mapping (SLAM) algorithms for mobile robots in three-
+ dimensional unstructured terrain.
+ Timothy D. Barfoot holds a B.A.Sc.
+ (Honours, 1997) from the University of
+ Toronto (UofT) in Engineering Science
+ (Aerospace Option) and a Ph.D. (2002)
+ from the University of Toronto Institute
+ for Aerospace Studies (UTIAS) in Aero-
+ space Engineering. He is currently an
+ Associate Professor at UTIAS, where he
+ leads the Autonomous Space Robotics
+ Lab (ASRL). Before joining UTIAS, he
+ worked at MDA Space Missions in the Controls & Analysis
+ Group on applications of mobile robotics to space exploration
+ and underground mining. Dr. Barfoot is a Canada Research
+ Chair (Tier II) in Autonomous Space Robotics, a Professional
+ Engineer of Ontario, and an IEEE Member.
+ John Enright holds a B.A.Sc. (1997)
+ from the University of Toronto (UofT)
+ (Engineering Science, Aerospace) and a
+ M.S. (1999) and a Ph.D. (2002) from
+ Massachusetts Institute of Technology
+ (MIT) in Aerospace Systems. He is cur-
+ rently an Associate Professor in Aero-
+ space Engineering at Ryerson University
+ in Toronto. Having joined the faculty at
+ Ryerson University in 2003, he is now
+ the Principal Investigator of the Space Avionics and Instru-
+ mentation Laboratory (SAIL). While at MIT (1999-2003),
+ he led the software development for the SPHERES flight
+ project, and the GFLOPS real-time spacecraft simulation
+ testbed. His research interests include spacecraft avionics and
+ sensor processing, systems engineering and flight software.
+ Dr. Enright is a member of the AIAA, CASI, and the IEEE.
+ 10

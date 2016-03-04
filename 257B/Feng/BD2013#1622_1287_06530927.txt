@@ -1,0 +1,613 @@
+255978-1-4673-5517-9 ©2013 IEEE
+ 23th Conference Radioelektronika 2013, April 16-17, Pardubice, Czech Republic
+ Astronomical Image Denoising using  
+Curvelet and Starlet Transform 
+ 
+Elena Anisimova, Jan Bednar, Petr Pata 
+FEE CTU in Prague 
+Department of Radioelectronics 
+Prague, Czech Republic 
+anisiele@fel.cvut.cz 
+ 
+ 
+Abstract—Astronomical image data acquisition under low light 
+conditions causes higher noise occurrence in these data. There 
+are a lot of noise sources including also the thermally generated 
+noise (dark current) inside used astronomical CCD sensor and 
+the Poisson noise of the photon flux. There are specific image 
+quality criteria in astronomy. These criteria are derived from the 
+algorithms for astronomical image processing and are specific in 
+the field of multimedia signal processing. Astrometric and 
+photometric algorithms provide information about stellar 
+objects: their brightness profile (PSF), position and magnitude. 
+They could fail because of lower SNR. This problem can be 
+solved by subtraction a dark frame from a captured image 
+nowadays. However, this method couldn't work properly in 
+systems with shorter shutter speed and nonlinear sensitivity, such 
+as for example the system MAIA (Meteor Automatic Imager and 
+Analyser). Image data from these system could not been 
+processed by conventional algorithms. Denoising of the 
+astronomical images is therefore still a big challenge for 
+astronomers and people who process astronomical data. 
+Therefore usage of other denoising algorithms is proposed in this 
+paper. We describe our experiences with astronomical image 
+data denoising based on Curvelet and Starlet transform. Novel 
+algorithms have been tested on image data from MAIA system. 
+Their influence on important photometric data like stellar 
+magnitude and FWHM (Full Width at Half Maximum) has been 
+studied and compared with conventional denoising methods.  
+Keywords—image denoising, astronomy, curvelet transform, 
+starlet transform, MAIA 
+I.  INTRODUCTION  
+Many discrete wavelet transform algorithms have been 
+recently developed [1, 2]. The most widely-known one is 
+certainly the orthogonal transform, proposed by Mallat [3] and 
+its bi-orthogonal version [4]. Using the orthogonal wavelet 
+transform, digital signal s can be decomposed as follows [5] 
+where ?  and ? are respectively the scaling function and the 
+wavelet function. J is the number of resolutions used in the 
+decomposition, wj are the wavelet (or detail) coefficients at 
+scale j, cJ is a coarse or smooth version of the original signal s, 
+k represents time axis and l is a time shift. Thus, the algorithm 
+outputs J+1 subband arrays. The indexing is such that j = 1 
+corresponds to the finest scale (high frequencies). 
+While the bi-orthogonal wavelet transform leads to 
+successful implementation in image compression techniques, 
+results are not convenient for data analysis (e.g., denoising, 
+deconvolution, object detection). This is mainly due to the loss 
+of the translation-invariance property in the discrete wavelet 
+transform (DWT) realized by the Mallat algorithm [1], leading 
+to a large number of artifacts when an image is reconstructed 
+after modification of its wavelet coefficients. 
+For this reason, astronomers and physicists have generally 
+preferred to work with the continuous wavelet transform, even 
+if the cost to be paid is a considerable amount of redundancy in 
+the transformation and there is no reconstruction operator [5]. 
+For some application, such as fractal analysis or object 
+detection, these drawbacks have no impact because there is no 
+need to apply a reconstruction. For other applications, in which 
+reconstruction is needed, some researchers have chosen an 
+undecimated version of the wavelet transform implemented by 
+a very efficient way using so called À trous algorithm [5,6], 
+where this French term means “with holes”. This kind of the 
+isotropic undecimated wavelet transform is also called the 
+Starlet transform [7]. 
+A series of recent papers [8,9], however, argued that 
+wavelets and related classical multiresolution ideas deal with a 
+limited dictionary made up of roughly isotropic elements 
+occurring at all scales and locations. Moreover, these 
+dictionaries do not exhibit highly anisotropic elements (e.g. 
+curves and edges). Following on this topic, Candès and 
+Donoho introduced new multiscale systems like curvelets [7] 
+and ridgelets [8]. Curvelets and ridgelets take the form of base 
+elements which exhibit very high directional sensitivity and are 
+highly anisotropic. In two-dimensions, for instance, curvelets 
+are localized along curves, in three dimensions along sheets, 
+etc. 
+II. METHODS USED FOR IMAGE DENOISING 
+As was mentioned above, two methods the curvelet 
+transform and the starlet transform were used for image 
+denoising. First, we would like shortly to describe some 
+important properties of these transforms and algorithms for 
+their realization. After that, we will introduce applied 
+s?l?=? cJ,k?J,l?k?+???j,l?k?wj,k
+ J
+ j=1kk
+ , 
+ 
+(1) 
+256
+ thresholding techniques used for noise supp
+ astronomical image data.  
+A .  Th e Sta rlet Tra nsform  
+If the digital wavelet transform rea
+ algorithm is applied to image data, a large n
+ will occur inside these data after modificati
+ coefficients [5]. This fact is not convenient 
+suppression inside the processed imag
+ astronomical image denoising, these arti
+ important scientific information about 
+magnitude and FWHM (Full Width at Half M
+ magnitude (i.e. total flux) corresponds to brig
+ object and FWHM (Fig. 1) corresponds to 
+shape. Therefore, the wavelet transform i
+ À trous algorithm ("with holes") for astrono m
+ in other words, instead of the wavele
+ undecimated starlet transform is used (starle
+ trous algorithm for wavelet transform realizat
+ computational procedure [5, 7]). 
+Starlet transform implementation involve
+ input image with a 2D convolution kernel re
+ dimensional scaling function, which imitate
+ (Point Spread Function) shape in case of as
+ processing. It could be a spline of degree 3, w
+ dimension to the filter h = (1/16,1/4,3/8, 1
+ point of the starlet transform is that at each de
+ j, one subband wj containing the wavel
+ obtained, which has the same number of p
+ image. To imitate the subsampling proce
+ details of various sizes from the input imag
+ has been changed for each next decompositi
+ way that 2j- 1 zeros are inserted between the
+ (j corresponds to the ordinal number of dec
+ A summary of the starlet algorithm is as follo
+ • During the first decomposition le
+ original image s0  is convolved wi
+ filter h 0 , and the result is the smoothe
+ • Subtracting s1 by s0  we get the wave
+ the first decomposition level corr
+ finest details w1 = s0  ? s1. 
+• j = j + 1. 
+• Expand the filter by 2j ? 1 zeros w
+ between the filter coefficients. 
+• Calculate the smoothed matrix s2  = s
+ convolution) and the wavelet coe
+ second decomposition level: w2  = w
+ stop here, the original image s0  is the
+ and w2  (see Fig. 2). 
+B .  T h e Cu rv elet Transfor m 
+Before describing the curvelet transform
+ mention about the Radon transform and R
+ relating to it. 
+ression inside the 
+lized by Mallat 
+umber of artifacts 
+on of the wavelet 
+in terms of noise 
+es. In case of 
+facts can distort 
+stellar object’s 
+aximum). Stellar 
+htness of a stellar 
+the general stellar 
+s realized by the         
+ical purposes. Or 
+t transform the 
+t transform and À 
+ion have the same 
+s convoluting the 
+presenting a two-
+ s the stellar PSF 
+tronomical image 
+hich leads in one 
+/4,1/16) [5]. The 
+composition level 
+et coefficients is 
+ixels as the input 
+ss and to extract 
+e, the filter length 
+on level in such a 
+ filter coefficients   
+omposition level).     
+ws.  
+vel (j = 0), the 
+th an unmodified 
+d matrix s1. 
+let coefficients for 
+esponding to the 
+hich are inserted 
+1*k 1 (* represents 
+fficients for the 
+1 ? w2 , etc. If we 
+n the sum of s2 , w1 
+ it is necessary to 
+idgelet transform 
+Figure 1.  Full Width at Half Ma
+ 1)  Th e Ra d on Tra nsform 
+The Radon transform of a 
+integrals indexed by (?, t ) ? [0, 
+ 
+where ? is the Dirac distributio
+ transform maps the spatial dom
+ (?, t ), and each point in the Rad
+ in the spatial domain. The Rado
+ applying the one-dimensional i
+ two-dimensional Fourier trans
+ lines going through the origin o
+ 2 )  Th e Rid g elet Tra nsform 
+The ridgelet transform can b
+ lines of the size of the image [9
+ partitioning has to be introduc
+ into smoothly overlapping blo
+ such a way that the overlap b
+ blocks is a rectangular array of
+ used for avoiding the blocking 
+is therefore optimal for detectin
+ the block size.  
+It has been shown in [5] and
+ is precisely the application 
+transform to the slices of the Ra
+ Figure 2.  Computational di
+ 3 )  T h e Cu rv elet Transfor m
+ This transform opens the p
+ within blocks of different size. 
+curvelet transform is to decom
+ wavelet bands and to analyze 
+Rs ??,t ?=? s? x 1,x 2 ???x 1c
+  
+ximum (FWHM) of a stellar object 
+signal s is the collection of line 
+2π) ? R given by  
+n. The two-dimensional Radon 
+ain ( x, y ) to the Radon domain 
+on domain corresponds to a line 
+n transform can be obtained by 
+nverse Fourier transform to the 
+form space restricted to radial 
+f the signal’s spectru m [5, 10].  
+e an optimal method to finding 
+, 10]. To detect line segments, a 
+ed. The image is decomposed 
+cks of side-length B  pixels in 
+etween two vertically adjacent 
+ size B ? B / 2. The overlapping is 
+artifacts. The rigdelet transform 
+g lines of a given size, equal to 
+ [10] that the ridgelet transform 
+of a 1-dimensional wavelet 
+don transform.   
+ 
+agram of the Starlet transform 
+ 
+ossibility to analyze an image 
+The idea of the first-generation 
+pose the image into a set of 
+each band with a local ridgelet 
+os ?+x 2 sin ? - t ?d x 1 dx 2 , (2) 
+257
+ transform. The block size can by changed at each 
+decomposition level. A sketch of the discrete curvelet 
+transform algorithm is as follows [10]. 
+• Apply the starlet transform with J decomposition 
+levels (scales) to the processed image and get the set of 
+the starlet coefficients w = {w 1,…,w J, cJ }. 
+• Set B 1 = B min , where B  is a block size (B m in =16 in [11]). 
+• For j = 1,…, J   do: 
+o partition the subband wj with a block size B j   
+and apply the digital ridgelet transform to 
+each block, 
+o if j modulo 2 = 1 then B j+1 = 2B j , 
+o else B j+1 = B j .  
+ 
+III. MAIA SYSTEM  
+MAIA (Meteor Automatic Imager and Analyzer) system is 
+an evolution of current analog solution of system for double 
+station observation of the meteors, which is equipped with the 
+gigabit Ethernet camera JAI CM-040 with 1/2" progressive 
+scan CCD sensor, image intensifier and Pentax SMS FA 1.4/50 
+mm lens as the input element of the optical system [12]. All 
+these components (Fig. 3) contribute to the optical aberrations 
+and non-uniform noise occurrence, which is especially caused 
+by non-uniform sensitivity of the image intensifier. 
+Conventional algorithms for image denoising could be used in 
+this case, but they are not efficient enough. Therefore, the 
+novel denoising methods are proposed.    
+ 
+IV.  ASTRONOMICAL IMAGE DENOISING  
+A .  Co n v e n tio n al algorith m in astro n o m y 
+Denoising of captured astronomical images is generally 
+performed by subtracting so called dark frame from these data. 
+Dark frame is an image acquired with the sensor in the dark 
+(when the input aperture is closed), essentially just an image of 
+noise inside the image sensor. This noise consists almost of the 
+thermally generated noise inside the CCD sensor.  
+ 
+ 
+Figure 3.  MAIA system design 
+ 
+Another image called flat field could be used in addition to 
+the dark frame. Noise suppression is not a general purpose of 
+acquired image, flat field is used to correct pixel-to-pixel 
+variations in the CCD response as well as any nonuniform 
+illumination of the detector itself.  In our case, we will divide 
+the captured image by the normalized flat field to avoid the 
+microchannel structure of the image intensifier.  
+However, the collection of dark frame and flat field couldn't 
+work properly in systems with shorter shutter speed and 
+nonlinear sensitivity, such is our system MAIA. Denoising 
+methods based on starlet and curvelet transform were therefore 
+tested. 
+B .  D e n o ising using Sta rlet and Cu rv elet tra nsform  
+The way to remove noise from image data is to perform the 
+thresholding of starlet or curvelet coefficients of the processed 
+image after corresponding transform. Thresholding is a method 
+which determines significance of the coefficients. If 
+appropriate coefficient is larger than a threshold, it is 
+significant, otherwise it is not.  
+Let us see on the hard coefficients thresholding. Let 
+suppose, that CCD sensor receives more than 40 photons 
+during image acquisition, thus the Poisson noise distribution 
+accumulate inside the sensor becomes almost indistinguishable 
+from the Gaussian [13]. Given stationary Gaussian noise, it 
+suffices to compare the wavelet coefficients wj,l (j – 
+decomposition level, l – index of pixel) to the Gaussian noise 
+standard deviation ?j :   
+ 
+ Often k is chosen as 3 because of empirical rule which 
+states that for a normal distribution, nearly all values (about 
+99.7%) lie within 3 standard deviations of the mean. If wj,l is 
+small, it is not significant and could be due to noise. If wj,l is 
+large, it is significant and is due to the useful signal.  
+So, it is necessary to estimate, in the case of Gaussian noise 
+models, the noise standard deviation at each decomposition 
+scale j. The appropriate value of ?j in the succession of the 
+starlet or curvelet is assessed from the standard deviation of the 
+noise ?s in the original data s, and from study of the noise in the 
+starlet / curvelet space. This study consists of simulating a data 
+set containing Gaussian noise with a standard deviation equal 
+to 1, and taking the starlet / curvelet transform of this data set 
+[5]. Then the standard deviation ? e j is computed at each 
+decomposition level. Due to the properties of the 
+multiresolution approach, the noise standard deviation at scale j 
+of the data is equal to the noise standard deviation of the 
+original image ?s multiplied by the noise standard deviation at 
+scale j of the simulated data ?j = ?s ?e j . Table I gives the ? e j 
+values for the 2D starlet transform using the cubic B3 spline 
+scaling filter [5].  
+TABLE I.  D EPE NDENCE O F SIMULATED G AUSSI AN NOISE STANDARD 
+DEVIA TION ON DECOM POSITION LEVE L  
+Decomposition level   j  1 2 3 4 5 
+2D image 0.889 0.200 0.086 0.041 0.020 
+ 
+wj,l= ?
+ 0, if wj,l≥k?j
+ wj,l, if wj,l <k ?j (3) 
+258
+  
+Figure 4.  Testing image (left), dark fra
+ The noise standard deviation of the origin
+ estimated from the starlet coefficients contain
+ decomposition level using the median ab
+ MAD. MAD gives an estimation of th
+ deviation [5]:  
+ 
+where MED is the median function and w
+ coefficients containing the finest details o
+ noise estimate of the original signal ?s is then
+ ?s=
+ ? m
+ ?1e
+ .  
+Estimation of the Gaussian noise standar
+ was proposed by Donnoho and Johnston [14
+ was as follows: if { u n }  are N  independent 
+variables of zero mean and varian
+ E ?Median(| u n |) 0≤ n< N ? ≈ 0.6745 ?. 
+V.  IMAGE PROCESSING
+ In terms of image denoising we 
+astronomical image (one frame from an acqu
+ frame and a flat field all captured by MAIA
+ 4). At the beginning of image processing, the
+ captured stellar field was divided by the fla
+ correct the CCD camera response on incident
+ the microchannel structure of the image i
+ shows the testing astronomical image before 
+correction.  
+Within the next step we performed denoi
+ image using all three methods:  dark frame 
+transform and curvelet transform with follo
+ thresholding implemented in MATLAB. A 
+purposes) downloaded CurveLab Toolbox [
+ the curvelet transform realization. Table I
+ effectiveness of each method presented by
+ Mean Square Error (MSE) and Peak Sign
+ (PSNR). An average image calculated from t
+ sequence was considered to be the original im
+ presence.    
+Finally, objective astronomical image
+ describing changes of scientifically significa
+ stellar magnitude m  and FWHM were monito
+ software IRAF (Image Reduction and Analys
+ ? m =MED ( |w 1|)/ 0.6745 , 
+ 
+me (center) and flat field (right) acquired by MAIA system display
+ al signal could be 
+ed inside the first 
+solute deviation, 
+e noise standard 
+1 are the starlet 
+f the signal. The 
+ obtained by:  
+(5) 
+d deviation ? m  (4) 
+]. The motivation 
+Gaussian random 
+ce ?? , then 
+ 
+chose a testing 
+ired video), a dark 
+ system (see Fig. 
+ image containing 
+t field in order to 
+ light and to avoid 
+ntensifier. Fig. 5 
+and after flat field 
+sing of the testing 
+subtraction, starlet 
+wing coefficients 
+free (for scientific 
+15] was used for 
+I then shows the 
+ objective criteria 
+al to Noise Ratio 
+he acquired video 
+age without noise 
+ quality criteria 
+nt information as 
+red. Astronomical 
+is Facility) [16] 
+TABLE II.   CALCULATED MSE
+ IMA
+ Denoising method 
+Dark frame subtraction 
+Starlet transform 
+Curvelet transform 
+ 
+was used for this purpose. Tab
+ photometry for 7 selected stella
+ area of the testing image.   
+VI. RESULTS EVAL U
+ The curvelet transform h
+ according to MSE and PSN
+ Tab. II. On the other hand, the
+ reconstructed image after cur
+ (Fig 6). Moreover, it was found
+ stars was lost after denoising
+ confirmed by failure of the ape
+ could not calculate magnitude
+ Tab. III).  This is probably d
+ astronomical data do not cont
+ necessary for effectiveness of
+ decided that the curvelet tra
+ processing of astronomical ima
+ If FWHM deviations in im
+ than 1, stellar objects will not 
+software. It will evaluate these
+ Concerning to magnitude, devi
+ to depreciate scientific inform
+ IRAF incapability of stellar o
+ represented by INDEF in Tabl
+ subtraction method is also no
+ denoising because of short shut
+ that the dark frame does not a
+ about the noise.  
+ 
+Figure 5.  Captured image before (le
+ (4) 
+ 
+ed in inverted grayscale
+  AND PSNR CRITERIA FOR DENOISED 
+GES  
+MSE PSNR [dB] 
+14.4 36.55 
+9.87 38.2 
+4.95 41.18 
+le III shows results of aperture 
+r objects located over the entire 
+ATION AND DISCUSSION 
+as the best denoising results 
+R parameters as is shown in       
+re are many artifacts inside the 
+velet coefficients thresholding 
+ out, that a large amount of fine 
+ procedure. It could be also 
+rture photometry routine, which 
+ of several stellar objects (see 
+ue to the fact, that processed 
+ain appropriate curved features 
+ this transform. Therefore, we 
+nsform is not convenient for 
+ges captured by MAIA system.   
+ages after denoising are greater 
+be detected using astronomical 
+ stars as non-star shape objects. 
+ation above 0.3 is large enough 
+ation. Astronomical software 
+bject magnitude calculation is 
+e III. Therefore, the dark frame 
+t appropriate for MAIA image 
+ter speed (1/60 s) due to the fact 
+lmost contain any information 
+ 
+ft) and after (right) flat field correction 
+259
+   
+TABLE III.  ASTRONOMICAL IMAGE QUALITY CRITERIA AS MAGNITUDE (M) AND FWHM OF 7 SELECTED STARS INSIDE THE DENOISED IMAGES
+ Method 
+Stellar object 
+1 2 3 4 5 6 7 
+m FVWM m FVWM m FVWM m FVWM m FVWM m FVWM m FVWM 
+Image 
+without 
+noise  
+18.19 1.30 18.67 1.74 19.71 1.56 18.98 1.53 17.35 2.14 18.92 1.25 19.29 2.5 
+Dark 
+frame 
+subtraction 
+18.24 1.33 INDEF 2.15 19.43 6.95 19.21 2.98 17.45 2.12 INDEF 22.8 19.45 10.58 
+Starlet 
+transform 18.13 1.29 18.45 2.06 19.47 1.34 19.05 1.19 17.37 2.16 19.29 1.65 19.34 31.11 
+Curvelet 
+transform 18.39 1.09 INDEF 2.40 19.61 5.8 INDEF 3.9 15.51 2.04 19.76 142.6 19.89 10.32 
+ 
+Practically, all pixels equal to zero inside the captured dark 
+frame as you can see in the Fig. 4. Shutter speed used in MAIA 
+system is 1/60 s which is a very short period of time. Longer 
+exposure times however could not be used because the main 
+purpose of the MAIA system is to precisely record trajectory of 
+meteor’s fall, which could take just fraction of second.   
+There is image processing using the starlet transform left. 
+Its denoising properties are better than in case of dark frame 
+subtraction method and worse than in case of the curvelet 
+transform. Nevertheless, if we look at the Tab. III, we can 
+affirm that the Starlet transform damages scientific 
+astronomical data least than other two techniques.  Magnitude 
+and FWHM deviations of almost all selected stellar objects are 
+within the allowed range (1 for FWHM and 0.3 for magnitude).   
+Artifacts caused by starlet coefficients thresholding are not as 
+strong as artifacts contained in reconstructed image after 
+curvelet transform denoising (Fig. 6).  Thus, the Starlet 
+transform is the most suitable method for noise suppression in 
+astronomical images acquired by our nonlinear system with 
+shorter shutter speed.   
+ACKNOWLEDGMENT  
+This work has been supported by the project of the Grant 
+Agency of the Czech Republic No. 205/09/1302 “Study of 
+sporadic meteors and weak meteor showers using automatic 
+video intensifiers cameras” and by the project of the Student 
+grant agency of the Czech Technical University in Prague 
+SGS13/212/OHK3/3T/13 “Advanced Algorithms for 
+Processing and Analysis of Scientific Image Data”.  
+Authors would like to thank Pavel Koten from 
+Astronomical Institute of the Academy of Science of the Czech 
+Republic and Stanislav Vítek from FEE CTU in Prague for 
+supply of the testing videos from MAIA system and their 
+conversion into appropriate video format. 
+ 
+ 
+(a) (b) (c) (d) 
+Figure 6.  Original image without noise (a), noised image (b) which almost corresponds to denoised image after dark frame subtraction, denoised  image using 
+the starlet transform (c) and the curvelet transform (d)  
+REFERENCES 
+[1] S. G. Mallat, A Wavelet Tour of Signal Processing, 3rd ed., Academic 
+Press, 2008. 
+[2] J. L. Starck, F. Murtagh, A. Bijaoui, Image Processing ans Data 
+Analysis: The Multiscale Approach, Cambridge University Press, 1998. 
+[3] S. G. Mallat, “A Theory for Multiresolution Signal Decomposition: The 
+Wavelet Representation,” IEEE Transactions on Pattern Analysis and 
+Machine Intelligence, vol. 11, no. 7, July 1989. 
+[4] I. Daubechies, Ten Lectures on Wavelets, Philadelphia, Pennsylvania : 
+Society for Industrial and Applied Mathematics, 1992. 
+[5] J. L. Starck, F. Murtagh, Astronomical Image and Data Analysis, 
+Springer-Verlag Berlin Heidelberg, 2002. 
+[6] M. J. Shensa, “The discrete wavelet transform: wedding the a trous and 
+Mallat algorithms”, IEEE Transactions on Signal Processing, vol. 40, 
+no. 10, pp. 2464-2482, October 1992.  
+[7] J.L. Starck, F. Murthagh, M. Bertero, Starlet Transform in Astronomical 
+Data Processing, Handbook of Mathematical Methods in Imaging, 2011. 
+260
+ [8] E. J. Candès, D. L. Donoho, “Ridgelets: a key to higher-dimensional 
+intermittency?” Philosophical Transactions of the Royal Society A, vol. 
+357, no. 1760, pp. 2495–2509, 1999. 
+[9] E. J. Candès, D. L. Donoho, “Curvelets - a surprisingly effective 
+nonadaptive representation for objects with edges,” Curve and Surface 
+Fitting: Saint-Malo, 1999. 
+[10]  J. L. Starck, D. L. Donoho, E. J. Candès. “Astronomical image 
+representation by the curvelet transform,” Astronomy & Astrophysics, 
+398, pp. 785–800, 2003.  
+[11] J. L. Starck, F. Murtagh, J. M. Fadili, Sparse Image and Signal 
+Processing,Cambridge University Press, 2010. 
+[12] P. Koten, K. Fliegel, S. Vítek, P. Páta, “Automatic Video System for 
+Continues Monitoring of the Meteor Activity,” Earth Moon Planets, vol. 
+108, pp. 69-76, 2011. 
+[13] R. C. Gonzalez, R. E. Woods, Digital image processing, Prentice Hall, 
+2007. 
+[14] D.L. Donoho, I.M. Johnstone, “Ideal spatial adaptationby wavelet 
+shrinkage”, Biometrika, no. 8, pp. 425–455, 1994. 
+[15] CurveLab Toolbox [online], webpage of the toolbox, [cit. 2013-03-03], 
+available from WWW:  http://www.curvelet.org.  
+[16] IRAF - Image Reduction and Analysis Facility [online], software is 
+written and supported by the National Optical Astronomy Observatories 
+(NOAO), [cit. 2013-03-03], official web site: http://iraf.noao.edu.  
+ 
+ 

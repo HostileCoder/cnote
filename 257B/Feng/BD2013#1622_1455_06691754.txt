@@ -1,0 +1,643 @@
+Multidimensional Analysis of Fetal Growth Curves 
+ 
+Mario A. Bochicchio, Antonella Longo, 
+Lucia Vaira 
+Set-Lab, Department of Engineering for 
+Innovation  
+University of Salento  
+Lecce, Italy 
+{mario.bochicchio, antonella.longo, 
+lucia.vaira}@unisalento.it 
+Antonio Malvasi 
+2Obstetric & Gynecology Department  
+Santa Maria Hospital  
+Bari, Italy  
+antoniomalvasi@gmail.com 
+ 
+ 
+ 
+Andrea Tinelli 
+Obstetric & Gynecology Department  
+Vito Fazzi Hospital  
+Lecce, Italy 
+andreatinelli@gmail.com 
+ 
+ 
+AbstractÑ Fetal biometry is considered the keystone in fetal 
+well-being assessment. In particular, fetal growth curves built by 
+means of ultrasound images and reference charts (defining the 
+normal and pathological sizes for each biometric parameter and 
+for each gestational age) are extensively adopted to track fetal 
+sizes from the early phases of pregnancy up to delivery. In 
+literature a large variety of reference charts are reported to 
+consider the differences among different ethnic groups, but they 
+are up to five decades old and they do not consider 
+environmental factors such as foods, lifestyle, smoke, familial 
+aspects, physiological and pathological variables, temporal 
+parameters etc., which cannot be disregarded in a correct 
+diagnosis. Therefore, current reference charts are rapidly 
+becoming inadequate to support the melting pot of ethnic groups 
+and lifestyles of our society, while customized reference charts 
+can provide an accurate fetal assessment for the different fetal 
+anthropometrical variables. Starting from a detailed analysis of 
+the limits of classical reference charts, the paper presents a new 
+method, based on multidimensional analysis for creating 
+personalized fetal growth curves. A simple implementation, 
+based on Open Source software and simulated data, shows the 
+need of Big Data techniques in order to scale up the problem. 
+KeywordsÑCloud computing; fetal growth; personalized 
+diagnosis; multidimensional analysis. 
+I.  INTRODUCTION AND BACKGROUND 
+In obstetrics and gynecology, data coming for medical 
+tests are often used for diagnostic and documentation 
+purposes, opening the stage for a systematic data analysis to 
+improve patient care and to develop new health-assessment 
+techniques. 
+For example, throughout pregnancy ultrasound scans of 
+the maternal abdomen are routinely used to track fetal growth 
+and to assess fetal health. This is pursued by collecting fetal 
+parameters such as Biparietal Diameter (BPD), Head 
+Circumference (HC), Abdominal Circumference (AC), Femur 
+Length (FL), Crown to Rump Length (CRL). To detect 
+whether growth parameters lay within normal ranges, 
+measured values are compared to statistical data (i.e. reference 
+charts with fetal growth curves, showing average values of 
+such parameters as a function of the gestational age). 
+Abnormal fetal growth parameters often are indicators of 
+potential fetal pathologies. 
+The importance of this test, proposed by Lubchenco [11], 
+Usher and McLean [21] and Babson and Brenda [1] more than 
+five decade ago is supported by a huge amount of scientific 
+literature and by the clinical evidence, but the same literature 
+clearly shows its main constraints: 
+¥ the number of patients considered in the studies (some 
+thousandth) is low with respect to the total number of 
+newborn per year (about 140 ML in 2012) in the World; 
+¥ the patients considered in the studies are not representative 
+of the variety of anthropometrical factors related to 
+ethnicity, to familial aspects and to other relevant internal 
+and external factors; 
+¥ the commonly used growth curves are up to five decades 
+years old, they are not updated for the current population 
+and they are not suitable to investigate temporal trends 
+and dynamic aspects in fetal growth curves. 
+Indeed, fetal growth is influenced by a variety of factors, 
+racial, social and economic among others, as well as specific 
+medic conditions that may pre-exist or that may develop 
+during pregnancy. Hence, itÕs not surprising that fetal 
+biometric parameters show a degree of variation from country 
+to country and from area to area within the same country. 
+Beyond ethnicity, others factors affect fetal growth including 
+fetus gender, physiological and pathological variables, 
+maternal height and weight, drug or tobacco exposure, genetic 
+syndromes, congenital anomalies and placental failure ([8], 
+[15], [16], [20]). 
+Some authors addressed these problems providing an 
+increasing number of fetal growth charts for specific groups 
+and subgroups of population, but their studies suffer from a 
+considerable methodological heterogeneity making them 
+difficult to extend them on the large scale. 
+Other authors, such as Gardosi [4] in 1992, proposed to 
+adjust growth curves for most of the influential factors and 
+introduced the idea of individualized fetal growth charts 
+according to specific maternal and fetal characteristics. After 
+about 20 years the interesting proposal, based on proprietary 
+software and on a centralized application, did not produce 
+results documented in the scientific literature. 
+From a theoretical point of view the creation of 
+personalized reference charts for fetal growth curves can be 
+formulated as a multidimensional analysis problem on the 
+biometric dataset, routinely collected by doctors for fetal 
+health assessment during pregnancy. Parameters (ethnicity, 
+2013 IEEE International Conference on Big Data
+ 978-1-4799-1293-3/13/$31.00 ©2013 IEEE 23
+maternal sizes, familial aspects etc.) impacting the fetal 
+growth can be modeled as cubes dimensions and each 
+homogeneous group of patients (with respect to a given set of 
+dimensions) can be considered as a subcube of the above 
+mentioned biometric dataset. In the multidimensional analysis 
+the requirement of personalized chart can be also expressed in 
+the form: Òwhich is the normal range associated to the X 
+biometric parameter of a Y-weeks old fetus belonging to the 
+subcube defined by the Z dimensional parameters?Ó. 
+An important constraint, in order to design a system able to 
+dynamically answer to these questions, comes from the 
+problem size, which is a function of the number of newborns 
+per year. In this case, considering the storage space needed for 
+the biometric dataset and for the other related data (order of 
+magnitude of some PB), the distributed nature of the system 
+and the number of operations per newborn (order of 
+magnitude of millions or more) we will demonstrate that Big 
+Data techniques  must be adopted to satisfy its requirements. 
+The paper is organized as follows: after the presentation of 
+the background and of the problem (Section II and III), we 
+will show how a conventional open source data warehouse 
+(DW) system can be effectively used to compute the 
+personalized fetal growth curves (Section IV). Then, we will 
+show why DW systems are insufficient to effectively manage 
+the whole dataset needed to supply the ÒPersonalized Fetal 
+Growth CurvesÓ service on global scale, and how the problem 
+can be overcome using Big Data techniques (Section V). 
+Section VI is for conclusions and future works. 
+II. BACKGROUND 
+After the pioneering works of Lubchenco [11], Usher and 
+McLean [21] and Babson and Brenda [1], more than five 
+decades ago, fetal growth assessment is a well established and 
+mature research field in obstetrics and gynecology ([2], [3], 
+[5], [6]). 
+The proliferation of studies on specific subgroups of 
+patients ([23], [24], [25], [26], [27]) and the related proposals 
+of an ever increasing number of reference charts was 
+characterized by a considerable methodological heterogeneity 
+making difficult to normalize them and generally reuse for 
+diagnostic purposes. As a consequence in clinical practice 
+generic reference charts are preferred to specific ones, or to 
+more complex approaches based on suitable mathematic 
+models [26], because of their simplicity. 
+To preserve the simplicity of the approach without loss of 
+diagnostic power, some authors proposed the adoption of 
+purposely developed software tools (Web Applications, 
+Mobile Application, É) to create customized growth charts 
+([4], [5], [9]) based on a regression model fitted to a very large 
+group of newborns. GROW software [9] by Gardosi can be 
+used as a web application or stand alone. Once inserted 
+parameters such as weight, height, gender and ethnicity, it 
+produces an ideal fetal growth curves using the GROW 
+(Gestation Related Optimal Weight) method. Another widely 
+used software is EcoPlus by Thesis Imaging1, an information 
+system which allows comprehensive management of medical 
+                                                             
+1 http://www.tesi.mi.it:8080/TesiSito/products.php 
+records by typing fetal biometric parameters, which are 
+directly compared with the reference values for gestational 
+age, with the display of the growth curve percentile. 
+X-Report OstGyn2 processes ultrasound parameters in real 
+time, displaying graphics of the acquired data, and comparing 
+them with those of previous scans. The software offers the 
+possibility of adopting different references for the growth 
+curves.  
+Since the reference values are often based on tables and 
+formulas not easy-to-interpret, patients are increasingly 
+making use of web applications or even mobile applications 
+(Apps) preferring the simplicity and immediacy of reading 
+rather than the scientific and methodological correctness. 
+Among the best known applications there are iFetus3 uses the 
+most recent and updated biometric tables of the Caucasian 
+race (valid for both European and North American 
+populations); Fetal Ultrasound Calculator24 and Percentile 
+Growth Charts5 that let patient know the percentiles based on 
+World Health Organization (WHO) standards and to design 
+custom charts. 
+These applications address the problem of positioning data 
+on chart used as reference standard for the construction of 
+growth curves, but WHO standards are dated, they are still 
+based on generic reference charts and donÕt differentiate by 
+ethnic origin, so they are unsuitable to assess the biometric 
+parameters in several cases of practical interest. 
+Despite the widespread adoption of cloud-based solutions 
+by most industries, cloud computing has been slowly 
+embraced by healthcare and the biggest impeding factors are 
+concerns about security and performance of cloud services 
+causing their low rate usage (this is the official reason for the 
+closure of Google Health and Revolution Health for example) 
+and the skepticism of institutions. Despite all oppositions, 
+several institutions have moved to cloud infrastructure to 
+lower their storage costs and facilitate the exchange of images 
+and medical record. Examples are Microsoft Health Vault 
+[14], the Merge HealthcareÕs Project Honeycomb [13] and the 
+Accenture Medical Imaging Solution [22]. 
+To our knowledge big data techniques for approaching the 
+problem of personalized growth chart are still not explored, 
+even if it is clear that potential benefits can come.  
+Some authors have already proved the benefits of some 
+techniques in dealing with large volumes of data ([28]). In the 
+following of the paper we will disclose these reasons. 
+III. THE USE OF MULTIDIMENSIONAL MODELLING FOR 
+PRODUCING PERSONALIZED CHARTS 
+The detailed analysis of the fetal intrauterine growth 
+monitoring is out of the scope of this paper but, in summary, 
+the underlying idea is that: 
+                                                             
+2 http://www.gsquared.it/X-Report.html 
+3 http://appfinder.lisisoft.com/app/ifetus.html 
+4 http://appfinder.lisisoft.com/app/fetal-ultrasound-calculator2.html 
+5 https://play.google.com/store/apps/details?id= 
+com.endyanosimedia.ipercentiles&hl=it 
+ 
+24
+- fetuses at the same gestational age, with similar genetic 
+make-up (ethnicity, familial aspects, ...) and in similar 
+environmental conditions (food, smoke, drugs, ...) are 
+subject to similar growth curves. This kind of fetuses will 
+be referred, in the following of the paper, as 
+Homogeneous Fetal Groups (HFG); 
+- a fetus with growth parameters different from those of its 
+HFG is potentially pathologic. 
+ 
+Figure 1: Fetal-Infant Growth Chart as presented by Fenton TR 
+in Pediatrics, 2003 Dec 16; 3(1) 
+ 
+Monitoring is performed by measuring the length or the 
+circumference of specific parts of the fetal skeleton (the above 
+cited BPD, HC, AC, FL and CRL) by means of maternal 
+trans-abdominal ultrasound pictures (Figure 1). For the 
+purposes of this paper, for each given HFG at each gestational 
+age (in weeks) the probability to find a given length can be 
+approximated by a Gaussian distribution. This is justified by 
+the natural anthropometric variability we can observe in 
+normal fetuses and by the errors associated to the 
+measurement procedure. 
+For diagnostic purposes we assume that fetuses are healthy 
+if their sizes are between the 10th and the 90th percentile of 
+the cumulative distribution function. They are pathologic if 
+their sizes are out of the interval 3rd Ð 97th., otherwise they 
+are borderline. 
+ 
+Figure 2: Gaussian curve generated with 100 samples, given a 
+predefined parameter (head circumference) and a fixed 
+gestational age 
+The Gaussian curves are effective for diagnosis purposes if 
+their variance is small and the Gaussian bell is strict around 
+the average. It is evident that if the sample for calculating the 
+curve is small it is not representative of the whole population, 
+while if they sample is too large it can present considerable 
+anthropometric variability, which will be represented with a 
+wide variance, and the corresponding Gaussian curve will be 
+little effective for diagnostic purposes. 
+Therefore the right statistic sample with the smallest 
+possible variance is the HGF we can obtain with the largest 
+sample of patients. Moreover, itÕs easy to see that all HGFs 
+can be dynamically extracted from the whole dataset by means 
+of multidimensional queries where fetal sizes are the measures 
+[7], while the dimensions are the parameters (ethnicity, 
+maternal weight and height, familial aspects, foods etc.) 
+impacting the fetal growth. 
+ 
+ 
+Figure 3: Dimensional fact model of an ultrasound monitoring 
+visit 
+As shown in Figure 3, in collaboration with a research 
+group on obstetrics and gynecology we identified 9 main 
+dimensions of analysis and 6 measures for the biometric fetal 
+sizes. This lead to more than 10.000 Homogeneous Fetal 
+Subgroups that the system must be able to identify and 
+continuously update by adding the new fetal sizes when they 
+36 weeks (gestational age)
+ 3 10 50 90 97
+ 100 samples
+ Head Circumference
+ sample #
+ percentile
+ length (cm)
+ 29.30 30.90 32.70 34.90 36.05
+ 3 7 37
+ 40 40
+ borderline borderlinenormal
+ pathologic
+ 2@GE6FCHB9
+ 2@GE6FCHB9
+ ">D6E>:G6@$>6A:G:E".$
+ &ECBGC-88>D>G6@$>6A:G:E&-$
+ (:69#>E8HA;:E:B8:(#
+ !79CA>B6@#>E8HA;:E:B8:!#
+ &:AHE*:B<G=&*
+ (HA:E6@*:B<G=(*
+ ':FG6G>CB6@!<:
+ +:B6E8=:
+ *6FG+:BFGEH6@.:E>C9*+.
+ %FG>A6G:9.6EGHA$6G:
+ .E:I>CHF.E:<B6B8>:F
+ 2@GE6FCHB9+68=>B:
+ 2@GE6FCHB9+:G=C9C@C<L
+ 20-7F:EI6G>CB
+ .H@F6G>CB!8G>I>GL
+ !AB>CG>8&@H>9
+ #>FG:EB6+6<B6#+
+ 1E6BFI:EF:#:E:7:@@6E$>6A:G:E1#$
+ 1E6BFI:EF:!79CA>B6@$>6A:G:E1!$
+ %FG>A6G:9&:G6@4:><=G%&4
+ #ECJB1C/HAD*:B<G=#/*
+ &:G6@*:B<G=
+ #:E:7:@@6E*6G:E6@3:BGE>8@:
+ "E6>B0>M:
+ ">BC8H@6E$>6A:G:E
+ )BG:EC8H@6E$>6A:G:E
+ #:E:7:@@6E3:BGE>8@:!AD@>GH9:
+ .H@F6G>@>GL)B9:K
+ /:F>FG6B8:)B9:K
+ ,H86@1E6BF@H8:B8L,1
+ #:E:7:@@6E!BG:E>CE3:BGE>8@:$>6A:G:E
+ #:E:7:@@6E.CFG:E>CE3:BGE>8@:$>6A:G:E
+ 2@GE6FCHB9$6G:
+ $6L-;+CBG=
+ +CBG=$:F8
+ +CBG=0=CEG$:F8
+ +CBG= 1E>A:FG:E 5:6E
+ *6FG+:BFGEH6@$6G:
+ ':FG6G>CB6@!<:$6G:
+ 4::?F 1E>A:FG:E
+ %G=B>8>GL
+ $>F:6F:
+ (CA:!99E:FF
+ .ECI>B8:/:<>CB0G6G:
+ $EH<F
+ 0AC?: P5O,Q
+ &CC9(67>GF
+ .FL8=C@C<>86@
+ #6E9>68
+ ,:HEC@C<>86@
+ NNN
+ 1E>A:FG:E 5:6E
+ #6G:<CEL
+ +CBG=
+ 25
+arrive from the hospitals or from the patients (20 ML per year, 
+about 2 every 3 seconds). It means that this problem largely 
+exceeds the computation capabilities of a classic 
+multidimensional analysis system, such as the one included in 
+the Pentaho suite. In order to produce updated HFG in a 
+reasonable time, specific techniques must be investigated. For 
+example Pentaho community has developed a specific project 
+for high-performance, scalable and distributed memory 
+clustering cache, called Community Distributed Cache (CDC). 
+The project allows to clear the cache of only specific 
+Mondrian cubes. This feature allows to update each single 
+HFG without impacting on the other cubes. Another approach 
+can explore advanced clustering techniques for 
+multidimensional datasets based on MapReduce Framework, 
+as in [28], which demonstrated the be very effective to solve 
+the problem at a reasonable price by means of Big Data 
+techniques running on cloud infrastructure. 
+IV. DATA LAYER DESIGN 
+For the purposes of this paper, fetal biometric data and 
+maternal data are created by means of a simulator, but in a real 
+scenario, for a fully functional system, we should consider that 
+medical data comes from a number of heterogeneous sources 
+(hospitals, EHR repositories, patients etc.) through different 
+channels (web services, web applications, mobile applications 
+etc.) in different format (HL7 or proprietary formats). 
+ 
+Figure 4: Data model of Data4GO 
+This aspect brings to design a data layer made up of a 
+distributed data architecture (Figure 4) which hierarchically 
+integrates transactional data coming from the sources and 
+normalized against a shared reference model (DB4GO Ð 
+DataBase for Gynecology and Obstetrics). The distributed 
+DB4GO is transformed in the DW4GO, which is the 
+repository for the multidimensional datamarts of HFG. 
+ 
+A. The DB4GO layer 
+For modeling the maternal and fetal data we started from 
+the HL7 Reference Information Model [10] and from the 
+Universal Data Model [18] which represents two good starting 
+point in healthcare. Moreover, we analyzed the HL7 Common 
+Data Model based on the Data Model Harmonization Process 
+for the integration phase [10]. 
+Two fragments of the adopted model, used to prepare data 
+for the multidimensional analysis phase, are shown in Figure 5 
+and Figure 6. The fragment in Figure 5 represents a model 
+more suitable for the initial phase in which doctors collect all 
+the data by means of anamnesis interviews. The fragment in 
+Figure 6 represents a part of the Entity-Relationship diagram 
+used for the multidimensional analysis phase. 
+ 
+Figure 5: A fragment of the ER patient-oriented diagram 
+ 
+Figure 6: A fragment of the ER report-oriented diagram 
+ 
+B. DB4GO data partitioning 
+The partitioning is due to the fact that each country is 
+regulated by specific laws on health data management 
+(privacy, security, accountability etc.) so that the granularity 
+of data sources cannot be greater than that of the countries 
+involved in the experiment. In general we can expect e much 
+lower granularity, from the hospital size to the single user (via 
+web application or mobile) size. Moreover, in several 
+countries data protection laws require knowledge of where 
+data are stored. For example this limits the adoption of the 
+cloud in countries like Spain, France or Italy until cloud 
+providers allowed obligatory data storage in a specific 
+geographic location [12]. 
+This aspect is important because, for further developments, 
+we can imagine to exploit the distributed query capabilities 
+typical of several modern clouds to index the ultrasound 
+images and the other data and metadata produced for the fetal 
+growth test and to retrieve it, according to specific criteria. 
+DB4GO 
+1
+ DB4GO 
+p
+ DW4GO
+ HFG DB
+ 3
+ Data2
+ Data3
+ Data1
+ Data n
+ DB4GO 
+2
+ Data2
+ Data1
+ Data m
+ DB4GO 
+3
+ Data2
+ Data1
+ Data 3
+ Data 4
+ Data n
+ HFG DB
+ 4
+ HFG DB
+ 4
+ HFG DB
+ 1
+ HFG DB
+ 5
+ HFG DB
+ 2
+ Staging areaSources
+ Multidimensionalized 
+datamarts
+ 26
+This has the potential to improve the diagnostic process 
+included in the fetal growth test and to support the inductive 
+statistic approach which is typical of Big Data research. 
+C. Problem  size 
+Each year 140 millions of newborn come to the World (4.4 
+from US and 5.5 from Europe). Considering a Fetal Growth 
+Tracking (FGT) online-service able to follow 50% of 
+newborns from Europe and US, a record size of 10 KB for 
+each pregnant woman plus 2 KB for each fetus and a running 
+window of 6 year to track mothers with 2 or more children, the 
+global storage space sum up to about 360 GB of online 
+multidimensional data (and about 1.5 PB including also 
+ultrasound images). 
+From the computational point of view, to generate the 
+custom growth charts, the FGT system should run about 20 
+millions (5 millions pregnant women x 4 tests) 
+multidimensional queries per year, i.e. about 2 queries each 3 
+seconds, which largely exceed the capabilities of a standard 
+business intelligence suite (normally adopted for 
+multidimensional analysis) such as Pentaho. 
+Existing Big Data solutions focus on addressing the 
+Volume aspect of the 3-VÕs of Big Data [29]. Specialized 
+technologies including distributed databases [30], Hadoop [31] 
+and NoSQL ([32], [19]) have been developed to support 
+scalable data storage and on-demand querying over large 
+volumes of data. These systems usually provide high read 
+performance for data that has been persisted and properly 
+indexed.  
+V. TEST ARCHITECTURE 
+To have a first indication about the resources consumed by 
+the FGT service and about how they scale with the problem 
+size we created two dataset representative of the Italian 
+demographic population (60 million inhabitants, 21 main 
+ethnic groups). The two datasets, including respectively, 
+100.000 and 1.000.000 records, were produced by using the 
+inverse Gaussian distribution function, generating respectively 
+500 and 5.000 Homogeneous Fetal Groups. 
+The 2 dataset were loaded on a Pentium 5 machine running 
+at 2.5 GHz with 8 GB of RAM and 2 TB of storage space 
+(SATA Disks). Then, they were processed with Pentaho 4.8 
+Community Edition, running 500 random queries to generate 
+500 different Personalized Fetal Growth Charts. The average 
+elapsed times are shown in Fig. 3. They clearly demonstrate 
+that even with a small fraction (about 3%) of the records to be 
+processed in the fully working system, a single machine is far 
+from satisfying the temporal constraints of processing 2 
+queries each 3 seconds defined in the previous section. 
+As a second option we considered a recent evolution of the 
+commercial version of Pentaho, called ÒPentaho Business 
+Analytics for Big DataÓ, which interfaces with Hadoop and 
+other NoSQL and Analytic databases, permitting to create 
+MapReduce functions and to visualize the results in Pentaho. 
+ 
+Figure 7: Processing time with respect to the patientsÕnumber 
+The detailed comparison between the results are shown in 
+Figure 7 and they show a significant performance 
+improvement, sufficient to meet the previously defined 
+temporal constraint at a reasonable price. 
+Two more options are under evaluations: 
+- the adoption of a different processing strategy, based on 
+the clustering of multidimensional dataset with Hadoop, 
+as described in [28]; 
+- the adoption of tensor-based computation, which is a very 
+effective way to manage multidimensional datasets on 
+distributed and parallel machines. 
+VI. CONCLUSIONS AND FUTURE WORKS 
+The fetal growth assessment is a relevant problem since it 
+concerns about 140 ML of newborns per year. Due to the 
+population and Òethnicity reshufflementÓ, itÕs by nature a 
+global phenomena which can benefit from the adoption of Big 
+data techniques and cloud infrastructures. The goal is to obtain 
+personalized Fetal Growth CurvesÕ computation within a 
+given timeframe (< 1.5 s) over a given dataset (about 360 GB) 
+of multidimensional data. 
+In order to have some preliminary figures about the 
+resources consumed by FGT service we performed 2 different 
+experiment based on Pentaho and Hadoop. 
+The first results show that the problem can be solved at a 
+reasonable cost and in an acceptable time. More promising 
+results came from the adoption of 2 advanced approaches 
+based parallel clustering algorithm and on tensor-based 
+computation. 
+In the future we plan to deeper explore these solutions 
+comparing them with the Pentaho-Hadoop approach. 
+REFERENCES 
+[1] Babson S.G., Benda G.I. Growth graphs for the clinical assessment of 
+infants of varying gestational age. J Pediatr. 89, 814Ð820. 1976 
+[2] Bonellie S., Chalmers J., Gray R., Greer I., Jarvis S., Williams C. 
+Centile charts for birth-weight for gestational age for Scottish singleton 
+births. BMC Pregnancy Childbirth. 8,5Ð14. 2008 
+[3] Fenton T.R.: A new growth chart for preterm babies: Babson and 
+Bendas chart updated with recent data and a new format. BMC Pediatr. 
+3, 13Ð22. 2003 
+27
+[4] Gardosi J., Chang A., Kalyan B., Sahota D., Symonds E.M. Customised 
+antenatal growth charts. Lancet. 339, 283-287. 1992 
+[5] Gardosi J., Mongelli M., Wilcox M., Chang A. An adjustable fetal 
+weight standard. Ultrasound Obstet Gynecol 1995; 6:168-174. 1995 
+[6] Giorlandino M, Padula F, Cignini P, Mastrandrea M, Vigna R, 
+Buscicchio G, Giorlandino C. Reference interval for fetal biometry in 
+Italian population. J Prenat Med. 2009 Oct; 3(4):62-5. 
+[7] Golfarelli M., Rizzi S.: Data Warehouse - Teoria e pratica della 
+progettazione, McGrowHill, (2006) 
+[8] Groveman S.A. New Preterm Infant Growth Curves Influence of Gender 
+and Race on Birth Size. Masters thesis. Philadelphia, PA: Biotechnology 
+and Bioscience, Drexel University. 2008 
+[9] GROW software http://www.gestation.net  
+[10] HL7 Reference Information Model, Health Level Seven, Inc., available 
+at http://www.hl7.org/v3ballot/html/infrastructure/rim/rim.htm  
+[11] Lubchenco L.O., Hansman C., Boyd E. Intrauterine growth in length and 
+head circumference as estimated from live births at gestational ages 
+from 26 to 42 weeks. Pediatrics. 37, 403Ð408. 1966 
+[12] Lus A. Bastio Silva, Carlos Costa and Jos Luis Oliveira. Strengths and 
+Weaknesses of Using Cloud Computing Data Ownership & Protection 
+Issues, Imaging Management, vol. 11 (5), p 14-15. 2012 
+[13] Merge Honeycomb, available at 
+http://www.merge.com/Solutions/Cloud/Merge-Honeycomb-
+ Archive.aspx  
+[14] Microsoft. Microsoft HealthVault. Retrieved from 
+http://www.microsoft.com/en-us/healthvault/organize/medical-
+ records.aspx 2012 
+[15] Niklasson A., Albertsson-Wikland K. Continuous growth reference from 
+24th week of gestation to 24 months by gender. BMC Pediatr. 8,8Ð32. 
+2008 
+[16] Oken E., Kleinman K.P., Rich-Edwards J., Gillman M.W. A nearly 
+continuous measure of birth weight for gestational age using a United 
+States national reference. BMC Pediatr. 3,6Ð15. 2003 
+[17] PIC ULSS 8 Asolo available at https://www.ulssasolo.ven.it  
+[18] Silverston L., The Data Model Resource Book, Vol. 2: A Library of 
+Universal Data Models by Industry Types, Revised Edition, John Wiley 
+and Sons, New York (April 2001) 
+[19] Stonebraker M. Stonebraker on NoSQL and enterprises. Commun. ACM, 
+54 (8): 10Ð11, 2011 
+[20] Thomas P., Peabody J., Turnier V., Clark R.H. A new look at 
+intrauterine growth and the impact of race, altitude, and gender. 
+Pediatrics.106 (2). Available at: 
+www.pediatrics.org/cgi/content/full/106/2/e21. 2000 
+[21] Usher R., McLean F. Intrauterine growth of live-born Caucasian infants 
+at sea level: standards obtained from measurements in 7 dimensions of 
+infants born between 25 and 44 weeks of gestationÓ. J Pediatr. 74, 901Ð
+ 910. 1969 
+[22] Violino, B. Accenture, AT&T Offer Cloud-Based Medical Imaging. 
+Retrieved from http://www.information-
+ management.com/news/Accenture-ATT-cloud-computing-medical-
+ imaging-solution-10021574-1.html 2011 
+[23] Mongelli, M., and J. Gardosi. "Longitudinal study of fetal growth in 
+subgroups of a low risk population." Ultrasound in Obstetrics & 
+Gynecology 6.5 (1995): 340-344. 
+[24] Kramer MS, Platt RW, Wen SW, Joseph KS, Allen A, Abrahamowicz 
+M, Blondel B, Breart G. A new and improved population-based 
+Canadian reference for birth weight for gestational age. Pediatrics 2001; 
+108(2): e35-e35. 
+[25] McCowan Lesley, Stewart Alistar W., Francis Andre and Gardosi Jason. 
+A customised birthweight centile calculator developed for a New 
+Zealand population. Aust N Zeal J Obstet Gynaecol 2004; 44(5):428-
+ 431. 
+[26] Salomon LJ, Duyme M, Crequat J, Brodaty G, Talmant C, Fries N, 
+Althuser M. French fetal biometry: reference equations and comparison 
+with other charts. Ultrasound Obstet Gynecol 2006; 28(2): 193-198. 
+[27] Verburg, B. O. Steegers EA, De Ridder M, Snijders RJ, Smith E, 
+Hofman A, Moll HA, Jaddoe VW, Witteman JC. New charts for 
+ultrasound dating of pregnancy and assessment of fetal growth: 
+longitudinal data from a population based cohort study. Ultrasound 
+Obstet Gynecol 2008; 31(4): 388-396. 
+[28] Cordeiro, Robson L. F., Traina Jr. Caetano, Traina Agma J. M., Lopez 
+Julio, Kang U, Faloutsos Christos. "Clustering very large multi-
+ dimensional datasets with mapreduce." Proceedings of the 17th ACM 
+SIGKDD international conference on Knowledge discovery and data 
+mining. ACM, 2011. 
+[29] D. Laney. 3D data management: Controlling data volume, velocity, and 
+variety. Technical report, META Group, 2001. 
+[30] H. Garcia-Molina, J. D. Ullman, and J. Widom. Database systems: The 
+complete book. N.J, USA: Prentice Hall Press, 2008. 
+[31] K. Shvachko, H. Kuang, S. Radia, and R. Chansler. The hadoop 
+distributed file system. In Mass Storage Systems and Technologies 
+(MSST), 2010 IEEE 26th Symposium on, pages 1Ð10, 2010. 
+[32] J. Han, E. Haihong, G. Le, and J. Du. Survey on nosql database. In 
+Pervasive Computing and Applications (ICPCA), 2011 6th International 
+Conference on, pages 363Ð366, 2011. 
+ 
+28

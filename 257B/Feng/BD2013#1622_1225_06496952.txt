@@ -1,0 +1,1190 @@
+ 1 
+A Novel and Efficient Approach for Automatic  
+Classification of Radar Emitter Signals  
+Ashraf M. Aziz, Senior Member, IEEE  
+Electrical Engineering Department, Faculty of Engineering  
+Al-Baha University, Al-Baha, Kingdom of Saudi Arabia  
+amaziz64@ieee.org 
+ 
+Abstract—Radar emitter signal identification is a special 
+issue of data clustering for classifying unknown radar 
+emitters. In this paper, an efficient approach for 
+automatic classification of radar emitter signals in 
+multisensor systems is proposed. The proposed approach 
+exploits measured features extracted from multiple 
+sensors as well as the sensor accuracies for classification 
+of unknown multiple radar targets. The proposed 
+approach can easily be applied to any number of sensors 
+with different accuracies, any number of emitters, and 
+any number of measured features without exponential 
+growing of the required computations. The performance 
+of the proposed classification approach is evaluated in 
+terms of percentage of correct classification and 
+compared to other classification approaches. The results 
+show the feasibility and the effectiveness of the proposed 
+classification approach.1 
+TABLE OF CONTENTS 
+1. INTRODUCTION.................................................................1 
+2. PROBLEM FORMULATION AND A REVIEW OF SOME 
+PUBLISHED STUDIES RELATED TO CLASSIFICATION OF 
+RADAR EMITTER SIGNALS...................................................2 
+3. PROPOSED APPROACH FOR AUTOMATIC RADAR 
+EMITTER CLASSIFICATION..................................................3 
+4. SIMULATION RESULTS .....................................................5 
+5. SUMMARY .........................................................................6 
+REFERENCES ........................................................................7 
+BIOGRAPHY ..........................................................................8 
+ 
+1. INTRODUCTION 
+In recent years, multisensor systems are gaining interest in 
+both military and civilian applications [1-10]. Multiradar 
+systems imply the development of surveillance systems to 
+monitor events. In this case, a number of distributed radars 
+have been deployed to support surveillance and monitoring 
+operations [11, 12]. Multiradar data fusion is the process by 
+which measured features from diverse radars, sensing 
+multiple targets, is fused to yield improved performance 
+than could be achieved using a single radar system [13, 14]. 
+The measured features are corrupted with different types of 
+disturbances that are likely to occur in a typical multisensor 
+system. Features refer to the parameter measured by the 
+radars sensors and fusion is the process of combining the 
+parameters of the sensed targets. Sensor fusion can be 
+ 
+1
+  978-1-4673-1813-6/13/$31.00 ©2013 IEEE 
+ 
+efficiently applied to several military and civilian 
+applications in order to increase the coverage area and 
+improve the system accuracy.    
+One of the main tasks performed by multisensor systems is 
+the classification issue performed in surveillance 
+applications. These systems are composed of multiple radars 
+and one of their main tasks is classification of multiple radar 
+emitter signals. Radar emitter classification is a special 
+application of data clustering for classifying unknown radar 
+emitters from received radar pulse samples. For example, for 
+a multisensor coastal surveillance system presented in [11], 
+it is composed of two platforms of sensors; a land-based 
+platform and an airborne platform. The land-based platform 
+is equipped with a land based radar, an automatic 
+identification system, and an infrared camera. The airborne 
+platform is equipped with an airborne radar, a video camera, 
+and an infrared camera. There are many tasks performed by 
+this multisensor systems including target detection, target 
+tracking, threat assessment, and classification of multiple 
+targets. Another practical example are the electronic warfare 
+systems presented in [15]. Electronic warfare receivers are 
+passive receivers which receive emissions from many 
+platforms, and perform some analysis on these emissions. 
+Some of these electronic warfare receivers receive radar 
+pulses, measure the features of each pulse received, and then 
+classify the pulses that belongs to the same emitter together 
+to determine the radar features for each emitter. The 
+measured features are then compared with values related to 
+known radar types, to identify the emitter type. Another 
+application is the classification of real-life audio signals that 
+are collected by a ground surveillance radar mounted on a 
+tank [16]. A human operator can operate the radar system to 
+discern among small number of signals bouncing off tanks, 
+vehicles, planes, and so on. The aim here is to achieve 
+automatic target classification and reduce the number of 
+personnel required in a tank; for example.         
+The challenges in target emitter classification are real time 
+processing, closely located radar clusters, and high 
+dimensionality in terms of the number of emitters, the 
+number of sensors, and the number of measured features. 
+This paper proposes a novel and efficient approach for 
+automatic radar emitter classification based on measured 
+features from multiple sensors with different accuracies. The 
+proposed approach treats all the measured features at once, 
+not pairwise, and generates classification weights based on 
+ 2 
+the measured features, prototype radar types, and the diverse 
+sensor accuracies.  
+The remainder of this paper is organized as follows. 
+Problem formulation, assuming uncorrelated sensor errors, 
+and a review of some published studies related to 
+classification of radar emitter signals are considered in 
+Section 2. The proposed classification approach is presented 
+in Section 3. Performance evaluation and numerical results 
+based on Monte Carlo simulations are reported in Section 4. 
+Performance comparison with other classification 
+approaches is also presented in Section 4. Section 5 contains 
+the summary.  
+ 
+2. PROBLEM FORMULATION AND A REVIEW OF 
+SOME PUBLISHED STUDIES RELATED TO 
+CLASSIFICATION OF RADAR EMITTER SIGNALS 
+To simplify the problem formulation, we formulate the 
+problem with a simple example. We assume a scenario of a 
+multisensor multiemitter environment with two sensors, with 
+different accuracies, and three emitters in an overlapping 
+coverage scenario. Each sensor observes some emitters 
+under surveillance and sends feature vectors to a central 
+processor. We assume uncorrelated sensor errors. Sensor 1 
+observes emitter 1 and emitter 2. Sensor 2 observes emitter 
+2 and emitter 3. Due to the overlapping coverage, the 
+number of feature vectors, reported to the central processor, 
+is 4 feature vectors; although we only have 3 emitters. We 
+assume that each feature vector, ,2,1,3,2,1, == jiijF  has 
+two features, which are the radio frequency ( RF ) and the 
+pulse repetition interval ( PRI ) of the observed emitter. 
+Each feature vector, ijF , represents the features vector from 
+sensor j  due to observing emitter i . The main goal is to 
+find out which features  are similar (i.e. represent the same 
+emitter) and dissimilar (i.e. represent different emitters) to 
+each other.  
+                                                    
+With this simple example of two sensors, three emitters,  and 
+two features, we can simply find the similar and dissimilar 
+emitters. Two emitters that have about the same feature 
+values are more similar than two emitters  that do not. But 
+for large number of sensors, emitters, and visual inspection 
+fails us and automatic classification becomes useful. 
+Furthermore, the number of emitters is not known a priori, 
+which makes the problem more complicated for a large 
+number of emitters. The number of ways of classification of 
+N  feature vectors into en  emitters is a Stirling number of 
+the second kind  [9] and is given by 
+ 
+.
+ !
+ 1
+ 0
+ )( N
+ nk
+ k
+ e
+ e
+ n
+ N kk
+ n
+ n
+ W
+ e
+ e ∑=
+ =
+ ???
+ ?
+ ???
+ ?
+ =                         (1) 
+ 
+For even the relatively simple problem of classification of 
+25 feature vectors into known 5 emitters, the number of 
+ways (possibilities) is the quantity  
+,751,110,974,684,436,2)5(25 =W                  (2) 
+ 
+which is very large. The problem is compounded when the 
+number of emitters is unknown. In this case, the number of 
+possibilities increases markedly to   
+∑=
+ =
+ ?>
+ 25
+ 1
+ 18)(
+ 25 .104
+ m
+ m
+ jW                             (3) 
+ 
+This example shows the essential need of automatic 
+classification.  
+ 
+In [15], a self-organizing neural network is proposed for 
+clustering. This algorithm has the capability of  good 
+clustering in real time applications. In [15], two parts are 
+focused, emitters deinterleaving and PRF-type identification. 
+The deinterleaving is done through parameters clustering. 
+Two parameters are selected for clustering; direction of 
+arrival and radio frequency. In [16], Radial basis function  
+neural networks with training are used for target recognition 
+to classify real-life audio radar signals that are collected by a 
+ground surveillance radar mounted on a tank. Different 
+signal classification models in the neural net literature, such 
+as autoregressive model, are also considered in [16].  In 
+[17], two radar target classification techniques developed to 
+utilize radar returns are discussed. Both of these techniques 
+utilize resonance region backscatter measurements of the 
+radar cross section and the intrinsic target backscattered 
+phase. The first technique uses nearest neighbor algorithms 
+on the radar cross section magnitude and phase at a number 
+of operating frequencies. The second technique uses an 
+inverse Fourier transformation of the complex 
+multifrequency radar returns to the time domain followed by 
+cross correlation. Comparisons are made of the performance 
+of the two techniques as a function of signal-to-error noise 
+power ratio for various processing options. In [18], the 
+problem of classifying radar target signals based on radio 
+frequencies is discussed in case of Gaussian distributed 
+observations. Two different classification approaches are 
+analyzed, based on the adaptive coherent estimator and on 
+the generalized likelihood ratio test. The performance of the 
+two classification algorithms are evaluated analytically and 
+by Monte Carlo simulations. In [19], an approach is 
+proposed for intra-pulse feature extraction of radar emitter 
+signals based on symbolic time series analysis. In this 
+approach, embedding time-delay and modified Shannon 
+entropy are used as two-dimensional feature vector to sort 
+the interleaving radar signals. In [20], an approach for 
+classification of multitemporal synthetic aperture radar 
+images is presented. It has been developed by integrating an 
+analysis of the multitemporal synthetic aperture radar signal 
+physics with a pattern recognition approach. The system is 
+made up of a feature-extraction module and a neural-
+ network classifier, as well as a set of standard preprocessing 
+procedures. This method reduces the complexity of the 
+neural architecture, increases the generalization capabilities 
+of the classifier, and relaxes the requirements relating to the 
+number of training patterns to be used for classifier learning. 
+ 3 
+In [21], two online clustering algorithms are developed for 
+radar emitter classification. One is model-based using the 
+minimum description length criterion and the other is based 
+on competitive learning. Computational complexity is 
+analyzed for each algorithm and then compared. Simulation 
+results showed the superior performance of the model-based 
+algorithm over competitive learning in terms of better 
+classification accuracy, flexibility, and stability. In [22], a 
+classification method is proposed to overcome the complex 
+and dense pulses environment which is vital factor to restrict 
+the efficiency of classification of the conventional multi-
+ parameters signal sorting system. This method is considered 
+as  a segment clustering radar signal sorting method based 
+on support vector clustering  according to the statistics 
+learning theory.  In [23], a three-layer vector neural network 
+with a supervised learning algorithm suitable for signal 
+classification in general, and for emitter identification in 
+particular. The input features of the emitter identification 
+problems include the radio frequency, pulse width, and pulse 
+repetition interval of a received emitter signal. This method 
+requires a training phase for the measured data.                   
+ 
+In general, the computational cost in generating the optimal 
+classification to the problems of classification of radar 
+emitter signals is usually excessive and infeasible for real-
+ time surveillance systems. Furthermore, they assume 
+idealized modeling assumptions and a prior knowledge of 
+the signal environment, which is limited in practice. It is 
+worth noting that the use of an optimum, complicated, 
+classification  techniques under idealized (impractical) 
+assumptions may not achieve acceptable performance when 
+these assumptions are not satisfied.   
+ 
+Unlike the optimal solutions, the suboptimal solutions 
+provide approximate solutions to the problems of  radar 
+emitter signal classifications. The approximate solutions are 
+based on neural network and fuzzy logic techniques. The 
+major drawbacks to the neural network implementations are 
+that they require unreasonable numbers of neurons and 
+require training with a very large set of tracks [16, 23]. 
+Fuzzy techniques have been proven very successfully in 
+many classification problems. Fuzzy techniques are 
+currently applied to important application areas such as 
+medical imaging, robot vision, remote sensing, sonar 
+systems and pattern recognition  and are rapidly growing to 
+become a powerful technique for multisensor data fusion [7, 
+10, 12].  Fuzzy systems are well suited to manage 
+uncertainty and to model decision-making processes and 
+offer the advantage of a clear understanding of their 
+operation, because they construct knowledge by rules that 
+resemble human thinking. For the problem of  classification, 
+the distributed sensors use their input data to form an 
+opinion, in the form of a fuzzy membership, on the 
+environment. The features are fuzzified using membership 
+functions. The outputs from the fuzzification are values 
+between  0  and  1  and represent the correlation between all 
+the feature vectors. These outputs are called fuzzy outputs. 
+The fuzzy outputs from the fuzzification process are 
+processed using fuzzy rules represented as IF THEN rules. 
+The defuzzification process converts the fuzzy outputs to 
+non-fuzzy outputs, which are called crisp data. The 
+defuzzification outputs are analyzed and compared with 
+each other or with thresholds to determine whether two/more 
+feature vectors, obtained from two or more different sensors, 
+represent the same emitter. Unfortunately, the extension of 
+fuzzy techniques to the case of a large number of 
+sensors/emitters/features is fairly complex due to the 
+required large number of IF THEN rules [4, 12]. 
+Furthermore, as the system complexity increases, it becomes 
+difficult to determine the right set of rules and membership 
+functions to describe the system behavior. In addition, the 
+solution of the conventional fuzzy logic approach to the 
+classification problem is an approximate solution, and the 
+accuracy depends on several factors including the number of 
+input variables, the number of linguistic variables, the 
+choice of membership function, and the accuracy of fuzzy 
+rules and statements. 
+                                                       
+3. PROPOSED APPROACH FOR AUTOMATIC 
+RADAR EMITTER CLASSIFICATION  
+First, we will consider the case of two feature vectors, then 
+the proposed method can easily be applied to any number of 
+feature vectors. We assume that we have two feature vectors 
+from two different sensors due to observing some radar 
+emitters. Let iF  be the feature vector, of fn  number of 
+features, with corresponding resolution ,2,1, =iir i.e.  
+ 
+,2,1,
+ feature
+ ........
+ .......
+ 2feature
+ 1feature
+ =
+ ?
+ ?
+ ?
+ ?
+ ?
+ ?
+ ?
+ ?
+ ?
+ ?
+ ?
+ ?
+ ?
+ ?
+ ?
+ ?
+ = i
+ n f
+ iF                     (4) 
+ 
+.2,1,
+ featureofresolution
+ ...........................
+ ...........................
+ 2featureofresolution
+ 1featureofresolution
+ =
+ ?
+ ?
+ ?
+ ?
+ ?
+ ?
+ ?
+ ?
+ ?
+ ?
+ ?
+ ?
+ ?
+ ?
+ ?
+ ?
+ = i
+ n f
+ ir          (5) 
+ 
+The first sensor is assumed to be more accurate than the 
+second sensor, i.e.  
+ 
+fnjjj ....,,2,1)()( 21 =?< rr .                  (6) 
+ 
+The features may be pulse repetition interval, pulse width, 
+radio frequency with corresponding resolutions. It is 
+required to decide whether the two feature vectors represent 
+the same radar emitter or not.  
+ 
+We consider this problem as a binary hypothesis testing 
+problem for the two sensors. The two hypotheses are: 
+ 
+ 4 
+??
+ ?
+ = .
+ emittersdifferent represent   vectors twothe,
+ emitter same therepresent   vectors twothe,
+ 1
+ 0
+ H
+ H
+ H  (7) 
+ 
+We have two choices of comparison to select; to compare 
+21 FF ?  with 1r  (with respect to sensor 1) or  to compare 
+12 FF ?  with 2r  (with respect to sensor 2). We can write a 
+comparison (distance) matrix M  as: 
+ 
+,
+ 2221
+ 1211 ???
+ ?
+ ???
+ ?
+ =
+ MM
+ MM
+ M                                  (8) 
+ 
+where 
+  ,
+ 2
+ 111 r=M                                      (9) 
+ 
+,||)(|| 211212112 FFRRFF ?+?= ?TM         (10)  
+ 
+,||)(|| 121211221 FFRRFF ?+?= ?TM         (11) 
+ 
+,
+ 2
+ 222 r=M                                    (12)  
+   
+                                                                               
+and iR  is the covariance of iF , which is related to the 
+measurement noise.   
+ 
+Define C  as a classification matrix of 
+elements ijc , ,2,1,2,1 == ji  which represents the 
+classification weight between feature vector j  and emitter 
+i , such that: 
+ 
+∑
+ ∑
+ =
+ =
+ ?≤≤
+ ?=
+ ≤≤≤≤?
+ 2
+ 1
+ 2
+ 1
+ .,20
+ ,1
+ 21,21,]1,0[
+ j
+ ij
+ i
+ ij
+ ij
+ ic
+ jc
+ jic
+                   (13) 
+  
+Let S  denotes the total sum of the distances, given by (8), 
+weighted by the squared of the corresponding classification 
+weight, i.e. 
+ 
+∑ ∑
+ = =
+ ===
+ 2
+ 1
+ 2
+ 1
+ 2
+ .2,1,2,1,)(
+ j i
+ ijij jiMcS            (14) 
+ 
+It is required to obtain the classification weights 
+{ jicij ,,? }, such that the sum of the distances, S , is 
+minimum. This problem is a least-squares error criterion. 
+The optimum correlation weights can be derived as [24, 25] 
+ 
+.2,1,2,1,
+ )/1(
+ )/1(
+ 2
+ 1
+ ===
+ ∑
+ =
+ ji
+ M
+ M
+ c
+ h
+ hj
+ ij
+ ij                  (15) 
+ 
+Thus we obtain a classification matrix 
+ 
+,
+ 2221
+ 1211 ???
+ ?
+ ???
+ ?
+ =
+ cc
+ cc
+ C                                  (16) 
+ 
+where ,2,1, =icii  is a value representing the resolution of 
+sensor i  and jijicij ≠== ,2,1,2,1,  is a value representing 
+the difference between the two feature vectors iF  and jF  
+(with respect to sensor j ). The classification decision iD  
+based on resolution ir  can be determined based on the most 
+accurate sensor ( 1D ) or on the least accurate sensor ( 2D ). 
+With the diversity in the relative sensor resolutions, the 
+classification decision is always based on the least accurate 
+sensor [12, 26, 27]. In this case the classification decision 
+will be 
+ 
+??
+ ?
+ <
+ ≥
+ ==
+ 2212
+ 2212
+ 2 ifemitter)same(0
+ if)emittersdifferent(1
+ cc
+ cc
+ DDc .     (17) 
+ 
+The previous classification approach can easily be extended 
+to the case of N  feature vectors obtained from more than 
+two radar emitters. In this case, all the comparison terms 
+determined from (8) can be defined in a matrix as 
+ 
+??
+ ?
+ ?
+ ?
+ ?
+ ?
+ ??
+ ?
+ ?
+ ?
+ ?
+ ?
+ =
+ NNNNN
+ N
+ N
+ MMMM
+ MMMM
+ MMMM
+ ...........
+ ..................
+ ...........
+ ...........
+ 321
+ 2232221
+ 1131211
+ M  ,          (18) 
+ 
+with elements 
+ 
+??
+ ??
+ ?
+ =
+ ≠?+?
+ =
+ ?
+ .
+ .  if,
+ ,  if,||)(||
+ 2
+ 1
+ ji
+ ji
+ M
+ i
+ jiji
+ T
+ ji
+ ij
+ r
+ FFRRFF
+   (19) 
+ 
+By determining the classification weights using (15) as 
+ 
+,...,,2,1,...,,1,
+ )/1(
+ )/1(
+ 1
+ NjNi
+ M
+ M
+ c N
+ h
+ hj
+ ij
+ ij ===∑
+ =
+         (20) 
+ 
+ we obtain the following classification matrix 
+ 
+??
+ ?
+ ?
+ ?
+ ?
+ ?
+ ??
+ ?
+ ?
+ ?
+ ?
+ ?
+ =
+ NNNNN
+ N
+ N
+ cccc
+ cccc
+ cccc
+ ...........
+ .................
+ ...........
+ ...........
+ 321
+ 2232221
+ 1131211
+ C .                   (21) 
+ 
+The classification decision, based on any two feature vectors 
+i and j ( i  is less accurate), is then defined as 
+ 
+??
+ ??
+ ?
+ <
+ >
+ =
+ emitter) same(if,0
+ emitters) different (if,1
+ jjij
+ jjij
+ c
+ cc
+ cc
+ D ,     (22) 
+ 
+where in general, cD  is the classification decision based on 
+the least accurate sensor (i.e. min( jjii cc , )). 
+ 
+It is clear from (19) and (20) that: (1) The classification 
+weights of the sensor resolutions are affected by the 
+measured feature vectors. This means that the classification 
+weights are adapted and changed automatically, (2) The 
+classification weights of the comparison terms are obtained 
+ 5 
+by treating all the feature vectors once. Thus it avoids the 
+conflict situation when treating the feature vectors pairwise, 
+(3) The proposed classification approach reduces the 
+computational complexity with a factor of fn , where fn is 
+the total number of features. This is because the proposed 
+classification approach assigns only one classification 
+weight to each feature vector rather than assigning one 
+classification weight for each feature. This means that the 
+number of comparisons does not grow with the number of 
+features. This also reduces the sensitivity of the final 
+classification decision to individual feature instabilities, and 
+(4) Using the proposed classification approach,  feature 
+vectors containing kinematics and non-kinematics data can 
+be processed.  
+ 
+ 
+4. SIMULATION RESULTS 
+ 
+We consider the case of nine emitters with different radio 
+frequencies (RF) and pulse repetition intervals (PRI).  
+Figure 1 depicts the nine basic data points 
+( 8....,,2,1,, 00 =iPRIRF ii ) where 0 denotes the original 
+values of RF and  PRI  in a clear environment (unknown 
+values). The separation (d) between data points is assumed 
+to be equal (for simplicity). The measured RF and PRI are 
+the original values plus noise. The noise in both  RF  and  
+PRI  directions is assumed to be a zero mean Gaussian noise 
+with a common standard deviation ? (SD =? ). Figure 2 
+shows the scenario in case of random values in both  RF and 
+PRI directions for small values of SD. In this case the 
+problem of classification is simple. The classification 
+problem will be a complicated problem in case of medium 
+and large values of noise standard deviation. Figure 3 and 4 
+show the scenario in case of random values in both  RF and 
+PRI directions for medium and large values of SD, 
+respectively.    
+ 
+The resolution of each sensor is assumed to be 3 times the 
+noise standard deviation ? , i.e. 
+ 
+8.....,,2,1,
+  3
+  3
+ i
+ i
+ PRI
+ RF
+ =???
+ ?
+ ???
+ ?
+ = ii ?
+ ?
+ r ,                     (23)                         
+ 
+where 
+??? ==
+ ii PRIRF .                                (24)                              
+ 
+The objective of any classification  approach is to determine 
+the right number of emitters, which is 8 emitters in our 
+example. The performance of the proposed classification  
+approach is determined in terms of correctly classifying  the 
+data points into eight emitters for different values of 
+separation/sigma (d/SD). We process 1000 samples for each 
+emitter, i.e. the total number of data points is eight 
+thousands. The performance is evaluated as an average 
+value over 10000 Monte Carlo simulations. We compare the 
+performance of the proposed classification approach with 
+the performance of Euclidean metric classification  [28, 29], 
+the performance of Singer-Kanyuck  metric classification  
+[26, 30-32], and the performance of a fuzzy classification 
+approach presented in  [33].  
+ 
+In case of Euclidean metric classification, the metric 
+(comparison term) is [28] 
+ 
+,|||| ji
+ T
+ jiijM FFFF ??=                      (25)    
+ 
+which is compared to a threshold determined from the noise 
+variances [4, 12, 34, 35]. 
+ 
+In case of Singer-Kanyuck  metric classification , the metric 
+is [26, 31] 
+,||)(|| 1 jijiTjiijM FFRRFF ?+?= ?           (26)   
+which is compared to a threshold determined from the chi-
+ squared distribution of ijM  assuming Gaussian distributed 
+observations [34-37].  
+In case of the fuzzy classification approach presented in 
+[33], the steps are summarized as follow: (1) The sensors 
+use their input data to form an opinion, in the form of a 
+fuzzy membership, (2) The features are fuzzified using the 
+membership functions. The outputs from the fuzzification 
+are values between  0  and  1  and represent the 
+classification weights between all the feature vectors. These 
+outputs are called fuzzy outputs, (3) The fuzzy outputs from 
+the fuzzification process are processed using fuzzy rules 
+represented as IF THEN rules, (4) The defuzzification 
+process converts the fuzzy outputs to non-fuzzy outputs, and 
+(5) The defuzzification outputs are analyzed and compared 
+with each other or with thresholds to determine whether 
+two/more feature vectors, obtained from two or more 
+different sensors, represent the same emitter.   
+Figure 5 compares the performance of the proposed 
+classification approach with the performance of Euclidean 
+metric classification [28], the performance of Singer-
+ Kanyuck metric classification [31], and the performance of 
+the fuzzy approach classification presented in [33]. The 
+percentage of correct classification using Euclidean 
+classification varies from  32.1% to  97.2%, while it varies 
+from 46.9%  to 93.9% using the Singer-Kanyuck metric,  
+varies from 59.05%  to 98 % using the fuzzy approach, and 
+varies from 64.9%  to 98.5% using the proposed 
+classification approach.  
+From Fig. 5, it is clear that when d/SD = 0.25, the proposed 
+approach achieves as much as 33% performance 
+improvement, compared to the Euclidean classification, as 
+opposed to 27% improvement  in case of the fuzzy approach 
+and 15%  improvement in case of the Singer-Kanyuck 
+metric. From Fig. 5, it is also clear that as the ratio d/SD 
+increases the percentage of correct classification increases 
+for all approaches.  
+ 
+From Fig. 5, we conclude that the performance of the 
+proposed classification approach is always better than the 
+performance of the Euclidean classification metric, the 
+Singer-Kanyuck classification metric, and the fuzzy 
+classification for all values of d/SD. The results showed the 
+efficiency of the proposed classification approach.  
+ 6 
+900 950 1000 1050 1100 1150 1200 1250 1300
+ 1100
+ 1150
+ 1200
+ 1250
+ 1300
+ 1350
+ 1400
+ 1450
+ 1500
+ RF (MHz)
+  
+PR
+ I (
+ m
+ se
+ c)
+ d
+ d
+  
+Figure 1. The nine original values, 00 , ii PRIRF ,9...,,2,1, =i  
+in a clean environment (without noise). 
+900 950 1000 1050 1100 1150 1200 1250 1300
+ 1100
+ 1150
+ 1200
+ 1250
+ 1300
+ 1350
+ 1400
+ 1450
+ 1500
+ RF (MHz)
+  
+PR
+ I (
+ m
+ se
+ c)
+ ..Random
+ **Fixed
+  
+Figure 2. Random values of RF and PRI for small values of 
+stander deviation (SD=20).  
+900 950 1000 1050 1100 1150 1200 1250 1300
+ 1100
+ 1150
+ 1200
+ 1250
+ 1300
+ 1350
+ 1400
+ 1450
+ 1500
+ RF (MHz)
+  
+PR
+ I (
+ m
+ se
+ c)
+ ..Random
+ **Fixed
+  
+Figure 3. Random values of RF and PRI for medium values 
+of stander deviation (SD=60). 
+ 
+900 950 1000 1050 1100 1150 1200 1250 1300
+ 1100
+ 1150
+ 1200
+ 1250
+ 1300
+ 1350
+ 1400
+ 1450
+ 1500
+ RF (MHz)
+  
+PR
+ I (
+ m
+ se
+ c)
+ ..Random
+ **Fixed
+  
+Figure 4. Random values of RF and PRI for large values of 
+stander deviation (SD=100). 
+0 0.5 1 1.5 2 2.5
+ 0
+ 10
+ 20
+ 30
+ 40
+ 50
+ 60
+ 70
+ 80
+ 90
+ 100
+ Separation/Sigma (d/SD)
+ Pe
+ rc
+ en
+ ta
+ ge
+  
+of
+  
+Co
+ rr
+ ec
+ t C
+ la
+ ss
+ ifi
+ ca
+ tio
+ n
+ oo Proposed approach
+ ** Fuzzy approach
+ .. Singer-Kanyuck metric
+ ++ Euclidean metric
+  
+Figure 5. Comparison of the Percentage of correct 
+classification for different values of separation/sigma  
+(d/SD).   
+ 
+5. SUMMARY  
+This paper considers the problem of classifying radar emitter 
+signals produced by multisensor systems. An efficient 
+approach for automatic classification of radar emitter signals 
+in multisensor systems is proposed. The proposed 
+classification approach determines classification of unknown 
+multiple radar targets based on measured features extracted 
+from multiple sensors as well as the sensor accuracies. The 
+proposed approach can easily be applied to any number of 
+sensors with different accuracies, any number of emitters, 
+and any number of measured features. The performance of 
+the proposed classification approach is evaluated in terms of 
+percentage of correct classification and compared to 
+Euclidean metric classification, Singer-Kanyuck  metric 
+classification, and a fuzzy classification approach. The 
+proposed approach achieves higher performance for all 
+values of noise standard deviation compared to the other 
+ 7 
+classification approaches. The proposed classification 
+approach has the following advantages: (1) The 
+classification weights of the sensor resolutions are affected 
+by the measured feature vectors. This means that the 
+classification weights are adapted and changed 
+automatically, (2) The classification weights of the 
+comparison terms are obtained by treating all the feature 
+vectors once. Thus it avoids the conflict situation when 
+treating the feature vectors pairwise, (3) The proposed 
+classification approach reduces the computational 
+complexity with a factor of fn , where fn is the total 
+number of features. This is because the proposed 
+classification approach assigns only one classification 
+weight to each feature vector. This means that the number of 
+comparisons does not grow with the number of features. 
+This also reduces the sensitivity of the final classification 
+decision to individual feature instabilities, and (4) Feature 
+vectors containing kinematics and non-kinematics data can 
+be processed.  
+REFERENCES  
+[1] Ashraf M. Aziz, ''A Soft-Decision Fusion Approach for 
+Multiple-Sensor Distributed Binary Detection Systems'', 
+IEEE Transactions on Aerospace and Electronic Systems, 
+vol. 47, No.3, July 2011, p. 2208-2216. 
+ 
+[2] J. Hu and R. S. Blum, ''Application of Distributed 
+Signal Detection to Multiuser Communication 
+Systems'', IEEE Transactions on Aerospace and 
+Electronic Systems, vol. 38, No. 4, Oct. 2002, p. 1220-
+ 1229. 
+ 
+[3] E. Waltz and J. Llinas, Multisensor Data Fusion, 
+Norwood, MA, Artech House, 1990.  
+ 
+[4] Ashraf M. Aziz, M. Tummala, and R. Cristi, ''Fuzzy 
+Logic Data Correlation Approach in Multisensor-
+ Multitarget Tracking Systems,'' Signal Processing, vol. 
+76, No. 2, July 1999, p 195-209. 
+ 
+[5] Cheng Qi , P. K.  Varshney, and C. M. Belcastro, ''Fault 
+Detection in Dynamic Systems via Decision Fusion'', 
+IEEE Transactions on Aerospace and Electronic 
+Systems, vol. 44, No. 1, Jan 2008, p. 227-242. 
+ 
+[6] R. Viswanathan and P. K. Varshney, ''Distributed 
+Detection with Multiple Sensors: Part I-Fundamentals'', 
+Proceedings of the IEEE, vol. 85, No. 1, Jan. 1997, p. 54-
+ 63. 
+ 
+[7] Ashraf M. Aziz, ''A New Nearest-Neighbor Association 
+Approach based on Fuzzy Clustering'', Aerospace 
+Science and Technology, 2012, 
+doi:10.1016/j.ast.2012.02.017.  
+ 
+[8] G. Ferrari, M. Martalo, and R. Pagliari, ''Decentralized 
+Detection in Clustered Sensor Networks'', IEEE 
+Transactions on Aerospace and Electronic Systems, vol. 
+47, No.2, April 2011, p. 959-973. 
+ 
+[9] Ashraf M. Aziz, ''A Novel All-Neighbor Fuzzy 
+Association Approach for Multitarget Tracking in a 
+Cluttered Environment'', Signal Processing, vol. 91, No. 
+8, Aug. 2011, p. 2001-2015.  
+ 
+[10] Ashraf M. Aziz, ''A Fuzzy Approach for Multiple-
+ Receiver Digital Communication Systems with Data 
+Fusion'', International Journal in Electronics and 
+Communications (AEU), vol. 65, No. 5, May 2011, p. 
+406-412. 
+ 
+[11] S. Giompapa, F. Gini, A. Farina, A. Graziano, R. Croci, 
+and R. DiStefano, "Maritime Border Control 
+Multisensor System," IEEE Aerospace and Electronic 
+Systems Magazine,  Aug. 2009, p. 9-15. 
+ 
+[12] Ashraf M. Aziz, ''Fuzzy Track-to-Track Association and 
+Track Fusion Approach in Distributed Multisensor-
+ Multitarget Multiple-Attribute Environment,''  Signal 
+Processing, vol. 87, no. 6, June 2007, p. 1474–1492. 
+ 
+[13] Ashraf M. Aziz, ''An Iterative Method for Decision 
+Fusion in Multiple Sensor Systems'', Aerospace Science 
+and Technology, vol. 14, No. 7, Oct.-Nov. 2010, p. 487–
+ 493. 
+ 
+[14] Ashraf M. Aziz, ''A Simple and Efficient Suboptimal 
+Multilevel Quantization Approach in Geographically 
+Distributed Sensor Systems, '' Signal Processing, vol. 88, 
+no. 7, July 2008, p. 1698–1714.  
+ 
+[15] A.W. Ata'a and S.N. Abdullah, "Deinterleaving of 
+Radar Signals and PRF   Identification Algorithms," 
+IET, Radar, Sonar, and Navigation, No. 5, Oct. 2007, p. 
+340-347. 
+ 
+[16] T. McConaghy, H. Leung, E. Bosse, and V. Varadan, " 
+Classification of Audio Radar Signals using Radial 
+Basis Function Neural Networks," IEEE Transactions 
+on Instrumentation and Measurement, No. 6, Dec. 
+2003, p. 1771-1779.  
+ 
+[17] J. S. Chen and E. K. Walton, "Comparison of Two 
+Target Classification Techniques," IEEE Transactions 
+on Aerospace and Electronic Systems, vol. 22, No. 1, 
+Jan. 1986, p. 15-22.  
+ 
+[18] M. Greco, F. Gini, and A. Farina, "Radar Detection and 
+Classification of Jamming Signals Belonging to a Cone 
+Class," IEEE Transactions on Signal Processing, vol. 
+56, No. 5, May 2008, p. 1984-1993.  
+ 
+[19] Chen Tao-Wei and Jin Wei-Dong, "Feature Extraction 
+of Radar Emitter Signals Based on Symbolic Time 
+Series Analysis," International Conference on Wavelet 
+Analysis and Pattern Recognition, ICWAPR '07, vol. 3, 
+Nov. 2007, p. 1277-1282. 
+ 8 
+[20] Ashraf M. Aziz, "A New Fuzzy Clustering Approach 
+for Data Association and Track Fusion in Multisensor-
+ Multitarget Environment", Proceedings of the 2011 
+IEEE Aerospace Conference, 2011 IEEE, Big Sky, 
+Montana, USA, March 2011, p. 1-10. 
+ 
+[21] Liu Jun, J. P. Y. Lee, Li Lingjie, Luo Zhi-Quan, and K. 
+M.  Wong, "Online Clustering Algorithms for Radar 
+Emitter Classification," IEEE Transactions on Pattern 
+Analysis and Machine Intelligence, vol. 27, No. 8, Aug. 
+2005, p. 1185-1196.  
+ 
+[22] Guo Qiang, Xu Wei, Wang Changhong, and Guan  Di, 
+"Segment Clustering Radar Signal Sorting, " International 
+Joint Conference on Computational Sciences and 
+Optimization, CSO 2009, vol. 1, April 2009, p. 943-946.  
+ 
+[23] Shieh Ching-Sung and Lin Chin-Teng, "A Vector Neural 
+Network for Emitter Identification, " IEEE Transactions 
+on Antennas and Propagation, vol. 50, No. 8, Aug. 2002, 
+p. 1120-1127.  
+ 
+[24] P. Gill, W. Murray, M. Wright, Numerical Linear 
+Algebra and Optimization, vol. 1, California, Addison-
+ Wesley Publishing Company, 1991. 
+ 
+[25] G. Golub and C. Van Loan, Martix Computations, 3rd 
+Edition, London, Johns Hopkins University Press, 1996.  
+ 
+[26] R. A. Singer and A. Kanyuck, "Correlation of Multi-Site 
+Track Data,'' IEEE Transactions on Aerospace and 
+Electronic Systems, AES-6, March 1970, p. 180-187. 
+ 
+[27] D. Willner, B. Chang, and K. P. Dunn, "Kalman Filter 
+Algorithms for a Multi-Sensor System,'' Proceedings of 
+IEEE Conference on Decision and Control, Dec. 1976,  
+p. 570-574. 
+ 
+[28] H. Spath, Cluster Analysis Algorithms for Data 
+Reduction and Classification of Objects, John Wiley and 
+Sons, New York, 1980. 
+ 
+[29] M. R. Anderberg, Cluster Analysis for Applications, New 
+York, Academic Press, 1973.   
+ 
+[30] R. A. Singer and A. J. Kanyuck, ''Computer Control of 
+Multiple-Site Track Correlation,'' Automatica, vol. 7, 
+1971, p. 455-463. 
+ 
+[31] R. A. Singer and K. Behnke, ''Real-Time Tracking Filter 
+Evaluation and Selection for Tactical Applications,'' 
+IEEE Transactions on Aerospace and Electronic Systems, 
+vol. 7, No.1, Jan. 1971, p. 100-110. 
+ 
+[32] D. L. Hall, Mathematical Techniques in Multisensor Data 
+Fusion, Norwood, MA, Artech House, 1992. 
+ 
+[33] R. P. Singh and W. H. Bailey, ''Fuzzy Logic Applications 
+to Multisensor-Multitarget Correlation,'' IEEE 
+Transactions on Aerospace and Electronic Systems, vol. 
+33, No. 3, July 1997, p. 752-769. 
+ 
+[34] Y. Bar-Shalom, Multitarget Multisensor Tracking: 
+Applications and Advances, vol. 1, Norwood, MA: 
+Artech House, 1990. 
+ 
+[35] M. H. Elayadi, Ashraf M. Aziz, and A. E. Basiony ''An 
+Algorithm for Global Optimization of Distributed 
+Multiple-Sensor Detection Systems using Neyman-
+ Pearson Strategy,'' Signal Processing, vol. 51,  No. 2, 
+June 1996, p. 137-145. 
+ 
+[36] Ashraf M. Aziz, AbdelAzeem M. A., and ElBakly A. 
+M. "A Solution for Multiple Track Common Source 
+Problems Due to Multipath Propagation", Proceedings 
+of the 2011 IEEE Aerospace Conference, 2011 IEEE, 
+Big Sky, Montana, USA, March 2011, p. 1-11. 
+ 
+[37] Ashraf  M. Aziz, "A New All-Neighbor Fuzzy 
+Association Technique for Multitarget Tracking in a 
+Cluttered Environment", Proceedings of the 2009 IEEE 
+International Conference on Fuzzy Systems, FUZZ-
+ IEEE 2009, Jeju City, South Korea, Aug. 2009, p. 
+1767-1772.  
+ 
+BIOGRAPHY 
+Ashraf M. Aziz was born 
+in Egypt on September 12, 
+1964. He received the 
+Bachelor’s degree and the 
+Master’s degree in 
+electrical engineering from 
+the Military Technical 
+College, Cairo, Egypt, in 
+1987 and 1992, 
+respectively. In September 
+1999, he received the 
+Ph.D. degree in electrical 
+engineering from Naval 
+Postgraduate School, 
+California, USA. From 1988 to 2010, he was with the 
+Military Technical College, Cairo, Egypt, where he was 
+working as assistant professor (2000-2005), associate 
+professor (2005-2010), and professor (2010-Jan. 31, 2011) 
+in Electrical Engineering Department. He is working as a 
+professor in Electronics and Communications Engineering 
+Department, College of Engineering and Technology, Arab 
+Academy for Science, Technology, and Maritime Transport, 
+Cairo, Egypt. He is currently working as a professor in 
+Electrical Engineering Department, Faculty of Engineering, 
+Al-Baha University, Al-Baha, Kingdom of Saudi Arabia. 
+His research interests include statistical signal processing, 
+analog and digital communication systems, multisensor 
+multitarget data fusion, tracking, detection, and genomic 
+signal processing. Dr. Ashraf has been awarded the State 
+Prize in Engineering Sciences with honor in 2008. 
