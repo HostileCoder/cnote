@@ -1,0 +1,892 @@
+Techniques to Screen for Moving and Large Stationary 
+Discretes in Space-Time Adaptive Estimation Data 
+Thomas E. Morton 
+United States Air Force Research Laboratory 
+2241 Avionics Circle 
+Wright-Patterson AFB, OH 45433-7333 
+thomas.morton@sn.wpafb.af.mil 
+93 7-25 5-6427 
+Abstract-When the data samples used to estimate the 
+interference covariance matrix in Space-Time Adaptive 
+Processing (STAP) are assumed to be independent and 
+identically distributed, an estimation loss indirectly 
+proportional to the number of samples will occur. Measured 
+data has shown that data samples are often nonhomogeneous 
+and that these nonhomogeneities can cause losses beyond 
+that from the estimation alone. Nonhomogeneities are of 
+various types; here we have focused on moving and large 
+stationary discretes. Numerical examples are presented that 
+give a rationale for a screening technique. Then we present 
+related screening techniques and performance simulations 
+for the detection of moving and large stationary discretes in 
+the estimation data. The screening techniques consist of 
+pre-processing the samples by transforming them fi-om the 
+space-time domain to the angle-Doppler domain and 
+exploiting the resulting interference characteristics. 
+1. 
+2. 
+3. 
+4. 
+5. 
+TABLE OF C 0 " T S  
+INTRODUCTION 
+RATIONALE FOR A SCREENING TECHNIQUE 
+SCREENING TECHNIQUES 
+NUMERICAL EXAMPLES 
+CONCLUSIONS 
+1. INTRODUCTION 
+Space-Time Adaptive Processing (STAP) is a candidate 
+technology for airborne radar to improve the detection and 
+tracking of slow moving targets in difficult clutter and 
+jamming environments. STAP performance is determined in 
+part by how closely its estimate of the interference 
+covariance matrix, typically calculated from range samples 
+surrounding a test range bin, matches the interference 
+statistics of the test range bin. In this paper interference will 
+mean ground clutter and receiver noise although in general it 
+may also include other interference such as jamming and 
+mutipath returns. 
+when the estimation samples are independent and 
+identically distributed (i.i.d.) and the statistics match those 
+of the test range bin, an estimation loss directly related to the 
+number of samples, also called secondary data or sample 
+U.S. Government work not protected by U.S. copyright 
+support, will occur. Measured data, however, has shown 
+that interference is often nonhomogeneous [1,2], and is 
+characterized by varying amplitude and spectral statistics 
+that depart from the i.i.d. assumption. These 
+nonhomogeneities in the sample support will introduce 
+losses in addition to the estimation loss, and will limit the 
+range extent and number of samples that may be considered 
+i.i.d. Many approaches have been proposed to meet sample 
+support requirements in nonhomogeneous environments. 
+These include screening the data to excise nonhomogeneities 
+[3], selecting samples based on data dependent rules [4], 
+using multiple transmit frequencies [5] and exploiting the 
+structure of the interference covariance matrix [6,7]. Since 
+the required sample support, as well as computational 
+complexity, is directly related to the dimension of the 
+covariance matrix, many partially adaptive and reduced rank 
+methods have been introduced. With partially adaptive 
+methods, the idea is to reduce a prohibitively large problem 
+into a number of smaller problems via data transformation, 
+while maintaining performance close to that of the optimum 
+fully adaptive processor. A comprehensive discussion and 
+taxonomy of partially adaptive techniques is given in [SI. 
+For the reduced rank techniques a subspace of the 
+covariance matrix is used to calculate the adaptive weights; 
+the required sample support is related to the dimension of 
+the interference subspace (often much less than the 
+dimension of the estimated covariance matrix). An analysis 
+of reduced rank techniques can be found in [9]. A 
+systematic description, modeling and analysis of 
+nonhomogeneities has only recently been addressed [10,11]. 
+In [lo] nonhomogeneities are classified by type, causes, and 
+impact on adaptive radar performance. An overview of 
+existing algorithmic solutions is also given. In [ 1 11 a variety 
+of nonhomogoneities are analytically modeled and the 
+resulting STAP performance analyzed. 
+Nonhomogeneities have been categorized into those having 
+a gradual change over range and those with an abrupt 
+change [l]. The former type are caused by range variations 
+in the interference characteristics introduced for example by 
+mismatched elevation patterns and the range-Doppler 
+dependencies characteristic in non-sidelooking arrays. The 
+abrupt nonhomogeneities are caused by clutter edges, 
+moving discretes, coherent repeater jammers, and large 
+stationary discretes. In this paper, we focus on moving and 
+2-853 
+large stationary discretes; that is, except for discrete 
+nonhomogeneities the estimation data is assumed to be 
+homogeneous and the secondary data statistics match those 
+of the test bin. Previous results, both simulated and with 
+measured data, have shown that when present in the 
+estimation data these discretes can lead to significant 
+performance losses [3,10,11]. For example, in [ll] it is 
+shown that for a given airbome radar scenario, moving 
+discrete scatterers corrupting the estimation data set result in 
+performance losses from 2 to 20 dB, depending on the size 
+of the moving discretes and how close their directions of 
+arrival are to the peak of the mainbeam. We will 
+substantiate these results with numerical examples and 
+present related techniques to screen range samples for the 
+presence of undesired discretes so that those samples can be 
+removed before interference covariance matrix estimation. 
+The paper is organized as follows. Section 2 gives the 
+rationale for a screening technique by first defining STAP 
+signals and metrics and then illustrating with numerical 
+examples the potentially significant losses caused by 
+discretes in the secondary data. Fully adaptive STAP and a 
+reduced rank method are considered. Section 3 describes 
+the screening techniques and is followed with numerical 
+examples in Section 4. Section 5 is a conclusion and 
+SUmmary. 
+2. RATIONALE FOR A SCREENING TECHNIQUE 
+In this section we discuss and illustrate the rationale for a 
+proposed technique that screens for the presence of moving 
+and large stationary discretes in the estimation data. First, 
+we introduce signals that are relevant to STAP and discuss 
+the need to estimate a covariance matrix from data samples 
+prior to weight computation. Then we briefly discuss the 
+STAP metric of Signal to Interference plus Noise Ratio and 
+the expected losses introduced by the covariance matrix 
+estimation. Discrete nonhomogeneities are then discussed 
+and an expression for including them in the covariance 
+matrix estimation is shown. Finally, we present numerical 
+examples for both fully adaptive STAP and a reduced rank 
+technique; it is seen that moving discretes introduce 
+significant losses beyond that introduced by estimation 
+losses alone. 
+STAP Signals 
+Consider a linear array of N isotropic elements with each 
+element followed by M time taps each delayed by the Pulse 
+Repetition Interval (PIU) of the radar (Fig. 1). 
+The resulting signal at a given range, p, can be represented 
+in matrix form as 
+- ] E c""" (1) - % = ['lJ,p9 ' l p 9  * * 'M-1,p 
+4 
+where x, , ,~ E cNxl is the spatial response vector across the 
+array for the mth pulse. When vectorized as 
+g,, =vec(X,) E cmxl, the resulting vector is called the 
+space-time snapshot and is the superposition of all received 
+signals from that range including clutter, zc,p, noise, gn,,,, 
+and target signal if present: 
+ip =at %t 9 f d t  >+ %c,p + ?n,p =at '($t 9 fdt >+ Zu,p 
+(2) 
+. . I*-----b I 
+I 
+I 
+[ N spatial channels 
+I 
+ 
+c 
+U 
+Fig. 1. Linear Array with PRI Delays 
+where at is the target amplitude and q($t,fdt)  is the 
+array response to the target arriving from an angle $t and 
+having Doppler frequency fdt . More specifically, 
+?($t, fdt ) can be represented as 
+'($t 9 f d t  't = ' ( f d t  > @ '($t > (3 ) 
+with s($t) and 6( fd t )  the spatial and temporal responses 
+of the array given by 
+and 
+(4) ~ ( 4 ~  >=[I e j2nfs  ... ej2nfs 0 - 1 )  ] 
+] ( 5 )  i;(fdt >= [I ej2nfdt ' f r  . . . eJ2nfdt ' f r  (U-1) 
+where is the normalized spatial 
+frequency, f, is the Pulse Repetition Frequency (PRF), and 
+the quantity f dt /f, is the normalized Doppler frequency. 
+f, = (d / h)sin $, 
+As indicated in figure 1 a scalar output for a given range is 
+formed by the inner product of a complex weight vector with 
+the space-time snapshot. The processor decides whether a 
+target is present or absent according to the hypotheses: 
+: Ho target absent 
+: H1 target present. 
+gp =%U 
+g,, = a t G t  + x u  4 
+The optimum weight vector to a scale factor is given by 
+[12]: 
+Go =E[gug;}-'Gt =R,'?, (6 )  
+2-854 
+where R, is the covariance matrix of the clutter and noise 
+signals, E is the expectation operator, and H denotes 
+Hermitian transpose. 
+In practice, the covariance matrix is unknown and must be 
+estimated. Various techniques for covariance matrix 
+estimation are possible [see for example, 41 but nominally it 
+is estimated by averaging snapshots located close to but not 
+including the range bin currently under test for a target: 
+l K  
+p p=l 
+Ru =-Cx,x," (7) 
+where P snapshots are used to estimate the covariance 
+matrix. These estimation snapshots make up the sample 
+support. 
+SINR Metrics 
+An important metric often used in STAP analysis is Signal 
+to Interference plus Noise Ratio, SINR, at the processor 
+output: 
+Using equation (6) in equation (8) gives the optimum SINR, 
+When the weights are calculated with the estimated 
+covariance matrix we have the following expression: 
+SINR, =aT?PR,'Ct. (9) 
+The SINR loss resulting fiom the covariance matrix estimate 
+relative to S m  is denoted by 
+(11) 
+Under the assumption that i.i.d. data samples are used for 
+the covariance matrix estimation and that the weight vector 
+has MN components it has been shown that the expected 
+value of the estimation loss, E{p), is -3 dB when the 
+number of samples, P 2 2MN [12]. 
+Discrete Nonhomogeneities 
+We have previously mentioned that because of 
+nonhomogeneities in the estimation data the i.i.d. 
+assumption is often not met in practice. Here we will be 
+mainly concerned with moving discrete and large stationary 
+discrete nonhomogeneities. By moving discretes we mean 
+ground vehicles such as jeeps, tanks and trucks which have 
+shown measured median RCS values (averaged over angle) 
+of 20, 50 and 100 m2 respectively [13]; large stationary 
+scatterers refers to man-made structures such as buildings. 
+For the numerical examples in this section and in Section 4 
+we have given the moving discretes an RCS of 10m2 in all 
+cases. 
+We may modi@ the covariance matrix estimation equation 
+to include discrete nonhomogeneities as follows [3]: 
+A 1 P  
+where the double hat denotes discrete nonhomogeneities in 
+the data. The data snapshot sample at range bin p is 
+yp = + 6yp where 6yp represents the discrete 
+nonhomogeneity and may be expressed as 
+where ad,p, i($d,p), and 6(f&,) are the amplitude of 
+the discrete and the spatial and temporal responses of the 
+array to the discrete. The covariance matrix estimation in 
+the nonhomogeneous environment is then 
+R = R + A R .  (14) 
+In the remainder of this section we will show by numerical 
+example the potentially significant SINR loss caused by 
+discrete moving scatterers in the estimation data, and that 
+this significance diminishes as the moving discrete moves 
+outside the 3 dB mainbeam pattern of the array and away 
+from the Doppler frequency of a desired target. SINR loss 
+curves for fully adaptive and a reduced rank technique are 
+shown and it is seen that the reduced rank technique is more 
+sensitive to moving discretes than the fully adaptive STAP. 
+We show no performance examples fiom large stationary 
+discretes in the estimation data but note that they can 
+increase the number of false alarms by crossing thresholds 
+set too low for them. Having thus established a rationale for 
+screening the secondary data for moving and large discretes 
+we present such a screening method in Section 3. 
+Numerical Examples 
+To illustrate the potentially significant SINR loss caused by 
+discrete moving scatterers in the estimation data we simulate 
+an airborne radar. The parameters stated here will hold 
+throughout the paper unless otherwise noted. The airbome 
+radar is a sidelooking, planar array of 18x4 elements where 
+the columns are spaced at half wavelength, d =h/2, and 
+beamformed to give N=18 spatial channels. The transmit 
+array has a Chebyshev weighting with 30 dB sidelobes and a 
+peak gain of 22 dB; the receive gain for the columns is 10 
+dB. The radar processes M=16 pulses in a coherent 
+processing interval, transmits at a frequency of 450 MHz, 
+has a platform velocity of v, = 50 m/s, and has a PIU? off, = 
+2-855 
+300 E. The clutter to noise ratio is taken to be CNR = 50 
+dB. The signal to noise ratio of an unwanted discrete is 
+taken to be SNR=14 dB, and the signal to noise ratio of the 
+desired target signal is taken to be SNR=lO dB. 
+Y z 
+-20 
+-25 
+0 
+- 
+r 
+-5 
+-10 
+P n.
+-5 -1 
+7 
+N 
+-30 I II I 
+-0.5 -0.4 -0.3 -0.2 -0.1 0 0.1 0.2 0.3 0.4 0.5 
+Normalized Doppler 
+Fig. 2. Varying Angle of Arrival for Single Discrete in the 
+Estimation Data. 
+Figures 2-4 show SINR loss performance relative to the 
+noise limited environment: 
+where unit variance noise is assumed. The upper 
+performance limit will be zero dB since noise sets an upper 
+limit on performance. A desired target is assumed to arrive 
+from broadside; its Doppler is varied and the adaptive 
+weights are calculated for each Doppler. Figure 2 shows the 
+results of several experiments in which the angle of arrival 
+of a single moving discrete is varied from 1 to 4 degrees 
+relative to broadside. The 3 dB half beamwidth of the 
+transmsit pattern is about 5 degrees. In figure 2 the solid 
+line shows SINRLoss when the covariance matrix is known. 
+The remaining lines show SLNRh,, when the weights are 
+calculated with a covariance matrix estimated with P = 2h4N 
+= 576 range snapshots; note the estimation loss relative to 
+the known covariance matrix. Also note the additional loss 
+introduced by a single moving discrete in the secondary 
+data. In all cases the moving discrete has a normalized 
+Doppler of f , / f , .  =0.1108 (24.8 mph). Depending on 
+the angle of arrival these additional losses can be signifcant 
+and we certainly would like to remove the moving discrete 
+from the estimation data. 
+Figure 3 illustrates what may happen when multiple moving 
+discretes are present in the estimation data. Here 3 moving 
+discretes are included in the estimation data; each has an 
+angle of arrival of 1 degree and their respective normalized 
+Doppler shifts are 0.1108 (24.8 mph), 0.0997 (22.3 mph), 
+and -0.0997 (-22.3 mph). It does not take many moving 
+discretes in the estimation data to significantly degrade the 
+detection of a desired target. 
+0 
+- g 1:lH dag.,fdf=O.llOB 
+2: %=I dag., fJ,=0.0897 
+$15 1 3 :&I deg., f,,n,=-0.0997 
+I t  -20 1 
+-251 
+-30 I w 
+-0.5 -0.4 -0.3 -0.2 -0.1 0 0.1 0.2 0.3 0.4 
+Normalized Doppler 
+Fig. 3. Multiple Moving Discretes in the Estimation Data. 
+-0.5 -0.4 -0.3 -0.2 -0.1 0 0.1 0.2 0.3 0.4 
+Normalized Doppler 
+Fig. 4. Comparison of MNE to Fully Adaptive STAP. 
+5 
+Reduced Rank Technique-In the preceding discussions and 
+in calculating the SINRhs, curves in figures 2 and 3 we have 
+been using fully adaptive STAP. That is, the dimension of 
+the weight vector is MN. In practice fully adaptive STAP 
+requires tremendous computational complexity and a large 
+secondary data set subject to many nonhomogeneities; 
+consequently, a number of partially adaptive and reduced 
+rank techniques have been proposed to lessen the 
+computational burden and the required sample support. The 
+Minimum Norm Eigencanceller (MNE) is a reduced rank 
+technique [14]. In its single constraint form the W is 
+formulated as the following constrained optimization 
+problem: 
+minGHG subject to Q:i% = 0 and ??i%=l. (16) 
+Here, Qr is an MNxr matrix representation of the 
+interference subspace and r is the dimension of the 
+2-856 
+interference subspace. The resulting optimum weight vector 
+is given by 
+. ,= ( I -Q ,Q,H~t [~ r ( I -Q ,Q~~ , ] - l .  (17) 
+The rank of the subspace is often much less than MN and 
+under certain limiting assumptions r rz [N + (M - l)] (this 
+is our assumption; also see [SI). Moreover, it has been 
+shown that for the single constraint MNE the secondary data 
+support requirement is 2r [ 151. 
+Figure 4 compares the SINRLoss performance of MNE to 
+fully adaptive STAP when the number of secondary samples 
+is 2r and 2MN respectively; a single moving discrete with 
+angle of arrival of 1 degree and normalized Doppler of 
+0.1108 (24.8 mph) is put in the estimation data for both 
+cases. Because of its smaller sample size the MNE 
+performance is much more sensitive to the moving discrete; 
+however, when the samples are homogeneous MNE and 
+fully adaptive STAP have similar performance. Note that 
+for reduced rank and partially adaptive methods a screening 
+technique may be particularly beneficial by allowing the 
+relatively small secondary data set to be chosen from a much 
+larger set of available data. In the next section we present 
+related techniques to screen for the presence of moving and 
+stationary discretes in the secondary data. 
+3. SCREENING TECHNIQUES 
+This section presents related techniques to screen range 
+samples for the presence of undesired discretes both moving 
+and stationary; those samples containing discretes can then 
+be removed prior to covariance matrix estimation. First, we 
+describe a two stage method for detecting moving discretes. 
+The first stage is a frequency domain Adaptive Matched 
+Filter and the second stage is a detector based on the Cell- 
+Averaging Constant False Alann Rate (CA-CFAR) detector. 
+The detector is not optimized here but used only to 
+demonstrate the concept. Then we consider a related 
+screening method for large stationary discretes and note that 
+it is computationally much simpler than that for moving 
+discretes since it requires no adaptation. 
+Moving Discretes 
+Stage I-Let us refer back to an individual space-time data 
+sample in its matrix form: 
+Now transform X,, from the space-time domain to the angle- 
+Doppler domain via a 2-dimensional Fast Fourier 
+Transform: 
+x p  = h,. x1.p.  ... ' M - l , p  - ] E CNfi . - 
+z, =F,,X, (18) 
+where FzD is the 2-dimensional FFT transform, and the tilde 
+denotes a frequency domain quantity. The rows of x, 
+correspond to spatial frequencies and the columns to 
+Doppler frequencies. A notional power spectral density plot 
+N 
+N 
+of X, for a sidelooking array is shown in figure 5. The 
+diagonal line represents the clutter return or clutter ridge; 
+when the parameter p =2v, /f, d is equal to one, as in 
+LLl Doppler Frequency 
+Fig. 5. Notional Power Spectral Density for 
+Sidelooking Array 
+our numerical examples, the Doppler is unambiguous and 
+the clutter ridge will just completely fill the Doppler space. 
+(A detailed description of p and its effect on the angle- 
+Doppler return is given in [SI). The shaded area of the 
+figure, labelled a,, shows the spatial frequency extent of 
+the mainlobe clutter return where return from the boresight 
+has zero spatial frequency. When a moving discrete is 
+present in the data sample its motion gives it a Doppler 
+offset relative to the stationary clutter ridge and potentially 
+places it in an area relatively clear of interference and 
+accessible for screening. The dots labelled 1 and 2 represent 
+moving discretes of different Dopplers but at spatial 
+frequencies close to the boresight. The moving discrete 
+labelled 3 is well off boresight and will have little effect on 
+SINR as figure 2 illustrated. Dots 4 and 5 represent 
+stationary discretes and will be described in the next section. 
+Thus, since we wish for the screening technique only to 
+detect moving discretes in the secondary data it will suffice 
+to use only that portion of X, containing spatial 
+frequencies near the boresight. It is reasonable for our 
+simulation to assume that these frequencies are codmed to 
+the single spatial fi-equency bin represented by a, . If we 
+extract and transpose bin a, from Xp then we have the 
+data vector, E CM"', of Doppler frequencies. The 
+frequency domain optimum weight vector at frequency f; to 
+within a scale factor is given by 
+- 
+N 
+N 
+N 
+(19) 
+N 
+Wa, , f ,  = R p f ,  
+where zao E CMxM is the covariance matrix from the 
+transformed data at spatial frequency a, and vf, E CM"' 
+is the transformed steering vector at frequencyf; defined as 
+(20) - VJ =F,,KA ) 
+where FID is 1-dimensiona FFT transform and b(A) is the 
+temporal response vector defined in equation (5). The 
+covariance matrix can be estimated from the transformed 
+secondary data by 
+r P  
+p # test 
+where the notation p #test indicates that the estimate does 
+not include data from the range bin under test. The resulting 
+estimated weights at frequencyf; are 
+If a moving discrete is present in the test bin then its 
+Doppler frequency will be unknown so it is necessary to 
+vary the steering vector over a number of frequencies, K, 
+such that all Doppler frequencies of interest are covered. 
+Thus, an MxK matrix of weight vectors, 
+calculated by 
+N - ]Ec- is a where vf =p/, * - -  vf, ' f K  
+matrix of steering vectors. 
+An output vector, ztest, is caIculated by operating on the 
+test bin vector with the weight matrix: 
+(24) 
+N "H 
+'test = wa, x a, ,test E CK"' 
+Thus, processing a block of L range bins will yield L output 
+vectors, zl , l=l:L each of length K. 
+Before describing the second stage we emphasize that the 
+hequency domain Adaptive Matched Filter just described is 
+used only to screen secondary data for moving discretes and 
+need not resemble the STAP architecture that will be used to 
+adaptively determine the presence or absence of targets. 
+Moreover, a far greater number of false alarms can be 
+tolerated at this screening stage because false alarms will 
+only result in the loss of secondary data as opposed to false 
+target declarations. 
+Stage 2-After processing a block of potential secondary 
+data samples with the frequency domain Adaptive Matched 
+Filter those samples are processed by a detector to test for 
+the presence of a moving discrete. One possible detector, 
+shown in figure 6, is based on the Cell Averaging CFAR 
+detector. Refering to figure 6 the output vectors, 'z; , form 
+the columns of the data block; the column labelled T 
+represents the test bin currently under test. The f is t  step of 
+the detector is to average each frequency,J;, of the output 
+vectors across all L range bins in the block except the test 
+bin at each frequency, j. Mathematically, we have: 
+ii-t-t 
+The second step is to average the outputs, D, , across all 
+F b - & t  c 
++ 
+if A > 0 Detect 
+Fig. 6. A Detector for the Adaptive Matched Filter 
+Screening Technique 
+frequencies: 
+and to average the test bin across all fiequencies: 
+- 
+where D and T are scalars. A difference , 
+A = T  -cD , is calculated where c is a threshold 
+adjustment used to control false alarms. If A exceeds zero 
+a moving discrete is declared. In this way each of the L 
+range bins is tested for the presence of moving discretes. In 
+section 4 we will show numerical examples for the two stage 
+screening method just described. 
+Large Stationary Discretes 
+In contrast to moving discretes, large stationary discretes lie 
+along the clutter ridge. In the notional PSD plot of figure 5, 
+the dots labelled 4 and 5 represent large stationary discretes 
+in the mainlobe and sidelobe clutter respectively. Figure 7 
+shows a rangehgle representation of the large stationary 
+discretes. For our example sidelooking array, the velocity 
+vector lies along the x-axis and the mainlobe lies along the 
+y-axis. Angle from boresight is measured relative to the y- 
+axis and range is represented by the concentric rings. The 
+2-858 
+dot labelled 4 represents a large stationary discrete at 
+boresight and the dot labelled 5 is a large stationary discrete 
+at the angle of the first peak sidelobe gain. Assuming that a 
+block of range returns from a given angle, and thus having a 
+given spatial frequency, is subject to approximately the same 
+Y 
+t 
+Fig. 7. Illustration Showing Blocks of Range 
+Returns at Two Specific Angles. 
+antenna gain then we can screen for the large discretes by 
+comparing the return from each range at that angle to a 
+threshold determined by an average of all the range returns 
+at that angle. More specifically, by noticing that large 
+discretes lie on the clutter ridge and that the clutter ridge 
+consists of the diagonal elements of X, E Czd ,where the 
+dimension Z includes zero padding in the 2D FFT of 
+N 
+equation ( 181, we may form a matrix:- 
+fi=[diag(fi,) -.. diag(g,) ... diag(g,)]E Cw 
+(28) 
+by extracting the diagonal elements from a block of L range 
+samples. Each column of X corresponds to the clutter 
+ridge return from a single range bin and the rows of X 
+correspond to distinct spatial frequencies. Denote an angle 
+of interest, 4 ,  for all range bins in x by the vector 
+N 
+N 
+N 
+4. NUMERICAL EXAMPLES 
+In this section we demonstrate the data screening concept 
+with numerical examples. Cases of interest for moving 
+discretes and large stationary discretes in the secondary data 
+are described and representative results discussed. 
+Moving Discretes 
+The radar parameters used for these numerical examples are 
+those given in Section 2 with the following change. Recall 
+the covariance matrix estimated from the transformed 
+secondary data: 
+r D  
+= p=l 
+p f test 
+N 
+The dimension of Rao and thus the number of samples 
+required to estimate it is determined only by the number of 
+pulses, M; this is in contrast to fully adaptive STAP where 
+the dimension of the covariance matrix is the product of 
+spatial channels and pulses, MN. We may increase the 
+number of pulses processed for the screening technique 
+without affecting the actual STAP processing; it is 
+advantageous to do so because the increased Doppler 
+resolution will reduce the amount of interference that the 
+moving discretes compete with. Thus, for the screening 
+technique numerical example we increase M from 16 to 32 
+N 
+and estimate Ra0 with 2M=64 range samples located 
+symetrically about the range bin under test. 
+For the first example, we arbitrarily choose to screen a block 
+of 20 range bins where each range bin in the block 
+undergoes the two stage screening process described in 
+Section 3. Recall that all moving discretes are given a 
+SNR=14 dB. We place a single moving discrete in the 16h 
+range bin of the block and experiment by varying its angle 
+of arrival and normalized Doppler frequency. These 
+experiments, or cases, are summarized in Table 1. 
+E($) E CIXL, and average all the range bins at angle 4 to 
+form a scalar average. Now, the scalar average is turned 
+into a row vector of length L by simply copying the scalar 
+average into L components, Z,($)E clXL, and a 
+difference vector A is formed: 
+- 
+ii = fi(0)- cfiavg (4) , (29) 
+where c is a threshold adjustment used to reduce false 
+alarms. When any component in A exceeds zero the 
+corresponding range bin is determined to have a large 
+discrete. A numerical example is shown in the next section. 
+- 
+2-859 
+The angle of arrival is denoted by 4 and the normalized 
+Doppler by f, /f, . Each case was run 100 times and the 
+results are presented in the last column of Table 1 and in 
+figures 8 and 9. Table 1 shows the number of times the 
+moving discrete is detected in range bin 16 out of 100 trials 
+for each of the nine cases. The numbers show that as the 
+relative velocity of the moving discrete increases and it 
+breaks free of the mainlobe clutter it becomes easier to 
+detect; it is also apparent that for a given normalized 
+Doppler frequency, the moving discrete is easier to detect as 
+4 -  
+m 
+b 
+j3 
+x lo6 Test Range Bin 16 
+- 
+I ) 
+L 
+j3- 
+2- 
+1 L  
+0 
+-0.5 -0.4 -0.3 -0.2 -0.1 0 0.1 0.2 0.3 0.4 0.5 
+Normalized Dappisr 
+Fig. 8. Output of the Detector for the Range Bin with 
+Moving Discrete, @= 2' , fd = 0.0997. 
+Test Range Bin 17 6r-----7 
+the sidelobe clutter interference that the moving discrete 
+must compete with. 
+Figures 8 and 9 are meant to illustrate the screening 
+technique; they show the respective outputs of the detector 
+for test range bins 16 and 17 plotted versus frequency. That 
+is, the quantities, D, , and /TA ,test I * are plotted after the 
+adaptive matched filtering but before being averaged across 
+frequency with equations (25)  and (26). The single moving 
+discrete is in range bin 16 and has a normalized Doppler 
+frequency of 0.0997 and an angle of arrival of 2' (Case 5, 
+Table 1). In figures 8 and 9 the solid line is a plot of the test 
+range bin and the dased line the average of the remaining 
+range bins at each frequency in the block of 20. Figure 8 
+clearly indicates the peak caused by the matched filter when 
+it is tuned to the moving discrete frequency of 0.0997. After 
+averaging across frequency and setting a reasonable 
+threshold adjustment the moving discrete is detected 95% of 
+the time as shown in Table 1. Figure 9 shows the result of a 
+test bin which has no moving discrete; false alarms occurred 
+3% of the time using the chosen threshold adjustment. Note 
+that the threshold settings are not optimized and that false 
+alarms occurred up to 10% of the time for all cases. False 
+alarms that happen during the screening technique will result 
+in the loss of possibly good secondary data. 
+A good question to ask is what happens if moving discretes 
+are in more than one range bin. If a moving discrete is 
+present in the bin under test then moving discretes in other 
+range bins serving as estimation data for Rao are expected 
+to cause cancellation of the test bin target and thus degrade 
+detection performance as implied by the numerical examples 
+in Section 2. The degree of degradation will depend on 
+many factors including the number of moving discretes as 
+well as their sizes and relative velocities. The interaction 
+between these factors may be complex. Here we only 
+briefly consider the question of multiple moving discretes 
+with the single example summarized in Table 2. 
+LI N 
+Table 2. Multiple Moving Discretes in the Range Block 
+Bin 
+Detections per 100 
+trials 
+Single Mover / 
+Range +,degrees fd/ f, 
+0.0886 56 120 
+0.0997 83 120 
+100 f 92 0.1108 16 1 
+20 2 0.1108 100 I 72  
+Fig. 9. Output of the Detector for a Range Bin without the 
+Moving Discrete 
+its angle of arrival moves closer to broadside. More to the 
+point we may say that it is easier to detect as its Radar Cross 
+Section increases, although we have not explicity varied the 
+RCS for these cases. The array transmit taper will also 
+significantly influence detection performance by reducing 
+A moving discrete is placed in each of the range bins 
+indicated by Table 2 and given the corresponding angle of 
+arrival and normalized Doppler. The experiment was run 
+100 times and the results are presented in Table 2. The last 
+column in Table 2 compares the results of the multiple 
+moving discrete experiment with the corresponding single 
+moving discrete case. For example, 20 out of the possible 
+2-860 
+100 detections occurs in range bin 6; the moving discrete in 
+range bin 6 has the parameters corresponding to case 4 
+which yielded 56 detections when it was the only moving 
+discrete in the range block. In other words, the interference 
+caused by the multiple moving discretes has caused a loss of 
+36 detections. The performance in range bins 16 and 20 
+fares somewhat better, but it is clear that for these numerical 
+examples the screening performance is degraded and some 
+strategy for dealing with multiple moving discretes must be 
+considered. 
+0.5 
+Large Stationary Discretes 
+- Threshold 
+oooooooooooooooooooooooooooooco3ooooooooco~oooooo~ 
+We now consider a numerical example for the large 
+stationary discrete screening technique described in Section 
+3. This time let us choose an arbitrary block of 50 range 
+bins and run the experiment summarized in Table 3. 
+~~~-0000000000000000000000000000000000000000000000000~~  
+2 -  
+Table 3. Large Stationary Discretes 
+W g e B i n  I $,degrees I RCS, m2 
+31 
+36 
+41 
+46 
+0 
+16 
+0 
+16 
+3x 1 O6 
+3x106 
+3x105 
+3x105 
+0 5 10 15 20 25 30 35 40 45 
+-0.5' 
+Range Bin 
+Fig. 1 1. Shows Output A for $ = oo ; Large Discretes in 
+RangeBins31 and41. 
+0 5 10 15 20 25 30 35 40 45 
+-1" 
+Range Bin 
+-1.51' 
+I 
+0 5 10 15 20 25 30 35 40 45 50 
+Range Bin 
+-2 I 
+Fig. 10. Baseline: Output Across Range Bins with no 
+Discretes in the Data for 0 = 0 (Mainlobe Look Direction). 
+Thresholds: ~ 1 . 5  ('0'); ~ 1 . 0  ('- -'). 
+Fig. 12. Shows Output A for $=16' (First Sidelobe); 
+Large Discretes in Range Bins 36 and 46. 
+A large stationary discrete is placed in each of the range bins 
+indicated in Table 3 and given the corresponding angle of 
+arrival and RCS. The peak of the mainlobe is of course at 
+0'; 16' degrees is also chosen because that is the location of 
+the first sidelobe peak. The results for a single run are 
+presented in figures 10-12. Figure 10 is a baseline plot used 
+to determine a reasonable threshold adjustment, c. No 
+discretes are present in the data. The solid line is a plot of 
+the difference vector, A = ?($)-cgavg($), defined in 
+Section 3. The angle of arrival being checked is $=o" . 
+The lower and higher horizontal lines represent threshold 
+settings with c=l and ~ 1 . 5  respectively. Next, the large 
+stationary discretes are added to the data and the screening 
+technique described in Section 3 is carried out. It should be 
+noted that in order to eliminate the interference caused by 
+the 2-D FFT spatial frequency sidelobes a sidelobe taper 
+2-861 
+was applied to the space-time snapshot before the frequency 
+processing. Figure 11 is a plot of 5 for 0 = 0’ . The large 
+discretes in range bins 3 1 and 4 1 cross the threshold and are 
+easily detected. Figure 12 is a plot of for $=16’ ; that 
+is, the angle cut corresponding to the peak gain of the first 
+sidelobe. Not surprisingly, since the first sidelobe is 30 dB 
+down from the mainbeam the output magnitudes are much 
+smaller. The relatively smaller discrete in range bin 46 is 
+just barely detectable with the given threshold setting. 
+5.  CONCLUSIONS 
+STAP processing requires an estimation of the interference 
+covariance matrix. The estimation is typically calculated 
+with range samples surrounding a range bin under test for 
+the presence of a target. When these range samples are i.i.d. 
+and the statistics match those of the test range bin, an 
+estimation loss indirectly proportional to the number of 
+samples will occur. When they are not i.i.d. additional 
+losses may occur. The departure from i.i.d. is caused by a 
+variety of possible nonhomogeneities in the estimation data. 
+In this paper we have focused on discrete nonhomogeneities 
+and have shown with numerical examples that the losses 
+caused by moving discretes can be quite significant and have 
+stated that large stationary discretes can result in an 
+increased false alarm rate. 
+Having provided the rationale to identify and remove 
+discretes from the estimation data the paper presents related 
+screening techniques to do so. The techniques are based on 
+pre-processing the range samples; specifically, this means 
+transforming space-time range samples to the angle-Doppler 
+domain via a 2D FFT. For moving discretes, an adaptive 
+matched filter is used that exploits the characteristic Doppler 
+offset from mainlobe clutter; large stationary discretes are 
+detected by simply comparing the return from one range at a 
+given angle to the average from a number of other ranges at 
+that same angle assuming that the antenna gain is 
+approximately the same for all ranges. 
+The numerical results shown in this paper indicate that the 
+proposed screening techniques are effective under certain 
+limiting assumptions and warrant further study. The 
+screening techniques are conceptually simple since they are 
+based on Fourier Transforms and known adaptive 
+processing and detection schemes; they also allow a far 
+greater number of false alarms than the fmal STAP 
+processing because this only results in the loss of estimation 
+data as opposed to a false target detection. There are 
+possible limitations. The ability to detect a moving discrete 
+will depend on its velocity and size as well as the parameters 
+of the radar. The additional processing loads and possible 
+delays caused by the screening techniques need careful 
+consideration. Multiple moving discretes in the estimation 
+data can significantly interfere with the range bin under test 
+and pose a limitation that merits further investigation. The 
+limitations are not necessarily prohibitive and these 
+screening techniques could find useful application for 
+example in Slow Ground Moving Target Indication modes 
+where the ground environment has moving discretes and 
+large man-made structures present at many ranges. 
+Future work should include a performance analysis for a 
+variety of radar parameters and for both forward and 
+sidelooking array configurations. A careful analysis of 
+multiple moving discretes in the estimation data and 
+methods to overcome their adverse effects should be 
+considered. Processing loads and delays to the STAP 
+processing need further consideration. Most importantly, 
+these techniques should be implemented on measured data 
+to determine if the feasibility holds. 
+REFERENCES 
+[l] H. Wang, Y. Zhang, and Q. Zhang, “Lessons Learned 
+from Recent STAP Experiments,” , pp. 761-765. 
+[2] W.L. Melvin and M.C. Wicks, “Improving Practical 
+Space-Time Adaptive Radar,” Proc. 1997 IEEE National 
+Radar Conference, 1997, pp. 48-53. 
+[3] H.H. Chang, ‘Tmproving Space-Time Adaptive 
+Processing (STAJ?) Radar Performance in Nonhomogeneous 
+Clutter,” PhD Thesis, Syracuse University, August, 1997. 
+[4] D.J. Rabideau, A.O. Steinhardt, “Improving the 
+Performance of Adaptive Arrays in Nonstationary 
+Environments Through Data Adaptive Training,” Proc. 3@ 
+Asilomar Con$, Pacific move, CA., pp. 75-79, 3-6 Nov., 
+1996. 
+[ 5 ]  L. Cai, “On Adaptive Multiband Detection of Targets in 
+Nonstationary/Nonhomogeneous Interference,” Ph.D. 
+Dissertation, Syracuse University, 1990. 
+[6] R. Nitzberg, “Application of Maximum Liklihood 
+Estimation of Persymmetric Covariance Matrices to 
+Adaptive Processing,” IEEE Transactions on Aerospace 
+and Electronic Systems, vol. 16, no. 1, January 1980. 
+[7] S.U. Pillai, J.R Guerci and Y.L. Kim, “Generalized 
+Forwardhlackward Subaperture Smoothing Technique for 
+Sample Starved STAP,” ICASSP, 1998. 
+[SI 3. Ward, “Space-time Adaptive Processing for Airborne 
+Radar,” lMlT Lincoln Laboratov, Tech. Rep. No. TR-I 01 5, 
+Dec., 1994. 
+[9] C.D. Peckham, A.M. Haimovich, T.F. Ayoub, J.S. 
+Goldstein, I.S. Reed, “Reduced Rank STAP Performance 
+Analysis,” IEEE Transactions on Aerospace and Electronic 
+Systems, vol. 36, no. 2, pp. 664-676, April 2000. 
+[lo] W.L. Melvin, J.R. Guerci, M.J. Callahan, M.C. Wicks, 
+“Design of Adaptive Detection Algorithms for Surveillance 
+2-862 
+Radar,” 2000 IEEE lntemational Radar Conference, 
+Arlington, VA., 7-12 May 00. 
+[l 11 W.L. Melvin, “Space-Time Adaptive Radar 
+Performance in Heterogeneous Clutter,” IEEE Transactions 
+on Aerospace and Electronic Systems, vol. 36, no. 2, pp. 
+621-632, April 2000. 
+[12] LS. Reed, J.D. Mallett, and L.E. Brennan, “Rapid 
+Convergence Rate in Adaptive Arrays”, IEEE Transactions 
+on Aerospace and Electronic Systems, AES-10, no. 6, 
+November, 1974. 
+[13] H.S. Nussbaum,et.al, (Hughes Aircraft Company), 
+“Slow Ground Moving Target IndicatiodLocation 
+Techniques,” Final Technical Report AFWAL-TR-83-1086, 
+May, 1983. Portions of the report are classified at a 
+Confidential level. 
+[ 141 A.M. Haimovich, “The Eigencanceler: Adaptive Radar 
+by Eigenanalysis Methods,” IEEE Transactions on 
+Aerospace and Electronic Systems, vol. 32, no. 2, April 
+1996. 
+[15] I.P. Kirsteins, D.W. Tufts, “Adaptive Detection Using 
+Low Rank Approximation to a Data Matrix,” IEEE 
+Transactions on Aerospace and Electronic Systems, 30, 
+(Jan. 1994), 55-67. 
+Thomas Morton was born in Rumford, 
+Maine. He received a B.A. degree from 
+the Ohio State University, Columbus, OH, 
+in 1985. He received a B.S.E.E. from 
+Wright State University, Dayton, OH in 
+1989 and an A4S.E.E. from the University 
+of Dayton, Dayton, OH, in 1996. He has 
+been working at Wright-Patterson Air- 
+Force Base since 1989 in various areas of radar acquisition 
+and research and development. He currently works at the 
+Air Force Research Laboratory where his research interests 
+include Space-Time Adaptive Processing. 

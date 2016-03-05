@@ -1,0 +1,632 @@
+Space Based GMTI Using Scanned Pattern 
+Interferometric Radar (SPIR)' 
+Karen Marais' and Raymond Sedwick3 
+MIT Space Systems Lab 
+77 Mass Ave Rm 37-458, Fbn 37-431 
+Cambridge, MA 02 139 
+karenm@mit.edu, sedwick@mit.edu 
+617-258-0742,617-253-783 1 
+Abstract-A method of performing space based Ground 
+Moving Target Indication (GMTI) using radar 
+interferometric processing is presented. The algorithm, 
+referred to as Scanned Pattern Interferometric Radar (SPIR), 
+uses the high angular variability of a sparse array Point 
+Spread Function (PSF) to collect sufficient data from the 
+signal return that the clutter and targets can be separated 
+without an a priori assumption of the clutter statistics. It is 
+shown that clutter within the main lobe of the individual 
+aperture pattern can indeed be separated from the targets, 
+using the deterministic geometric relationship between 
+observation direction and clutter Doppler shift. If the 
+computational domain is extended to the side lobes of the 
+gain pattern, clutter entering through these lobes can also be 
+extracted. Constraints on the cluster geometry are derived 
+from the invertibility of the PSF matrix. 
+TABLE OF CONTENTS 
+1. INTRODUCTION 
+2. INTERFEROMETRY 
+3. 
+4. 
+INTRODUCTION TO THE SPIR h m m  
+GMTI AM> THE SPIR mm 
+5. 
+6.  VALIDATION OF SPIR 
+INVERTIBILITY OF THE PSF MATRIX 
+7. CONCLUSIONS 
+1. INTRODUCTION 
+Ground Moving Target Indication (GMTI) using separated 
+spacecraft interferometry at radio wavelengths promises to 
+be a powerful new all-weather surveillance tool. We discuss 
+the design of such a system, which is being developed as 
+part of the Air Force Research Laboratory's (AFRL) 
+TECHSAT21 program. 
+GMTI is typically used to locate large vehicles such as tanks 
+and trucks in military applications. Current systems, such as 
+JSTARS [l], use airborne platforms to provide temporary 
+coverage in regions of interest. These systems provide good 
+performance but are manpower intensive and require 
+significant deployment time. Space-borne radar offers near 
+continuous global coverage without appreciable operator 
+risk. 
+The primary differences between air- and space-borne radar 
+are the increased range and field of view. Increased range 
+results in large signal attenuation from free space loss. In 
+target detection radar, ground return obscures targets and is 
+referred to as clutter. Increased field of view produces 
+severe clutter, since a greater ground area is illuminated. As 
+discussed in [2], there are three fundamental design 
+considerations for space-borne radar. First, the radar 
+requires sufficient power-aperture product to detect targets 
+at the required search rate. Second, the angular and range 
+resolution must be high enough to locate the target with the 
+required degree of accuracy. Third, the radar must reject 
+clutter and noise sufficiently to provide the specified 
+probability of detection and false alarm rate. This, 
+development of an effective space-borne radar system 
+presents many challenges. 
+Single aperture systems are a compromise between high 
+resolution and broad coverage. Broad coverage, or large 
+field of view, requires a wide beamwidth, while high 
+resolution requires a narrow beamwidth. In addition, clutter 
+suppression is computationally intensive and requires prior 
+knowledge of the target as well as an appropriate clutter 
+model. Performance is therefore limited by the quality of 
+prior target information and the accuracy of the clutter 
+model. 
+In contrast, multiple aperture systems can provide coverage 
+corresponding to the diameter of a single aperture and 
+resolution proportional to the maximum separation between 
+individual apertures. Space-Time Adaptive Processing 
+(STAP) has recently been proposed for use in multiple 
+aperture systems [3]. STAP takes advantage of the high 
+resolution properties of the interferometer, but does not use 
+all the available information in the return signals. Like single 
+aperture methods, STAP is limited by the accuracy of the 
+clutter model and additionally must assume the position and 
+' 0-7803-6599-2/01/$10.00  2001 IEEE ' Graduate Research Assistant, MlT Space Systems Lab 
+Research Scientist, MIT Space Systems Lab 
+4 - 2 0 4 7  
+velocity of any targets. Careful maintenance of aperture 
+positions in the cluster is necessary to achieve an adequate 
+level of clutter suppression, and complete clutter 
+suppression is theoretically impossible in two-dimensional 
+footprints. 
+TECHSAT21 is a technology demonstrator program with an 
+experimental multiple aperture radar payload. It consists of 
+clusters of microsatellites (less than 100 kg) that orbit in 
+close proximity (on the order of hundreds of metres). Each 
+microsatellite is capable of coherently detecting not only 
+retum signals resulting from its own transmission, but also 
+retum signals resulting from the transmissions of other 
+satellites in the cluster. 
+Scanned E’attem Interferometric Radar (SPIR) combines the 
+individual aperture signals in a way that allows ground 
+clutter to be characterized completely and removed. This 
+method depends not on the statistics of the clutter, but solely 
+on the clutter position and Doppler shift. While the clutter 
+amplitude and phase are random in nature, the Doppler shift 
+is entirely predictable due to the known angular location of 
+the clutter footprint. The algorithm relies on “de- 
+convolving” the gain pattem of the synthesized aperture 
+from the received signals to reveal the true ground scene. 
+In conventional interferometry, de-convolution is usually 
+performed. entirely in the spatial domain, and removes the 
+artefacts that appear in the image as a result of incomplete 
+U-v plane, filling. SPIR processing uses the distinctive 
+features of the interferometer response, and their effect on 
+both spatial and frequency information, to separate ground 
+clutter retim from target return. The statistical nature of the 
+clutter is irrelevant and the probability of detection is based 
+solely on the signal-to-noise ratio of the received signals. 
+A descripiion of the process begins with some fundamentals 
+of interferometry in Section 2. Section 3 describes SPIR and 
+gives a mathematical derivation, while Sections 4 and 5 
+discuss some implementation issues. Results of a simple 
+validation experiment are given in Section 6. 
+2. INTERFEROMETRY 
+Interferometry can be implemented in a number of ways, 
+depending on the application. Imaging interferometers cross- 
+correlate the time domain signals from multiple apertures to 
+measure the magnitude and phase of the spatial Fourier 
+components. The quality of the constructed image will 
+depend OM the sampled spatial frequency resolution. Missing 
+U-v components cause grating lobes that introduce artefacts 
+into the image. 
+Single Slit Aperture 
+As an example, consider a 1-D ‘filled’ aperture, formed by a 
+slit of width a = 0.1 m (Figure 1). 
+i 
+’r- - - - - - -  
+.. .-_. 
+! 
+-1.5708 -0.7854 0 0.7854 1.5708 
+tl (radiaw] 
+Figure 1 - Point Spread Function of a Slit 
+The respcinse pattern, or Point Spread ]Function (PSF) of a 
+‘square’ aperture is a sinc function, given by 
+sin( 7cu sin 0)  
+nu sin B 
+where U =- a / A .  This is the spatial Fourier transform of the 
+aperture g,eometry, where U and sin 0 are Fourier pairs like 
+f and t .  The PSF is the response of the aperture to a point 
+source. One consequ:nce of this is that points that are closer 
+together tlhan the angular separation of the first nulls of the 
+PSF ( A / a  for the slit) cannot be identified as separate 
+points. This defines the resolution of the aperture. The 
+second consequence is that information that is located in the 
+side lobes (as they are referred to when considering 
+diffraction) of the I’SF overlays infonmation in the main 
+lobe, so that the response in each pixel is sensitive to energy 
+originating from other parts of the scene. 
+Single Baseline Sparye Array 
+If the aperture is approximated (albeit poorly) by two 
+pinholes located a baseline distance a = 0.1 m apart (Figure 
+2), the point spread function is given by 
+cos(nu sin 0)  (2) 
+which is again the spatial Fourier transform of the aperture 
+geometry, this time approximated by two delta functions. 
+Since this PSF is peiiodic in sin0 (with constant ‘amplitude), 
+the grating lobes (as they are referred 10 with interference) 
+bring in i is much irtformation from multiple points in the 
+scene as that found in the main lobe. The ambiguity 
+associatedl with this ;spectral aliasing is very high, making it 
+difficult to reconstruct a scene with any clarity. The 
+resolution of this ‘sparse aperture’ is as good as with the slit 
+( A/ a ), but the quality of the image is low. 
+4-2048 
+I I , 
+I I 
+I I 
+-1.5708 0.7854 0 0.7854 1.5708 
+0 [radians] 
+Figure 2 - Point Spread Function of Two Point Apertures 
+By adding additional pinholes, the synthesized aperture 
+response will more closely approach that of the slit, and the 
+quality of the image will continue to improve as the PSF 
+tends toward that of equation (1). The information from the 
+various pinholes can be pair-wise correlated or combined in 
+some other manner, each way producing slightly different 
+results. 
+In a separated spacecraft interferometer each pinhole can be 
+thought of as representing a spacecraft. Therefore our aim is 
+to get acceptable image quality using as few as possible 
+satellites. 
+Sparse Aperture Synthesis without Cross Correlation 
+Cross-correlation of signals is not the only way to synthesize 
+the sparse array. If the incoming signals are summed, the 
+resulting signal will have contributions that were spatially 
+weighted by the PSF. By introducing appropriate time 
+delays in the aperture outputs before summing, the direction 
+in which the 'main' peak is located can be shifted left or 
+right, changing array sensitivity to different regions of the 
+scene. If the signals are at radio frequencies (X-band and 
+below) the information from each aperture can be recorded 
+digitally and the 'scanning' of the PSF can be done as post- 
+processing. 
+3. INTRODUCTION TO THE SPIR ALGORITHM 
+As described in the previous section, time shifting the 
+outputs of the apertures in a coordinated fashion will 
+effectively steer the array back and forth. By examining the 
+content of the signal under these changes in focus direction, 
+each constituent of the signal can be determined. 
+A Simplified Model of SPIR 
+A simple model of the SPIR approach is shown in Figure 3 .  
+The three boxes labelled RGB represent three footprint 
+cells, which contain targets of unknown size. The array of 
+arrows is the gain pattern associated with a sparse aperture 
+~ 
+4 -2049  
+with gains of 1,5,3,2 and 4. As the gain pattern is placed on 
+the ground in a certain position, each of the gains multiplies 
+the strength of the signal (radar cross section) from the 
+corresponding cell. However, only the total signal strength is 
+measured at the spacecraft. As shown, with the gains 3-2-4 
+covering the cells, the total signal strength is 27, whereas 
+with 5-3-2 and 1-5-3 covering the cells, the total strengths 
+are 26 and 20 respectively. With 3 samples taken 
+(corresponding to the 3 unknowns) the problem can be 
+formulated as a matrix equation, and provided the matrix is 
+invertible, the values within R, G and B can be determined. 
+I RI G I  B I  
+A 
+U 4  - 21
+Figure 3 - An Example of the SPIR Methodology 
+Of course, in a real system the situation is much more 
+complex, we discuss some of the issues in Section 3.  
+A ID Mathematical Derivation of SPIR 
+Having established qualitatively the concept of SPIR, we 
+now present its mathematical foundation. We perform the 
+analysis for a one-dimensional footprint viewed from a 
+linear interferometer array. 
+We assume that one satellite transmits and all the satellites 
+receive the reflected signal. Multiple satellite transmits can 
+be thought of as a series of single transmitter results. Such 
+results may be combined to increase the probability of 
+detection while decreasing the false alarm rate. 
+The transmitting satellite transmits a signal of the form: 
+srrmSmi, ( t  ) = A ( t  ) e@cr (3) 
+where A(t) is an amplitude factor (modulation), which varies 
+much more slowly than the carrier eiq' . 
+For this analysis we will set 
+A ( t )  = 1 
+The received signal at satellite i is a scaled, time and 
+Doppler spread version of the transmitted signal. 
+The scale factor is given by the inverse of range squared (for 
+signal amplitudes). We assume that the variation in scaling 
+factor between satellites is negligible. 
+The time delay from a particular footprint cell to the i" 
+satellite is the sum of the transmission and reflection delays. 
+Time dela.ys are measured relative to the time delay to the 
+transmitting satellite. 
+In terms of wavelengths, the received signal is delayed by 
+X. 
+Awavelengthi = sin Op A 
+= ui sin Op 
+where Op is the angle to the ground and 
+The RCS is represented by the amplitude factor O. For 
+convenience we define 0 to be a function of position and 
+frequency such that it is zero at frequencies where there is 
+no Doppler return 
+(7) 
+Noting that a digital1 y sampled frequency can be represented 
+as 
+we replace the sum of the carrier and Doppler frequencies 
+with 
+(4) 
+The signal received by satellite i from the entire footprint in 
+the absence of noise is therefore given b y  
+is the spatial wave number corresponding to the i" satellite's 
+position, xj, relative to the transmitting satellite. 
+The Doppler shift of a footprint cell as observed by a given 
+satellite is a function of the relative velocity between the 
+transmitting and receiving satellite and the footprint cell. 
+Each cell. will have a range of Doppler frequencies 
+associated with it, representing the variation in line-of-sight 
+velocity across a cell. In the case where a cell contains a 
+target, the target's line-of-sight velocity is represented as an 
+additional Doppler frequency component for that cell.. 
+In pulse-Doppler radar systems the Doppler frequency is 
+obtained by digitally sampling N points of the time signal at 
+the pulse repletion frequency (PRF) and taking the discrete 
+Fourier transform. This gives a discrete set of frequencies 
+for each cell 
+The radar cross-section (RCS) of a footprint cells or target 
+represents how much of the incoming radar signal is 
+reflected back to the transmitting aperture(s). As a first order 
+approximation, we assume that the RCS of any given 
+footprint cell or target is constant with respect to time and 
+viewing angle. 
+The single aperture response is a function of angle and is 
+given by E ( 8  ). For a uniformly illuminated rectangular 
+aperture of width d, I?( 8) is 
+r 
+Similarly, for a unilormly illuminated circular aperture of 
+diameter d, E( 8 ) is 
+4 - 2 0 5 0  
+In order to focus on a particular cell 6, in the footprint, the 
+received signals at each satellite are time shifted and added 
+(12) 
+.Discretising the footprint into cells gives 
+i=l p=O 
+k=O 
+Discretising the time variable and assuming that we have N 
+samples in total 
+Taking the discrete Fourier transform (Dm) to obtain the 
+frequency response 
+Evaluating the summation over m 
+0 k # l  N-I  .2nm 
+m=O z e j " ( * - I )  N k = l  
+Therefore 
+p=o 
+- 
+4-2051 
+i=l 
+(17) 
+Set 
+G(Bp,8,) = 
+j2nu, (sin ep-sh eq ) 
+i=l 
+This is the point spread function for a 1D interferometer, 
+focused on a point at angle 0,. 
+Then 
+In matrix notation: 
+S=$GZ 
+where 
+Therefore the RCS-Doppler profile of the one-dimensional 
+strip can be recovered using the constructed signal s(Bq, t )  
+and the PSF of the aperture, G(6,  0,). 
+The two-dimensional case is simply an extension of the one- 
+dimensional case. 
+4. GMTI AND THE SPIR ALGORITHM 
+In this section we discuss issues associated with the 
+application of interferometry, and specifically, SPIR, to the 
+GMTI problem. 
+Multiple Targets Within a Resolution Cell 
+We first recognize that there may in fact be multiple targets 
+in each of the cells, and one of these targets will in fact be a 
+cell-sized patch of ground whose (unwanted) return we refer 
+to as clutter. How then to separate the targets? MTI systems 
+are only interested in moving targets, therefore we may use 
+Doppler shift to differentiate between targets and clutter. 
+In the example of Figure 3, we can imagine that the 'targets' 
+within each cell have Doppler shifts, which if a target is 
+moving will be different from the corresponding footprint 
+cell's Doppler shift. If the retumed signal is Fourier 
+transformed with respect to time, the frequency content of 
+the signal will become apparent. The same processing that 
+was described before can now be done for each individual 
+frequency, down to the frequency resolution of the system. 
+The frequency resolution depends on the signal integration 
+time; as integration time is increased the signal is 
+characterized more completely and frequency resolution is 
+improved. Integration time is limited by the maximum time 
+over which the Doppler shift of the ground and targets does 
+not change appreciably. 
+Processing a 2-Dimensional Footprint 
+The 1-D processing just discussed can be applied to real 
+systems by range-gating the return to isolate return from 
+individual ranges. These range gates can then be SPIR 
+processed as 1-D strips (iso-range) across the footprint. 
+Altematively, the 2-D processing can simply be an extension 
+of the 1-D case, where instead of scanning the point spread 
+function in only one direction, it is scanned in range and 
+cross-range. Assume that the footprint can be divided into m 
+x n cells. 'The PSF main lobe is scanned over all the cells, as 
+shown in Section 2 this provides enough infomition to 
+solve for the RCS of each cell. 
+For each data point, mn cells are multiplied with mn gains 
+and the result is summed to produce a single value (ignoring 
+the Doppler processing for now). If each of these operations 
+is represented by a row of a matrix acting on a vector of 
+data, then the matrix row and the data vector are both mn 
+long. In addition, to invert the matrix of gains (the PSF 
+matrix) a total of mn rows must be generated to make the 
+matrix square. These correspond to placing the main lobe in 
+each and every footprint cell. 
+The method of solution has some bearing on the geometry of 
+the sparse: arrays. In the case of the 1-D processing with 
+range gaxing, a linear array of satellites is sufficient, 
+provided they are spaced in such a way that the PSF matrix 
+is invertible, or at least of high rank. 
+For 2-D processing, the apertures should be arranged 
+spatially i:n two dimensions. This allows slewing of the main 
+lobe in both dimensions. 
+Unlike STAP, which must maintain precise aperture position 
+to place nulls over competing clutter, SPIR's only 
+requirement is knowledge of the PSF matrix, so that 
+knowledge of the satellites' positions is more important than 
+fine control. 
+Range Ambiguities 
+The 2-D processing capability allows for the elimination of 
+the problem of range ambiguities. Consider the case where 
+the PRF is high enough that the length of the footprint 
+contains two range ambiguities. If range gating is performed, 
+the data from both ambiguous ranges will overlap. However, 
+if 2-D processing is performed only on the cells that 
+comprise the ambiguous ranges (shown in Figure 4) then 
+enough data can be collected to separate the information 
+coming from each range. 
+Figure 4 - Footprint with a Single Range Ambiguity 
+The computational load required to remove range ambiguity 
+is a function of the number of cross range cells and the 
+number of ambiguitils. Since the system must be solved for 
+each range ambiguity, the computationall load scales with the 
+square of the numbeI of range ambiguities. 
+Doppler ALmbiguities 
+Although it has been demonstrated how range ambiguities 
+can be processed, the approach quickly becomes 
+computationally expensive as the number of range 
+ambiguities is increased. An alternative approach is to make 
+the PRF low enough that no range ambiguities exist, which 
+in turn produces Doppler ambiguities. In a similar manner to 
+standard radar processing, these Doppler ambiguities can be 
+removed by employing PRF jitter, or switching. 
+As shown in Figure 5,  the result of the SPIR processing is to 
+range, cross-range and Doppler. Each target (or footprint 
+cell) will appear in a separate cell of tllis cube, unless two 
+targets which are very close to each other are also moving 
+with the same velocity, in which case they will appear as a 
+single target. 
+generate a data cube of information, where the axes are 
+Figure 5 - Using Jitter to Eliminate Dloppler Ambiguity 
+4 - 2 0 5 2  
+With Doppler ambiguity, a ghost image will appear for each Table 1 - Unrestricted Array Spacing and PSF Size 
+7 1 { 6 3 1 7 5 2 )  
+target. In fact the number of ghosts for each target is what 
+defines the ambiguity. The nice characteristic is that the I # I  Relative Spacing I MaximumNumber I 
+43 
+position of the ghost along the Doppler axis is dependent on 
+the PRF, whereas the Doppler position of the real target 
+does not. By using multiple PRFs, ghosts can be identified 
+by their tendency to move around. A convenient use of this 
+characteristic is to non-coherently add successive data 
+cubes, entries corresponding to true targets will add up 
+constructively, while entries corresponding to ghosts will 8 I / 8 1 0 1 3 2 7 8 1  
+of Cells 
+52 
+( 3 1 5 2 )  
+{ 4 1  1 7 3 )  31 
+not. 
+~~ 
+I 
+9 I None -_ 
+10 I ( 1 6 1  1 1 8 6 4 3 2 2 2 ]  I 91 
+11 I ( 1 8 1 3 9 1 1 6 8 2 5 2 8 )  I 107 The processing load using PRF jitter scales linearly with the 
+number of selected PRFs. Therefore Doppler ambiguity 
+resolution using PRF jitter is less computationally intensive 
+than range resolution. 
+Optimal placement of satellites in a two-dimensional cluster 
+is more complex and is not discussed here. We shall see that 
+limiting the cluster to one dimension does not place 
+excessive constraints on the system. 5 .  INVERTIBILITY OF THE PSF MATRIX 
+The main constraint on the application of the SPIR 
+algorithm is the ability to solve equation (20). It is possible 
+to obtain approximate solutions for singular systems, 
+however, to most accurately assess the performance of this 
+algorithm, we consider only PSF matrices that are invertible. 
+We will focus the discussion on linear arrays, since the 
+constraints can be extended in a straightforward manner to 
+2-D array geometries. 
+Minimum Redundancy Arrays 
+The key to a non-singular PSF matrix is to maximize the 
+spatial period over which the PSF repeats. In this way, 
+shifting the PSF to form the PSF matrix will not produce 
+rows that are linearly dependent. To obtain narrow PSFs 
+with long spatial periods, we require a high number of 
+different baselines. The most baselines for a given number 
+of apertures can be obtained by using minimum redundancy 
+arrays (MRAs). Two classes of these arrays exist, restricted 
+and unrestricted. The unrestricted array maximizes the 
+number of spatial frequencies sampled, whereas the 
+restricted array maximizes the number of contiguous spatial 
+frequencies, with some being duplicated. Our interest is 
+therefore with the unrestricted arrays. The relative spacing 
+of the unrestricted arrays (normalized to the smallest one in 
+each case) is given up to 11 array elements in Table 1 [4]. 
+Numerical analysis revealed a trend in the maximum 
+dimension of full rank matrices for each configuration. It 
+appears that matrices larger than the tabulated values will 
+not be full rank. With the number of footprint cells 
+determined, a requirement on the ground resolution would 
+then determine the field of view that could be processed 
+using SPIR, as shown in Section 6. 
+Solving the System of Linear Equations 
+Restricting the PSF matrix to be invertible does not 
+guarantee that it will be well conditioned. The conditioning 
+of the matrix rapidly worsens as its dimension is increased. 
+The implication is that as the number of footprint cells is 
+increased, the corresponding PSF matrix becomes more 
+poorly conditioned. Singular value decomposition (SVD) 
+was found to give very satisfactory results even for matrices 
+with high condition numbers, with low computational cost. 
+An additional advantage of SVD is that it is not essential 
+that the PSF matrix be full rank. By eliminating a sufficient 
+number of the smallest singular values (which are associated 
+with linearly dependent rows), the system can be solved, for 
+a small loss in accuracy. Clearly there is a trade-off to be 
+made between good numerical conditioning and loss of 
+information. 
+6. VALIDATION OF SPIR 
+Initial Implementation 
+In our initial evaluation of SPIR, we begin by limiting the 
+cluster to be one-dimensional and side looking, as shown in 
+Figure 6. Since the PRF will be chosen low enough to avoid 
+range ambiguities, we may limit the footprint to be a strip at 
+constant range, extending in the cross-range direction. 
+We select a cluster of eight satellites from Table 1. The 
+maximum number of cross-range cells is 107. The 
+associated PSF (assuming uniformly illuminated rectangular 
+apertures) is shown in Figure 7. 
+4 - 2 0 5 3  
+Figure 6 - Linear Satellite Array with Four Satellites 
+A highly simplified model is used to generate the ground 
+and target retum, later evaluations will use clutter models. In 
+our model the radar cross section of footprint cells and 
+targets is constant regardless of viewing angle or incident 
+frequency. The clutter Doppler frequency varies Xinearly 
+across the footprint, it is simply a function of grazing angle 
+and cluster velocity. Each footprint cell contains only one 
+discrete clutter Doppler frequency. Target Doppler shift is a 
+function of the vector sum of the velocity of the footprint 
+cell the target is in, as well as its own velocity. Noise is not 
+included in the signal model at this stage. 
+ss 
+Figure 7 - Point Spread Function for an 8-Satellite 
+Unrestricted Array 
+We may then use the equation (14) to generate the retum 
+signal as a function of time and footprint cell angular 
+location. 'Taking the DFT of this signal results in the 
+composite signal S(S,. m). Figure 8 shows an exampl.e, with 
+two different targets. 
+Solving equation (20) for the radar cross-section matrix, a, 
+gives the brue ground scene, as shown in Figure 9. 
+Figure 8 .- Composile Signal for a Footprint Strip with Two 
+Targets 
+Figure 9 .- Recovered Signal for a Footprint Strip with Two 
+Targets 
+The two tiirgets are clearly visible. The low velocity target is 
+close to the clutter, while the higher ve:locity target is well 
+separated. Note that due to sampling of the Doppler shifts, 
+the higher velocity target is aliased and :.mually appears at a 
+lower Doppler frequency index. 
+Future Work 
+Having proven the concept, future work will first focus on 
+extending the footprint into two dimensions. Clutter Doppler 
+shift will be modelled more accurately; the number of 
+discrete Doppler frequencies in a cell will depend on its 
+extent and the Doppler frequency resolution. Clutter RCS 
+will also be modelled more accurately, wing various clutter 
+models. Noise will also be included; this will allow the 
+evaluation of different thresholding schemes. 
+Another important factor in the application of SPIR is the 
+high computational load. Future work will investigate 
+processing optimisatiion and ways of effectively distributing 
+the processing load between satellites in the cluster. 
+4 - 2 0 5 4  
+7. CONCLUSIONS 
+Space-based interferometric radar provides significant 
+advantages over single aperture space-based radar. Multiple 
+aperture interferometers can provide both high resolution 
+and wide coverage. A cluster of small, cheap satellites can 
+provide good performance, with lower system-level risk. 
+We have proposed an algorithm for use in space-based 
+interferometric radar. Scanned Pattern Interferometric Radar 
+(SPIR) uses concepts from interferometry to accurately 
+reconstruct the true ground scene. Moving targets are 
+completely separated from clutter, therefore detection 
+performance is limited only by signal to noise ratio. 
+The primary advantage of SPIR is that it does not require 
+accurate clutter information or prior target information to be 
+effective, unlike other interferometric algorithms such as 
+STAF’. 
+We have performed a mathematical derivation of SPIR for a 
+one-dimensional cluster. Simulation of a simple case showed 
+that SPIR does indeed reconstruct the ground scene, as 
+expected. 
+Future work will build a more representative simulation and 
+examine distributed processing options. 
+REFERENCES 
+[l] DeLap, R.A., “Recent and Current Air Force Space 
+Based Radar Efforts”, IEEE Aerospace Conference 
+Proceedings, 1999. 
+121 Cantafio, Leopold (editor). Space Based Radar 
+Handbook, Artech House, 1989. 
+[3] Klemm, R. “Introduction to Space-Time Adaptive 
+Processing”, IEEE Electronics & Communication 
+Engineering Journal, Volume 11, Issue 1, February 1999 
+KAREN MARAIS was bom in 
+Pretoria, South Africa in 1973. She 
+received her BS in Electrical 
+Engineering from the University of 
+Stellenbosch, South Africa, in 
+1994, and her BS in Mathematics 
+and Applied Mathematics from the 
+University of South Africa in 1998. 
+She has worked for a number of 
+years in the South African 
+aerospace industry. Currently she is a graduate Research 
+Assistant at the MIT Space Systems Laboratory. Her 
+research interests include space-based radar, 
+communications and systems engineering. 
+DR. RAYMOND SEDWICK was 
+bom in Chicora, Pennsylvania in 
+1970. He received his BS in 
+Aerospace Engineering from Penn 
+State University in 1992, and his SM 
+and PhD in Aeronautics and 
+Astronautics from MIT in 1994 and 
+1997 respectively in the area of 
+advanced space propulsion, with a 
+minor in Physics. He then held a 
+Postdoctoral position at the MIT Space Systems Lab for two 
+years, studying distributed satellite systems and satellite 
+formation jiying. Dr. Sedwick is currently a Research 
+Scientist at the MIT SSL, where his research interests 
+continue to be space propulsion, orbital mechanics, and 
+most recently space-based radar. He is a member of the 
+AAS, Sigma Xi, Sigma Gamma Tau, and a senior member of 
+the AIAA. 
+[4] Moffet, A.T. “Minimum-Redundancy Linear Arrays”, 
+IEEE Transactions on Antennas and Propagation, AP-12, 
+pp 172-175. 
+4 - 2 0 5 5  

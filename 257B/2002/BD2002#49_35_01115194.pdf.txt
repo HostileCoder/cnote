@@ -1,0 +1,600 @@
+Irregular Fine-Grain Parallel Computing Based on the Slide Register
+Window Architecture of Hitachi SR2201
+Adam Smyk, Marek Tudruj
+Polish-Japanese Institute of Information Technology
+02-008 Warsaw, ul. Koszykowa 86, Poland
+email: {asmyk,tudruj}@pjwstk.edu.pl
+Abstract
+In this article, an optimization method for parallelized
+execution of irregular fine grain computations is
+presented. This method was implemented using pseudo-
+vector processing (PVP) and sliding window register
+(SWR) mechanisms, which have been provided in Hitachi
+SR2201 supercomputer. The general idea of PVP and
+SWR relies on optimizing access to big continuous parts
+of memory and parallel execution of three kinds of
+operations placed in loops: loading and storing data,
+arithmetic operations. The main disadvantage of the
+above-mentioned mechanisms are that gain can be
+obtained only for long loops and regular expressions
+inside them. In our method, we focused attention on
+irregular computations, devoid of any predictable
+dependencies. We divided a given code into parts and
+manually optimized relations between loading and storing
+operations with taking into consideration the memory
+latency and delays in accessing needed data. In our
+implementation we obtained a speedup by using a simple
+reordering of sequences access operations to registers
+and memory.
+1. Introduction
+The efficiency of computations can be reached by a
+combination of the coarse-grain parallelism at the level of
+the global algorithm with the fine-grained parallel
+computing that is implemented at the level of single
+instructions. Such an approach can be implemented
+automatically by a compiler through directives and
+functions of the OpenMP or HPF in multi-processor
+systems based on shared memory or by the use of
+mechanisms of pseudo vectorization [1] in some modern
+multi-processors such as Hitachi SR2201[2] and
+SR8000[3].
+We will be interested in the second approach. In
+processors of Hitachi systems mentioned above, a concept
+of the slide register window [1] has been implemented. It
+assumes a logical window of 32 floating point registers
+that are visible for floating point instructions in the
+processor architecture to be dynamically mapped during
+program execution into a portion of the 128-register file
+by execution of window sliding instructions. The register
+contents in the 128-register file can be loaded or stored
+from/in the processor operating memory in parallel with
+execution of floating point arithmetic instructions. It
+enables overlapped loads and stores of data to/from
+registers with computations in program sections that are
+based on floating point arithmetic instructions.
+W1=A*B+C
+W2=A*C+F
+Temporary
+register
+usage
+*
+Memory slot
+Register slot Operator slot
+Execution time = 11
+A
+B
+C *
+RA
+RB
+RC
++
+W1
+T1
+T2
+T3
+T4
+T5
+T6
+T7
+T8
+T9
+T10
+T11
++
+RAC
+W2
+RF
+Arithmetic
+Operations
+Register
+storing
+Register
+loading
+Data from
+memory
+RAB
+F
+Memory slot
+Figure 1. Computation without instructions
+overlapping.
+After data are ready for the use of a section, its execution
+can be launched. In parallel with execution of current
+instructions, data can be loaded for a next section to be
+Proceedings of the International Conference on Parallel Computing in Electrical Engineering (PARELEC’02) 
+0-7695-1730-7/02 $17.00 © 2002 IEEE 
+executed and, at the same time, the results of previously
+executed section(s) can be sent back to the memory. This
+data loading/storing paradigm can be called overlapped
+data communication multi-sections. The overlapping will
+lead to time transparency if execution times of overlapped
+instructions are identical. Otherwise quasi-transparency
+can be achieved. The concept of the slide register window
+has been extensively used for implementation of the
+pseudo-vectorization of matrix and vector computations
+as an option of the C and Fortran compilers existing on
+HITACHI SR supercomputers.
+W1=A*B+C
+W2=A*C+F
+Temporary
+register
+usage
+*
+Execution time = 8
+A
+B
+C
+*
+RA
+RB
+RC
++
+W1
++
+RAC
+W2
+RF
+Arithmetic
+Operations
+Register
+storing
+R? unused register preloading slots
+unused data storing slots
+Register
+pre-loading
+Data from
+memory
+W?
+W?
+W?
+W?
+RAB
+R?
+F
+R?
+T1
+T2
+T3
+T4
+T5
+T6
+T7
+T8
+Figure 2. Packing instructions into transparent
+data communication
+However, the pseudo-vectorization can be applied under
+several restrictions such that for example only loops can
+be pseudo-vectorized and the loops can not constrain
+input/output operations, goto statements, selective
+conditional statements, procedure calls, function calls,
+exponentiation, etc. It restricts the use of the register
+sliding window facility only to regular computations.
+The packed program execution provides for execution
+with a possibly maximal time transparency of loads
+/stores of data to/from registers. An example of the
+concatenation of two elementary instructions into a
+transparent data communication thread is shown in Fig.1
+and Fig.2. If we assumed that the time execution of each
+operation is equal to 1 unit, the total execution time for
+presented simple example without instructions
+overlapping is equal to 11. However, after having
+introduced PVP instructions, we have obtained the
+transparency of operations and total execution time
+decrease to 8 units.
+2. Outline of the scheduling method
+In our method, given arithmetic expressions (actually
+with two arguments floating point arithmetic operators)
+are sorted in respect to data dependencies. All of these
+operators are assigned to free operator slots along the
+program execution time axb. At the beginning, the
+distance between each of operator slot is equal to 1 (all of
+them stick to each other in pairs). Next, we are taking two
+operands which are necessary to execute the first
+operator. Both these operands are stored in main memory,
+so we have to execute two loading operations to move
+data from given memory cells to the registers which are
+not used at the moment. Including the loading time and
+memory latency, the absolute execution time of all later
+operators will change two time steps forward (where one
+time step is equal to loading_time + memory_latency).
+After execution, each of operands produces a new data
+which can be temporarily stored in a free register if it will
+be used in the nearest future (RAB or RAC from Fig. 1) or
+will be stored into main memory (W1 or W2 from Fig. 1)
+if it is a final data. Each additional loading (or storing)
+operation causes an increase of the distance of two
+neighbouring operator slots and in general the total
+execution time is increases (Fig. 1). To avoid such a
+situation and to reduce the total execution time, in our
+scheduling algorithm we applied the pseudo-vectorization
+mechanism (Fig. 2). We used special Preload and
+Poststore instructions which can be executed in parallel
+with appropriate arithmetic instructions. The main
+problem which has to be solved in this scheduling
+algorithm is finding the background operations to loading
+or storing operations. General idea of this algorithm can
+be summarized in 3 steps:
+1) load two operands for operation 1
+2) execute floating point arithmetic operation and
+transparently preload data for the next operation;
+3) if storing data is needed, execute store operation in
+parallel to nearest arithmetic operations, (steps 2, 3
+repeat for all floating point operations).
+Theoretically, such an approach should give a speedup of
+computation, but in a real system we have to take into
+account the latency of memory access and closely related
+to it, an efficiency of cache memory. So, the algorithm
+has to take into account these restrictions and all data to
+be obtained from loading shouldn’t be used before this
+process will be completed. The easiest way to overcome
+this limitation is to introduce a time interval between
+load/store instructions and arithmetic operations which
+concern use the same data placed in memory and floating
+point registers. In case of such anticipated loading of the
+data, the number of required simultaneously accessible
+registers significantly grows comparing the non-
+optimized algorithm. Due to pseudo-vector Preload
+(FPLDWS, FPLDWS) and Poststore (FPSTWS, FPSTWX)
+Proceedings of the International Conference on Parallel Computing in Electrical Engineering (PARELEC’02) 
+0-7695-1730-7/02 $17.00 © 2002 IEEE 
+instructions we have direct access to the extended set of
+128 floating point registers. The standard memory
+communication instructions and arithmetic instructions
+due to fixed instruction format have access only to 32
+registers. With the mechanism of slide register window
+[1] we can specify which part of extended set of register
+will be “visible” to arithmetic instructions in each
+moment of computation. For efficient use of such a
+mechanism, we introduced a concept of sections. A
+section is a sorted set of adjacent arithmetic instructions
+which need no more than x registers for their execution –
+where x does not exceed 32. The main idea of
+computation algorithm is presented in Fig. 3. After
+creation of computation sections, the sliding register
+window is set at the position 0 and, thus we have an
+access to the first 32 registers from the extended set of
+registers.
+Merging, adjacented computation instructions into
+sections, k = 1
+Loading data for instructions from the first section
+Co
+m
+pu
+ta
+tio
+n
+(se
+ct
+io
+n
+k)
+Pr
+el
+o
+ad
+in
+g
+da
+ta
+fo
+r
+in
+st
+ru
+ct
+io
+n
+s
+fro
+m
+th
+e
+se
+ct
+io
+n
+k+
+1
+St
+o
+rin
+g
+re
+su
+lts
+fro
+m
+se
+ct
+io
+n
+k-
+1
+to
+m
+em
+o
+ry
+k=k+1; k<number of sections
+End of computation process
+Y
+N
+Setting of sliding window register at position 0
+Moving the SWR at Posk
+Storing results from
+the last section to memory
+t1
+t2
+t3
+Figure 3. Scheme of the computation process for
+irregular computation.
+Next we load data for section 1, and start computation. In
+parallel, we perform preloading (for section 2) to the
+higher number registers which are not visible for the
+computation instructions, but are accessible by pseudo-
+vector Preload and Poststore operations. The results (from
+section 1) stored temporarily in registers will be moved to
+memory during the execution in one of the next sections
+by using pseudo-vector Poststore instructions. Due to the
+fact that the execution times all of these operations are
+different (t1 != t2 != t3), the total execution time for one
+section is equal to max(t1,t2,t3). When the computation for
+section 1 is finished, the results are stored in registers, and
+the slide window register is moved to the next position.
+The position of the slide window register in section k
+depends on the number of registers which has been used
+in section k-1 and is equal to Posk=Posk-
+1+numer_of_registers. If there is a data dependency
+between each two sections, we have to force to move the
+data from one section to another. If these two sections are
+not adjacent, the data are stored in memory and it will be
+re-loaded again in the section located just before the
+destination section. Another way to solve this problem is
+storing shared data in one of low number registers
+(usually number from 0 to 7) which are visible to
+arithmetic instructions independently on the SWR
+position. When two sections k and k+1 are adjacent, we
+store all common data in the highest number registers
+accessible from in k and when k is completed we move
+the window to position Posk=Posk-1 + numer_of_registers-
+d where d is equal to number of depending data from two
+adjacent sections.
+3. Experiments
+The algorithm which was described above has been
+implemented on Hitachi SR2201 (16 processors) in three
+versions: non-optimized (non-PVP version), optimized
+without sections (all arithmetic and memory operations
+were executed with time interval equals to 0) and
+optimized with sections.
+In our experiments we assumed that all irregular data
+are stored in a linear continuous memory. This
+assumption is necessary to avoid the operation of
+“loading of effective address” for each data, which in our
+case was preformed only one time at the beginning.
+For efficient implementation of this method it was
+necessary to perform several tests, which allowed us to
+estimate the execution times of used instructions (Table 1
+– each operation was executed in a package containing
+3.2E+8 iterations). From these results we can see that
+window shifting operation is almost two times longer than
+simple (addition and multiplication) arithmetic operation
+and almost 5 times shorter than complex arithmetic
+operation (division). In case of stand-alone loading
+operations, the highest efficiency was obtained for
+standard loading (~4[s]), but when we applied Preload
+operations, the execution time have increased, to be from
+5 to 1.1 times slower than ordinary loading.
+Proceedings of the International Conference on Parallel Computing in Electrical Engineering (PARELEC’02) 
+0-7695-1730-7/02 $17.00 © 2002 IEEE 
+Table 1. Operation package execution time
+Operation Execution
+time [s]
+Sliding window shift 4.33
+Arithmetic operation: add and multiply 2.17
+Arithmetic operation: division 19.51
+Loading data from memory to registers 4.34
+Preloading data from memory to registers 17.84
+Preloading data from memory to the same high
+number registers 22.32
+Preloading data from memory to the same high
+number registers with inter-instruction
+intervals
+12.41
+Preloading from memory to the different high
+number registers with inter-instruction
+intervals
+5.64
+Storing data from registers to the same memory
+location 79.54
+Poststoring data from registers to the same
+memory location 79.31
+Poststoring data from high number registers to
+the same memory 79.38
+Poststoring data from the same high number
+registers to the same memory with inter-
+instruction interval
+39.65
+Poststoring data from different high number
+registers to the same memory with inter-
+instruction interval
+39.65
+The efficiency of Preloading operations depends on
+two reasons: localization of data source which will be
+read in each consecutive loading instruction and the
+number of destination register (ordinary or high number
+register). The shortest execution time for Preloading was
+obtained when data were read from different cells of
+memory to different (high) number of registers with two
+instructions time interval (~5 [s]) and it was almost equal
+to ordinary loading.
+1,2
+1,3
+1,4
+1,5
+1,6
+1,7
+1 2 3 4 5 6
+Distance
+Lo
+ad
+e
+xe
+cu
+tio
+n
+tim
+e
+[s]
+3,330
+3,331
+3,332
+3,333
+St
+o
+re
+e
+xe
+cu
+tio
+n
+tim
+e
+[s]
+Load operation Store operation
+Figure 4. Load and store efficiency versus
+distance from arithmetic instructions (for
+packages of 1.3E+7 operations)
+Storing operation is almost 4 times longer than loading,
+so the efficiency of this operation is much more
+important. The execution time of store operation in almost
+all cases is similar (~80[s]) and is independent on the
+loading method and destination registers, but depends on
+the frequency of access to the same parts of memory.
+Having introduced, a small time interval (two
+instructions) we obtained speedup equal to 2 comparing
+different kinds of storing operations without it. The
+execution time of memory communication operations
+decreased with an increase of distance between two
+instructions using the same memory cell [Fig. 4]. For
+1.3E+7 loading operations, we obtained the execution
+time from ~1.6s for 1 arithmetic instruction time interval,
+to ~1.3[s] for 6 arithmetic instructions time interval, so
+the execution time reduction is equal to 20% (for store
+operations the reduction is rather small and does not
+exceed 1%). From these results, we can see that the total
+execution time is much more sensitive to changing the
+load operation arrangements than store operations in a
+program.
+0,4
+0,6
+0,8
+1
+1,2
+1,4
+1,6
+0% 20% 40% 60% 80% 100%
+Percentage number of store intructions
+Sp
+ee
+du
+p
+PreloadAddPoststore
+PreloadAddPoststore with sections
+Figure 5. Program execution efficiency versus
+Poststore instructions number.
+For this reason, the efficiency of code (speedup of
+computation), to a large degree, mainly depends on the
+total number of load operations in relation to the total
+number of store operations [Fig.5]. In the experiments we
+tested speedup of irregular code (which was written in
+PA-RISC assembler) with variable number of store
+operations for the same code with and without
+introduction of sections. The simple examples of such test
+codes are presented below:
+Test code with:
+4 stores,
+8 loads
+2 stores, 8
+loads
+1 stores, 8 loads
+k=a+b;
+l=c+d;
+m=e+f;
+n=g+h;
+k=a+b+c+d;
+l=e+f+g+h;
+k=a+b+c+d+e+f+g+h;
+Proceedings of the International Conference on Parallel Computing in Electrical Engineering (PARELEC’02) 
+0-7695-1730-7/02 $17.00 © 2002 IEEE 
+Each of examples presented above was executed 3.2E+8
+times. In case of pseudo-vectorized irregular code without
+sections (PLAPS – Preload Add Poststore instructions
+sequence), we have got a speedup smaller than 1
+comparing to code without PVP instructions. The
+minimum speedup was obtained for code with 0% of
+Poststore instructions, for two reasons: execution time of
+Preload instructions is almost 4 times longer than that at
+ordinary load instructions and the Preload instructions
+have been executed with small time intervals, (execution
+of arithmetic operations which the use of just loaded
+data). Introduction of store operations have increased time
+intervals between preload instructions so the speedup
+grew (see in Figure 5, dashed line with 20% of store
+instructions in code). Unfortunately, after having the
+increased number of store instructions inside the code,
+speedup slightly falls from 0,8 to 0,6. In case of code with
+sections, the maximum speedup is equal to 1.6 comparing
+to code with standard instructions, because long time
+intervals introduced by sections, caused more efficient
+execution of Preloading operations. The speedup
+decreases when number of store instructions increases and
+with 60% is equal to ~1.
+4. Conclusions
+In the paper a fine grain optimization technique for the
+low level instruction code has been presented. This
+technique, exploits pseudo-vetorization and sliding
+registers window mechanisms (Hitachi SR2201) for
+parallelization of fine-grain irregular computation. The
+concept of the “instruction sections” in irregular code was
+introduced which allowed us to obtain some computation
+speedup in a rather simple way. It was achieved through
+reordering of the load and store instructions, and changing
+of ordinary memory communication instructions to their
+versions used for pseudo-vectorization. The efficiency of
+this method is strictly related to properties of a
+computation code. It grows along with the distance
+between data load/store instructions and the arithmetic
+instructions. It strongly depends on the total number of
+storing instructions in code comparing to the number of
+load instructions. Speedup of 1.6 can be obtained with
+minimal use of Poststore instructions (close to 0%) when
+the computation results are stored for further use in
+registers instead of memory. This speedup is better than
+1.3 when the amount of Poststores is not greater than
+10%.
+In future work, we plan to improve the idea of sections
+described here with taking into consideration variable
+paths of program execution controlled by conditional
+instructions.
+This work has been supported by the KBN grant No.
+4T11C 007 22 and internal research grants of PJIIT.
+5. References
+[1] H. Nakamura, T. Boku, A Scalar Architecture for Pseudo
+Vector Processing based on Slide-Windowed Registers,
+Proc. of the Int. Conference on Supercomputing, July 1993,
+pp. 298-307.
+[2] M.Brehm, R.Bader, H.Heller, F.Wagner, Optimization,
+(Pseudo-)Vectorization, and Parallelization on the Hitachi
+SR8000-F1, Supplement to the Hitachi SR8000 Tuning
+Manual, 2001
+[3] H. Fuji, Y. Yasuda et al. Architecture and Performance of
+the Hitachi SR2201 Massively Parallel Processor System,
+11-th International Parallel Processing Symp., Geneva, April
+1997, pp. 233-241
+[4] HP Assembler Reference Manual, HP 9000 Computers, 9th
+Edition
+[5] PA-RISC 1.1 Architecture and Instruction Set Manual,
+Hewlett Packard 1994, 3rd edition
+[6] R.Allen, K.Kennedy, Optimizing Compilers for Modern
+Architectures, Morgan Kaufmann Publishers 2002
+Proceedings of the International Conference on Parallel Computing in Electrical Engineering (PARELEC’02) 
+0-7695-1730-7/02 $17.00 © 2002 IEEE 

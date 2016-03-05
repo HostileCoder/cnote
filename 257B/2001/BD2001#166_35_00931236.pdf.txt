@@ -1,0 +1,1276 @@
+Confluence of Navigation, Communication, and Control in 
+Distributed Spacecraft Systems1 2 
+P. A. Stadter3, A. A. Chacos, R. J. Heins, G. T. Moore, E. A. Olsen, and M. S. Asher 
+The Johns Hopkins University Applied Physics Laboratory 
+1 1 100 Johns Hopkins Road 
+Laurel, MD 20723-6099 
+J. 0. Bristow 
+NASA Goddard Space Flight Center 
+Greenbelt, MD 20771 
+Abstract-This research details the development of 
+technologies and methodologies that enable distributed 
+spacecraft systems by supporting integrated navigation, 
+communications, and control. The utility of operating at the 
+confluence of navigation, communications, and control is 
+established by demonstrating that such an approach enables 
+fundamental operations needed to realize the promise of 
+distributed spacecraft systems, including improved 
+performance and robustness relative to monolithic space 
+systems. Navigation is needed to support science data 
+association and data alignment for distributed aperture 
+sensing, multipoint observation, and co-observation of 
+target regions. Communications enables autonomous 
+distributed processing of science data, when required, and 
+provides the infrastructure to support information exchange 
+among space assets. Both navigation and communications, 
+in turn, provide vital input to control methodologies for 
+coordinating distributed autonomous assets at both the 
+interspacecraft system level and the intraspacecraft affector 
+subsystem level. The development of a technological 
+solution to implement these capabilities, the Crosslink 
+Transceiver, is also described. The Crosslink Transceiver 
+provides a navigation and communications capability that 
+can be integrated into a developing autonomous command 
+and control methodology for distributed spacecraft systems. 
+A small satellite implementation of the Crosslink 
+Transceiver design is detailed, including baseline physical 
+characteristics and fundamental performance requirements. 
+The ability of the subsystem to support broad classes of 
+distributed spacecraft campaigns is described. 
+TABLE OF CONTENTS 
+1. INTRODUCTION 
+AND CONTROL 
+2. CONFLUENCE OF NAVIGATION, COMMUNICATION, 
+3. NAVIGATION I  DISTRI~UTED SPACECRAFT SYSTEMS 
+SYSTEMS 
+5. CONTROL OF DISTRIBUTED SPACECRAFT SYSTEMS 
+4. COMMUNICATION IN DISTRI~UTED SPACECRAFT 
+6 CROSSLINK TRANSCEIVER 
+7. CONCLUSIONS 
+1. INTRODUCTION 
+Distributed spacecraft systems, also referred to as formation 
+flying systems, use multiple assets to augment the 
+capabilities of monolithic space system approaches. These 
+multispacecraft systems have been conceived to enable 
+complex sensing tasks such as coherent distributed aperture 
+processing, co-observation, multipoint observation, and 
+distributed interferometry which may be beyond the abilities 
+of single spacecraft systems. Formation flying systems 
+differ fiom traditional satellite constellations due to the 
+fundamental concept that formation flying entails treating 
+the distributed system as a coordinated whole, unified by 
+common objectives rather than interacting with each 
+spacecraft in the formation individually. Operationally, such 
+systems are in their infancy and many near-term missions 
+are focussed on the demonstration of foundational 
+technology [ 1,2]. 
+These technology demonstration missions include the 
+National Aeronautics and Space Administration's (NASA) 
+Space Technology 5 (ST-5) mission that will fly several 
+advanced technologies for power systems, small satellites, 
+and formation flying as a precursor to missions such as 
+Magnetospheric Constellation, within NASA's Sun-Earth 
+Connections Program. Other technology demonstration 
+missions include the Air Force Research Laboratory's 
+0-7803-6599-2/01/$10.00 0 2001 IEEE 
+Updated December 15,2000 
+Corresponding author: patrick.stadter@,huapl.edu 
+2-563 
+(AFRL) TechSat 21 distributed radar system [2] and the 
+AFRLNASA University NanoSatellite program for 
+formation flying [ 11. Operational missions focussed upon 
+scientific campaigns include WITTEX, a constellation of 
+three satellites with radar altimeters which will be used to 
+measure, for the first time, both orthogonal components of 
+the ocean's surface slope and to analyze oceanic eddy fields 
+[3]. Another example is NASA's Solar Terrestrial Probes 
+mission Geospace Electrodynamics Connections (GEC) that 
+will provide spatio-temporally resolved observations of the 
+Earth's magnetospheric energy transfer to the ionosphere 
+and thermosphere. For GEC the use of multiple, coordinated 
+spacecraft will enable observations on numerous scales (i.e., 
+varying baselines), a capability required to unambiguously 
+resolve the complex coupling that occurs during energy 
+transfer and a faculty beyond a single spacecraft mission. 
+The specific advantages attributed to the use of distributed 
+spacecraft systems include increased capability, gradual 
+performance degradation, improved system robustness, and 
+cost efficiency. Relative to single spacecraft systems, 
+formation flying systems provide improved capability by 
+facilitating the spatial disbursement of sensors, thereby 
+supporting extended and adaptive baselines for distributed 
+sensing tasks. This approach also supports temporal 
+sampling at variable resolutions. Because capability is 
+distributed among multiple assets, re-deploying functioning 
+assets can mitigate failures that impact individual 
+spacecraft. Thus while performance in terms of resolution or 
+coverage of a target area may be reduced due to diminished 
+assets, basic functionality is retained. Compensating for 
+failures in this manner allows distributed spacecraft systems 
+to realize an improved level of robustness beyond that of a 
+single spacecraft approach. Finally, the goal of cost- 
+efficiency is embodied in the fact that such formation flying 
+systems rely on the collective faculties of multiple, 
+individually limited assets. This often necessitates the use of 
+small, economical spacecraft approaches that can be 
+deployed in clusters to reduce launch costs. 
+Realizing the advantages of distributed spacecraft systems 
+requires system operations, coordination, and science that 
+use the capabilities of individual assets in a collective 
+manner. This necessitates functionality in navigation, 
+communications, and control that leverage complex 
+interactions among spacecraft and between spacecraft and 
+the environment. Addressing these functions in an 
+integrated manner provides a structured approach to 
+distributed spacecraft system design and implementation 
+that can effectively realize the advantages of such a system. 
+This paper is structured as follows: Section 2 discusses 
+theoretical aspects of the need and practice of integrating 
+functions for formation flying systems. This includes a 
+conceptual model of the relationship between system 
+functionality and mission operations. Sections 3, 4, and 5 
+describe algorithmic and methodological research results in 
+navigation, communication, and control for distributed 
+spacecraft systems. Section 6 details the current 
+development of The Johns Hopkins University Applied 
+Physics Laboratory (JHu/ApL) Crosslink Transceiver 
+(CLT), which is technology solution for navigation, 
+communication, and control for formation flying systems. 
+Several conclusions and areas of future research are 
+presented in Section 7. 
+2. CONFLUENCE OF NAVIGATION, 
+COMMUNICATION, AND CONTROL 
+A conceptual model that reflects the manner in which the 
+functions of navigation, communication, and control enable 
+the necessary operational, scientific, and coordination 
+aspects of distributed spacecraft systems appears in Figure 
+1. It is in this sense that the confluence of these functions 
+enable the full capability of distributed spacecraft systems 
+as an adaptive sensing platform. 
+Control LJ 
+Operations / \ Coordination 
+Science 
+Figure 1. Conceptual Model of Distributed 
+Spacecraft Systems. 
+The conceptual model in Figure 1 illustrates the 
+interdependence of system functionality and the capabilities 
+that those functions support. The coordination of distributed 
+autonomous systems such as formation flying spacecraft is 
+typically defined as control in conjunction with 
+communication among non-co-located assets [4]. 
+Coordination is achieved by the perception of the system 
+state and the identification of events that impact that state. 
+As a distributed system, coordination requires both local and 
+global knowledge and thus communication of applicable 
+information among assets is vital. Control, in conjunction 
+with navigation, forms the foundation for system operations 
+needed to take advantage of the distribution of assets. 
+Because a basic motivation for deploying distributed 
+spacecraft systems is the ability to support and adapt the 
+spatial dissemination of sensors, such systems must have 
+knowledge of spacecraft state as well as generated control 
+actions to affect state changes. Performing scientific tasks 
+also requires the ability to communicate information among 
+assets for on-board processing such as data alignment, data 
+correlation, and data fusion. 
+2 - 5 6 4  
+Research in decentralized control [4] and discrete event 
+dynamic systems [ 5 ]  provides a formal framework that can 
+model the confluence of navigation, communication, and 
+control in distributed spacecraft systems. While 
+development programs often involve the independent design 
+of systems that implement these functions, the illustrated 
+interdependencies among them indicate that overall system 
+performance can be improved by integrated design and 
+analysis procedures. Development of terrestrial distributed 
+system coordination techniques have demonstrated this fact 
+with respect to the integrated design of control and 
+communication methods. 
+A distributed system can be viewed in the aggregate as a 
+multi-input, multi-output continuous variable system 
+represented by a matrix of transfer functions 
+where element ( id)  represents the transfer function from 
+inputj to output i. Local control in reflected in terms along 
+the main diagonal while off-diagonal terms reflect 
+communication among local controllers [4]. It was shown in 
+[6] that performance is negatively impacted if local control 
+is designed independently of communication, as would be 
+reflected by a decoupled G(s). 
+In the discrete event domain, recent research for distributed 
+spacecraft systems applications has focussed on 
+methodologies to implement intelligent control in a rigorous 
+framework that addresses integrated communication, 
+planning, and control [5]. This approach supports goal- 
+based coordination in which assets share relevant 
+information to execute goal achievement and response 
+decision processes [7]. The issue of control and 
+communication among distributed assets modeled as a 
+discrete event system has been further explored in [8] with 
+preliminary results on existence and synthesis. This research 
+has also shown that the synthesis of optimal communication 
+policies in decentralized systems cannot be performed 
+independently fiom the synthesis of control policies. 
+Sections 3, 4, and 5 detail recent developments in 
+navigation, communication, and controls as they relate 
+specifically to distributed spacecraft systems. 
+3. NAVIGATION N DISTRIBUTED SPACECRAFT 
+SYSTEMS 
+Navigation solutions, both absolute and relative, provide the 
+knowledge needed by distributed spacecraft systems to 
+correlate and align sensor observations, to determine control 
+actions, and to support tasking of sensors during system 
+operations. Whereas the use of multisensor, in-situ 
+measurement approaches supports operations such as 
+providing observability between spatial and temporal effects 
+in Earth science [9], it is the knowledge of spacecraft state 
+that provides the means to process gathered data and to 
+control system operations as the mission evolves 
+The measurement models processed to provide estimates 
+can characterize navigation approaches that support 
+distributed spacecraft systems. This results in three broad 
+classes of navigation approaches which use absolute (stand- 
+alone) measurements, hybrid techniques, and autonomous 
+relative techniques. Absolute measurement approaches are 
+typically characterized by GPS-based navigation solutions 
+[lo]. The use of space-borne GPS navigation systems is an 
+effective, low-cost means to provide autonomous orbit 
+determination for individual spacecraft. When supported by 
+crosslink signals it can provide relative navigation estimates 
+among distributed assets either as a point solution or in a 
+fully filtered form. Augmenting individual, absolute 
+navigation approaches with measurements from direct 
+crosslink ranging signals results in a hybrid relative 
+navigation capability [ 111. Advantages of this approach 
+include the potential for improved convergence in high- 
+precision situations and the incorporation of additional 
+measurements to support the navigation solution. Finally, 
+extending distributed spacecraft missions beyond the range 
+of the GPS constellation is enabled by autonomous relative 
+navigation means such as the use of direct crosslink ranging 
+signals. When supported by applicable techniques (e.g., 
+Doppler ranging, star tracker, etc) absolute navigation 
+solutions can also be estimated fi-om the relative 
+confguration estimate of the system. 
+The remainder of this section details research developments 
+in navigation for distributed spacecraft systems that address 
+each of these three categories of navigation approaches. 
+This includes an introduction to the NASA Thermosphere 
+Ionosphere Mesosphere Energetics and Dynamics (TIMED) 
+Program's GPS Navigation System (GNS) extended Kalman 
+filter for autonomous orbit determination, the augmentation 
+of that filter model to support hybrid GPS/crosslink 
+measurements, and a methodology for deep space relative 
+navigation using crosslink ranging information. Of 
+particular significance is the development of the hybrid 
+filter which can be instantiated for both short-baseline (e.g., 
+correlated errors) and long-baseline (e.g., loosely correlated 
+errors) distributed spacecraft applications. 
+GPS-based Stand Alone Orbit Determination Kalman Filter 
+The stand-alone navigation extended Kalman filter @KF) is 
+used to process the sensor measurements available to the 
+individual spacecraft, and provides as its output estimates of 
+the satellite orbit position and velocity. The orbit 
+determination filter is effectively one-way coupled to any 
+GPS-based attitude filter, in the sense that lines-of-sight, 
+and therefore orbit position, to the GPS satellites are 
+required to compute the vehicle attitude, but the position is 
+2-565  
+independent of orientation. Note that knowledge of the 
+orientation may still be required to facilitate satellite 
+handovers within the GPS receiver, as the vehicle 
+orientation can greatly impact GPS satellite visibility. 
+The NASA TIMED [lo] spacecraft contains a single 
+frequency (L,) GPS receiver operating in a low-Earth orbit 
+(LEO). As such, the predominant effects on the dynamics of 
+the satellite are gravity and drag, and the drag model error is 
+typically significant enough that models for third-body and 
+solar radiation effects do not need to be activated in the 
+filter. 
+The Kalman filter state-space can be divided into two 
+partitions which are dynamically uncoupled. The first 
+partition are the states which directly determine the satellite 
+position and time: position, velocity, drag parameter error, 
+receiver clock and frequency bias. These states evolve 
+according to nonlinear dynamics. The second partition of 
+the state space contains states which do not directly effect 
+the spacecraft position and velocity, and are used to model 
+errors in the GPS measurements. In particular, carrier phase 
+bias states model the unknown cycle ambiguity associated 
+with tracking the GPS carrier phase. 
+The general nonlinear dynamic model for the position, 
+velocity, drag, and clock states is given by Eq. 2 
+and the linear dynamics modeling the ionospheric error and 
+the carrier-phase biases is given by 
+(3) 
+where $sot is the state transition matrix. The GPS 
+pseudorange measurements [12] available to the filter are 
+given by 
+pSJ =c.(t-t^SJ) 
+= C.(A'J (TI+ T - T'] (2, )-&) + I'J 
+where psJ= pseudorange measurement received from GPS 
+satellite j, z=  true GPS time, c= speed of light, t= 
+receiver time, t ^ " ~  = signal indicated transmit time from 
+GPS satellite j , AsJ (z) = range delay to GPS satellite j , T 
+= receiver clock bias, TSJ = GPS satellite clock bias, Gtsi = 
+receiver noise, zsJ = true GPS time the received signal was 
+transmitted by GPS satellite j ,  Is' = ionospheric group to 
+GPS satellite j . 
+The corresponding carrier phase measurements are similar 
+to the pseudorange, except that the sign of the ionospheric 
+delay is reversed The impact of the ionosphere on the carrier 
+phase is a phase advancement [ 121 and there is an additional 
+term, b ,  corresponding to the integer ambiguity. 
+Hybrid Relative Navigation Filter 
+Building on the TIMED stand-alone filter, this subsection 
+expands the relative navigation Kalman filters presented in 
+[13, 141 by encompassing the case of very long baselines 
+and augmenting the GPS measurements with additional 
+crosslink ranging measurements. A key feature of the long 
+baseline filter design presented is that it makes maximal use 
+of the quantities computed by stand-alone Kalman filters, 
+minimizing the computational burden on the relative filter. 
+It is assumed that each spacecraft in a constellation will 
+have a stand-alone orbit determination Kalman filter 
+estimating its individual position and velocity. This supports 
+autonomy in the individual spacecraft. The stand-alone orbit 
+determination filters propagate the position and velocity and 
+form the transition matrices for position and velocity errors. 
+The stand-alone filters also calculate the predicted 
+pseudorange and carrier phase measurements using the 
+predicted position and the GPS message ephemeris for each 
+link. The Kalman filter design presented distributes these 
+computations entirely to the members of the constellation. 
+The only calculations done in the relative filter are Kalman 
+filter matrix operations. 
+The relative filter uses the estimated trajectories fiom the 
+stand-alone filters as reference trajectories. Using 
+predictions of the pseudorange from the stand-alone filters 
+accounts for all geometric nonlinearitites as well as the GPS 
+satellite motion during the difference in transmit times [ 1 11. 
+Due to overlapping data sources between the stand-alone 
+filter and the relative filter, the reference trajectories have 
+errors correlated by the common ionospheric error and GPS 
+satellite ephemeris errors in the measurements, and by the 
+atmospheric density error in the dynamics model. Indeed, if 
+the stand-alone Kalman fdters were processing data from 
+the same GPS satellites, the errors in the reference trajectory 
+would be correlated such that differencing the stand-alone 
+solutions would largely eliminate the common mode effects 
+and produce results equivalent to the relative filter. The 
+relative filter is advantageous, however because: 
+1. The stand-alone Kalman filters will not generally use the 
+same satellites in their solution, thus differencing the stand- 
+alone trajectories could produce uncancelled systematic 
+errors. This can significantly impact performance. 
+2. The relative filter offers a simple way to calculate the 
+covariance matrix of the relative state. This is accomplished 
+by ignoring the correlation between the stand-alone 
+trajectories in the dynamics model for the relative Kalman 
+filter model. The build up of error in each reference 
+trajectory between measurements is assumed to be 
+statistically independent. Processing the double difference 
+range and phase observables in the relative filter properly 
+correlates the perturbation states of the vehicles so that the 
+covariance of the relative displacement between the vehicles 
+is easily computed. 
+2-566 
+An outline of the relative Kalman filter illustrates how the 
+results of the stand-alone filters are leveraged. The logic that 
+addresses the effect of satellite switching on these states is 
+contained in [14]. In the subsequent analysis it is assumed 
+that each receiver has a controlled measurement interrupt so 
+that the receivers on all spacecraft form their measurements 
+at the same time, thus time misalignment errors are not 
+modeled. 
+Relative Filter Dynamic State Space 
+Let xi = [q', vzf]' be the concatenation of position and 
+velocity of the center of mass of spacecraft i represented in 
+the computation frame of the stand-alone filters. Let Xfme 
+and xzrd be the true and reference position and velocity and 
+let xi xf" - xZ? be the trajectory error. The dynamic 
+portion of the relative filter state will contain copies of the 
+trajectory error for each satellite: 
+Wdr? = [xi, xi, . . .I' . 
+The true trajectory is continuous and evolves according to 
+Newton's second law as represented by Equation 2. As 
+described earlier, this relationship contains parameters 
+modeling gravity and drag. Errors in the parameters defining 
+these forces are highly correlated between the satellites and 
+will not be modeled in the relative filter. Between 
+measurements the reference trajectory evolves according to 
+the same formula as the true trajectory: 
+where t i  and ti represent the events before and after 
+processing the measurements at time tk in the stand-alone 
+Kalman filters. Updating the long baseline relative filter 
+between t i  and tl makes maximal use of quantities 
+computed in the stand-alone filters. Thus let t," represent the 
+relative filter update event. Note that t i ,  t," and t l  all occur 
+at the same time - they are merely used to clearly identify 
+the event sequencing of the two filters. If the differences 
+between the reference and true trajectories are small, the 
+relative state evolves between the measurements according 
+to the linearization 
+whose solution can be represented by a transition matrix: 
+Note that these transition matrices involve numerical 
+integration and are calculated by the stand-alone filter in the 
+course of its processing. The reference trajectory is 
+discontinuous at the measurement update times because of 
+the Kalman filter measurement update. Since the true 
+trajectory is continuous, the difference in the two must be 
+discontinuous at these times. Thus 
+x , ( C + , ) = x l  (t;+l+l)-u,(tk) 
+U , & )  = X,ref(t;+,) - .:"(ti+,) 
+and 
+where u,( tk)  represents the Kalman update in the stand- 
+alone filter a known, deterministic quantity, which will be a 
+handled in the relative filter as a control input. This defines 
+the dynamics model for the relative filter. 
+Double Diyerence Measurements and Sensitivities 
+The filter measurements are formed as a vector of double 
+difference (range and phase) observables. The double- 
+difference pseudorange observable defined between 
+receivers i and j for GPS links pand reference link q is: 
+where all double difference measurements are formed with 
+respect to the common satellite q . The prediction for this 
+measurement after linearization, which assumes that the 
+reference trajectories from stand-alone filters are close to 
+truth, but does not assume short baselines between the two 
+satellites, is: 
+where the predicted pseudorange, b:, is calculated in the 
+stand-alone filter using the estimates from the stand- 
+alone filter. The double difference ionosphere correction, 
+6iSp, is modeled by a Markov processes in the relative filter. 
+Note that the clock effects will cancel out completely when 
+the predicted double difference observable is formed, and 
+the ionospheric term will nearly cancel out. They are 
+included in the predicted pseudorange so that the predicted 
+pseudorange from the stand-alone filter can be used without 
+modification, and because the ionosphere may not be 
+completely common mode for long baseline navigation. 
+Fundamentally it is desirable to use any pre-compensation 
+available from the stand-alone filter. The phase 
+measurement is similarly constructed as 
+j t h  
+2-567 
+and the predicted value is measurement residual (including the crosslink ranging 
+measurement) is then 
+where the stand alone filter predicts the single link phase 
+measurement. Here 6isp is the double difference bias in the 
+relative filter, which accounts for the double difference 
+phase ambiguity. 
+Summary of Kalman Filter Processing 
+The relative Kalman filter state space for two satellite long 
+baseline relative navigation consists of the concatenation of 
+vectors representing the reference trajectory errors, and 
+vectors representing the double difference uncompensated 
+phase biases, and the double difference uncompensated 
+ionosphere: 
+w = [xi x; 6b' 6I'] 
+After appropriate initialization, the Kalman filter proceeds 
+as follows: 
+1. Form the combined transition matrix from stand-alone 
+filter products: 
+@ = [41 4 2  466  4a1 
+The partitions $,(tk,,,tk)and &(tk+,,tk) are obtained 
+from the stand-alone filters. The transition matrix for 
+the relative phase bias errors, is the identity map if 
+no satellites are added or deleted from the previous 
+measurement epoch. Otherwise it accounts for the re- 
+mapping of the satellites as described in [14]. The 
+transition matrix for the uncompensated double 
+difference ionosphere @a is calculated using the 
+formulae for propagating second order Markov 
+processes if the satellite set in track does not change 
+from the proceeding epoch. If there are changes, the 
+transition matrix is modified appropriately. 
+2. Time update of concatenated state and covariance. Let 
+w = [x:,x~,6bbf,61t]' then 
+The discrete time process noise QD accounts for the 
+imperfect modeling of the dynamic state evolution, and 
+for the effect of satellite switching on the phase bias 
+states and the uncompensated double difference 
+ionosphere states. 
+3. Form double difference measurements and their 
+predicted values according to Eqns. 4, 5, 6, and 7. The 
+4. Formation of measurement sensitivity 
+5. Compute Kalman gain according to 
+K, = PH*( He- H' + R)-' 
+where the double difference measurement noise is of the 
+form 
+R=diag(Rp RQ oit), 
+where o;,~ is the variance of the single-link pseudorange or 
+carrier phase measurement. 
+6. Measurement update 
+w," = KkY k 
+4' = ( I  - Kk Hk)P,-( I - Kk Hk)' + KkRKL 
+7. State update for control input (covariance remains the 
+same). 
+8. Generate relative trajectory and covariance. 
+where T = [ I  -I 0 01. 
+Summary of Data Products Passed by Stand-alone Filters 
+0 
+Measured pseudoranges 
+Predicted pseudoranges 
+Measured Carrier Phase 
+Estimated Carrier Phase 
+0 Unit Vectors to GPS 
+Transition matrices for trajectory error propagation 
+Autonomous Relative Navigation for Deep Space 
+Onboard Crosslink Transceivers (refer to Section 6) provide 
+interspacecraft ranging measurements as well as multiple 
+communications channels to support information exchange 
+for distributed command and control, navigation, and 
+scientific operations [5 ] .  The near-term NanoSat Crosslink 
+Transceiver utilizes a signal structure similar to that 
+employed by GPS but not centered at the GPS L1 frequency. 
+Each transceiver transmits a signal that provides a 
+pseudorange measurement of the form 
+where 4 is the free-space range delay between vehicle i 
+and transceiverj, T'J(T:) is the clock bias of transceiverj at 
+time of transmission, 7,' is the true time that the signal 
+received by i at z was transmitted by transceiver j ,  D, ( T )  is 
+the radio frequency (RF) front end delay for receiver i, 
+0'' (7:) is the RF front end delay for transmitterj, and z: is 
+the ionospheric delay between vehicle i and transceiverj. 
+The front-end RF delays appear in the equation and must be 
+eliminated to solve for the desired quantity, A'; . Note that in 
+the typical GPS application, the receiver front end delay 
+plus receiver clock bias is resolved by the inclusion of four 
+or more GPS satellites. The receiver front end delay by itself 
+is unobservable. 
+The front end delays can be calibrated, but they will vary as 
+a function of temperature and component age. These 
+implementation delays are typically ignored, however, for a 
+feasible system they must be addressed in any deployments 
+that rely upon direct crosslink ranging and anticipate highly 
+accurate navigation solutions. To eliminate the RF delays 
+from the resulting measurement, the transceiver can be 
+designed to "self-track". In this case, the transceiver tracks 
+its own signal through the same RF components being used 
+to track the signal from other transceivers. The double 
+difference measurement may then be formed utilizing the 
+two signals on each transceiver. 
+The double difference measurement between two 
+transceivers, i andj, is given by 
+where v is the corresponding measurement noise. Note that, 
+by symmetry, 4 = A', and 1,') = 1;. Also note that this 
+double difference observable is completely insensitive to the 
+front end delays, but returns information on the free space 
+delay as well as the ionosphere. In addition, if A is small, 
+q = T ' ~ ( T ; ) ,  T, =T',(T,!), and the nuisance clock terms 
+disappear. 
+Implicit in Eq. 8 is the assumption that the true sample time, 
+z, on each transceiver is identical. In the case where the GPS 
+constellation is visible, the true time, biased by some 
+uncertainty due to the signal delays in the RF electronics, is 
+determined on each vehicle as part of the GPS estimation 
+problem. Any known sample time differences between the 
+vehicles may then be mitigated by extrapolating the phases 
+to a common time when the double differences are formed. 
+A difficulty arises, however, when the GPS constellation is 
+not visible, such as in a deep space or libration point 
+mission. In this case time synchronization for ranging 
+between the vehicles must be derived directly from the 
+transceiver signals. Let z, specify the system time for the 
+constellation. This time is maintained by an arbitrarily and 
+dynamically designated "master" vehicle within the cluster. 
+Each vehicle can then agree to adjust its system clock to 
+align with z, upon initialization, since the system time of 
+each transceiver may be observed as it is embedded on the 
+transmitted signal. 
+The first measurement sampled on each transceiver at 
+initialization will suffer from a potentially large sample time 
+offset. To minimize the sample offsets and bring the 
+transceiver clocks into close agreement, each transceiver 
+can slew its clock to agree with the system time observed 
+from the master vehicle. At that instant, the principal 
+relative clock errors result from the propagation delay, 
+presumed unknown at start-up, and the delay uncertainty in 
+the RF electronics, to address line biases. The uncertainty in 
+the front end delays will be small, a fraction of the total 
+delay which will be dependent on the filter bandwidth - on 
+the order of a microsecond or less. Therefore the relative 
+time error would be driven by the propagation delay for a 
+long-baseline scenario. Eq. 8 provides an estimate of the 
+propagation delay, which has a small error due to the 
+2-569 
+transceiver clock bias drift rates. However, the resulting 
+delay estimate may be used to further align the transceiver 
+clocks. At this point, the clocks on each transceiver will 
+differ, primarily, by the uncertainty in the signal delay of RF 
+electronics. Each transceiver clock could then be controlled 
+to z, in order to maintain a small sample time error and 
+maintain bounds on the relative clock bias errors. 
+The double difference measurement error due to misaligned 
+sample times is proportional, to first order, to the 
+pseudorange or carrier-phase rate of the measurement being 
+extrapolated times the sample time error. As the relative 
+dynamics for any deep space mission are likely quite 
+benign, the principal error due to the sample time 
+misalignment is driven by the clock stability. However, 
+sample time errors measured in microseconds will have a 
+negligible effect even if the clocks are stable to 1 part in 
+1 x lo6. 
+Note that unlike a near Earth mission scenario, the clock 
+bias rates of the individual transceivers are not directly 
+observable for the deep space constellation. This imposes a 
+constraint on the clock stability used in the transceiver 
+subsystem, and motivates aligning the sample times of the 
+individual systems as closely as possible in true time. 
+4. COMMUNICATION IN DISTRIBUTED SPACECRAFT 
+SYSTEMS 
+Communications play a critical role in distributed spacecraft 
+systems by providing the infrastructure that enables the 
+exchange of information among distributed assets and 
+between the system and attending ground stations. From the 
+perspective of supporting coordination among distributed 
+assets, this is manifest as the ability to realize logical system 
+architectures to provide command and control functions 
+(C2). This section defines several logical architectures 
+applicable to C2 and navigation operations for formation 
+flying and illustrates how those logical structures can be 
+supported by the physical connectivity of interspacecraft 
+communications architectures. 
+Logical Spacecraft Architectures 
+Canonical architectures generally used in the control of 
+distributed autonomous systems include centralized, fully 
+distributed, and hierarchically distributed [l5, 161 forms. 
+These logical architectures are represented in Figure 2. 
+The centralized model characterizes a conventional 
+approach to distributed control because of the simplicity of 
+the design, comprising N-1 bi-directional links for N nodes 
+This approach relies on the capability of the central 
+resource, which is typically responsible for primary control 
+and information dissemination functions among distributed 
+assets. Because of the complexity of the operational 
+environment, a centralized control model for a distributed 
+Figure 2. Canonical Control Architectures 
+spacecraft system entails considerable risk due to the cost of 
+potential faults within the central resource. Implementations 
+in which the central asset is in a protected arena, such as 
+embedded within ground station resources, impede the 
+realization of autonomy within a formation flying system. In 
+addition, latency caused by computational demands upon 
+the central resource can impact real-time Cz and navigation 
+operations. Finally, relative navigation solutions that rely 
+upon direct crosslinks in a centralized approach require 
+augmentation through GPS, attitude information, or other 
+measurement sources because of the limited number of 
+range measurements available. 
+A fully connected Cz architecture is often desired because it 
+supports direct interaction among distributed assets, and it is 
+a model for decentralized control methods. Topologically, 
+each of N nodes, representing a spacecraft, directly interacts 
+with all other nodes; therefore the complexity of the 
+architecture is O ( N z )  and it is of diameteFl and degree=N. 
+Implementation of a fully connected architecture for relative 
+navigation results in a mathematically robust approach to 
+the computation of relative formation geometry, providing 
+N(N - 1)/2 bi-directional links of which a minimum of 4N-7 
+range measurements are required [ 171. 
+The inherent drawback of implementing a fully connected 
+Cz or navigation architecture is the rapid growth in 
+complexity as N increases. This limits the scalability of the 
+system due to resource limitations such as communications 
+bandwidth and processing capability. For moderately scaled 
+distributed spacecraft missions (e.g., -4-7 spacecraft) in 
+which expanded scalability is not a concern, however, a 
+fully distributed functional architecture is feasible and 
+decentralized control strategies are directly applicable [5].  
+Hierarchical control architectures represent a compromise 
+between the simplicity of the centralized model and the 
+capability and robustness of the distributed model. A 
+hierarchical functional relationship among spacecraft is 
+conducive to the design of formation flying systems that can 
+be naturally decomposed into subclusters (e.g., TechSat2 1 
+Magnetospheric Constellation), each of which may be 
+represented by a centralized or a fully connected 
+architecture. This approach facilitates the intelligent control 
+strategy of increasing intelligence at higher levels and 
+increasing fidelity at lower levels to implement advanced 
+2-570 
+coordination techniques among distributed assets [5] .  
+Robustness is supported at the cost of needed dynamic 
+capability, such as the autonomous promotion or demotion 
+of spacecraft within the hierarchy to overcome system 
+faults. 
+The complexity of a hierarchical control structure is 
+dependent upon the presence of functional relationships 
+among assets at like levels of the hierarchy. If supervisory 
+assets exchange information in a stove-pipe fashion through 
+higher-level supervisors, tree structures can be used to 
+represent the architecture and complexity is O(N log N). 
+Information sharing directly among supervisors on like 
+levels of the hierarchy can improve robustness, and the 
+increased complexity is bounded above by the fully 
+connected model, o ( N ~ ) .  Many proven, highly complex 
+systems, such as military structures and manufacturing 
+facilities, are hierarchically distributed. Scalability is 
+supported by the natural decomposition of the multilevel 
+approach and the ability to replicate control methods at 
+various levels of abstraction [ 181. 
+Switching Methods for Operations Implementation 
+Implementing coordination and navigation operations on an 
+interspacecraft communications network that uses dynamic 
+routing requires careful analysis to ensure satisfaction of 
+timing constraints and network stability [19]. Modeling 
+demands upon a single spacecraft in a formation, the 
+probability that a message will be delayed at that spacecraft 
+is given by Erlang’s delay formula [20] 
+c-1 V n  
+E,(v,C)=- 1-- c-+- , (9) ;[( n! 21 
+where v is the arrival rate of messages to a given spacecraft 
+and C is the capacity of the spacecraft to process a message. 
+Used in conjunction with the latency characteristics of a 
+particular mission, this model provides a method to 
+determine network requirements such as capacity in terms 
+of simultaneous communications channels. Consider an 
+example in which C2 exchanges are generated by each of N 
+spacecraft in a formation at a rate of three per minute. 
+Figure 3 shows the probability that a directive will be 
+delayed at a given intermediate spacecraft with a capacity to 
+simultaneously process C messages. 
+While the exchange of control directives may use paths 
+through multiple spacecraft, crosslink relative navigation 
+that uses direct measurements among spacecraft places 
+constraints on the underlying network by requiring the 
+creation of specific communications links. This is akin to 
+using circuit switching, in which a dedicated path is 
+established fiom source to destination before 
+communication can begin. 
+0.3 1 -4 o o  
+Number of Spacecraft (?I) 
+Figure 3. Probability of Delay for Relay of C2 Directive 
+The ability to successfully compute the relative formation 
+geometry using direct crosslinks, therefore depends on the 
+ability of the network to support sufficient measurements 
+among spacecraft. This is related to the capacity of the 
+network and the probability that some measurement paths 
+may not be available. A well-known model for the 
+probability that a measurement will be blocked due to 
+insufficient network resources is given by Erlang’s loss 
+formula 
+where v is the arrival rate of measurement requests to a 
+given spacecraft and C is the capacity of the spacecraft to 
+provide a direct link [19]. For example, assume that it is 
+necessary to estimate relative formation geometry every 30 
+seconds, and that twenty percent more than the minimum 
+number of measurements, 4N-7, is required of a spacecraft. 
+Figure 4 shows the probability of losing a measurement 
+given N spacecraft requesting links of a spacecraft with 
+capacity C. Note this represents a worst case illustration in 
+the sense that it assumes that all crosslink measurements 
+would be required of a single spacecraft; in a practical 
+implementation the measurements would be distributed 
+among all spacecraft in the formation. 
+5 .  CONTROL OF DISTRIBUTED SPACECRAFT 
+SYSTEMS 
+Distributed autonomous control theory provides a 
+foundation that can be augmented and applied to the specific 
+challenges of formation flying systems. The deployment of 
+multiple assets necessitates the use of intelligent control 
+techniques applicable of autonomous and semi-autonomous 
+spacecraft and requires the application of formal models to 
+support test and verification. A d  hoc control methods 
+adapted fiom single spacecraft systems significantly 
+2-571 
+0.8 r 
+0.4 O'I ::I 
+0.1 
+1 C=l 
+0 c=2 
++ c=3 
+0 c=5 
+0 c='l 
+* 
+ri 
+Number of Spacecraft (A') 
+Figure 4. Crosslink Navigation Measurement Loss 
+Probability. 
+increase risk in distributed spacecraft system deployments. 
+This section describes the results of research involving 
+discrete event control of distributed spacecraft systems. This 
+approach facilitates the use of behavior based approaches 
+controlling distributed systems for the purpose of 
+coordinating aggregate system functions to achieve common 
+objectives. 
+Discrete Event Command and Control 
+Control of distributed spacecraft systems requires 
+techniques that support autonomous components operating 
+within unpredictable environments. Traditional control 
+techniques can represent an infeasible solution when applied 
+to distributed, autonomous systems characterized as 
+nonlinear, time varying, and stochastic [21]. The behavior of 
+individual components and the emergent interactions among 
+them generally defy modeling through standard differential 
+or difference equation techniques. This complexity is not 
+restricted to formation flying applications, and indeed can 
+be seen in numerous terrestrial systems such as 
+manufacturing processes, shipping networks [22], combat 
+dynamics [23], networks of autonomous vehicles [24], and 
+automated intelligent highways [25]. 
+While conventional control techniques focus on meeting 
+requirements in terms of typical parameters, such as 
+response time, stability, and robustness, the increasing 
+complexity of systems to be controlled has necessitated the 
+development strategies that address augmented requirement 
+sets. These augmented requirements include dynamic 
+system behavior adaptation, coordination of autonomous 
+system assets, goal planning and refinement, fault 
+resolution, and learning. This has led to the development of 
+intelligent control techniques, which seek to control the 
+behavior of complex systems through empirical observation 
+and by interfacing with conventional controllers rather than 
+by evolving a detailed model of the plant. Numerous 
+techniques have been applied to the implementation of 
+intelligent control systems, including neural networks, fwzzy 
+logic, discrete event systems (DES), ontologies, and expert 
+systems [26]. While each of these has inherent advantages 
+in terms of complex system control, discrete event systems 
+concepts provide broad capabilities and leverage 
+particularly powerful formalisms for the control of multiple, 
+autonomous entities, such as satellites in formation flying. 
+DES are dynamic, discrete time systems that can be 
+represented by a discrete state space and a state transition 
+structure. The state space consists of all possible 
+configurations that the state of the system can assume, and 
+the state transition structure defines the mechanisms by 
+which a system evolves within its state space. For DES the 
+state transition structure consists of a set of events, which 
+captures physical occurrences that drive state transitions; 
+these discrete events are typically assumed to be 
+instantaneous, asynchronous, and nondeterministic. 
+Discrete Event Fundamentals 
+Effective representation of DES has been achieved through 
+the use of finite state automata (FSA) and associated formal 
+language theory constructs [27]. While there is no 
+theoretical limitation necessitating a finite state 
+representation, most practical implementations do not 
+require a state set of infinite cardinality. Using an FSA 
+representation the DES is formally modeled as a 5-tuple: 
+R =(Q,C,6,qo,Q,)where (11) 
+Qis a set of states,possiblyinfinite, 
+Z is a fmiteset of events, 
+calledthe alphabet, 
+denotingstate transiticns, 
+6 is a partialmappingfiomQ x C + Q: 
+q,, is the startingstate,and 
+Q, E Qis a set of markedstates. 
+Denote by X* the set of all finite strings of elements fkom X, 
+including the empty sting E. Using the notation 6(q,s)to 
+indicate that 6(q,s) is defined, the transition function is 
+inductively extended to strings as 8(&,q) and 
+G ( s o , ~ ) =  6(0,6(s,q)), whenever q'%(s,q) and 6(0,q'). 
+Any K c C '  is alanguage, and K = b E Z * l 3 q E Z * 3 s q E K }  
+is the preJix closure of K. Therefore the language associated 
+with R is 
+L(R) = CIw E Z' and6(qo,o)!)Z (12) 
+And the language marked by R is 
+This formal model of a DES operates by starting in the 
+initial state and executing state transitions as defined by 6 
+2-572 
+and given a finite sequence of events from the alphabet C. If 
+the DES is in a marked state after executing a string of 
+events, the DES recognizes the string; L,(R) therefore 
+represents the set of all finite length strings that are 
+recognized by R. Qualitatively, marked states distinguish 
+those strings that have significance to the operation of the 
+DES, such as the completion of a task or the attainment of a 
+goal [23]. 
+Discrete Event Control Model 
+Control of a DES R can be realized by the development of a 
+supervisor T = (~,,rp) that consists of an FSA, T,, augmented 
+by an appropriate state feedback map rp. This requires an 
+alternative view of the DES R in Eq. 11. Specifically, in 
+addition to acting as a recognizer of strings s E L,(R), R can 
+be viewed as a generator, which begins in the start state and 
+nondeterministically selects an event that is generated as an 
+output symbol as the DES transitions to the appropriate state 
+based on the state transition function. The operation of R 
+under the supervision of T is denoted by the DES T/R and is 
+shown in Figure 5. 
+T Control Exerted cp( 0 )  R 
+t 
+(Supervisor) (Plant) 
+Observed Events: (3 
+Figure 5.  Closed Loop Control of a Discrete Event System. 
+Control is realized by modeling supervisor T = (Te,p) as a 
+recognizer with state feedback map cp, and DES R as a 
+generator. Thus, referring to Eq. 11, r, =(x,c,<,x,,x,) and
+rp : x + 2'. where 2' represents the power set of the alphabet 
+C. The set C can be partitioned into subsets of controllable 
+events (CJ and uncontrollable events (Eu) such that 
+c = C, U E,. A controllable event is an action or occurrence 
+that can be disabled, while an uncontrollable event cannot 
+be affected by supervisory actions and is therefore 
+considered to be enabled at all times. Conceptually, as R 
+generates symbols in response to the occurrence of events, 
+supervisor T performs state transitions, which cause the state 
+feedback map cp to produce a set of events that are enabled. 
+The supervisor effectively enables and disables controllable 
+events in the recognizer R, thereby restricting or allowing 
+state transitions by the subordinate DES. 
+Hierarchical Discrete Event Control 
+The DES control concepts have been extended to 
+incorporate multilayered, hierarchically modeled systems 
+[23, 28, 241. This provides an advantage in controlling 
+highly complex systems because of the natural 
+decomposition of the system structure, and its ability to 
+mitigate scalability issues. Specifically, hierarchical 
+structures can be designed to support replication and reuse 
+of control methods, particularly in systems that consist of 
+multiple homogeneous assets. Hierarchical DES control 
+directly supports the intelligent control concept of 
+increasing intelligence at higher layers and increasing 
+fidelity at lower layers. This is reflected by information 
+aggregation, in which the languages of higher level 
+supervisors may be represented by multiple symbols from 
+lower levels of the hierarchy. This is consistent with many 
+realistic systems in which high levels are concerned with 
+broad actions and planning, leaving the details of achieving 
+those plans to subordinate layers. 
+Following the development in Peluso [28], extension of the 
+DES control model described previously requires the 
+introduction of an augmented automaton that can act as both 
+a recognizer and a generator. This augmentation is defined 
+as a transducer s = (so,rpps ), which is modeled as a 6-tuple 
+with the appropriate state feedback map for control: 
+where X, xo, and X, are defined as previously specified, r is 
+the alphabet of symbols generated as output, and 
+5 : x x -+ x x (r U { E } )  A general representation of the 
+information flow of a three-level DES control hierarchy 
+appears in Figure 6. Each generator R, is modeled as 
+4 = (Q,  C, ,4, qo,, Q",, ) , each supervisor s, = (sa,, rps, ) is 
+modeled as a transducer so, =(x,,c,,~,,~,,x,,,x,,) with 
+state feedback map rps, : x, + 2'(, and the top layer 
+supervisor T = ( ~ # , p ~ ) i s  modeled as a recognizer 
+T. = (z,r,r,zn,zm) with state feedback map rpT : z + 2r. The 
+alphabets C, and r, are assumed to be disjoint, and 
+Z=C,UZ,U...UC, and r=r, ur, u...urk . 
+(PT 
+(PSt 
+Figure 6. Information Flow in a Three Level Hieraruy. 
+2-573 
+In Figure 6 Z is the set of symbols generated by RI, 
+i = l . . . n ,  of level j-1 and recognized by transducers Si, 
+i = 1 . .  . k, of level j .  Similarly, r is the set of symbols 
+produced by the transducers of level j and recognized by T 
+of level j+l .  Control is exerted through the state feedback 
+maps: qT maps the states of T in level j+l to subsets of the 
+events recognized by Si in level j ,  and qsI maps the states 
+of Si in level j to subsets of the events recognized by Ri in 
+level j -  1. 
+The formal structure of this technique has resulted in the 
+development of DES control concepts analogous to results 
+in conventional control theory. This includes formal 
+definitions of stability, controllability, and observability as 
+well as methods of supervisor synthesis [28]. Despite the 
+ability to define DES models at multiple levels of 
+abstraction, achieving fidelity sufficient to represent critical 
+system operations and exercise intelligent control generally 
+results in computationally intensive designs and 
+implementations of DES control algorithms. Recent 
+research has explored alternative DES control formalisms in 
+an effort to reduce the computational complexity involved 
+in controller design [29]. In addition alternative DES models 
+have been developed in the context of hierarchical control, 
+including learning stochastic automata, Petri nets, and 
+Markov chains. 
+6 .  CROSSLINK TRANSCE~VER 
+The JHUIAPL Crosslink Transceiver (CLT) is an integrated 
+navigation and communication system for multiple 
+distributed spacecraft flying in formation. As such, the CLT 
+is a technology that directly supports the integrated 
+development and implementation of the fundamental 
+functions required to enable distributed spacecraft systems, 
+including absolute and relative navigation, interspacecraft 
+communications, and autonomous event detection for 
+distributed command and control. Relative navigation is 
+supported by direct ranging on the crosslink 
+communications signals as well as the use of relative GPS 
+techniques when applicable. The CLT is a scaleable concept 
+that can be augmented to provided integrated support of 
+additional functionality such as uplink/downlink capability 
+[17] and reflected GPS processing for sea state assessment, 
+altimetry, and target identification. 
+A focus of the CLT is the distribution of information for 
+command and control of multiple assets engaged in 
+coordinated operations. Thus, the CLT supports multiple 
+communications architectures (refer to Section 4) and is 
+designed to provide dynamically adaptive communications 
+connectivity. Specifically, using a hybrid frequency division 
+multiple access/code division multiple access 
+(FDWCDMA) approach, deployment of CLT subsystems 
+in multiple assets can support connectivity and ranging 
+among spacecraft clusters in a hierarchically scaleable 
+manner. Physically designed as an extensible card-level 
+system, the CLT nominally supports twelve independently 
+accessible code channels, three frequency channels, and four 
+antenna ports. Extensibility is achieved by the ability to 
+integrate additional twelve channel, four port Signal 
+Tracking ASIC's [lo] and additional three frequency 
+crosslink communications cards. The overlay of frequency 
+and code division multiple access provides the isolation 
+needed to support full-duplex communication among 
+spacecraft while operating in a dynamic environment under 
+near-far interference conditions [ 171. 
+As a means to enable information exchange and asset 
+control, the CLT is responsible for the dissemination of 
+directives for vehicle coordination and ancillary data 
+exchange in support of mission and science operations. Thus 
+the CLT can act as an alternative means to support 
+command and telemetry operations in the event of 
+uplink/downlink failures or when assets are not within 
+ground contact. 
+When within range of the GPS constellation, the CLT is 
+designed to provide both an absolute and relative navigation 
+solution (position and velocity), precision time recovery and 
+a steered one pulse-per-second output. The system also 
+generates in real-time the Earth-Sun unit vector. In addition, 
+crosslink signals support relative navigation, with the 
+potential for both direct solutions as well as relative GPS 
+solutions which rely upon the computation of double 
+differences of GPS data in a pairwise manner among 
+spacecraft. Ranging using crosslink pseudorandom noise 
+codes can supplement the GPS measurements in the relative 
+navigation solution to enable more rapid convergence of the 
+solution for low Earth orbit missions. The crosslink ranging 
+data could entirely replace the GPS measurements for 
+highly elliptical or deep space missions. In this case the 
+relative clock error and range can be solved on a per-link 
+basis. The ranges establish the relative geometry of the 
+constellation, subject to an indeterminate rigid-body 
+rotation. 
+A near-term, low power version of the CLT, the NanoSat 
+CLT (NCLT) is under development for the DoD/NASA 
+University NanoSatellite program [l]. The NCLT will 
+provide an integrated navigation and crosslink 
+communication system for three, physically limited 
+spacecraft in a near Earth formation. The NCLT is built 
+upon a nominally 4"x4" form factor with a low power, mass, 
+and volume focus. Designed as a four-card system, 
+including a basic power interface, the NCLT implements 
+on-board processing, GPS reception, and crosslink 
+communications. A drafting of the NCLT physical 
+dimensions appears in Figure 7 and Figure 8 displays the 
+engineering model of the miniaturized GPS receiver card. 
+Operationally, this system will support crosslink 
+communication and absolute and relative navigation 
+capabilities to the spacecraft at an estimated 1-4W average 
+power. In order to meet the stringent physical goals of the 
+2-574 
+3.415 
+1 
+Figure 7. Physical Dimensions of the NanoSat Crosslink 
+Transceiver. 
+Figure 8. NanoSat Crosslink Transceiver Engineering 
+Model GPS Receiver Slice. 
+development program, each card in the system was 
+optimized in terms of size, mass, and power, within cost and 
+schedule constraints. For example, the Signal Tracking 
+ASIC that supports both GPS and crosslink signal fast 
+acquisition and tracking dissipates approximately 150mW 
+while supporting twelve channels. Because of the 
+transmitter efficiency characteristics, adaptive power control 
+is implemented to minimize transmit power while meeting 
+performance requirements; nominal transmit power is 
+designed to be 250 mW. The theoretical operating 
+characteristics of the NCLT crosslink range versus transmit 
+power level is shown in Figure 9 for several antenna gain 
+characteristics. 
+Because of the dynamic nature of distributed spacecraft 
+systems, the NCLT must operate in conditions in which 
+near-far interference can impact crosslink ranges. Figure 10 
+characterizes range reduction due to interference from 
+transmitters in close proximity, assuming identical 
+frequencies and transmitter power levels. As implemented 
+for the University NanoSatellite Program, the NCLT will 
+support an optional time division multiple access 
+communications scheme in addition to the capability of 
+realizing the multi-channel FDWCDMA approach. 
+Figure 9. NCLT Crosslink Range versus Transmit Power 
+for Several Antenna Gain Characteristics. 
+Figure 10. NCLT Range Drop-off Characteristics Due to 
+Interference from a Nearby Transmitter 
+7. CONCLUSIONS 
+Distributed spacecraft systems are a means to achieve 
+aggressive science and technology goals beyond the 
+capabilities of monolithic space systems. The distribution of 
+space assets inherently supports the discrimination of spatial 
+and temporal effects in many near Earth observing mission 
+concepts and it facilitates the deployment of systems 
+capable of highly complex sensing tasks. 
+The functional foundation that enables distributed spacecraft 
+operations, science, and coordination is the capability to 
+provide navigation, communication, and control among the 
+distributed assets that embody a deployed system. It is the 
+confluence of these functions, and an integrated approach to 
+developing the methodology and technology that 
+instantiates them, that provides a structured framework for 
+distributed spacecraft systems design and serves to realize 
+2-575  
+the advantages of such systems. The development of the 
+JHUIAPL Crosslink Transceiver provides an important 
+technology that supports broad classes of distributed 
+spacecraft systems. The CLT, and the low power NanoSat 
+CLT, support the operational adaptivity needed to enable the 
+navigation, communication, and distributed control needs of 
+such systems. 
+Acknowledgement: The Crosslink Transceiver is supported 
+by the Technology Development for NASA Explorers 
+Missions Program under grant NAG5-8665. The NanoSat 
+Crosslink Transceiver is supported by NASA SOMO grants 
+NAG5-8655 and NAG5-9872. The authors acknowledge the 
+generous support of the NASA TIMED Program for its 
+backing of the NCLT development effort. The DES control 
+theory, long-baseline relative navigation filter, and deep 
+space relative navigation approach were supported by the 
+JHU/APL Space Department Internal Research 
+Development Program. 
+REFERENCES 
+[l] D. A. Weidow and J. 0. Bristow, “NASA/DoD University 
+Nano-Satellites for Distributed Spacecraft Control,” 13th 
+A M U S U  Con$ on Small Satellites, August 1999. 
+[2] A. Das and R Cobb, “TechSat21- Space Missions Using 
+Collaborating Constellations of Satellites, ” 12th AIAA/USU 
+Con$ on Small Satellites, 1998. 
+[3] R. K. Raney, et. al., “WITTEX: A constellation of three 
+small satellite radar altimeters,” 13jh AIMUSU Con$ on 
+Small Satellites, Logan, Utah, August 1999. 
+[4] G. Barrett and S. Lafortune, “Decentralized supervisory 
+control with communicating controllers.” IEEE Trans. on 
+Auto. Cntrl. 45(9), 2000. 
+[5] P. A. Stadter, “Discrete event command and control for 
+formation flying of distributed small spacecraft systems, I’ 
+13th Annual AIAMUSU Con$ on Small Satellites, SSC99-VT- 
+4,23-26 August, Logan, UT, 1999. 
+[6] M. M. Seron, J. H. Braslavsky, and G. C. Goodwin, 
+Fundamental Limitations in Filtering and Control, Springer, 
+1997. 
+[7] J. A. Stover, D. L. Hall, and R E. Gibson, “A Fuzzy- 
+Logic Architecture for Autonomous Multisensor Data 
+Fusion,” IEEE Trans. Indust. Electronics, Vol. 43, NO. 3, 
+June 1996. 
+[SI G. Barrett, “Modeling, analysis and control of centralized 
+and decentralized logical discrete-event systems,” Ph. D. 
+Thesis in Electrical Engineering, The University of Michigan, 
+1999. 
+[9] B. Mauk. Auroral Multiscale MlDEX Concept Study. 
+JHUAPL, June 1999. 
+[lo] W. S. Devereux, R. J. Heins, et. al., “The TIMED GPS 
+Navigation System (GNS),” 49’h Int. Astro. Cong. Melbourne, 
+Australia, 1998. 
+[ l l ]  E. A. Olsen, P. A. Stadter, and M. S. Asher, “Long- 
+baseline differential GPS based relative navigation for 
+spacecraft with crosslink ranging measurements,” Proc. of the 
+Inst. of Nav. GPS Meeting 2000, Salt Lake City, UT, 
+September 2000. 
+[12] B. W. Parkinson and J. J. Spilker, eds. Global 
+Positioning System: Theory and Applications. Progress in 
+Astronautics and Aeronautics, American Institute of 
+Aeronautics and Astronautics, Inc,. 1996. 
+[13] R J. DeBolt, P. A. Stadter, M. S. Asher, P. R Kalata, 
+and J. 0. Bristow, “A GPS formation flying testbed for the 
+modeling and simulation of multiple spacecraft” ION-GPS 
+‘99, 14-17 September, Nashville, TN, 1999. 
+[14] R. J. DeBolt, “Relative Tracking of Satellites in Orbital 
+Formation Using Global Positioning System,” Master’s 
+Thesis in Electrical Engineering, Drexel University, 1999. 
+[15] P. A. Stadter and A. K. Garga, “A neural architecture for 
+fuzzy classification with application to complex system 
+tracking,” Proc. 1997 Int% Con$ on Neural Networks, 
+Houston, TX 1997. 
+[16] J. S. Albus, “An engineering architecture for intelligent 
+systems,” Proc. M I ,  Fall Sy. Series 1996, Cambridge, MA 
+1996. 
+[17] P. A. Stadter, W. S. Devereux, R A. Denissen, et. al., 
+“Interspacecraft communications for formation flying,” 
+NASA/ESTO Study Report, Internal memorandum, NASA- 
+GSFC, 1999. 
+[18] S. Phoha, E. Peluso, P. A. Stadter, J. Stover, and R 
+Gibson, “A mobile distributed network of autonomous 
+undersea vehicles,” A W S I  ’97 Proceedings, Baltimore, MD 
+1997. 
+[19] F. P. Kelly, “Modelling Communication Networks, 
+Present and Future,” Proc. R Soc. Lond. A.,, Vol. 444 1995. 
+[20] A. 0. Allen, Probability, Statistics, and Queueing 
+Theory with Computer Science Applications. 2nd edition, 
+Academic Press, Inc., San Diego, CA 1990. 
+[21] R Kumar and J. A. Stover, “A behavior-based intelligent 
+control architecture with appliction to underwater vehicles - 
+Part I Fundamentals,” in process, 1998. 
+[22] C. G. Cassandras. Discrete Event Systems: Modeling and 
+Per$ormance Analysis, Askin ASSOC., Inc., 1993. 
+2-576 
+[23] E. Peluso, J. Goldstine, S. Phoha, et. al., “Hierarchical 
+supervision for the command and control of interacting 
+automata,” Proc. of the Sym. on Command and Control 
+Research, Monterey, CA, June 1994. 
+[24] S. Phoha, J. Stover, and P. A. Stadter, “Ocean Sampling 
+Mobile Network Controller,” Sea Technology Vol. 38, No. 
+12, December, 1997. 
+[25] A. Hsu, F. Eskafi, S. Sachs, and P. Varaiya, “The Design 
+of Platoon Maneuver Protocols for IVHS,” Program on 
+Advanced Technology for the Highway Research Report, 
+April 1991. 
+[26] P. J. Antsaklis, and K. M. Passino, editors, An 
+Introduction to Intelligent and Autonomous Control, Kluwer 
+Academic Pub., Boston 1993. 
+[27] P. J. Ramadge, and W. M. Wonham, “Supervisory 
+control of a class of discrete event processes,” SIAM1 of 
+Control and Optimization, Vol. 25, No. 1, January 1987. 
+[28] E. M. M. Peluso, “A hierarchical structure of interacting 
+automata for modeling battlefield dynamics: Controllability 
+and formal specification,” Ph. D. Thesis, Dept. of Computer 
+Science, The Pennsylvania State University 1996. 
+[29] R Kumar, and M A. Shayman, “Formulae relating 
+controllability, observability, and co-observability,” 
+Automatica,” Vol. 34, No. 2, March 1998. 
+Patrick A. Stadter is a Senior Professional StaffMember 
+in the Space Systems Applications Group and supervisor of 
+the Distributed Spacecraft Systems and Technologies 
+Section at The Johns Hopkins University Applied Physics 
+Laboratory. He received his B.S. (I 991) from the University 
+of Notre Dame, his MS.  (1993) from The Johns Hopkins 
+University and his Ph.D. (1997) from The Pennsylvania 
+State University in Electrical Engineering. 
+Albert A. Chacos is a PrincipaI Professional StafS member 
+in the Space Systems Applications Group and supervisor of 
+the Navigation Systems and Technologies Section at The 
+Johns Hopkins University Applied Physics Laboratory. He 
+received his B.S. in Aeronautical Science (1974) from 
+Embry-Riddle Aeronautical University, his B.S. in Electrical 
+Engineering (I 981) from the University of Maryland, and 
+his MS.  in Computer Science (1991) from The Johns 
+Hopkins University. 
+and has over 35 years of systems and RF engineering 
+experience. 
+Glenn T. Moore is an Associate Professional Staff 
+Engineer in the Distributed Spacecraft Systems 
+Technologies Section of the Space Systems Applications 
+Group. He received a B.S. (1999) from the University of 
+Maryland in Electrical Engineering 
+Eric A. Olsen is a Senior Professional StaffMember in the 
+Space Systems Applications Group at JHU/APL. He 
+received his B.S. (1989) in Aerospace Engineering from the 
+University of Illinois, and his MS.  (1994) and Ph.D. (2000) 
+in Aerospace Engineering ftom Stanford University. 
+Mark S. Asher has been a member of the senior staff of 
+JHU/APL since 1987. He received his B.S. (1979) in 
+Mechanical Engineering, and MS. (1982) in Engineering 
+Science, both from Virginia Polytechnic Institute. 
+John 0. Bristow, a member of NASA Goddard Space Flight 
+Center’s Guidance, Navigation and Control Center 
+(GNCC), is the Formation Flying and Virtual Platform 
+Technology Development Program manager. In this role, he 
+oversees all distributed spacecraft development activities at 
+GSFC and coordinates these activities with similar 
+programs at other organizations. 
+Robert J. Heins is a Principal Professional Staff Member 
+in the System Engineering Section of the Space Systems 
+Applications Group at The Johns Hopkins University 
+Applied Physics Laboratory. He received his B.S. (1964) 
+from Syracuse University and his MS. (1971) from 
+Maryland University in Electrical Engineering. Mr. Heins 
+was system engineer for the TIMED GPS Navigation System 
+2-577 

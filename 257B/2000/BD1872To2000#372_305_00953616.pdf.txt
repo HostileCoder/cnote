@@ -1,0 +1,293 @@
+Image Compression Using Fast Transformed Vector Quantization 
+Robert Li and Jung Kim 
+Department of Electrical Engineering 
+N.C. A&T State University 
+Greensboro, N.C . 27411 
+Abstract 
+Digital image compression is an important 
+technique in digital image processing. To 
+improve its performance, we would like to 
+speed up the design process and achieve the 
+highest compression ratio possible. For 
+speed improvement, we have used a fast 
+Kohonen self-organizing neural network 
+algorithm to achieve big saving in codebook 
+construction time. For compression 
+purpose, we propose a new approach called 
+FTVQ ( fast transformed vector 
+quantization), combining together the 
+features of speed improvement, transform 
+coding and vector quantization. We use 
+several experiments to demonstrate the 
+feasibility of this FTVQ approach. 
+1.0 Introduction 
+The image compression techniques can 
+be used in areas of high information volume 
+to reduce the data rate to within the channel 
+capacity. There are two main categories for 
+image compression: lossless and lossy. 
+Lossless compression is an error-free 
+compression, but can only provide a 
+compression ratio ranging between 2 to 10. 
+Lossy image compression (irreversible 
+compression) is based on compromising the 
+accuracy of the recovered image in 
+exchange for more compression. The 
+reconstructed image contains distortion 
+which may or may not be visually apparent. 
+Most compression algorithms are either 
+based on transformation first, followed by 
+scalar quantization and coding; or by direct 
+vector quantization of the original image. 
+The focus of this paper is a combined 
+approach utilizing both transform coding 
+and vector quantization techniques, hoping 
+to achieve the best result in terms of 
+compression ratio with acceptable recovery 
+quality. This new approach will be called 
+FTVQ (fast transformed vector 
+quantization). The paper is organized in 
+the following way. Section 2 describes 
+fidelity measure, the fundamental concepts 
+of vector quantization, and its fast neural 
+network implementation. In Section 3, the 
+combined approach of FTVQ is described in 
+details. Finally, experimental results and a 
+summary are given in Section 4 and Section 
+5 ,  respectively. 
+2.0 Fast-learning Vector Quantization 
+Vector quantization (VQ) is a relatively 
+efficient coding technique used in digital 
+image compression area. The image is 
+partitioned into many blocks, and each block 
+is considered as a vector. See Figure 1 for 
+illustration. It provides many attractive 
+features for image coding applications with 
+high compression ratios[ 1,2,3]. One 
+important feature of VQ is the possibility of 
+achieving high compression ratios with 
+relatively small block sizes. Another 
+important advantage of VQ image 
+compression is its fast decompression by 
+table lookup technique. Neural network 
+approaches have been used for pattern 
+classification and data clustering [4,5,6]. It 
+is possible to apply the training algorithm of 
+neural networks to the design of appropriate 
+codebook which maximizes the SNR values 
+of reconstructed image. One approach is 
+based on Kohonen’s self-organizing 
+algorithm[7]. It classifies inputs into groups 
+that are similar. Kohonen’s standard 
+approach produced very good results in 
+terms of image quality and level of 
+compression; however, there is a big 
+disadvantages in terms of long training time. 
+141 
+0-7695-0978-9/00 $10.00 0 2000 IEEE 
+To alleviate the problem, we use a fast 
+version of the Kohonen’s neural network 
+called FKA (fast Kohonen algorithm). The 
+basic ideas of choosing winning nodes based 
+on Euclidean distance and weight adjusting 
+based on input samples are retained. 
+However, an evolutive procedure is used 
+here by generating output nodes and 
+associated weights adaptively from the input 
+samples. Please see references[8]. . 
+3.0 Fast Transformed Vector 
+Quantization (FTVO) 
+The vector quantization procedure is 
+usually performed in the spatial domain. 
+Now, we are investigating the possibility 
+that further improvement can be obtained by 
+vector quantization in the frequency domain, 
+Essentially, we are going to combine the 
+important features of both transform coding 
+and vector quantization. 
+The approach starts by mapping the 
+original image data into the frequency 
+domain by an application of a transform 
+such as DCT. Then the produced 
+transformed coefficients are used as vector 
+components and can be vector quantized. 
+After vector quantizing, the quantizer output 
+are inverse transformed to produce the 
+quantized approximation of the original 
+input image. There is an advantage that can 
+be obtained by combining transform coding 
+and vector quantization. To understand 
+how this is possible, we need to consider the 
+transform coefficients and their distribution 
+in the frequency domain. When a linear 
+transform is applied to the original vector 
+signal, the information is compacted into a 
+subset of the vector components. DCT maps 
+data from the spatial domain to the 
+frequency domain which often results in that 
+the high energy components would be 
+concentrated in the low frequency region. 
+This means that the transformed vector 
+components in the higher frequency regions 
+have very little information. These low 
+energy components might be treated in the 
+following way: Discard these components 
+entirely and hence the dimension of 
+transformed vectors and the complexity of 
+VQ are both reduced. This yields a reduced 
+codebook size which means a higher 
+compression ratio than that of VQ alone. 
+Figure 2 shows a FTVQ system. It shows 
+that the input X was first DCT transformed 
+into Y. Then Y was truncated to get rid of 
+low energy components and vector 
+quantized. The quantized data is inverse 
+transformed to get an approximated form of 
+original X. 
+In our implementation, the low energy 
+components after DCT transform, which 
+account for a certain percentage of all 
+transformed components, were truncated 
+from each subimage; leaving only the high 
+energy components. The truncated 
+transformed image was then vector 
+quantized. In our approach, the vector 
+quantization part is implemented using fast 
+neural network algorithm mentioned above. 
+To completely define the approach, we call 
+it FTVQ (fast transform vector 
+quantization). The FTVQ algorithm is 
+summarized by the following steps. 
+Step 1: The image was transformed to 
+frequency domain using DCT. 
+Step 2: The low energy components were 
+truncated from each subimage. 
+Step 3: Using the truncated transformed 
+image, the fast Kohonen algorithm was 
+performed for vector quantization using 
+subimages of size n by n. 
+Step 4: At the receiving end, after decoding 
+the codewords, the data was inversely 
+transformed using IDCT to obtain an 
+approximated image. 
+4.0 Emerimental results 
+We first compare the training speed for 
+standard Kohonen algorithm with that of fast 
+Kohonen algorithm(FKA) in spatial domain. 
+It was confirmed that FKA is indeed a 
+better choice. For the FTVQ approach, we 
+first perform a DCT on the image, then use 
+the FKA method to do vector quantization 
+and obtain the codebook. DCT is 
+performed with a block size of 8 x 8. Table 
+I shows the results for the “bridge” image 
+using VQ and FTVQ. Table I1 shows the 
+results for the “monkey” image using VQ 
+and FTVQ 
+142 
+It is instructive to compare the 
+performances of FTVQ with that of 
+standard VQ. In our experiment, a block 
+size of 8 x 8 is used and the same codebook 
+size (at 50, 20 and 15) is used for 
+comparison. Using the “bridge” example 
+for a codebook size of 50, FTVQ needs only 
+9.1 seconds; while VQ requires 24 seconds. 
+Equally important, PSNR value for FTVQ is 
+30.4 db, higher than the 28.2 db for VQ. 
+Using the “monkey” example for a 
+codebook size of 50, PSNR value for FTVQ 
+is 29.4 db, higher than the 27.3 db for VQ. 
+In other words, FTVQ is better than VQ 
+in terms of both image quality and training 
+speed. The reason for this is that the 
+truncated transformed image has less 
+complexity in sample space. Therefore, 
+fewer output nodes are needed to recover the 
+image than that required by VQ. 
+When we look at images being 
+compressed, FTVQ result emphasized low- 
+frequency information while the overall 
+PSNR ratio is better than that of VQ. The 
+VQ result has a relatively coarse image, and 
+its fidelity is not as good as that of FTVQ. 
+For visual purpose, the contrast of FTVQ 
+result can be further improved; but the 
+contrast of VQ result is already saturated. 
+5.0 Summarv 
+The goal of data compression is to reduce 
+the bit rate for data storage or transmission 
+while maintaining an acceptable image 
+quality. This research investigates a new 
+approach to vector quantization technique 
+for image compression. FTVQ approach 
+starts by first transforming image data to the 
+frequency domain using discrete cosine 
+transform. Then within a transformed 
+subimage, the high-frequency components 
+were truncated. As a result, the truncated 
+subimage was vector quantized using a 
+smaller dimension for its vector, thus 
+reducing the complexity of the sample 
+space. The codebook design has also been 
+speeded up using a faster Kohonen neural 
+network. Overall, FTVQ can achieve a 
+very high compression ratio, and its PSNR 
+value is higher than that of performing only 
+VQ in the spatial domain. 
+Reference 
+1. A. Gersho and R. Gray, Vector 
+Quantization and Signal Compression, 
+Kluwer Academic Publisher, 1992. 
+2. A. K. Jain, ‘7mage data compression: a 
+review,” Proc. IEEE, vol. 69, pp. 349-389. 
+3. Y. Linde, A. Buzo and R. M. Gray, I t  An 
+algorithm for vector quantization design,” 
+IEEE Trans. Communication, Vol. com-28, 
+pp.84-95, Jan. 1980. 
+4. R. P. Lippman, ”An introduction to 
+computing with neural nets”, IEEE ASSP 
+Magazine, April 1987, pp.4-2 1. 
+5 .  D. E. Rumelhart, et. al., Parallel 
+Distributed Processing, The MIT Press 
+(1 986), vol. 1. 
+6. J. Hertz, A. Krogh, and R. Palmer, 
+Introduction to the theory of neural 
+computation, Vol.1 of Santa Fe Institute 
+Lecture Notes, Addison-Wesley Publishing 
+Co., 1991. 
+7. T. Kohonen, Self-organization and -. 
+associative memory, 3rd Edition, New York, 
+Berlin: Springer-Verlag, 1989. 
+8. R. Y. Li, et. al., It Fast image vector 
+quantization using a modified competitive 
+learning neural network approach”, 
+International Journal of Imaging System and 
+Technology, August 1997. 
+Acknowledgments 
+This research was partially supported by 
+the NASA Autonomous Control 
+Engineering (ACE) Center. 
+143 
+(nx n) 
+subimage 
+M 
+Figure 1 : Image partitioned into blocks 
+Y Y X 
+DCT 
+Figure 2: A diagram for FTVQ system 
+144 
+Table I 
+VQ 50 0.088 90.7 28.2 24 
+TVQ 50 0.008 90.7 30.4 9.1 
+VQ 25 0.073 110.3 27.1 6.4 
+TVQ 25 0.073 110.3 29.6 4.7 
+VQ 15 0.061 128.0 26.7 2.9 
+TVQ 15 0.061 128.0 28.5 2.6 
+VQ 100 0.104 77.1 29.5 22.0 
+TVQ 100 0.104 77.1 29.6 20.3 
+VQ 50 0.088 90.7 27.3 4.7 
+TVQ 50 0.088 90.7 29.4 3.4 
+VQ 25 0.073 110.3 25.2 1.6 
+TVQ 25 0.073 110.3 29.1 0.9 
+145 

@@ -1,0 +1,398 @@
+EXPERIMENTAL EVALUATION OF DESIGN TRADEOFF IN SPECIALIZED VIRTUAL 
+MACHINE FOR MULTIMEDIA TRAFFIC IN ACTIVE NETWORKS 
+Sheng-Eh Wang and Bharat Bhargava 
+CERIAS and Department of Computer Sciences 
+Purdue University 
+West Lafayette, IN 47907 
+E-mail: { swang,bb} @cs.purdue.edu 
+ABSTRACT 
+In active networks environments, the data packets can c q  active 
+programs to enable specialized processing on them. We quantify 
+the effectiveness of general capsule programs V.S. specialized pro- 
+cessing functions for multimedia data through four experiments. 
+These experiments deal with the comparison of Java V.S. C im- 
+plementation of a MPEG video decoder, the identification of the 
+time-consuming modules in a Java MPEG video b o d e r ,  the ef- 
+fectiveness of combining Java methods and native methods, and 
+the size of the bytecode for each module in a Java MPEG video 
+decoder. We found that Java MPEG decoder can be 2.6 times to 10 
+times slower than an equivalent C implementation. We identified 
+Huffmann decoding module as the most time-consuming module. 
+We also found that the Native Method Interface (NMI) is complex 
+and not efficient to be used in active routers and the size of the 
+bytecodes for most of the modules is too big to fit into a single 
+packet even after compression. We draw certain conclusions about 
+the trade-off between the general programming model and the spe- 
+cialized functions provided by the router for Ihe active capsules. 
+1. INTRODUCTION 
+Active Networks [l J and Active Services [2] are important re 
+search topics. In an active network environment, the packets can 
+cany active programs within the packet to enable specialized pro- 
+cessing on them. One of the major application of active techniques 
+is video transcoding [2]. Since the emerging applications will con- 
+tain a lot of multimedia data such as video and audio data, how to 
+provide specialized multimedia data processing capabilities with- 
+in these new service atchikchues is a challenging issue. Current 
+active network design such as Smart Packets [8] or ANTS [lo] ei- 
+ther focus on small data or use general purpose mobile languages 
+and virtual machines such as Java in their architectures. In our 
+proposed active netwwk architecture [9], we argue that general 
+purpose virtual machines may not be capable of handling the mul- 
+timedia data and a customized virtual machine which includes spe- 
+cialized processing functions is needed. 
+We quantify the effectiveness of general capsule programs V.S. 
+specialized processing functions for multimedia data through a se- 
+ries of experiments. We draw conclusions on the tradeoff between 
+PORTIONS OF THIS WORK WERE SUPPORTED BY A GRANT 
+SPONSORS OF THE CENTER FOR EDUCATION AND RESEARCH 
+IN INFORMATION ASSURANCE AND SECURITY (CERIAS). 
+FROM NSF UNDER CCR-9901712. A GRANT FROM IBM. AND BY 
+0-7803-6536-4/00/$10.00 (c) 2000 IEEE 
+the general programming model and the specialized functions pro- 
+vided by the router for the active capsules. We obtain certain quan- 
+titative data for those trade-offs. These data can be used to guide 
+our design of the active network architecture. These data can be 
+interpolated or extrapolated to predict the hardware requirements 
+(CPU speed, memory speedkapacity, etc.) for emerging active 
+network architectures. 
+2. BACKGROUND 
+In an active network architecture, the nodes can be active or non- 
+active. Active nodes run a Node Operating System (NodeOS) and 
+one or more Execution Environments (EEs) that run on the top of 
+NodeOS [I]. Each EE implements a virtual machine which runs 
+the active programs coming with the data packets. The virtual ma- 
+chine can be very general (such as Java Virtual Machine) or very 
+specific (such as Spanner [8] in the Smart Packet project, which 
+provides specialized functions for network management tasks). To 
+understand the design issues of the specialized virtual machine, the 
+following questions are important. 
+(1) Are general script or virtual machines fast enough to im- 
+plement complicated algorithm such as MPEG video codec? How 
+fast can mobile code techniques achieve in comparison with the 
+native code implementation? 
+(2) Is there any part of the video processing algorithm that can 
+be extracted and implemented as common operations in the spe- 
+cialized virtual machine? 
+(3) HOW big are the active programs when a non-trivial algo- 
+rithm such as MPEG decoder is implemented? Is it feasible to 
+implement these algorithms using the mobile codes? 
+Since these questions are general and depend on many differ- 
+ent factors such as the choice of virtual machine and video pro- 
+cessing algorithm, we investigate one special case that can provide 
+some insights into the real scenario. Specifically, we analyze the 
+h4PEG video decoding algorithm under C and Java implementa- 
+tions. Since MPEG video decoding is an essential part of com- 
+pressed video processing such as transcoding, the data gathered is 
+useful not only for MPEG algorithms but also for a broader range 
+of multimedia applications. We are not trying to answer the gen- 
+eral benchmark questions of Java virtual machines. Research on 
+this topic is available in 161. Our goal is to get an estimate of how 
+mobile codes can perform in multimedia data processing because 
+it will be an essential part of our virtual machine. 
+549 
+3. EXPERIlWNTS 
+- 
+IDCT 
+Parse-macroblock 
+Others 
+In the following experiments, we use three MPEG video clips 
+(Jurassic Park, Tai Chi, and Lion King), which we digitized from 
+various commercial video tapes. These video clips represent d- 
+ifferent type of commercial-quality videos. The details of these 
+video clips can be found in [9]. 
+There are two machines used in the following experiments. One 
+machine is an Intel Pentium II 300 MHz Personal Computer which 
+runs both RedHat 6.0 Linux operating system and Microsoft Win- 
+dows 98. The other one is a Sun Sparc 10 workstation running 
+Solaris 2.5. 
+~ 
+4.69% 
+4.29% 
+19.38% 
+3.1. Experiment: Comparison of Java and C implementation 
+of MPEG video decoder 
+The purpose of this experiment is to determine if the Java virtual 
+machines and bytecodes are. fast enough to implement algorithm- 
+s such as h4PEG video decoding. It demonstrates the efficiency 
+of currently available mobile code techniques in comparison with 
+the native code implementation. We compare the decoding time 
+of both Java and C implementation of the MPEG-I video decoder. 
+For C implementation of the MPEG video decoder, we use the 
+Berkeley mpegj fuy  [7] program. For Java implementation, we 
+modify the decoder written by Professor Joerg Anders at Technis- 
+che Universitiit Chemnitz, Germany [3]. We have compiled the 
+C implementation under two configurations: (1) Linw which use 
+version 2.2 kemel and gcc C compiler with optimization. (2) So- 
+laris 2.5 which use cc compiler with optimization. 
+We ran the Java implementation using Java 2 JDK from Sun 
+Microsystems under Linux, Solaris and Microsoft Windows 98. 
+Except in Experiment Set 3, which is used as a baseline reference 
+only, we enable the Java Just-In-Time (JIT) compiler to speed up 
+the bytecode execution (results in table 1). 
+From the result, we made some observations: 
+( I )  The Java decoder is, in general, slow in comparison with the 
+C decoder. If we compare the two decoders under the same OS 
+(Linux or Sun SoIaris), the Java decoder is almost 10 times slower 
+under Linux (data set TC) and 6 time slower under Solaris (data 
+set P). Although the result is not a supr ise  to us (we know that 
+Java decoder will be slower than the C decoder.), it does provide 
+an idea of the magnitude of slowdown when using Java on a real 
+problem. Under Microsoft Windows 98,. the slow down is not as 
+big as other platforms but still slow (2.6 times slower comparing 
+to data set TC under LindC) '  . 
+(2) Comparing experiments Set 3 and Set 4, we note that the JJT 
+compiler provides substantial improvement in the execution time 
+over the bytecode interpreter (by a factor of four). However, there 
+is room for significant improvement for the performnce of Java 
+bytecodes to be close to native object codes. 
+(3) The results suggest that although there is potential in the 
+mobile code technologies, a native (UC++) implementation iS fa- 
+vored under current technologies if multimda data processing ca- 
+pabilities are need in the VM. 
+~~ 
+'Since nlpegslay is an X-Wmdows based program. it is not e s ~ y  to 
+port to MS Windows 98. Therefore we didn't gather the data for C decoder 
+under MS Windows. However, we believe that the number will be v q  
+close to the number in Experiment Set 1. 
+[ Module I Percentage of Running Time I 
+TIC] I 29 99% I - - -_ .-_.- I 
+Huffmanndecode I 23.80% 
+Parse Block I 17.7695 I 
+Table 2: Experiment: Running time distribution of MPEG video 
+decoder 
+3.2. Experiment: Profiling of the Java MPEG Video Decoder 
+In this experiment, we try to determine which parts of the MPEG 
+video processing algorithm consume a major portion of the time 
+and which parts of the algorithm can be extracted and implemented 
+as common operations in the spec ia l i i  virtual machine. 
+h4PEG decoding process consist of four major steps: First, the 
+input stream is read up to the complete Variable Length Code (VL- 
+C )  and a Huffmann decoding process is called to convert it into 
+an integer value. After all the VLCs belonging to a block are 
+processed, the block data are inversely quantized. The Inverse 
+Discrete Cosine Transform (IDCT) is then applied to the inverse- 
+quantized block. The result is then added to the prediction data 
+(reference pictures) to get a completed decoded frame. 
+We ran a detail profiling of the Java MPEG video decoder using 
+data set JP to determine the relative percentage of running time for 
+the above four steps in the decoding process. (Results are shown 
+in Table 2). Note that the inverse quantization is not a separate 
+module. The time spent in inverse quantization is included in the 
+module Parse-Block. 
+The result shows that, to our surprise, IDCT does not occupy a 
+significant portion of the running time. It occupies less than 5% of 
+the total running time. The Huffman decode module occupies al- 
+most 24% of the running time (excluding the YO operations, which 
+is categorized under YO), and is a possible candidate for further 
+optimization. The other modules which occupy top portions of 
+running times are Parse-Block and Parse-Macroblock. These two 
+combined occupy more than 22% of the total running time. Since 
+these two modules are not computational-intensive operations but 
+mainly control logic for the decoding process, it is not easy to sep- 
+arate parts of the code to optimize further. 
+Our observations on these results are as follows: 
+(1) Excluding YO operations, the control logic of MPEG decod- 
+ing itself occupies 3 1.45% of the total running time. Comparing 
+it to the Huffmann decoding which occupies 33.95% and IDC- 
+T which occupies 6.97% of total running time, the control log- 
+ic of MPEG seems to be too complex. Since MPEG standard is 
+very general and covers a wide range of configurations, it may be 
+feasible to constrain the sets of configuration parameters to some 
+pre-defined sets such as those in H-261 to facilitate the processing 
+when the frames are delivered through the networks. 
+(2) It may be desirable to implement the complete decoding pro- 
+cess as a module instead of separating it into several modules to 
+maximize the performance. Currently there are some commercial 
+attempts to define APIs for multimedia data in future Java standard 
+[SI. This line of effort is similar to our idea and the results from 
+their work may provide additional insights. 
+0-7803-6536-4/00/$10.00 (c) 2000 IEEE 550 
+Jurassic Park I frames Avg. 
+Pframes Avg. 
+B frames Avg. 
+Overall Avg. 
+TaiChi IframesAvg. 
+P frames Avg. 
+B frames Avg. 
+Overall Avg. 
+Lion King I frames Avg. 
+Pfiames Avg. 
+B frames Avg. 
+Overall Avg. 
+Table 1 : Average decoding time for three video clips 
+24.24 208.89 920.25 228.99 1258.34 61.32 
+20.36 178.27 897.22 200.77 1138.53 61.69 
+9.30 73.22 509.03 116.52 644.02 37.91 
+13.31 110.83 640.48 146.99 819.05 45.81 
+16.98 123.20 584.29 194.86 604.41 38.86 
+14.66 101.59 557.84 196.59 620.64 42.67 
+10.51 66.52 363.95 123.45 404.05 27.28 
+12.15 80.64 431.62 147.67 474.53 31.99 
+17.77 124.24 557.94 141.40 568.56 38.07 
+11.38 78.04 426.22 96.81 432.70 33.40 
+5.52 33.24 369.00 64.30 328.74 30.59 
+8.01 52.04 399.08 78.87 374.76 31.92 
+Table 3: Running T i e  of Java/C hybrid implementation 
+vpeofcall  
+Java Method 
+Native Method 
+NativdJava 
+3.3. Experiment: Java MPEG Video Decoder with Native 
+Methods 
+To determine if we can gain any efficiency by implementing the 
+most time-consuming parts of the decoder using more languages 
+such as C/C++, we implemented the Huffmann decoding module 
+(which we identified in section 3.2 as the most time-consuming 
+module in the decoding process) as a native method in C using 
+the Java Native Interface (INI) specifications. We repeat the same 
+experiments as in section 3.1 on the new Java/C hybrid implemen- 
+tation. (Results are in Table 3). 
+The result shows that instead of gaining efficiency through na- 
+tive method implementation, the hybrid implementation actually 
+runs much slower than pure Java implementation. In some cases 
+where the VM implementation is very efficient, the slow down is 
+even more significant (323% slower), Similar results are observed 
+when the IDCT module is implemented as a native method. After 
+further investigation, we contribute the slow down of the decoding 
+to the following reason: 
+(1) The overhead of interaction between the native method and 
+the Java methods is high. When a native method needs to access a 
+member variable, it has to perform a series of table lookup to find 
+the class ID and field ID to access the correct data item. When a 
+native method needs to call a non-native method, it needs to per- 
+form a series of table lookup to find the class ID and method ID. 
+Although in our implementation we are careful to ody perfom 
+these lookups once during the class initialization, the overheads of 
+calling the method or accessing the member variable through IDS 
+are still very high. 
+(2) The overhead of setting up the native method call is high. 
+Linux I Solaris Windows 98 
+61.3 ms 946.5 ms 28.00 ms 
+1418.8 ms 3942.70 ms 340.00 ms 
+23.15 4.17 12.14 
+Table 4: Java method V.S. Native method calls 
+To validate t h i s  point, we conduct another experiment to deter- 
+mine the overhead in setting up native method calls. We construct 
+two Java programs using the skeleton of the Huffmann decoding 
+module in the experiments. One program is implemented as a pure 
+Java program and the other is implemented as a native method. We 
+keep the parameter list and the return value to be the same as those 
+in the HufTmann decoding module. The body of the methods in 
+both programs are empty so we can measure the overhead of set- 
+ting up the call. We call the empty method 100,000 times in both 
+programs and measure the time elapsed (Results are in Table 4). 
+The result clearly shows that the native call is slow compared to 
+the ordinary method calls. Under Solaris the native method calls 
+are 4 time slower, which is the best case in our three test config- 
+urations. Under Linux it is 23.15 times slower, which suggests 
+that there may be problems on the implementations of JDK under 
+LinUX. 
+From the above observation and discussion, it is clear that the 
+current interface between the mobile code and the native calls are 
+comp1c.x and not cfficient. If WG want to implement specialized 
+method libraries, a simple and efficient way of interfacing the mo- 
+bile codes and the specialized method is needed. 
+0-7803-6536-4/00/$10.00 (c)2000 IEEE 55 1 
+Class Name Element Eh H u f f "  IDCT 
+Orig. Size 1697 283 16649 4136 
+Gzipped Size 1075 (63%) 235 (83%) 6530 (39%) 2199 (53%) 
+Class Name MPEG,scan MPEG-Video dispatch io-tool 
+Orig. Size 3490 14452 1032 3291 
+Gzipped Size 1989 (57%) 7475 (52%) 679 (66%) 1895 (58%) 
+Class Name myFrame semaphore Huf€mann (Native) IDCT (Native) 
+Orig. size 426 538 729 I 511 
+' Gzi~Ded Size I 330 (77%) 389 (72%) 522 (72%) I 391 (56%) 
+Table 5:  Size of Java bytecodes on various modules (unit: byte) 
+MPEG-Play 
+6250 
+3370 (55%) 
+motion-data ' 
+6327 
+3038 (49%) 
+3.4. Experiment: Object Code Size Statistics 
+Since packets in an active network environment carry active pro- 
+grams within the packets, the sizes of the active programs have 
+significant influence on the feasibility of the architecture. For ex- 
+ample, Smart Packets architecture [8] tries to limit the active pro- 
+gram size within one Ethemet pacht (1500 Bytes) by introducing 
+a specialized assembly language. To get some estimates of the 
+size of object codes, we tabulate the sizes of the bytecodes pro- 
+duced by the Java 2 compiler on the original Java implementation 
+and the modified Huffmann and IDCT modules in Table 5. From 
+the result, it is apparent that the size of almost any single func- 
+tional module are much bigger (up to 10 times) than the size of 
+one Ethernet packet (1500 bytes). Therefore it is not feasible to 
+put the active program written in lava bytecode within the active 
+capsule. To alleviate this problem, there are several alternatives 
+that can be further explored. One approach is to employ byte- 
+code compression techniques such as those described in [4]. To 
+determine the effect of compression. we compress the bytecodes 
+of modules in Table 5 using gzip. Even after the bytecodes are 
+gipped, the sizes are still large. According to [4], it is possible to 
+compress the bytecodes to about 26% to 30% of the original size, 
+therefore the results may be further improved. However, bytecode 
+compression needs extra time to compress and decompress. They 
+may not be feasible in a highly dynamic envitOnments such as ac- 
+tive routers where most of the active program are only executed 
+once and are discarded after execution. Another approach is to 
+design code transport schemes to amortize the cost of code trans- 
+porting. For example, ANTS [lo] employs the on-demand code 
+loading scheme to minimize the overhead of setting up the pro- 
+tocol (specialized functions) dynamically. However, ANTS and 
+other approaches treat a whole protocol as a unit and, which has 
+coarse-granularity. 
+From the above result, we can conclude that any operations 
+which are supposed to be widely available among the execution 
+environments (such as MF'EG codec) should be built in to the Vir- 
+tual machines to avoid the high overhead of mobile codes. 
+4. CONCLUSIONS AND F'UTURE WORK 
+In this paper, we experimentally evaluated eradeoffs in the design 
+of specialized virtual machines for multimedia data in active net- 
+works. We provide guidelines for choosing between alternatives 
+based on the resource constraints. Although some results may be 
+obvious or not favor any particular design, our results do give us 
+clear ideas of the expected performance for a particular choice. 
+Some future work includes: 
+(1) Mote detail investigation of the overhead in native imple- 
+(2) Performance evaluation of the bytecode compression 
+(3) Performance evaluation of other compressed videolaudio 
+mentation. 
+schemes. 
+processing algorithms. 
+REFERENCES 
+Active Network Working Group (K. L. Calvert, ed.). 
+Architectural Framework for Active Networks Version 
+1.0. URL http: //www .dcs .uky.edu/-calvert/ 
+arch-1-0 .ps, July 1999. 
+Elan Amir, Steven McCanne, and Randy H. Katz. An Active 
+Service Framework and its Application to Real-time Multi- 
+media Transcoding. In Pmceedings of the ACM SIGCOMM, 
+Vancouver, British Columbia, Canada, September 1998. 
+Joerg Anders. Inline MPEG-1 Player in Java. URL 
+http://rnvs.informatik.tu-chemnitz.de/ 
+-ja/MPEG/MPEG-Play.html. 
+Quetzalcoatl Bradley, R. Nigel Horspool. and Jan Vitek. 
+JAZZ: An Efficient Compressed Format for Java Archive 
+Files. In Proceedings of CASCON'98. pages 294-302, 
+Toronto, Canada, November 1998. 
+Sun Microsystems. lavaTM Media APIs. URL http : / / 
+java.sun.com/products/java-media/. 
+John Neffenger. Java Benchmarks. URL http: //WWW. 
+volano.com/benchmarks.html. 
+K. Patel, B. Smith, and L. Rowe. Performance of a Software 
+MPEG Video Decoder. In Proceedings of ACM Multimedia 
+93. August 1993. 
+B. Schwartz, A. Jackson. T. Strayer, W. Zhou, R. Rockwell, 
+and C. Partridge. Smart Packets for Active Networks. In 
+Pmceedings of the Second ZEEE Conference on Open Archi- 
+tectures and Network P r o g m m i n g ,  New York City, New 
+York, March 1999. 
+Sheng-Yih Wang and Bharat Bhargava. An Adaptable Net- 
+work Architecture for Multimedia Traffic Management and 
+Control. Technical Report CSD-99-048, Purdue University, 
+Department of Computer Sciences, November 1999. 
+David J. Wetherall, John Guttag, and David L. Tennen- 
+house. ANTS: A Toolkit for Building and Dynamically De 
+ploying Network Protocols. In Pmceedings of IEEE OPE- 
+NARCH'98, San Francisco, Califomia. April 1998. 
+0-7803-6536-4/00/$10.00 (c)  2000 IEEE 552 

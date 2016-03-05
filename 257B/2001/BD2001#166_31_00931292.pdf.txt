@@ -1,0 +1,697 @@
+Data Embedding In Audio Signals’ 
+K. Gopal Gopalan 
+Department of Engineering 
+Purdue University Calumet 
+2200 169’ Street 
+Hammond, IN 46323 
+gc~~alatiiir~calun~cl.purdue.cdu 
+Daniel S. Benincasa, Stanley J. Wenndt 
+Multi-Sensor Exploitation Branch 
+Air Force Research Laboratory 
+32 Brooks Road 
+Rome, NY 13441 
+benincasad@,rl.af. mil, wenndtsi8rl.af.mil 
+2 19-989-2898 
+3 15-330-3555,315-330-7244 
+Abstract - This paper presents results of two methods of 
+embedding digital audio data into another audio signal for 
+secure communication. The data-embedded, or stego, signal 
+is created for transmission by modifying the power spectral 
+density or the phase spectrum of the cover audio at the 
+perceptually masked frequencies in each frame in 
+accordance with the covert audio data. Embedded data in 
+each frame is recovered from the quantized frames of the 
+received stego signal without synchronization or reference 
+to the original cover signal. Using utterances from Texas 
+Instruments Massachusetts Institute of Technology (TIMIT) 
+databases, it was found that error-free data recovery resulted 
+in voiced and unvoiced frames, while high bit-errors 
+occurred in frames containing voicedunvoiced boundaries. 
+Modifying the phase, in accordance with data, led to higher 
+successful retrieval than modifying the spectral density of 
+the cover audio. In both cases, no difference was detected 
+in perceived speech quality between the cover signal and the 
+received stego signal. 
+TABLE OF CONTENTS 
+1. 
+2. 
+3. 
+4. 
+5. 
+6. 
+INTRODUCTION 
+REVIEW OF DATA HIDING IN AUDIO 
+PSYCHOACOUSTICAL MASKING THRESHOLDS OF 
+HEARING 
+DATA EMBEDDING PROCEDURES 
+DISCUSSION AND FURTHER WORK 
+CONCLUSIONS 
+1. INTRODUCTION 
+Data embedding is a form of steganography that is 
+concerned with ways of inserting a given secret message or 
+data in an innocuous cover message, such as an image, 
+video, audio, or computer code [l, 21. Digital data 
+embedding in audio signals has many applications. These 
+applications include covert communication by securely 
+hiding encodedencrypted information in audio signals, 
+copyright protection of transmitted audio signals, and 
+embedding information for describing, modifying, and 
+tracking of audio signals. By providing different access 
+levels to the embedded data, the quality of the audio signal 
+and the ability to hear the hidden message can be controlled. 
+Transmission of battlefield information via an auxiliary or 
+cover audio signal could play an essential role for the 
+security and safety of personnel and resources. This paper 
+presents the initial results from a study of two basic 
+techniques for embedding binary data in audio signals. 
+2. REVIEW OF DATA HIDING IN AUDIO 
+Most of the work in data hiding has been concentrated on 
+hiding a small amount of information such as copyright data 
+or a watermark in images and video segments [2-51. 
+However, general requirements, challenges and principles of 
+hiding data in an audio are the same as those for embedding 
+information in a video. Robustness of the hidden data, for 
+example, is a key requirement for successful embedding and 
+retrieval of the data. In other words, standard signal 
+processing operations, such as noise removal and signal 
+enhancement, must not result in loss or degradation of the 
+embedded information. Additionally, for covert 
+communication, the embedded information must withstand 
+channel noise and intentional attacks or jamming on the 
+signal. Also important in covert communication is the 
+resilience of the hidden information to stay hidden to pirates 
+during their intentional or unintentional attempts at 
+detection. A measure of effectiveness of data embedding is 
+the probability of detection of hidden data. Clearly the more 
+robust the host medium - image, video, or audio - to attacks 
+and common operations, the higher would be its 
+effectiveness. 
+U.S. Government work not protected by U.S. copyright. 
+6-2713 
+Additional requirements specific for embedding data in 
+audio signals vary with the applications. In general, the 
+embedded data must be perceptually undetectable or 
+inaudible. While this may not be strictly required or even 
+needed for watermarking of audio for browsers on the 
+Internet, covert communication calls for the hidden message 
+to be truly imperceptible. Tamper resistance of the hidden 
+message, on the other hand, is more crucial in battlefield 
+covert communication than in protecting ownership of the 
+cover audio. Additionally, extraction of the hidden message 
+must not require access to the host (cover) audio. Clearly, 
+lack of the original host signal that was used to embed the 
+message makes it difficult to extract and adjudge the quality 
+and quantity of the hidden data. For covert communication, 
+however, this challenge must be met even at the cost of 
+degraded quality of the message-embedded audio. Other 
+requirements, such as robustness to transmission channel 
+noise, and linear and nonlinear filtering, are also important 
+in hiding data in audio. Security requirements in covert 
+communication dictate that an unauthorized user must not 
+be able to detect the presence of hidden data unless he has 
+the key to the insertion of data. This may require encryption 
+of the data prior to its insertion in the host audio. 
+Some of the most common techniques for hiding data in 
+images employ the properties of human visual system. The 
+least significant bits of an image may be altered in 
+accordance with the data to be embedded, for example [4, 
+61. The technique in this case relies on the low sensitivity of 
+the human visual system to contrast. Variations of this 
+technique include embedding pseudo random noise 
+sequence that appears as quantization noise, and modifying 
+the Discrete Cosine Transform (DCT) or wavelet transform 
+coefficients, etc. for watermarking. Other methods also 
+exploit imperceptible brightness levels to add tags, 
+identification strings, etc. More recently, spread spectrum 
+techniques, in which the watermark to be embedded in an 
+image is spread throughout the spectrum of the image, have 
+been widely considered [2, 3, 7, 81. For video, blue color 
+has been used to embed watermark based on the least 
+sensitivity of human visual system to modifications in the 
+blue band. 
+The notion of creating an imperceptible data-embedded 
+image based on the human visual system threshold has been 
+extended by several researchers to embed data in host audio 
+[4, 7-10]. In general, the procedure exploits the frequency 
+and temporal masking properties of the human auditory 
+system (HAS) to modify the cover audio in such a way that 
+changes due to the embedded data are inaudible. Other 
+methods to watermark a host audio use replacement of 
+spectral components in the high, middle, or other pre- 
+selected frequency bands in accordance with the sequence to 
+be embedded. In addition, several techniques involving the 
+use of spread spectrum noise sequence have been reported. 
+By far the methods employing the psychoacoustical 
+masking properties of HAS in some form appear to better 
+meet the challenges and requirements of audio data 
+embedding. The next section outlines the basics of 
+determining the frequency masking thresholds for a given 
+audio. Following this outline, two methods used to embed 
+and recover data and their results are described. 
+3. PSYCHOACOUSTICAL MASKING THRESHOLDS 
+OFHEARING 
+Auditory masking is a perceptual property of the human 
+auditory system in which the presence of a strong tone 
+renders the hearing of a weaker tone in its temporal or 
+spectral neighborhood imperceptible. Also, a pure tone is 
+masked by a wide-band noise if the tone occurs within a 
+critical band. Frequency masking is based on the 
+observation that the human ear cannot perceive frequencies 
+at lower energies when these frequencies are present in the 
+vicinity of tone- or noise-like fkequencies at higher energies. 
+Temporal masking occurs in which a low-level tone 
+becomes undetected when it appears immediately before or 
+after a strong tone. Many psycho-acoustic experiments have 
+been reported to verify the spectral and temporal masking 
+phenomena [ll-151. The design of high quality audio 
+coders, such as Moving Picture Experts Group (MPEG) 
+coders, is based on the property of the psychoacoustical 
+model [16-201. As with the design of coders, the masking 
+phenomenon can be used to embed data in an audio with 
+negligible perceptual difference between the original, 
+unembedded audio and the data-embedded audio. The 
+general procedure used is shown in Figure 1. 
+Perceptually 
+masked 
+DFI points 
+cover signal 
+Figure 1 - General procedure for embedding data in 
+perceptually masked locations 
+The first step in exploiting the masking property for coding 
+or data embedding is to determine the masking threshold 
+level. For an utterance of speech the masker frequencies - 
+tonal and noise-like - and their power levels are computed 
+from frame to frame. A global threshold of hearing based 
+on the maskers is determined for each frame. Also, the 
+sound pressure level for quiet, below which a signal is 
+inaudible, is obtained. The complete procedure is described 
+in the IS0 International Engineering Consortium MPEG 
+audio coder implementation standards, which is also 
+presented in [ 17-20]. 
+As an example, Figure 2 shows the normalized power 
+spectral density (PSD), absolute quiet threshold, and 
+threshold of hearing for a frame of utterance. The lowest 
+spectral component around 2800 Hz in this figure, for 
+instance, indicates that this component, being below the 
+6-2714 
+masking threshold level at that frequency, cannot be 
+perceived in hearing. We notice that with the threshold at 
+approximately 65 dB and the PSD at 32 dB, raising the PSD 
+of the signal at 2800 Hz by as much as 30 dB will still 
+render the component inaudible. Many other such 
+‘psychoacoustical perceptual holes’ can be detected in 
+several frequency ranges. The PSD values at these holes 
+can be modified by information to be embedded without 
+affecting the message quality of the frame. This is the basis 
+used in the present work for embedding data in audio. 
+PSD. Masking and Quiet Thresholds for a Speech Frame 
+100 k I I  I 1  - PSD 
+-201 ’ I I  I I  I I  I 
+0 1000 2000 30W 4000 50W 6W0 7W0 8000 
+Frequency, Hz 
+Figure 2 - Power spectral density, global masking 
+threshold for a frame of speech and absolute quiet threshold 
+4.DATA E~MBEDDING PROCEDURES 
+Experiments were conducted to determine the audibility of 
+embedded tones at masked frequencies. In the first 
+experiment, the threshold for a single tone (sinusoid) at a 
+given power level was determined. Several tones were 
+added to the original sinusoid at various amplitudes and 
+verified their audibility as a function of the amplitude and 
+frequency of the original tone. The experiment was then 
+extended to embedding tones in voiced speech. Continuant 
+sounds - vowels Iil and lael - were used as cover audio to 
+embed tones. Depending on the level and frequency of the 
+tones, the masking ability of the continuant sounds was 
+verified. Although only the spectral magnitudes of the 
+“cover” vowel sounds were used to hide the “covert” tones, 
+the experiments demonstrated the possibility of embedding 
+imperceptible tones to represent concealed data. 
+Two methods of embedding were considered for 
+experimental verification, both based on the 
+psychoacoustical masking. The first method altered the 
+magnitude of the power spectrum at the perceptual holes of 
+each frame of a host speech utterance; the second method 
+modified the phase of the utterance. For the purpose of 
+studying the feasibility of these methods, a random set of 10 
+bits each was used as data to be embedded in each frame of 
+an utterance from the Greenflag database and an utterance 
+from the TIMIT database. 
+For both methods, the procedure begins with the calculation 
+of the power spectral density and the global masking 
+threshold using tone and noise maskers present in each 
+frame of speech. Utterances in the databases were obtained 
+at a sampling rate of 16 kHz with 16 bits per sample. 
+Frames of 512 samples are used with Hanning (raised 
+cosine) window. Power spectral density, normalized to 96 
+dI3, is obtained using a 512-point Discrete Fourier 
+Transform (DFT). Power normalization enables the use of 
+the same masker spreading function at each frequency. 
+Absolute quiet threshold, based on young listeners with 
+acute hearing and given by 
+where f denotes frequency in Hz, is calculated. Following 
+the procedure given in [19,20], frequency maskers based on 
+tones and wideband noise in each critical band, and the 
+global masking threshold TG(k) at each frequency index k 
+are calculated for each frame. From these values the 
+perceptual holes or frequency indices {k) such that 
+TQ ( k )  < P( k )  < TG (k) - 5 (2) 
+are determined. If there are at least 10 frequency indices at 
+which the PSD of a frame is down by at least 5 dB from the 
+corresponding masking threshold values, but above the quiet 
+threshold, that frame is considered suitable for data 
+embedding. Because of the relatively high quiet threshold 
+levels at low and high frequencies (below 100 Hz and above 
+7000 Hz) only, the holes in the range of 100 - 6000 Hz are 
+used. (Avoiding high frequency range for spectral 
+modification also retains the embedded data when speech is 
+low-pass filtered or otherwise reduced in bandwidth for 
+compression or coding.) 
+Modulation of Frame PSD by Data - In this method, the 
+PSD values { P(k) } of a frame with 10 or more perceptual 
+holes are modified to { P‘(k) } by the data bits { b(k), k = 1, 
+. . . 10 ) as follows. 
+(The approximation above results from the normalization of 
+PSD to a fvred value of 96 dB, which causes a different 
+power scale factor, added to each frame.) If a frame has 
+more than 10 locations satisfying Eq. (2), the PSD values at 
+locations above the first 10 are set to the minimum of the 
+global threshold value for that frame. This reduces the 
+possibility of channel noise, for example, raising the PSD 
+values at the receiver to values comparable to those at the 
+data-embedded locations. After making the modified PSD 
+values and the phase angles of the discrete Fourier transform 
+of the frame symmetrical, the frequency spectrum of the 
+data-embedded frame is inverted to obtain the time domain 
+6-2715 
+samples for the modified frame. 
+quantized to 16 bit integers for transmission. 
+The samples are then Y io4 Onml speech frame 
+At the receiver, the 16 bit integers for the frame are 
+processed to obtain the masking threshold and the PSD. 
+Allowing for changes in the PSD, due to quantization, the 
+embedded data { d(k), k = 1 . . . 10 } are recovered as 
+} (4) 0, 
+1, 
+0.2Tg(n) < e ( n )  < 0.4T,(n) 
+0.6T,(n) < e ( n )  < O.ST,(n) 
+d(k)  = 
+where { n } are the frequency indices at which P,, the 
+received signal PSD values are above the quiet threshold but 
+below the masking threshold by at least 5 dB. 
+Test results - As an illustration, the speech frame shown in 
+Figure 2 are modified at the transmitter after determining 
+the perceptual null indices. With 75 locations satisfying Eq. 
+(2), the fnst 10 are used for data embedding. These 10 
+indices correspond to frequencies 
+fhz343.8, 375.0, 593.8, 625, 843.8, 875,906.3, 937.5, 
+1093.8, and 1125 Hz, 
+At these frequencies, the power spectrum was modified by a 
+random 10-bit combination in accordance with Eq. (3). 
+The PSD values at the remaining 65 locations were set to 
+the minimum threshold of masking without the dB 
+normalization scale factor. From the modified spectral 
+density values and the original phase of the unmodified 
+frame, time samples are obtained by inverse DFT. These 
+time samples are quantized to 16 bits for transmission. 
+Figure 3 shows the power spectrum of the received frame 
+with data embedded, as above, in the frame shown in 
+Figure2. The corresponding time samples of the cover 
+audio frame (unmodified) and the received (data-embedded) 
+frame are shown in Figure 4. 
+PSD and Thresholds of received speech frame - data in PSD 
+dB 
+0 1000 2000 3000 4000 5000 6000 7000 
+Frequency, Hz 
+Figure 3 - Power spectrum of the received frame with 
+data embedded in PSD in the frame shown in Figure 2 
+I I I I I I 
+0 100 200 300 400 500 600 
+, X I 0 4  Dataembeddedframe - mewed 
+I ,  I I I , I 
+0 100 200 300 400 500 600 
+Time index 
+Figure 4 - Time samples of a frame before and after 
+embedding data in the PSD 
+As can be seen from the two figures, modification to the 
+frame PSD does not appear to significantly alter the time 
+domain waveform. The real test, however, is in the listening 
+of the modified utterance and its perception. With the 
+modified PSD retaining the spectral densities below the 
+masking threshold at the frequencies altered, perceptual 
+quality of the utterance must remain as that of the original 
+cover audio. This was verified in informal listening tests for 
+the Greenflag utterance, ckd133.16 - "Rueben seven-one 
+cleared take-off pushbutton five'' (male). See Figure 5. For 
+this utterance, with a total of 55 fiames, 10-bit random data 
+was successfully embedded and retrieved from each of the 
+52 frames using 64-bit (unquantized) stego samples for 
+transmission. Using 16-bit representation of the stego 
+signal, however, resulted in only 45 fiames correctly 
+recovering the data. Two frames in each case could not be 
+used for data insertion because of fewer than 10 masked 
+frequency points available in those frames. 
+0 0 2  04 06 0 8  1 1 2  1 4  1 6  IS 
+Y 10' Time lodei 
+Figure 5 - Time samples of Greenflag utterance ckd133.16 
+Tests on two TIMIT utterances - from a male and a female 
+speaker - showed similar results with no noticeable 
+difference in the perceptual quality of the stego signals. 
+Table 1 shows the results for the three utterances used in the 
+tests. 
+6-2716 
+Table 1. Number of hames with successful data retrieval Vs. Total number of hames 
+Utterance + ckd133 - Greenflag 
+Success Rate with 64 bits 
+Success Rate with 16 bit 
+52/55 
+45/55 
+Female sal - TIMIT 
+1551190 1341148 
+701190 661148 
+Male sa2-TIMIT 
+quantization 
+Use of 64 bits for transmission, as is the case with Matlab 
+processing, clearly results in better data retrieval than 
+quantizing the stego signal to 16 bits before transmission. 
+This indicates that the PSD may have been modified in the 
+lower end of the 64-bit representation. When quantized to 
+16 bits, therefore, changes made to the PSD values are 
+truncated. A different set of thresholds with a larger 
+difference for embedding bits 1 and 0 may result in more 
+significant bits being modified, and hence, survive the 
+truncation to 16 bits. 
+I 
+Another possible reason for the low recovery is that a large 
+majority of the hames in both utterances are unvoiced - “we 
+had your dark suit in greasy washwater all year” (female) 
+and “don’t ask me to carry an oily rag like that” (male). 
+With wideband noise-like spectrum for an unvoiced hame, 
+there are fewer masking points, and these points change 
+with quantization. The problem is more pronounced in 
+frames containing transitions between voiced and unvoiced 
+hames. 
+IO 
+Modulation ofFrame Phase by Data - This method is based 
+on the observation that, in general, the phase spectrum can 
+be altered at perceptually masked spectral points. While 
+this change in phase modifies the waveform, perceptual 
+quality of speech is not affected, particularly if the phase 
+change occurs in a midband of frequencies. Based on this, 
+Tilki and Beex reported encoding of data bits by altering the 
+phase of every fourth point (after 2 kHz) in a 2048-point 
+DFT by +(n18) radian relative to a reference point phase [9]. 
+With this differential phase change, the authors reported 
+successful encoding and decoding for storage media 
+requiring simple synchronization. 
+Instead of differential phase change, the present method 
+alters the absolute phase at masked spectral points. This 
+ensures that changes in time samples are rendered inaudible. 
+Aiso, with absolute phase change of 3+, no synchronization 
+is needed at the receiver. Figure 6 shows the phase spectra 
+of a frame of speech at the first 10 perceptually masked 
+locations for an utterance hom the TIMIT database. With 
++45O phase, the embedded data for the frame corresponds to 
+b=[O 0 0 1 1 1 0 1 1 01 
+Phases of original and mdified speech frame - TIMIT, m i e  sal 
+200 
+150 
+100 
+8 
+50 
+m 
+Q o  : 
+8 -50 
+a 
+-100 
+-t Original 
+---*- Modilied 
+-150 I 
+-200 
+200 300 400 500 600 700 800 
+Frequency, Hz 
+Figure 6 - Phase spectra at the 10 masked locations of 
+the original and data-embedded hame 
+At other masked locations the magnitude and phase are left 
+unchanged. Time samples of the original and the phase 
+modified (received) frames are shown in Figure 7. 
+3000 
+2000 
+IOW 
+0 
+-1000 
+-20001 I I I I I 
+0 100 200 300 400 500 600 
+Pharemdftedframe - R&ved 
+3000 
+2000 
+1000 
+0 
+-1000 
+-2000 
+0 100 200 300 400 500 600 
+nmt index 
+Figure 7 - Original and data-embedded (phase- 
+modified) frames of speech 
+Test result - The method worked well with phase changes as 
+low as +5” with consistent recovery of embedded data in 
+voiced hames. Recovery from frames that are entirely 
+unvoiced resulted in a few bit errors. Embedded hames that 
+contained a transition between voiced and unvoiced speech 
+or those that were extremely small in amplitude - as with 
+silence and the onset of plosives - caused severe errors in 
+retrieved bits. For a noisy speech such as from the 
+Greenflag database, with significantly large amplitudes even 
+6-2717 
+Table 2. Number of frames with successful' data retrieval Vs. Total number of frames used for embedding* 
+Phase\Utterance ckd133 - Greenflag 
+k45" 52153 
+k15" 53153 
+Female sal - TlMIT Male sa2-TIMIT 
+761189 1021146 
+751189 1021146 
+'Only those frames with embedded data were included in each case. 
+*Frames that could not have data inserted: 1 for Female-sal and two for the others 
+during silence, very few bit errors occurred. Table 2 shows 
+the overall results for phase embedding with Idbit  
+quantization. 
+Clearly, the Greenflag utterance, which is noisier and has 
+larger amplitude, has a much higher successful rate of data 
+retrieval than the low amplitude TIMIT utterances. More 
+importantly, as with the amplitude data embedding case, the 
+type of utterance appears to play a key role. In particular, 
+for the female utterance, the less than 50% retrieval rate 
+may be a result of the low amplitudes and the large number 
+of voiced/unvoiced transitions. 
+5. DISCUSSION AND FURTHER WORK 
+From the experiments conducted on a limited number of 
+utterances, it is clear that insertion of data by phase 
+modification has the potential for successful retrieval of data 
+of limited size. Modification of the PSD may be more 
+robust in the presence of additive noise, because of the 
+relative, rather than the absolute values used to detect bits. 
+With this advantage, further tests with more utterances need 
+to be conducted to verrfy data integrity. In both cases, data 
+integrity can be increased by embedding data only in those 
+frames that have no transition between voiced and unvoiced 
+frames or low energy. Well-established procedures to detect 
+voicedhvoiced boundaries can be used to reduce the 
+additional processing involved. Assurance of embedded 
+information may be achieved using error detection 
+techniques, such as inserting parity bits or a known string of 
+bits, before and after data bits in each fiame. Data size, as 
+seen in the three utterances, can be 10 or more bitslframe, 
+some of which may include parity andor error correction 
+bits. If all the frames can embed data - as with voiced and 
+unvoiced frames without voicedunvoiced (VAJV) 
+boundaries in any frame - a maximum of 620 bits can be 
+inserted in one second of audio. This is a much higher rate 
+than what has been reported [2]. 
+With successful embedding and retrieval using PSD and 
+phase, the two methods can be combined to increase the 
+volume of data embedded. This is possible because of the 
+same set of perceptual frequency nulls used in each case. 
+Perceptual speech quality of the resulting stego signal can 
+then be quantified using objective quality measures [21]. 
+Additionally, using the midband of frequencies in the range 
+of 1 kHz to 3 kHz, phase may be modified by a small value 
+at all locations irrespective of the perceptual holes. This is 
+possible because of the imperceptible nature of the phase 
+variation in the mid frequency range. Relative, rather than 
+absolute phase must be used, however. 
+For embedding a large volume of data, as from another 
+audio signal, a compact parametric or transform domain 
+model of the covert message may be used. With 54 bits per 
+frame from an Linear Predictive Code (LPC)-10 model, for 
+instance, several frames of a cover signal may be needed to 
+insert one frame of covert speech. Depending on the 
+expected quality of the retrieved covert message audio, 
+other compact representations, such as DCT and Fourier- 
+Bessel coefficients [22], may be used for embedding. 
+Voiced speech arising from the resonance of the vocal tract 
+typically has a larger number of masked points. Therefore, 
+a known cover signal containing primarily voiced speech 
+can be used for inserting a large number of message bits. 
+Fixed and known DFT points carrying the hidden message 
+enables fast retrieval of the message without resorting to 
+threshold calculations for every received stego frame. Use 
+of such a fixed cover signal may not be effective for covert 
+communication of different battlefield messages; many 
+civilian applications, however, can benefit from employing 
+a known utterance for conveying different information. 
+6. CONCLUSION 
+Embedding of data by modifying the power spectral density 
+and the phase of speech frames at perceptually masked 
+frequency points has been reported. Based on a limited 
+number of tests, phase embedding appears to result in better 
+data retrieval. Informal listening tests showed that the 
+perceptual quality of the data-inserted utterances remained 
+the same as the original cover audio. Higher rate of data 
+recovery may be possible by choosing only the voiced or 
+unvoiced frames and excluding frames with V/UV 
+boundaries or the frames with low energy. More data may 
+be inserted by combining the two methods without altering 
+the perceptual quality of the cover audio. 
+6-2718 
+REFERENCES 
+[l] R.J. Anderson and F.A.P. Petitcolas, “On the limits of 
+steganography,” IEEE Journal of Selected Areas in 
+Communications, Vol. 16, No. 4, pp.474-481, May 1988. 
+[2] W. Bender, D. Gruhl, N. Morimoto and A.Lu, 
+“Techniques for data hiding,” IBA4 Systems Journal, Vol. 
+35, NOS. 3 & 4, pp. 313-336, 1996. 
+[3] M.D. Swanson, M. Kobayashi, and A.H. Tewfk, 
+“Multimedia data-embedding and watermarking 
+technologies,” Proceedings IEEE, vol. 86, pp. 1064-1087, 
+June 1998. 
+[4] M.D. Swanson, B.Zhu and A.H. Tewfk, “Current state 
+of the art, challenges and hture directions for audio 
+watermarking,” Proceedings IEEE International 
+Conference. on Multimedia Computing and Systems, vol. 1 
+pp. 19-24, 1999. 
+[5] F. Perez-Gonzalez, and J.R. Hernandez, “A tutorial on 
+digital watermarking,” Proceedings IEEE 33rd Annual 1999 
+International. Carnahan Conference. on Security 
+Technology, pp. 286-292, 1999. 
+[6] L. Boney, A.H. Tewfii and K.N. Hamdy, “Digital 
+watermarks for audio signals, ” Proceedings IEEE 
+Multimedia ’96, pp. 473-480, 1996. 
+[7] 1.3. Cox, J. Kilian, F.T. Leighton and T. Shamoon, 
+“Secure spread spectrum watermarking for multimedia,” 
+IEEE Transactions on Image Proceedings, vol. 6, pp. 1673- 
+1687, Dec. 1997. 
+[8] I.J. Cox, J. Kilian, F.T. Leighton and T. Shamoon, 
+“Secure spread spectrum watermarking for images, audio 
+and video,” Proceedings International Conference on Image 
+Processing, vol. 3, pp. 243 -246, 1996. 
+[9] J.F. Tilki and A.A. Beex, “Encoding U hidden auxiliary 
+channel onto a digital audio signal using psychoacoustic 
+masking,” 1997. 
+[lo] J. Lacy, S.R Quackenbush, A.R. Reibman, D. Shur, 
+and J.H. Snyder, “On combining watermarking with 
+perceptual coding,” Proceedings IEEE lntemational 
+Conference on Acoustics, Speech and Signal Processing, 
+vol. 6, pp. 3725-3728, 1998. 
+[ll] E. Zwicker and H. Fastl, Psychoacoustics, Spriger- 
+Verlag, Berlin, 1990. 
+[12] L.A. Jeffiess, “Masking,” in J.V. Tobias (Ed.) 
+Foundations of Modern Auditory meory, Academic Press, 
+New York, 1970. 
+[ 131 D. O’Shaughnessy, Speech Communication, Addison- 
+Wesley, Reading, Mass, 1987. 
+[14] M.R. Schroeder, B.S. Atal and J.L. Hill, “Optimizing 
+digital speech coders by exploiting masking properties of 
+the human ear,” Journal of the Acoustical. Society oJ: 
+America, 66(6), pp. 1647-1652, Dec. 1979. 
+[15] B.C.J. Moore, An Introduction to the Psychology of 
+Hearing, Academic Press, London, 1989. 
+[16] M.A. Krasneer, “The critical band coder - Digital 
+encoding of speech signals based on the perceptual 
+requirements of the auditory system,” Proceedings IEEE 
+International Conference on Acoustics, Speech and Signal 
+Processing, pp. 327-331, 1980. 
+[17] D. Pan, “A tutorial on MPEG/Audio compression,” 
+IEEE Multimedia, pp. 60-74, 1995. 
+[18] P. Noll, “MFEG digital audio coding,’’ IEEE Signal 
+Processing Magazine, pp. 59-81, Sep. 1997. 
+[19] F.A.P. Petitcolas, 
+lit@ ://www. cl. cam. ac .uk/-fapp2/sotware/mpeg/ 
+[20] T. Painter and A. Spanias, “Perceptual coding of digital 
+audio,” Proceedings IEEE, vol. 88, No. 4, pp. 45 1-5 13, Apr. 
+2000. 
+[21] L. Thorpe and W. Yang, “Performance of current 
+perceptual objective speech quality measures,” Proceedings 
+IEEE Workshop on Speech Coding, pp. 144-146,1999. 
+[22] K. Gopalan, T.R. Anderson and E.J. Cupples, “A 
+comparison of speaker identification results using features 
+based on cepstrum and Fourier-Bessel expansion,’’ IEEE 
+Transactions on. Speech and Audio Proceedings., vol. 7,  pp. 
+289-294, 1999. 
+K. ‘Gopal’ Gopalan (Senior Member, 
+IEEE) received the B.E. degree in 
+Electrical Engineering f iom P.S. G. 
+College of Technology (University of 
+Madras), Coimbatore, India, in 1971, 
+the MTech. degree in Electrical 
+Engineering from the Indian Institute of 
+Technology, Kanpur (IITK), India, in 
+1974, and the Ph.D. degree in 
+Engineering @om the University of 
+Akron, Akron, OH, in 1983. From 1974 to 1979 he was 
+employed at IITK Jirst as Instrumentation Engineer and 
+later as Research Engineer. While pursuing graduate 
+studies at the University of Akron, he held the positions of 
+Teaching Assistant, Research Assistant and Instructor. 
+From 1983 to 198.5, he was Assistant Professor of Electrical 
+Engineering at Lafayette College, Easton, PA. Since 1985, 
+he has been with the Department of Engineering at Purdue 
+University Calumet, Hammond, IN currently holding the 
+position of Professor of Electrical Engineering. From 1987 
+6-2719 
+to 1995 he conducted research in the areas of signal and 
+image processing for nondestructive evaluation of advanced 
+materials at Argonne National Laboratory, Argonne, IL, 
+Jirst as a summer faculty research participant and later as a 
+consultant. In addition, he has been a summer faculty 
+research associate at Wright-Patterson Air Force Base, OH 
+(1993), and Rome Laboratory (1996, 1998 and 2000), and 
+worked in the areas of speaker identijkation, analysis of 
+speech under stress, and data embedding in audio signals. 
+Dr. Gopalan is the author of the textbook, Introduction to 
+Digital Microelectronic Circuits (Chicago: IrwinlMcGraw- 
+Hill, 1996). 
+Daniel S. Benincasa (Member, IEEE) 
+received the B.S. and MS. degree in 
+Electrical Engineering fiom Clarkson 
+University, Potsdam, NY in 1985 and 
+1987 respectively and the Ph.D. 
+degree in Electrical Engineering from 
+Rensselaer Polytechnic Institute, Troy, 
+NY in 1998. From 1986 to 1987 he 
+was employed as a member of the 
+technical staff at Bell Communications 
+Research. From I987 to present he has .been employed as a 
+Research Engineer at the Air Force Research Laboratory, 
+Rome Research Site, Rome, NY. His current areas of 
+interest include co-channel interference reduction, digital 
+audio watermarking, speech recognition, language 
+translation, and speech quality measures. 
+Stanley J.  Wenndt received his B.S. 
+degree with Distinction in Electrical 
+Engineering from Iowa State 
+University in 1987. He received his 
+MS, and Ph.D. from Colorado State 
+University in 1991 and 1997 
+respectively. His graduate research 
+focused on speaker identification 
+research in regar& to new models and 
+new features to aid in robust 
+algorithms. During this time, he was selected for the Palace 
+Knight program with the US. Air Force. Palace Knight is a 
+highly selective training and development program for 
+civilian scientists and engineers. He is currently employed 
+with the Air Force Research Laboratory where his interests 
+are in speaker identification, confidence scores, open-set 
+modeling, dialect identifwation, speaker count, channel 
+normalization, and noise removal. 
+6-2720 

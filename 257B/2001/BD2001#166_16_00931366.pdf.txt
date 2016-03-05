@@ -1,0 +1,399 @@
+Air Traffic Control Improvement 
+Using Prioritized CSMAl 
+Daryl C. Robinson 
+National Aeronautics and Space Administration 
+Glenn Research Center 
+2 1000 Brookpark Road 
+Cleveland, OH 44135 ’ 
+216-433-3553 
+dcrobinson@grc.nasa.gov 
+Abstract-Version 7 simulations of the industry-standard 
+network simulation software ‘‘OPNET’; are presented of two 
+applications of the Aeronautical Telecommunications 
+Network (ATN), Controller Pilot Data Link Communications 
+(CPDLC) and Automatic Dependent Surveillance-Broadcast 
+mode (ADS-B), over VHF Data Link mode 2 (VDL-2). 
+Communication is modeled for air traffic between just three 
+cities. All aircraft are assumed to have the same equipage. 
+The simulation involves Air Traffic Control (ATC) ground 
+stations and 105 aircraft taking off, flying realistic free-flight 
+trajectories, and landing in a 24-hr period. All communi- 
+cation is modeled as unreliable. Collision-less, prioritized 
+carrier sense multiple access (CSMA) is successfully tested. 
+The statistics presented include latency, queue length, and 
+packet loss. This research may show that a communications 
+system simpler than the currently accepted standard envi- 
+sioned may not only suffice, but also surpass performance of 
+the standard at a lower cost of deployment. 
+TABLE OF CONTENTS 
+1. INTRODUCTION 
+2. SIMULATION Focus 
+3. SIMULATION VERVIEW 
+4. CSMA DISCUSSION 
+5. PRIORITIZED CSMA 
+6. SIMULATION RESULTS AND ANALYSIS 
+7. CONCLUSIONS 
+1. INTRODUCTION 
+Due to a lack of surveillance and communications coverage, 
+in many parts of the world, aircraft are forced to fly routes and 
+maintain separations that are inefficient from both a fuel and 
+scheduling perspective. The total loss to airlines due to these 
+inefficiencies is measured in billions of dollars [l]. 
+The problem is expected to rapidly mushroom given the 
+expected user demand for scheduled air service. The 
+Advanced Air Traffic Technologies (AATT) Program has 
+been instituted to develop new technologies that enable free- 
+flight, an operating system in which pilots have the freedom 
+to select their path and speed in real-time [2]. 
+To implement free-flight, two applications are viewed as very 
+important for the new aeronautical communications infra- 
+structure: ADS-B will provide future surveillance capability, 
+and Controller Pilot Data Link Communications (CPDLC) 
+will eliminate voice-only communications. 
+The Intemet has been very successful in terms of providing 
+self-healing global connectivity for heterogeneous communi- 
+cations nodes. Engineers look favorably upon successfully 
+working systems that have stood the test of time as founda- 
+tions upon which to build new systems, which will hopefully 
+enjoy equal success. Now we seek to have the convenience 
+and connectivity ofthe Intemet in the aerospace environment. 
+The idea is prevalent that with some minor modifications, we 
+will have the Internet in the sky as well. However, currently 
+engineers are very good at building terrestrial networks. The 
+cost and complexity involved in implementing the aeronau- 
+tical Intemet is staggering, and would slow its deployment. 
+This paper pursues the idea of implementing that convenience 
+and connectivity without the cost or complexity of extending 
+the Intemet in an aerospace environment. In the simulations 
+of this paper, realistic air-to-air, ground-to-air, and air-to- 
+ground communications are achieved by assuming an effective, 
+intact terrestrial network and by treating planes as traffic 
+generators and sinks, in a manner analogous to the transparent 
+usage of a traffic injector or “sniffer” in a network. Further, 
+the idea of prioritized CSMA is introduced and successfully 
+tested through simulation. Prioritized CSMA trades off the 
+use of an additional radio frequency in order to implement 
+efficient CSMA without collisions. The benefit gained of 
+efficient, collision-less CSMA is that the inefficiencies intro- 
+duced by wasted time division multiple access (TDMA) time 
+slots may be avoided. 
+‘U.S. Government work not protected by U.S. copyright. 
+, 
+3-1359 
+2. SIMULATION Focus 
+The primary focus of the simulations is to examine the 
+behavior of air traffic control (ATC) communications and 
+surveillance over VDL-2 in a realistic aviation scenario. Both 
+weather and terrain were ignored, and the simulation assumes 
+a perfectly spherical earth. Multipath communication is not 
+implemented in this OPNET simulation so two nodes may 
+communicate only when they are in line-of-sight. So extend- 
+ing the range of ground stations by bouncing signals off of the 
+ionosphere is not permitted here. The air traffic between only 
+three cities was simulated to bound the scope ofthis six-month 
+research project. As an excellent starting point for predicting 
+gravitational effects, physicists model the earth as a point 
+mass. An analogous approach is taken here. Since thie media 
+access layer (MAC) layer is especially important in LANs, 
+largely determining the limit of performance, heavy emphasis 
+was placed upon the data link layer, VDL-2. Likewise, 
+these simulations do not model the presentation, session, 
+transport, or network layers, nor do they need to. Perhaps the 
+most important use of these simulations is to test prioritized 
+CSMA. 'The use of the simulations to test this new idea also 
+enables us to study the upper bound for the performance of 
+VDL-2 with the same given traffic. 
+3. SIMULATION OVERVIEW 
+As previously stated, the simulation involves 105 flights, 
+35 ATC transceivers or ground stations, and 3 airports. The 
+take off, arrival, and flight times for one day were €lased on 
+real flight plans obtained from the airports. Instead ofactually 
+modeling the fact that one plane may make several flights, a 
+separate OPNET mobile airplane node is used for each flight. 
+For reasons discussed later, CPDLC and ADS-B messages in 
+these simulations have a 5,000 bit mean file size. CPDLC 
+file sizes are chosen according to the normal distribution. 
+CPDLC messages have a mean inter-arrival time of 6 min, 
+according to the Poisson distribution. ADS-B messa,ges have 
+a constant inter-arrival time of 1 sec. All CPDLC trans- 
+ceivers operate at 136 MHz with a 10 KHz bandwidth. All 
+ADS-B transceivers operate at 137 MHz with a 10 KHz 
+bandwidth. 
+Message Length 
+Although 5,000 bit message lengths are somewhat excessive 
+for CPDLC messages, they were chosen so that the effects of 
+message collisions could be better studied given the unusually 
+low amount of aeronautical communications traffic present in 
+these necessarily bounded simulations. Given that ADS-B 
+messages are meant to convey a coordinate triple of high 
+precision numbers as a position and possibly up to 9 other 
+coordinate triples for intent data, 5,000 bits may not be 
+unrealistic for ADS-B message length. 
+Ground Stations 
+An interview with the FAA indicated that the maximum range 
+of the Cleveland Hopkins air trafl'ic control tower is 
+-20 miles. The ATC tower at Hopkinr; is -100 m in height. 
+It is assumed for the simulation that typical VDL ground 
+stations are no taller than 100 m. For a tower 100 m in height, 
+the horizon is -22 miles away. Since they cannot be expected 
+to see beyond the horizon, a spacing of 20 miles between 
+ground stations is used in the simulation. 
+Let d(X,Y) be the distance between X and Y. Then 
+d(Detroit, Cincinnati) =256 miles, cl(Detroit, Cleveland) 
+=168 miles, d(Cincinnati, Cleveland) =243 miles. In the 
+simulation there are 13 (=256/20 mile) ground stations 
+between Detroit and Cincinnati, and also between Cincinnati 
+and Cleveland. There are 9 ground stations between Detroit 
+and Cleveland. The presence of an additional ground station 
+or air traffic control tower at each airport gives a total of 
+38 ground stations. The ground stations are approximately 
+equally spaced on the straight line joining each city. 
+The ground stations are capable of detecting the presence of 
+a plane iind only send CPDLC messages if there is a plane in 
+range tal receive them. The ground stations are coordinated 
+and produce no uplink interference. 
+Details 
+The Cleveland airport is initially stocked with 34 planes, 
+which will take off for either Cincinnati or Detroit during the 
+course alf the 24 hr simulation. Each ground station, including 
+air traffic control towers, consists of a CPDLC transmission 
+node, a receiver node and a later to be discussed connection 
+transmitter (cnctrans) used to implement prioritized CSh4A. 
+Each airplane has identical communications architecture 
+except for the addition of an ADS-B receiver and transmitter. 
+So ADS-B surveillance is simulatedl only for aircraft to 
+aircraft. Likewise, CPDLC exists only between aircraft and 
+ground stations. The ADS-B transmission node architecture 
+is shown in Fig. 1. The CPDLC node architecture is not 
+shown, lbut is identical except that no count processor module 
+is preseint in it. 
+gen Count 4-1 P-0 PLO 
+Figure 1 .-ADS-B node architecture. 
+3-1360 
+In Fig. 1, “gen” is a clocked generator of packets. “Count” 
+counts the total number of ADS-B packets generated in a 
+short period. “ c l ”  is a queue to buffer the packets. “p-0” is 
+a processor module which decides whether to leave the 
+packets in the queue or to forward them on to the radio 
+transmitter through pt-0. “IT-1” is a receiver of cnctrans 
+packets, information from which p-0 uses for its decisions. 
+Based on research, trapezoidal flight trajectories were used. 
+A cruise altitude of 25,500 ft was used with an ascent rate of 
+6.49 m/s. 
+The histogram, in Fig. 2, of the number of planes in flight, as 
+a fimction of simulation time is based on the actual data from 
+the airports and is not an output of simulation. Simulation 
+results will be compared with this histogram. 
+t 
+10 ! 
+8 .  
+61 
+4 :  
+n 
+- 
+200 400 600 800 1000 1200 1400 
+Figure 2.-Planes-in-flight histogram. 
+From the airport data, the average number of planes flying 
+is 4.66806. So the expected number of CPDLC messages is 
+4.66806 (1440/6) ~ 1 , 1 2 0 ,  where 1440 is the number of 
+minutes in a day. The peak traffic is at (60 s/min) 
+(1200 min) = 72,000 s or 20:OO (8 p.m.). 
+4. CSMA DISCUSSION 
+A single communications frequency is used for radio 
+frequency conservation. Just as in CB radio, one party com- 
+municates at a time. But as east coast truckers may talk to their 
+east coast neighbors while west coast truckers may simulta- 
+neously talk to their west coast neighbors-on the same 
+frequency as their east coast counterparts-without 
+interference, so in the simulations here, different line-of- 
+sight groups can communicate on the same frequencies 
+simultaneously without interference. 
+CSMA is contention-based. All parties listen to the channel. 
+When the channel is free, many parties contend for it until 
+after a random back-off time. Eventually, one party gains 
+control of the channel for uninterrupted usage. Because of 
+the contention process, collisions can be inefficient. 
+5. PRIORITIZED CSMA 
+In prioritized CSMA, each communications party is assigned 
+a priority for transmission, based on its need to transmit. 
+In these simulations, the need to transmit is effectively 
+measured by the length of a party’s or node’s transmitter 
+queue, which is broadcast on a separate frequency to all 
+neighboring nodes. In the event of a tie in transmitter queue 
+lengths, the simulation kernel will arbitrarily choose one 
+node to transmit; this occurrence is infrequent. When the 
+channel is free, instead of a random back-off time elapsing 
+before one node gains usage of the channel, in prioritized 
+CSMA, the node with the next higher priority begins uninter- 
+ruptedtransmission immediately in an orderly fashion, without 
+contention. By choosing to study prioritized CSMA, we 
+simultaneously accomplish two purposes. We can test this 
+new idea and also obtain the upper bound for performance 
+of VDL-2 with the given traffic of the simulation. 
+Because of its random back-off time, VDL-2 should not 
+perform as well as prioritized CSMA. 
+Details 
+As previously mentioned, both planes and ground stations 
+include a cnctrans transmitter. This transmitter broadcasts 
+cnctrans packets at regular intervals. In the simulations, the 
+packets are of length zero and contain the unique source 
+identification code (srcid) of the transmitting node. They also 
+contain a time stamp and the queue length of that node. When 
+a node receives a cnctrans packet, it updates an array of 
+queue lengths from its neighbors. If a cnctrans packet has not 
+been received from a node in At, it is assumed unreachable. 
+When a node seizes the channel, all nodes wait until it is 
+finished. Each node waits until the farthest neighbor ofthe last 
+transmitting node has received the transmission. When the 
+transmission is finished, the next node begins orderly trans- 
+mission. The cnctrans packets do not collide since they are 
+small and each node is assigned aunique phase lag with which 
+to broadcast them. 
+6. SIMULATION RESULTS AND ANALYSIS 
+Results 
+There were four simulation runs, which either used or did 
+not use prioritized CSMA, and which either used transceivers 
+and queues with data rates and service rates of 31.5 Kps 
+or 1.544 Mbps: 
+I: no CSMA, 31.5 Kbps, [3] 
+11: no CSMA, 1.544 Mbps 
+111: prioritized CSMA, 1.544 Mbps 
+IV: prioritized CSMA, 3 1.5 Kbps. 
+3-1361 
+250 CPDLC transmitted packets 
+1000 /- I 
+1.75 - 
+1.50 - 
+1.25 - 
+750 
+500 
+250 
+0 
+CPDLC received Dackets I 1250 
+Figure 3 .4PDLC transmitted and received packets. 
+CPDLC total queue lengt I 2.0 
+1.7 
+1.5 
+1.2 
+Figure 4.-Total queue length, Run U. 
+The number of CPDLC messages received per transmitted 
+for each of the Runs I to IV is respectively (1,067/1,077), 
+(1,048/1,066), (1 059,1060), and (744,744). Plots of CPDLC 
+transmitted and received packets for Run I are shown in 
+Fig. 3. The other three plots are similar and have been 
+suppressed since they convey no additional information. It 
+seems impossible to determine the final number of packets 
+transmitted and received from the plots. Therefore, the 
+spreadsheet of their values was used to determine those final 
+numbers. 
+Only the runs using prioritized CSMA successfully transmit- 
+ted all CPDLC packets without collisions. These results show 
+that this implementation of the idea of prioritized, collision- 
+less CSMA works. 
+Figure 4 shows that an OPNET plot of ADS-B packets 
+generated per time unit versus time is virtually identical in 
+shape to Fig. 2. Since, in the simulations, a plane 'does not 
+CPDLC total queuellength 
+1.25. 
+15.0 S-B total queue length 
+12.5- 
+Figure 5.-Total queue length, Run 11. 
+CPDLC total queue length 
+ADS-B total queue 15.0 
+12.5 
+0 4 8 12 16 20 24h 
+Figure 6.Tota1 queue length, Run 111. 
+Figure 7.-Total queue length, Run IV. 
+3-1362 
+Traffic sink 1. CPDLC end-to-end delay (sec) I 
+8 
+Traffic sink 1. CPDLC end-to-end.delay (sec) 
+8 
+Figure 8 .4PDLC and ADS-B ETE delay versus time for Runs I-IV. 
+generate ADS-B packets until it takes off, the conformity of 
+these plots shows that the ADS-B packet generators are 
+fimctioning correctly and suggest that the copious take off 
+and landing times were correctly input into the OPNET 
+mobile nodes. In Figs. 4 to 7, plots of ADS-B queue lengths 
+also exhibit this same conformity. The total queue length is 
+the sum of the lengths of all CPDLC or ADS-B queues. 
+Figure 8 shows plots of CPDLC and ADS-B end-to-end delay 
+versus simulation time for Runs I to IV. Figure 9 shows plots 
+of the time average of CPDLC and ADS-B end-to-end delay 
+versus simulation time for Runs I to IV. 
+3-1363 
+Time average of traftic sink 1. Time average of traffic sink 1. 
+5 CPDLC end-to-end delay (sec) 5 CPDLC end-to-end delay (sec) ' 
+4 4- 
+3 3- 
+2 2- 
+1 1- 
+I 
+Figure 9.-Time average of CPDLC and ADS-B ETE delay versus time for Runs I-IV. 
+3-1364 
+Analysis 
+The excessive startup delays are accounted for by a transient 
+glitch in the simulation. Runs 111 and IV show that as the data 
+rate ofthe transceivers and service rate of the queues increase, 
+prioritized CSMA works better. Also, the large spikes to- 
+wards the end of the CPDLC plots-for all runs-suggest 
+a problem with using the normal distribution with a small 
+mean packet size. In that case, the distribution would be very 
+skewed above the mean, resulting in a large number of 
+packets of greater sizes towards the end of the simulations. 
+7. CONCLUSIONS 
+One thing is obvious from a comparison of Runs I and TI 
+with I11 and IV: prioritized CSMA works. Prioritized 
+CSMA would serve the same purpose for aeronautical com- 
+munications traffic as the traffic light would for automobile 
+traffic-to prevent collisions. 
+Although there was no bearing on this simulation, it appears 
+as though the cnctrans packets may not contain enough 
+information to determine priority. They should include a 
+wait time so that a node is conferred a higher priority as 
+it is delayed in transmission. 
+In the event that it is critical to receivemessages without many 
+retransmissions, prioritized CSMA may be very useful. 
+Acknowledgements and retransmissions increase the 
+amount of traffic, increasing the number of collisions and 
+worsening communications throughput. 
+It appears as though this method could be used to obtain an 
+upper limit for the performance of CSMA or as justification 
+for further research into the use of prioritized CSMA. Plans 
+are underway to improve this simulation and to use it as the 
+basis for future research. 
+The simulation of communication was effected without the 
+complexity involved in the aeronautical telecommunications 
+network. Since planes merely need to access or “sniff’ data 
+on the ATN, and also to inject data onto the ATN, the author 
+believe that a custom solution for aeronautical communi- 
+cations is more appropriate and effective than attempting to 
+force the functionality of the Internet in an aviation 
+scenario-potentially involving satellite communications 
+with the concomitant delays involved. The problems 
+involved with having mobile routing with periodic signaling 
+or “hello” packets seem more difficult than to simply design 
+ground stations of sufficient functionality and distribution. 
+REFERENCES 
+[l]  Final Report of RTCA Task Force 3 on Free Flight 
+Implementation, October 26, 1995. 
+[2] Tekla S. Perry, “In Search of the Future of Air Traffic 
+Control,” IEEE Spectrum, August 1997. 
+[3] Tekla S .  Perry, “Tracking Weather’s Flight Path,” IEEE 
+Spectrum, September, 2000. 
+’ 
+ACKNOWLEDGEMENTS 
+I acknowledge Mr. Robert Kerczewski, Mr. Steven Mainger, 
+Mr. Calvin Ramos, and other members of the Satellite 
+Networks and Architectures Branch of the NASA Glenn 
+Research Center for their technical assistance and help in 
+providing the resources for this research. 
+BIOGRAPHY 
+Daryl C. Robinson received his BS in Mathematics from 
+Case Western Reserve University (CWRU), MSEE from 
+Cleveland State University, and is pursuing his Ph.D. in 
+Computer Engineering from CWRU. Currently he is 
+performing research for the AATT program. He has 
+expertise in mathematical modeling and simulation and in his 
+spare time enjoys reading and writing thoughtful literature. 
+3-1365 

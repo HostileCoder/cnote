@@ -1,0 +1,525 @@
+ON THE CONSTRUCTION OF REDUCED DOUBLE ARRAY STRUCTURES 
+BY DIVIDING TRIES 
+MASAO FUKETA MASAKI OONO, KAZUHIRO MORITA and JUN-ICHI AOE 
+Dept. of Information Science and Intellignet Systems, University of Tokushima, 
+2-1 Minami-Josanjima-Cho, Tokushima-Shi, 770-8506, Japan 
+Abstract 
+Speed and storage capacity are big issues in 
+information retrieval system. For natural language 
+analysis, a double array is one of a data structure of 
+Trie, which is widely well-known approach to 
+retrieve strings in a dictionary, and helps very fast 
+access in a matrix table with compactness of a list 
+form. In order to realize quite compact structure, this 
+paper presents a compression method by dividing the 
+trie constructed into several pieces(b1ocks). It enables 
+us to reduce the number of bits representing entries of 
+the double arrays. The trie obtained must trace to the 
+blocks and this causes that retrieval time might be 
+slow because of a state connection. To solve this 
+problem, we propose a new trie construction method 
+to compress and minimize the number of state 
+connections. After applying to a large set of keys, 
+experimental result shows that the storage capacity 
+has been reduced to  50% even though the approach 
+we present has the same retrieval speed. 
+Keywords 
+Natural Language Analysis, Information Retrieval, 
+Trie, Double Array, Compression 
+1 Introduction 
+With recent improvement of hardware including 
+computers and development of the network 
+represented by the Internet, the necessity of 
+processing a lot of data is increasing quickly. For text 
+searching, a retrieval method with fast and low work 
+area is requested. Therefore, there are various 
+retrieval methods[ 11. 
+For natural language analysis, a trie method is 
+widely well-known approach to retrieve key strings 
+in a dictionary. When the key set is a large, the 
+number of states in the trie are increased. As 
+approaches decreasing the number of states, 
+MP(Minimal Prefix) trie[2], DAWG ( Directed 
+Acyclic Word-Graph )[3,4] and a double trie were 
+proposed. As schemes implementing efficient data 
+structures, the double array presented by Aoe[5] 
+helps very fast access in a matrix table with 
+compactness of a list form. With growing the number 
+of states for a large key set, the number of bits 
+representing entries of the double arrays is also 
+increased. Therefore it takes a large spaces. 
+This paper proposes the compression method of 
+the double array. by dividing the trie constructed into 
+several pieces(b1ocks). It enables us to reduce the 
+number of bits representing entries of the double 
+arrays. The trie obtained must trace to the blocks and 
+this causes that retrieval time might be slow because 
+of a state connection. To solve this problem, we 
+propose a new trie construction method to reduce the 
+number of state connections and to keep the high 
+speed of the double array. 
+Section 2 describes the trie and the double array. 
+The data structures of the divided double array is 
+defined in Section 3 and Section 4 describes retrieval 
+and constructing algorithms using those data 
+structures. Theoretical and experimental evaluations 
+is given in Section 5. Finally, Section 6 concludes the 
+presented algorithm and describes further studies. 
+2 Double Array 
+2.1 Triernethod 
+A trie method is one of the key retrieval method. 
+The data structure is a tree structure merged the 
+prefixes of keys. A node number of the tree 
+corresponds to a state number, and the arcs are 
+labeled by a character in key. To avoid confusion 
+between words like THE and THEN, let us add a 
+special end marker #, to the ends of all keys, so no 
+prefix of a key can be a key itself. Fig.1 shows the 
+trie of a key set K1 = ( bad#, badge#, dace#, deed#, 
+deice# ). 
+b a d g e #  " 
+I 
+Fig.1 A Trie for K1 
+500 
+A retrieval of trie starts from state number 1 
+(called root node) and traces each character of key 
+step by step. Therefore the retrieval speed depends on 
+the length of key, it is possible to retrieve keys very 
+fast. Because prefixes of keys can be retrieved by 
+using the trie, the trie is widely used in natural 
+language dictionaries. 
+BASE 
+2.2 A double array representation of a trie 
+The trie is generally represented by an array and 
+list forms. The array structure can retrieve fast, but 
+storage is huge. The list form is more compact than 
+the array structure, but access speed is slow in the 
+case of key sets. A double array proposed by Aoe is 
+one of data structures of the trie and combines the 
+fast access of an array with the compactness of a list 
+form. 
+In the double array, numerical codes are 
+determined for each character of keys. A function 
+CODE(c) returns a numerical code of character c. 
+The character c can trace from state s to state t, 
+indicates g(s,c) = t. When g(s,c) is t, it is satisfied as 
+follow: 
+1 -1 2 1 -1 8 1 4 2 7 6 12 -1 9 11 16 -1 14 14 20 -1 
+t=BASE[s]+CODE(c) (1) 
+CHECK[t]=s (2) 
+The equation 1 represents that state s trace to 
+state t. The equation 2 checks that state t connects 
+state s. 
+(a) Double Array 
+b a d g e #  
+(b) Trie For Double Array 
+Fig. 2 A Double Array for K1 
+The numerical codes of characters #, a, b, ... , i 
+are defined as 1, 2, 3, ... , 10, respectively. Fig.2 
+shows a double array and a trie of key set K1. Here, 
+the states traced by using end marker # have no next 
+state, so BASE values of these states are set to -1. 
+The state numbers of the double array are 
+corresponded to the indexes of BASE and CHECK, 
+the state number are defined during registering keys. 
+When a key (length is k) is retrieved, equations 
+(1) and (2) are calculated only k times. Therefore the 
+double array computes an arc in O(k) time. 
+2.3 Problems of the double array 
+For a large number of keys, state numbers in the 
+trie are increased, so the number of bits representing 
+entries of the double arrays is also increased. If the 
+state numbers are represented by 4 bytes, the 
+maximum state number becomes about 2 billions. 
+Therefore it takes a large spaces. To solve this 
+problem, we proposes a data structure that can 
+decreased the number of bits representing entries. 
+3 The Divided Double Array 
+3.1 Data Structure 
+As we have previously described, if a large 
+number of keys are registered in the trie, and the 
+number of bits representing entries of the double 
+arrays are increased. We propose a method of 
+dividing the trie constructed into pieces(blocks), and 
+those blocks can be represented by the double array 
+without growing the number of bits. 
+This data Structure will be explained by dividing 
+the trie at state number 14 of Fig.2. At first, the trie is 
+divided blocks 1 and 2. Fig.3(a) shows two blocks 
+with renumbered state numbers. In Fig.S(a), state 
+number 14 of block 0 and state number 1 of block 1 
+are the same state. For connecting the divided states, 
+a connection table CT is introduced. CT[b] represents 
+the table CT of block b, and CT[b][i] represents the i- 
+th element of CT[b]. 
+The table CT has a BLOCK indicating the next 
+block and a STATE indicating the next state number 
+in the next block. In Fig.3(a), CT[O][ l].BLOCK=l 
+and CT[O][l].STATEkl means that the state number 
+14 of block 0 is connected to state number 1 of block 
+1 trace for CT[O][l].BLOCK=l and 
+CT[ 01 [ 11 .STATE= 1. 
+By dividing the blocks, the maximum state 
+number of each block decreases. But, for the key 
+registered in some blocks, the retrieval speed 
+becomes slow because of using the table CT. To keep 
+low frequency using the table CT, the keys must be 
+registered in one block as much as possible. If the 
+state numbers are represented as 2 bytes values, the 
+maximum of the state number becomes 32767(=215- 
+501 
+1). For the data structure, all keys start to be 
+registered from state number 1 of block 0, there are 
+many keys that use the table CT. Then, the start block 
+is determined for each initial character of the keys. 
+Suppose that block b and state number s are 
+determined for initial character c, a record FIRST is 
+defined as follows; 
+FIRST[c].BLOCK = b 
+FIRST[c].STATE = s 
+block 0 
+b a d g e #  
+d a c e #  p+@@+@ I 
+I I I 
+block 1 
+block 0 
+BLOCK STATE 
+time. Accordingly, the retrieval speed do not down 
+even if the FIRST is used. 
+Finally, all divided tries are represented by the 
+double array. When some tries are represented by the 
+double array, some BASE and CHECK are required. 
+Therefore, BASE and CHECK of the divided double 
+array are called SBASE and SCHECK, 
+respectively. AND SBASE is represented by 
+S-BASE[b][s] for block b and states s, 
+SCHECK[b] [SI is the same representation. 
+When state s of block b traces to sate s' of block 
+b', the following expressions are satisfied. 
+i=S-CHECK} [bl [ s]cO (3) 
+CT[b][-&BLOCK = b 
+CT[b][-i].STATE = s' 
+where the index of the table CT is stored to the 
+S-BASE[b][s]. Fig.4 shows SBASE and SCHECK 
+for Fig.3(b). Here, because state 7 of block 1 is 
+connected to state 1 of block 2, S_CHECK[1][7] is 
+set to -1 (= 1 x (-1)). Then, S_BASE[1][7] is set to 1 
+as the index of the table CT. 
+1 2 3 4 5 6 7 8 9  
+1 -1 1 -1 0 1 3 0 1 
+0 6  S-CHECK l 9  
+1 2 3 4 5 6 7 8  
+7 1 0  3 0 - 1  5 
+block1 EzzK -1 
+1 2  3 4 5 6 7 8 9 1 0 1 1  
+block2 1 -1 -1 0 2 1 1 2 0 0 1 
+S-CHECK 11 6 8 0 11 7 1 5 0 0 1 
+Fig.4 Divided Double Arrays 
+Fig.3 Divded Tries 
+Fig3(b) shows the tries used the record FIRST 
+for Fig3(a). The key "bad#' with the initial character 
+'b' is registered in block 0, and the key "dace# with 
+the initial character 'd' is registered in block 1. 
+Because the first state whose initial character is 'b' is 
+state number 1 of block 0, FIRST['b'].BLOCK and 
+FIRST['b'].STATE are set to 0 and 1 respectively. If 
+a initial character is not included in the key set, the 
+BLOCK and the STATE of the character is set to -1. 
+In Fig.3(b), the keys whose initial character is 'a' is 
+not included in the key set K1, so FIRST['a'] .BLOCK 
+and FIRST['a'].STATE are set to -1. The record 
+FIRST is determined the start state from the initial 
+character, the character can be traced at the same 
+3.2 The Retrieval Algorithm 
+parameters and functions are defined: 
+For a retrieval algorithm, the following 
+s : the current state number 
+t : the next state number 
+t-index : the index of table CT 
+b : the current block number 
+k : the position of a retrieval key 
+CODE(c) : the function returns a numerical code 
+of character c. 
+[Retrieval Algorithm] 
+Input:KEY =al,a2,-,an,an+l='# (length = n) 
+0utput:when KEY is found, then the output is TRUE, 
+otherwise FALSE. 
+502 
+(R-l)(Trace of initial character} 
+If HRST[al].BLOCK is -1, FALSE is returned and 
+the algorithm is finished. Otherwise, b, s and k are set 
+to FIRST[al].BLOCK, HRST[al].STATE and 2, 
+respectively. 
+(R-2){ Check of retrieval success] 
+If SBASE[b][s]<O is satisfied, then TRUE is 
+returned and the algorithm is finished. 
+(R-3) (Reach to table CT] 
+If S-CHECK[b][s]<O is satisfied, then t-index, s and 
+b are set to SBASE[b][s], CT[b][t-index].STATE 
+and CT[b] [t-index] .BLOCK, respectively. 
+(R4)IDecision of next state] 
+The next state t is set to SBASE[b][s]+CODE(ak). 
+(R-5)( Check of next state] 
+If the state s is equal to I SCHECK[b][t] I ( I I 
+represents the absolute value), then s is set to t. 
+Otherwise, FALSE is returned and the algorithm is 
+finished. 
+(Rd)(Loop control] 
+Increment k, and go to step(R-2). 
+(End of algorithm) 
+The above algorithm will be explained by 
+retrieving key 'deed# from the divided double array 
+shown in Fig.4. 
+First of all, in step(R-l), b and s are set to 
+FIRST['d'] .BLOCK(= 1) and FIRST['d] .STATE(= l), 
+respectively. SBASE[b][s] >O for step(R-2) and 
+S-CHECK[ 1][ 1]>0 for step(R-3) are satisfied. In 
+step(R-4) and step(RJ), t is set to SBASE[b][s] + 
+CODE('e')=7, it is checked that t is equal to I 
+SCHECK[b][s] 1 . Therefore, next state s is set to 
+t(=7). Until here, the second character of 'deed# can 
+be traced. For trace of the third character, k is set to 3 
+and go to step(R-2). In step(R-3), because 
+S_CHECK[1][7] is smaller than 0, this state reaches 
+to table CT. The index t-index, s and t are set to 
+SBASE[1][7](=1), CT[l][l].STATE(=l) and 
+CT[ 1][ 1].BLOCK(=2), respectively. So, the current 
+state becomes state 1 of block 2. 
+Repeat step (R-2)-(R-6) as follows: 
+t=SBASE[2][ l]+CODE('e')=7, s=7, k=4 
+t=SBASE[2][7]+CODE('d)=6, s=6, k=5 
+t=S_BASE[2] [6]+CODE('#)=2, s=2, k=6 
+Finally, in step(R-2), because SBASE[2][2]<0 
+is satisfied, TRUE is returned and this algorithm is 
+finished. 
+4 The Construction Algorithm 
+The retrieval speed of the divided double array is 
+slower than that of the original double array, because 
+the presented structure uses the table CT. 
+The problem can be solved by reducing the size 
+of the table CT. To do this, a construction algorithm 
+of the divided double array is presented in this 
+section. In this algorithm, all keys are registered to 
+the original double array(BASE,CHECK) first, and 
+then the keys in the double array are distributed to the 
+divided double array(S-B ASE,SCHECK). 
+To explain this construction algorithm, at first, 
+the function NEXT-BLOCK(s) is defined. This 
+function finds all states accessible from state s for the 
+original double array, and returns the block number 
+of the divided double array storing those states. The 
+block number is retrieved by the following order: 
+i) the block number of the divided double array 
+storing state s 
+ii) ascending order of free space of blocks 
+iii) block created newly 
+If the states are not registered to the existed 
+block, a new block is created and the block number is 
+returned in iii). When states are not registered to a 
+new block, the function returns -1. 
+The following parameters are introduced. 
+s,t : the state numbers of the original double 
+C-SET : a set of the characters 
+c : the current character 
+c-block : the block number of the divided double 
+n-block : the next block number 
+array 
+array 
+In this algorithm, steps C-142-3 constructs the 
+array FIRST, and steps C-4-C-7 does the tables CT. 
+[Construction Algorithm] 
+(C-I)( processing of the first character] 
+All characters C-SET to be traced from the root state 
+number 1 for the original double array are found, 
+n-block is set to NEXTBLOCK(s) for s such that 
+g(l,c)=s ( cECSET). If n-block is -1, go to (C-3). 
+Otherwise, go to (C-2). 
+(C-2)( storing in one block] 
+All states accessible from state s for the original 
+double array store to block n-block for the divided 
+double array. FIRST[c].STATE is set to the starting 
+state number for n-block. And FIRST[c].BLOCK is 
+set to n-block. 
+(CS)(dividing the blocks} 
+FIRST[c].BLOCK and FIRST[c].STATE are set to 
+an unused block number and 1, respectively. State 
+number s is stored to the unused block number. All 
+states to be traced from state s for the original double 
+array are stored to the block n-block. c-block is set 
+to n-block. And for the stored state t, (C-4) is 
+performed. 
+(C-l){processing after the second character} 
+503 
+n-block is set to NEXT-BLOCK(t). If n-block is -1, 
+go to (C-7). If n-block is cblock, go to (C-5). 
+Otherwise, go to (C-6). 
+(C-5){ storing all states from state t] 
+All states accessible from state t are stored to block 
+n-block. 
+(Cd)[connection by the table CT} 
+All states to be traced from state t are stored to block 
+n-block. When CT-INDEX is the unused index of 
+table CT[c-block], CT[ c-block] [CT-INDEX] . 
+STATE and CT[c-block][CT-INDEX].BLOCK are 
+set to stored starting number and n-block, 
+respectively. Then, S-CHECK[c-block][t] and 
+SBASE[c-block][t] are set to - 
+SCHECK[cblock] [t] and CT-INDEX. 
+(C-7) { processing 'the next character] 
+All states accessible from state t are stored to block 
+stored state s. If the all states can be stored, step (C-4) 
+is performed about stored states. Otherwise, the state 
+traced to the unused block by using the table CT is 
+set (this processing is similar to (C-6)), then step (C-4) 
+is performed about state t. 
+(End of algorithm) 
+For example, the divided double array is 
+constructed from the double array of Fig.1. First, The 
+states to be traced from state number 1 is found in 
+step (C-1). In Fig.1, state numbers 4 and 6 traced by 
+characters 'b' and Id', respectively. 
+Assuming that NEXT-BLOCK(4) returns 0, all 
+states accessible from state number 4 are stored to 
+block 0. FIRST['b'].STATE is set as the first state 
+number 1 after storing these states. 
+FIRST['b'].BLOCK is set to the block number 0. 
+Block 0 in Fig.3(c) is created by this processing. And 
+suppose that NEXT-BLOCK(6) returns -1, 
+FIRST['d'].BLOCK and FIRST['d].STATE are set to 
+1 and 1,respectively in step (C-3). The states 10 and 
+14 to be traced from state number 6 is stored to block 
+1. FlRST has created, next, processing after the 
+second character is performed. 
+Assume that NEXTBLOCK(10) returns 1, all 
+states accessible from state number 10 are stored to 
+block 1 in step (C-5). Moreover when 
+NEXT-BLOCK( 14) returns 2, all states accessible 
+from state number 14 are stored to block 2 in step (C- 
+6). CT[l][l].STATE is set as the first state number 1 
+after storing these states.. And CT[l][l].BLOCK is 
+set to 2. Finally, S-CHECK[1][14] and 
+SBASE[1][14] are set to -SCHECK[1][14] and 1 
+(that is an index of the table CT), respectively. 
+The maximum state number is 21 in Fig.1, but 
+the maximum state number by the construction 
+algorithm is 11 in Fig.2@). The number of bits 
+representing entries is reduced to 4 bits from 5 bits. 
+5 Evaluations 
+5.1 Theoretical Observations 
+The time complexity of the divided double array 
+depend on the tracing cost in the block and 
+connection cost between the blocks. Let k be the 
+length of the key and let n be the number of used 
+blocks for retrieving the key, the time complexity 
+becomes O(k+n). If n is 0, the complexity is O(k). 
+Therefore, the complexity becomes the same as that 
+of the original double array method. Parameter n is 
+changed by the key set. The division double array 
+method are constructed for four sets of keys in the 
+following subsection, and parameter n is evaluated by 
+the experimental results. 
+5.2 Experimental Observations 
+A program, base on the presented method, was 
+written using about 1500 lines of C, and implemented 
+on the following PC: celeron SOOMHz, Microsoft 
+Windows NT version4.0. It compared about the 
+storage size and retrieval speed of the original double 
+array and the divided double array. The state numbers 
+were represented by 4 bytes for the original double 
+array and 2 bytes for the divided double array. 
+Table 1 The Experimental Results 
+KEY1 KEY2 KEY3 KEY4 
+71.316 76.447 134.054 235.810 
+6.65 7.4 8.94 7.05 
+30 35 55 54 
+35 36 70 115 
+11.283 13.oL8 4527 311366 
+I 1 I 1 
+78.9 85.9 51.9 158.0 
+9 IO 18 28 
+35 44 32 1312 
+I I 1 1 
+132.2 132.2 132.2 137.3 
+273.984 n5.891 m u 1 3  w.855 
+285266 288,918 568.839 936920 
+274,018 275.934 564,344 907.166 
+2.21 2.22 452 7.26 
+1.19 1.21 229 3.87 
+53.7 545 50.7 53.3 
+1.10 1.11 2.26 3.75 
+50.0 50.0 50.1 51.6 
+254.9 w . 4  318.6 no.0 
+257.0 m . 8  319.0 n6.0 
+246.3 225.8 310.8 267.0 
+504 
+Table 1 represents the experimental results for 
+the following sets of keys: 
+KEY1 : A prefectures, cities, towns and villages 
+name of Japan 
+KEY2 : Butuuigoihyo[6] (Word list by semantic 
+principles of Japnaese) 
+KEY3 : English word dictionary of EDR[7] 
+KEY4 : Japanese word dictionary of EDR[7] 
+Table 1 shows information about key sets, the 
+divided double array, the total numbers of states, the 
+storage size, the speed rate. The total numbers of 
+states are all numbers of states for the original double 
+array. Let A be all numbers of states for the original 
+double array, let B be the number of root node (=l), 
+and let C the number of table CT. The total numbers 
+of states are A - B + C. For constructing the divided 
+double array, the increasing rate of states is about 
+0.005% - 4.7%. The storage size for the original 
+double array is the total size of BASE and CHECK. 
+The size for the divided double array is the total size 
+of FIRST, SBASE, SCHECK and the table CT. 
+From Table 1, it turns out that the storage size is 
+reduced to 50%. 
+All the registered keys are retrieved, and the 
+average retrieval time is evaluated. The both retrieval 
+speeds are almost the same, because the maximum . 
+usage of using the table CT is just 1 times. Moreover 
+the retrieval speed of the divided double array has 
+become faster than that of the original double array. 
+This depend on the distance (Is-tl) between state 
+numbers s and t. If the number of keys increases, the 
+maximum state number of the original double array, a 
+state number are used. Therefore, the distance is 
+extended. On the other hand, for the divided double 
+array, the distance of state transition is smaller than 
+the block size. Accessing to the near address of the 
+main memory makes the cache active. 
+From the above observation, the storage 
+capacity has been reduced to 50% even though the 
+presented approach has the same retrieval speed. 
+6 Conclusions 
+A new compression method of the double array 
+has been presented by dividing tries. From theoretical 
+and experimental observations, it is verified that the 
+presented method is effective for a large set of keys. 
+The proposed method is useful for a static case 
+because it needs to divide the double array after 
+constructing it. Constructing the divided double array 
+dynamically remains as the future study. 
+2. J. A. Dundas, Implementing dynamic minimal 
+prefix tries, Software Practice & Experience, V01.21, 
+3. A. W. Appel and G. J. Jacobson, The world's 
+fastest scrabble program, Commun. ACM, Vo1.3 1, 
+4. J. L. Peterson, Computer programs for spelling 
+correction, Lecture Notes in Computer Science, 
+pp.57-67, .Springer-Verlag, N.Y., 1980. 
+5. J. Aoe, An efficient digital search algorithm by 
+using a double-array structure, IEEE Transactions on 
+Software Engineering, Vol.SE-15, No.9,pp. 1066- 
+1077,1989. 
+6. National LanguageResearch Institute, 
+Bunruigoihyo (word list by semantic principles of 
+japnaese), 1997. 
+7. Japanese Electric DictionaryResearch Instituted, 
+Edr electric dictionary, 1996. 
+NO. 10, pp. 1027- 1040, 199 1. 
+N0.5, pp.572-578, 1988. 
+References 
+1. J. Aoe, Computer Algorithms -Key Search 
+Strategies-,IEEE Computer Society Press, 199 1. 
+505 

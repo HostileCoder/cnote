@@ -1,0 +1,933 @@
+Geo-location using Synthetic Maps1 
+James Draper, Matt Hanson, Kevin Tibbetts, Ron Wohlers 
+Photon Research Associates, Inc., Newton MA 
+Fred Mertz, Photon Research Associates, Inc., San Diego CA 
+Capt. Karl Walli, Pentagon, Arlington VA 
+Abstract-Geo-location of an overhead remote sensor field 
+of view using synthetic earth scenes is shown. Synthetic 
+sensor scenes (“maps”) combine an earth datum, digital 
+terrain elevation data, and Landsat scenes in the viewing 
+geometry. The collected satellite image is correlated with a 
+corresponding map to yield pixel latllong coordinates on the 
+earth. Errors are estimated based on scene structure, viewing 
+geometry, and sensor “state of health. Daytime visible 
+band scenes of land-water interfaces and mountainous 
+terrain in cloud-free 200x200 pixel scenes with point spread 
+functions of 2 to 3 pixels have been studied initially. Geo- 
+location to date has yielded corrections of < 5 pixels to dead 
+reckoning boresights with residual errors of 0.5 pixels. The 
+method will be applied to a large ensemble of collections 
+and will be extended to nighttime collects in idi-ared bands. 
+TABLE OF CONTENTS 
+Table of Contents ................................................................. 1 
+1 .O - Geo-Location by Terrain Matching ............................. 1 
+1.1 Potential Accuracies .................................................. 1 
+1.2 Closed and Open-Loop Geo-Location ...................... 2 
+1.3 Terrain-Matching Geo-Location ............................... 2 
+1.4 Organization of Discussion ....................................... 2 
+2.0 - Geo-Location Procedure .............................................. 3 
+3.0 - Data Assessment .......................................................... 3 
+3.1 “Go/No-Go” Tests ..................................................... 3 
+3.2 Evaluating Sensor Effects on Registration Accuracy.4 
+3.3 Constructing Synthetic “Maps” ................................. 5 
+4.0 - Image Registration ...................................................... .6 
+5.0 - Results ......................................................................... 8 
+6.0 - Conclusions ............................................................... 10 
+References ........................................................................... 10 
+Biographies ........................................................................ 11 
+1 .o - GEO-LOCATION BY TERRAIN MATCHING 
+The value of geo-location of a sensor boresight using terrain 
+matching of satellite images is in efficiently enhancing the 
+geo-location accuracies of otherwise solely open-loop 
+systems. In the following sections a preliminary account is 
+given of procedures that show data conditioning, synthetic 
+map generation, image to map registration and the estimation 
+of registration biases. The final product is a set of corrections 
+(for translation, scaling and rotation) that bring the collected 
+image and reference image (map) into best agreement. In 
+,addition, the uncertainties (errors) for these corrections are 
+estimated. An estimate of uncertainties is required for two 
+reasons. First. there is value in providing an error estimate 
+prior to the geo-location process to evaluate the benefits of 
+proceeding. Second, there is value in providing users with a 
+credibility index of the computed corrected geo-locations. 
+I. I Potential Accuracies 
+A sensor field of view (FOV) is populated with an nxn focal 
+plane array (FPA) in an optical system characterized by a 
+known point spread function (psf). An earth scene projected 
+on the FPA offers the possibility of registering that image 
+with a priori knowledge of the earth surface. Exceptions 
+include featureless or unknown scenes. Examples of 
+exceptions are broad ocean areas, cloudy scenes and 
+extensively repetitive surface features. Accuracy of this type 
+of registration is now considered. The simple examples 
+discussed below show that a boresight location derived Erom 
+registering with known earth scenes will be determined to 
+an error ellipse that is affected by weather, scene structure, 
+viewing geometry and sensor operating conditions (e.g. 
+signal to noise ratio (SNR), blur circle or psf, and range). 
+Supposing psf = a pixels, one obtains nla samples across the 
+FOV. Assume further that the input scene has a large SNR. 
+In the case of viewing a single known beacon against a dark 
+background, one would expect to locate the sensor boresight 
+with an error of = psf or a pixels. In the case of a uniformly 
+illuminated east-west road across the FOV (e.g. a road), one 
+would locate the boresight north-south (latitude) with an 
+error of a (p~f)~”/n’” pixels. This is the resolution provided 
+by one pixel (a) divided by the square root of the number of 
+samples (nla) along the road. The east-west error is large 
+and undefined. For a twisting, generally east-west road one 
+would locate the boresight in the north-south (latitude) 
+direction with an error of (psfl3”ln’” pixels and its east-west 
+(longitude) with, generally, less accuracy. 
+In the case of a highly structured, non-repetitive, cloud-free 
+line of sight (CFLOS) land scene there is the potential of 
+locating the sensor boresight latitude and longitude to 
+(p~f)~”/n’/~ pixels. This applies to nadir views ftom an 
+overhead sensor when the local zenith angle (LZA, the 
+angle from the boresight intersection on the earth from the 
+zenith to the sensor) = 0. As LZA increases, errors will 
+increase as lIcos0 along the direction to the sensor. The 
+orthogonal error will be unaffected. Finally, sensor “state of 
+health” (SOH) determines noise equivalent radiance (and 
+thus surface detail measured) and psf. As an example, 
+~~ 
+0-7803-6599-2/01/$10.00 0 2001 IEEE 
+minimum boresight geo-location errors of = 0.2 pixels can 
+result for a 200x200 pixel FPA with psf = 2 pixels. 
+The above example, using whole FPA blocks, shows how to 
+achieve an accuracy of less than the psf of the system. In 
+this paper however, corrections to the dead reckoning of 
+pixel locations are found using sub-blocks. Subblocks 
+provide several uses. For example they can be located in 
+structuredl terrain rather than over water, they can be located 
+to avoid cloudy areas, and their size and number can be 
+varied to obtain algorithms for specifying the best way to 
+geo-locate as scene types change. Finally, each sub-block 
+correction can be characterized by a simple translation, and 
+using multiple translations ffom different samples in the 
+image (each block is one sample), a transformation model 
+can be calculated that derives values for non-shift 
+parameters such as rotation and scale. 
+1.2 Closed and Open-Loop Geo-Location 
+Open-loop methods orient the sensor FOV using data from 
+attitude measurement systems that use external calibration 
+sources (e.g. stars). Closed-loop methods use the sensor’s 
+internal data stream to provide absolute references based on 
+known landmarks. Such geo-location by terrain mapping 
+requires an approximate initial boresight geo-location as the 
+sensor might not start out by pointing at the earth or the 
+library of earth “maps” may not be complete. Thus an open- 
+loop location method may be self-starting while a terrain 
+matching closed-loop method may require a boot strap in 
+the form of initial pointing estimates. For the systems 
+addressed here a continuously running “dead reckoning” 
+(DR) orientation method based upon external references is 
+assumed to be available. It will provide DR as a time series 
+of position and orientation estimates based on star trackers, 
+GPS, and other methods. 
+Open loop methods that provide a line of sight (LOS) with 
+associated angular accuracy will experience larger geo- 
+location 1:rrors as range (the “lever” arm) increases. The 
+long lever arm effect might be handled by resort to faster, 
+more accurate external orientation subsystems. While high 
+performance open loop subsystems may meet performance 
+goals the associated increase in cost (weight, volume and 
+power) may become unaffordable. In contrast geo-location 
+performance based on a combination of closed and open 
+loop methods is investigated. One ultimate benefit of this 
+investigation may be that an attitude subsystems designer is 
+provided with an additional tool for meeting, or exceeding, 
+both performance and cost goals. 
+1.3 Terrain-Matching Geo-Location 
+Image processing is a mature, well-established technology 
+[l] that allows direct comparison of sensor scenes with a 
+library of reference maps of the earth‘s surface. A library is 
+created using high-quality remote sensor archives to create 
+“maps” of the earth as seen by the sensor. The maps are 
+built by merging satellite photography, draping it on 
+elevations, then rotating and translating it into the viewing 
+geometry of the overhead sensor’s FOV. The use of well- 
+documented overhead photography for geo-location 
+eliminates the need for surface beacons and the coordination 
+necessary for their use. Eliminating the need for beacons 
+makes practical geo-location in inaccessible regions as 
+found in mountainous, desert, and jungle country. In 
+addition, the method can be tested against easily accessible 
+regions such as shown in Figure 1. 
+the daytime showing some non-terrain effects including 
+image blurring and ocean currents (east of Boston Harbor). 
+Artifacts, which a f l k t  the quality of image registration, 
+arise from sensor characteristics, the intervening atmosphere 
+or the terrain itself. Sensor artifalzts include optical 
+aberrations (e.g. “pillowing” or “pin-cushioning”), psf 
+variations, FPA nori-uniformities and bias, calibration and 
+saturation. Transmitting medium include absorption, 
+scattering,, cloud obscuration and shadows. Terrain effects 
+include masking, varying illumination and absolute location 
+uncertainties, seasonal lakes and snow. Various methods 
+either partial or fully remove (or avoid) these artifacts. 
+1.4 Organization of Discussion 
+Collected. satellite innages and known maps are registered to 
+establish fmal corrections to an a priori DR boresight. The 
+geo-location procedure is outlined in section 2, section 3 
+describes the data conditioning and map generation, section 
+4 describles registraition methods, and section 5 covers the 
+preliminairy results. Outstanding issues and the next steps 
+for geo-location by terrain matching are discussed in the 
+conclusions of section 6. 
+4-1954 
+2.0 - GEO-LOCATION PROCEDURE 
+The geo-location procedure has five principal parts outlined 
+in this section, Figure 2: input,. output, data assessment, 
+library scene preparation, and scene registration. 
+Figure 2. Geo-location procedure flow showing: input 
+containing “images”, data assessment, generation and 
+storage of “maps”, registration and output messages. 
+The input to the geo-location procedure is generated by the 
+remote sensor and contains a series of collected scenes of 
+fixed surface features. It is made up of images and meta 
+data. Images are the n x n pixel intensity measurements 
+expressed in calibrated engineering units. Meta data are the 
+associated (non-image) data containing what is known about 
+the image that affects the geo-location process. They include 
+time of collection, sensor and platform orientation and 
+platform location (the basis of the DR estimate), the SOH of 
+platform subsystems, lat and long arrays for each pixel and 
+other parameters. In addition, certain meta data, e.g. cloud 
+cover, can be derived from the image data using other image 
+processing techniques. 
+The output of the geo-location procedure is either a 
+corrected lat/long array specifiing each pixel lat/long 
+coordinate or, more simply, a set of FPA boresight 
+intersections at ground level with associated error estimates. 
+In the event that the inputs do not pass certain tests, a 
+“default” message is sent, based on the “data assessment”, 
+that states no geo-location has been computed and why. 
+Default messages may include unacceptable sensor 
+conditions (e.g. overly large psf values), poor viewing 
+geometries (e.g. LOS tangent to the earth limb), 100% cloud 
+cover, scenes without substantial structure and so forth. 
+Ifthe data assessment tests are passed the image registration 
+is initiated and no default messages are generated. At that 
+point the processor calls the collection files of sensor 
+scenes, error estimates (from the data assessment), viewing 
+geometry (from the meta data), and the library files of the 
+(reference) maps. A priori pointing information (from an 
+open loop pointing system) reduces the registration initial 
+search area and the size of the map library needed. It also 
+reduces storage and compute resources needed to meet time 
+sensitive delivery criteria. Registration provides the pointing 
+corrections or bias vector corrections to the a priori DR 
+geo-locations. These corrections to the DR geo-locations are 
+presented in the output message either as north-south and 
+east-west corrections to the DR geo-locations to selected 
+FPA pixels or as corrected geo-locations for these pixels. 
+3.0 - DATA ASSESSMENT 
+Assessment of image and meta data is carried out before 
+undertaking the registration. There are two major data 
+assessment steps. The frrst puts “go/no go” tests to the meta 
+data which must be met before proceeding. The second 
+addresses, through image tests, the utility of the collected 
+scene for geo-registration. 
+3.1 “Go/No-Go ” Tests 
+A number of system situations may render useless the 
+results of an image registration. They include poor sensor 
+SOH (i.e. a wide range of sensor problems), conflicting 
+sensor collection purposes, and cloud cover. Some default 
+decisions can be made using a “look-up” table. Some 
+require inference based upon softer decision criteria and 
+even supporting computation. 
+Look-up table decisions may include the following. sensor 
+detector calibration may be out of spec, sensor gains set for 
+other purposes can give poor terrain images, or the EO 
+bands used might lie in atmospheric molecular absorption 
+regions and obscure terrain details. When these and related 
+problems arise, image registration will not be carried out 
+and a SOWparameter default message is generated. 
+Clouds present a major problem for registration. They are 
+common, dynamic, and cast shadows that distort the 
+perceived terrain pattems from those of uniformly sunlit 
+scenes. It is necessary to assess cloud coverage in each 
+scene. Available cloud detection algorithms, using visible 
+band ratios, can be used. Cloud occurrence in excess of a set 
+fraction will lead to a “cloud cover” default message. 
+Determining that threshold is an example of a soft decision. 
+Cloud occurrence algorithms will further indicate where in 
+the scene the clouds are. This information can be used to 
+select the sub-blocks used in geo-location (see section 1.1). 
+The result is a more robust geo-location capability as the 
+weather “closes in”, especially for the larger the FOVs for 
+which there is a smaller chance of complete cover. While 
+geo-location accuracy will suffer with some cloud cover a 
+4-1955 
+default message might not result. This adds to the softness 
+of the weather default decision process, which one expects 
+experience would sharpen. 
+Even when the above SOH and weather tests are passed, 
+scenes may lack adequate structure for geo-location. In 
+broad ocean areas there is little spatial structure with which 
+to register to the corresponding map. This can be 
+determined by use of the DR. Lack of spatial structure can 
+be tested by examination of an image's autocorrelation as 
+discussed in the next section. 
+3.2 Evaluating Sensor Efsects on Registration Accuracy 
+It is important to establish how sensor noise and biases 
+affect registration accuracy in defining DR correction shifts. 
+A methodology for establishing these effects is based upon 
+cross and autocorrelation peak shapes and locations. It is 
+assumed that uncertainty in auto/cross-correlation peak 
+location indicates the level of pointing accuracy possible 
+fiom correlating the sensor images with themselves. 
+Similarly, the cross-correlation of collected images with 
+known reference maps will be used to estimate geo-location 
+errors. . 
+In this analysis the normalized correlation (a number 
+between 0 and 1) between two images [l] is used as the 
+standard ineasure for the similarity between two images 
+where 
+- T(x,y) is a template array matched to the scene I(x,y) 
+- W(x,y) is a window applied to the template in order to 
+- The correlation operation is denoted by 8 
+crop it 
+In the analysis here an image is correlated with a cropped 
+portion of itself. This eliminates boundary correlation 
+effects due to the border shapes seen in Figure 1. In 
+particular, we use a cropping window 156x156 centered an 
+image that is approximately 200x200 pixels. 
+Having the correlation function, one can examine the pixel 
+error as the observable fractional pixel shift of the peak of 
+autocorrelation of an image, given sensor noise level. This 
+error can be determined for specific images by evaluating 
+the slope with respect to pixel location in the vicinity of the 
+autocorrelation peak. Changes in the magnitude of the peak 
+can be evaluated in terms of the sensor noise and the 
+resulting pixel shift of the peak estimated by linear analysis. 
+The regislration error is: 
+ObservableError = (-)(-)' [ F i r  
+To keep the equation general it is expressed in terms of the 
+sensor im.age average signal to noise ratio. S is the square 
+root of the average of the squared intensities of the image 
+pixels. N is the square root of the average of the squared 
+intensities of an image whose pixel values correspond to 
+some given multiple of the random sensor dark current 
+noise. The correlation (C) derivative, with respect to pixel 
+location (p), is taken in the vicinity of the peak. 
+We assunne that detectable image shifts of collected scenes 
+can be based on a detection threshold of some number (take 
+it to be 5 )  times the sensor dark current. Equation (2) shows 
+that detectable image shifts are at thresholds 25 times larger 
+than those for detection at the dark current limit. 
+There are many other factors that enter into the 
+determination of the limits to the observability of 
+registration error in addition to sensor noise, e.g. diurnal and 
+seasonal (effects, viewing angles, clouds, terrain shadowing, 
+etc. An example of this would be a scene containing 
+water/lanld interfaces. Because of strong absorption of 
+liquid water in the Landsat B4 band, here watedland 
+interfaces may stand out dramatically. 
+A counter example would be a water scene without cloud or 
+detectable waves. Its autocorrelation function would be very 
+broad. In a landwater case a slight movement of the scene 
+with respect to itself results in a liuge change in the 
+autocorrelation value. In the water scene a large movement 
+of the scene with respect to itself will significantly not 
+change the autocorrelation value. 
+The Boston-Cape Cod image of Figilre 1 shows strong 
+landwater interfaces while other images may show only 
+mountainous terrain. Autocorrelation fwctions for several 
+collects are shown in Figure 3 for both scene types for 
+roughly similar LZA values. The red curves are for the 
+Boston-Cape Cod landwater images and the black curves 
+for exteinsive mountainous terrain. As expected, the 
+mountainous scenes show the broader peaks. 
+1 
+0.B 
+0.97 
+0.Ef 
+124 125 126 127 128 1Z1 1x1 131 132 
+PLd#  
+Figure 3. East-west autocorrelations for test images in which 
+the red curves are for water/land interfaces and the black 
+curves are for mountainous terrain. The viewing geometries 
+are similar, LZA = 23 and 30 degrees, respectively. . 
+4-1956 
+Scene Type 
+Land/water 
+Image/Image 
+Mountainous 
+ImagelImage 
+The observable pixel shifts of Table 1 are for motion 
+perpendicular to the sensor line of sight (LOS). As LZA 
+increases, the errors (in Table 1) projected onto the terrain 
+grow as l/cos 8. For this reason, limb views fiom the sensor 
+will lead to excessively large errors. Nevertheless, geo- 
+location by terrain matching might still add value to the raw 
+DR estimate. An example is the case of the DR LOS passing 
+outside the tangent to the limb from the sensor while the 
+pixel actually collects against terrain beneath the limb. 
+Overall, under adverse conditions errors will be about 0.5 
+pixels. 
+Mean Standard Deviation 
+East/ North/ East/ North/ 
+West South West South 
+1.6e-3 2.le-3 l.le-3 1.5e-3 
+2.2e-3 2.6e-3 &le-4 l.le-3 
+3.3 Constructing Synthetic “Maps ’’ 
+The construction of a known sensor scene requires some idea 
+of where the sensor will be looking based on the DR 
+boresight pointing. For most sensors the DR information is 
+adequate to place the boresight within the terrain in the FOV, 
+usually well within the FOV. For the scenes used here with a 
+200x200 format, the DR can be assumed to be correct to 
+within 10 pixels. The synthetic scene construction proceeds 
+in 5 steps. 
+The fwst step is image acquisition. Landsat [2] images are 
+purchased for the desired area at optimally the same time of 
+year and without cloud cover. Given a boundary of interest, a 
+set of Landsat Paths and Rows are used to locate suitable 
+frames from the ETM+ archives at the EROS data center. 
+Rough mosaics are assembled in Microsoft Powerpoint to 
+make a selection. ETM+ images are obtained in GEOTFF 
+format on a UTM projection with 30 m resolution excluding 
+terrain effects. GEOTIFF represents an effort by over 160 
+different remote sensing, GIs, cartographic, and surveying 
+related companies and organizations to establish a tiff based 
+interchange format for geo-referenced raster imagery. 
+The second step is ETM+ mosaic construction. The 
+GEOTIFFs, imported into an image processing software 
+package like ERDAS Imagine [3], are overlaid to check for 
+registration errors. As ETM+ frames may show slight offsets, 
+(i.e. a linear feature may be shifted down in an adjacent 
+frame), compensating offsets are made. The most important 
+frames of interest are treated as having the correct 
+coordinates while offsets are typically small. Occasionally a 
+frame may require rescaling (due to data acquistion on 
+different dates). Again, the less important kames are 
+rescaled. 
+The rescaled and offset frames (if necessary) are put into the 
+mosaic tool to be “stitched” together with feathering along 
+boundaries. At this time they are re-projected to a geographic 
+(lathong) projection with units switched to decimal degrees 
+with a resolution of 3 arc sec. Separate mosaics are created 
+for 5 of the 7 ETM+ bands. The blue band (band 1) and the 
+thermal band (band 6) are not used. In this process the 
+serrated ETM+ edge is removed from each mosaic. 
+The finished mosaics, Figure 4, are exported to generic 
+binary files. These are ingested into h4PS. MPS is a 
+proprietary binary image format. It consists of a header 
+containing the dimensions of the file and the data type, 
+followed by an array of data. There they are rescaled from 0- 
+255 to temperatures from 220 to 350 and thus made ready for 
+GENESSIS, internal software from Photon Research 
+Associate, Inc., to drape LANDSAT imagery over elevation 
+data and model an image for a given satellite position. 
+Figure 4. Landsat ETM+ ortho-rectified mosaic of Boston 
+Harbor and Cape Cod merged of three ETM+ scenes. 
+4-1957 
+Sometimes there are registration discrepancies between some 
+of the Landsat images that must be joined together. Any 
+offset of ithis sort is removed by comparing the images after 
+they are mosaiced. If the images are taken at different times 
+of year there may also be a scale difference that must be 
+accounted for. M e r  any necessary offset and scale changes 
+are applied, mosaic is made of the Landsat images. The 
+resolution is then resampled to 3 arc seconds and the byte 
+values of the Landsat are converted to temperature values. A 
+Landsat E.TM+ ortho-rectified mosaic is shown in Figure 4. 
+The third step “drapes” the Landsat mosaics over elevation 
+maps obtained from Digital Terrain Elevation Data (DTED). 
+DTED Level 1 data sets are purchased fiom NIMA in 1 
+degree cells to cover just beyond the area of the Landsat 
+images requiring 40 to 50 DTED cells. The earth datum used 
+here is that defined by the attributes of the DTED data set. 
+The DTEDs are Class 1 (100 m resolution) and are converted 
+to a raster format (MPS or ARC/INFO grid, ESRI’s [4] 
+proprietary format for raster data). They are mosaiced, subset 
+to the boundary of the Landsat mosaic, exported, and 
+ingested into M P S  format. For GENESSIS they are 
+converted ffom m to cm units appropriate to its scene 
+radiation transfer simulator. No resampling is necessary as 
+the Class 1 DTED data arrive in a geographic projection on 
+spheroid and earth datum WGS 84 (World Geodetic System 
+1984 [ 5 ] )  [6] .  These have a 3 arc second resolution so they 
+are not re-projected or resampled. A “hill shade” image is 
+shown in Figure 5. 
+Figure 5.  A hill shade ortho-rectified mosaic of Boston 
+Harbor and Cape Cod that has been merged using lip to 50 
+DTED cells. 
+The fourth step is assembly of the three dimensional model. 
+The DTED class 1 mosaic is matched to the boundary of the 
+Landsat mosaic. Together they form a three-dimensional 
+model of the area. This model is repositioned in the sensor 
+viewing geometry for computation of the terrain scene as the 
+sensor would observe it. The absolute accuracy is defined by 
+the mapping function that is used to transform the Landsat 
+data over the DTED surface. As tie points were used here 
+(not orthw-ectification) it is expected that the Landsat scenes 
+are within a pixel or two of the DTED features to which they 
+are mappled (k 180 in). Given the Landkat and sensor image 
+resolutionis, accuracies, down to 25 to 50 m are not required. 
+It is felt ihat the accuracy of the synthlstic map should be = 
+three times greater than the resolution of the collected image, 
+a condition satisfied here. 
+4-1958 
+The fifth step is the computation of the scene as projected as 
+an image onto the sensor FOV, Figure 6. The meta data 
+contain sensor position, pointing angles, scene range, and 
+instantaneous FOV (IFOV). These are used in conjunction 
+with the three dimensional model. Local land elevations 
+determine: where in the FPA various features appear. This 
+effect becomes more: important as LZA increases. IFOV and 
+range to sensor determine pixel size. Time of day determines 
+lighting conditions. As Landsat images are collected at 1000 
+local standard time (LST) the effort is made to obtain remote 
+sensor collections at approximately the same time. This is not 
+always possible. The capability of computing LST 
+illumination using the three dimensional model will be 
+addressed in the next phases of the work. The resulting two- 
+dimensional image represents the sens,or FOV image in its 
+FPA. 
+Figure 6. A two-dirnensional merged and draped synthetic 
+image of Boston Harbor and Cape Cod projected into the 
+sensor field of view. In Figures 5 and 6, water areas have 
+been replaced by uniform black. 
+4.0 - 1:MAGE &GISTRATION 
+Classical correlationi methods provide a simple means to 
+calculate image miwegistrations but siiffer ffom sensitivity 
+to gray level differences between images.[l,7] As such, they 
+are more suited to single sensor registration than multi 
+sensor. Single sensor registration is the registration of 
+images taken with the same sensor, at different times. Multi 
+sensor registration is the registration of images taken with 
+different sensors. When doing multi sensor registration there 
+can be a substantial difference in the visual pattern and pixel 
+brightness values between the sensor images. The goal in the 
+synthetic generation of the reference maps is to approximate 
+the geometry of the test image as well as the gray levels 
+(currently done by using an equivalent Landsat band). If the 
+scene is adequately generated then classical correlation 
+methods should give results with the required accuracy. 
+Classical correlation used on an entire image only results in 
+determining the translation differences between the two 
+images. If there are higher order distortion effects then pixel 
+shifts will be different in different parts of the image. The 
+method described uses sub blocks and correlates each one to 
+get a series of translations that are then used as control points 
+and fitted to a transformation matrix. 
+The correlation operator is given by: 
+x=l y = l  
+where T* is the complex conjugate of the template to be 
+found on the reference image I. [1,7]. In the spatial domain, 
+the template is a real valued function so T* = T. The xsz and 
+ysz limits are the size of the template. As the size of T 
+becomes larger, the computation grows as xsz * ysz. So, for 
+large templates it is faster to perform the operation in the 
+frequency domain using the correlation theorem: 
+C(u,v) = FFT-'[F({,co)* G*(u,q)} (4) 
+where FFT" is the inverse Fou$er transform, F is the Fourier 
+Transform of the image and G is the complex conjugate of 
+the Fourier Transform of the template. However, note that 
+the correlation must be normalized since it will be affected 
+by local image intensity. Normalizing by the square root of 
+the sum of the squared image intensities under the template 
+results in: 
+x=l .v=l c(u,  v )  = 
+v x=l  y=l 
+( 5 )  
+If performed in the spatial domain the calculation of the 
+normalization factor, N(u,v), (the denominator in Eq. 5), can 
+take significant processing resources when the window size 
+is large. However, calculation of the sums under the moving 
+template window can be accomplished in the frequency 
+domain as well. 
+N(u,v) = 
+In words, Eq. 6 calculates the Fourier Transform of the 
+square of the image values and convolves it with the Fourier 
+Transform of a 2-D RECT function of the same size as the 
+template window. The square root of the inverse Fourier 
+Transform of this is the 2-D array of normalization values for 
+each pixel. 
+In this application, the above correlation theorem is used with 
+subsets of the input image (blocks) as the template T and the 
+reference map as the image I. If the two images only differ 
+by a translation then the shifts of all the blocks will be the 
+same. If there are other effects such as rotation, skew, or 
+scale, then each block will correlate best at different shifts 
+that will be a function of these effects and block position. 
+After normalization, the peak of the correlation represents the 
+strongest degree of similarity between the template and the 
+image. 
+The two-dimensional modeling, described in section 3, is 
+intended to simulate all of the known extrinsic effects of the 
+sensor, such as viewing geometry. Intrinsic effects such as 
+optical distortion and FPA non-homogeneities are not 
+modeled and the two images will differ by these m o d e l e d  
+and unknown quantities. In sum, there may be shifts if the 
+sensor pointing or rotation angles or scaling adjustments are 
+in error, or if there axe unknown geometric distortions due to 
+optics. These biases lead to differences between the images 
+and maps used in registration, and it is these unknowns that 
+are to be found. 
+Thus, the unknown differences could be a series of various 
+effects such as translation, scale, rotation, skew, scale, 
+perspective, and/or other higher order effects. However, 
+these effects are global in nature (they affect the entire 
+image), and are less influential within the small local blocks 
+that are used for correlation. Thus, it is assumed that the 
+correlation for individual blocks can be characterized by a 
+translation. Using the centers of the blocks as input control 
+points and the resulting shift from correlation as the output 
+control points the transformation can be fitted to a 
+polynomial model: 
+(7) 
+N N-1 
+where N is the number of unknowns. The higher the order of 
+the polynomial, the more precise the control points can be fit, 
+though more control points are needed. Furthermore it is 
+important to note that accuracy in fitting the control points 
+4-1959 
+does not equate to accuracy at any other points in the image. 
+If the order of the actual transformation is not known it is 
+best to use as simple of a transformation as possible to avoid 
+introducing errors outside the control points. This paper 
+assumes that a linear polynomial will be sufficient. (n=3) 
+Therefore, 
+points well but will increase the residual error outside the 
+control points if the real transformation is not actually a 
+polynomial of that order. 
+For the affine translbrm, the RTS (rotation, translation, and 
+shift) par>ameters can then be calculated from the coefficient 
+vectors A and B 
+!<hift in x,y = [aoo,boo] 
+Scale in x,y = [alo,blo] 
+X = a00 + ' ,oxref  + 'OlYref (9) 
+Y = ' 0 0  + ' I O Y ~ , ~  + 'OlXref  (10) 
+This is known as an affme transformation and can account 
+for shift, scale, and rotational differences. [ 1,7,9,10] 
+Eq. 9 can be written in matrix form as: 
+I I Xref 1 
+Altemately, this can be written as X =W A, where X i s  the 
+output x c:oordinates, W is a matrix of input coordinates, and 
+A is the coefficient vector. 
+Here m is the number of control points and the components 
+of vector a are the coefficients for translation, scale, and 
+shear respectively. The same can be done for the Y 
+coordinates in the image: 
+Y = W B  (12) 
+Rotation = : i n  a,,l = sin bol 
+If the distortion cannot be approximated by an affine 
+transform then a higher order polynomial must be used to fit 
+the control points. Altemately, spline fitting may prove to be 
+more accilrate in the case of optical distortion. Furthermore, 
+it is important to make a note about block size. It has been 
+shown that small blocks should be used to offset the effects 
+of global differences. However there is a point at which 
+features will start looking the same across the image and the 
+block will not correlate properly. It should also be obvious 
+that the more blocks there are, the better, as this will give a 
+better fit to the transformation. These tradeoffs of block size 
+and numbler of blocks will be explored in future work. 
+The transformation model should only be used to account for 
+unknown differences between the two images. The goal here 
+is to model those effects which are known and calculate the 
+unknown effects. If an effect is knowni it is best to model it 
+in the creation of the reference image. It will then be modeled 
+across the entire scene rather than the limited number of 
+control points. 
+where the B vector is: 5.0 - RESULTS 
+The coefficients can be calculated by: 
+B = W'Y (14) 
+If the number of input control points (block centers) is equal 
+to the number of unknowns (m=n) then the matrix W has an 
+inverse. If m > n, then a least-squares fit or equivalent 
+technique must be used (pseudo-inverse). In this paper, 
+singular value decomposition techniques are used to calculate 
+the A and B coefficient vectors. 
+As mentioned above, increasing the order of the polynomial 
+increases it's accuracy, but only for the input control points. 
+In fact, if m=n then the transformation error is zero, since the 
+points cain be fit exactly. The problem lies in the 
+extrapolation outside the control points. If a high order 
+polynomiid is used to do the transform it may fit the control 
+The first attempts to register two sceines were done using 
+scenes of eastern Massachusetts. The differences were 
+expected to consist of a translation of less then 5 pixels. The 
+two scenes are shown in Figure 7. Visual inspection suggests 
+that there: are residual differences. This may be due to 
+slightly different geometry used to create the reference map. 
+Fixed sized blocks (17 pixels square) were chosen 
+automatically from the input image, as shown in Figure 8. 
+The location of blocks is important. The blocks should 
+include features that are not highly sensitive to geometric 
+distortion. These features include line intersections and 
+endpoints, such as corners [6,7]. 
+The details of the procedure used to locate the blocks are 
+outside ofthe scope of this paper. The process consisted of a 
+series of thresholding and first derivative filters for detecting 
+edges in imultiple directions. Work is still being done on a 
+flexible way for choosing strategically located blocks as well 
+as exploring the effect of overlapping blocks. The figure 
+shows 5 blocks, though the comer of the red block in the 
+upper right was cut off due to the mask applied to the image. 
+Had the blocks beten chosen manually they would have 
+4-1960 
+included some regions in the lower left of the image where Each of the blocks was then registered using the technique 
+there are lots of corner features. Still, these blocks were described in section 4. The software used an iterative 
+sufficient for this image pair. standard deviation minimizing scheme to automatically 
+discard Block 5, obviously an outlier as seen in Table 2. 
+5 
+Table 2. Pixel shifts for five blocks of the input image 
+Ax AY 
+-36 -113 
+AX 
+The remaining four blocks were used as input control points 
+and the peaks of the correlation results as output control 
+points. These were fit to an affine transformation. Results 
+are shown in Table 3. 
+2.53 I Pixels 
+AY 
+e 
+1.62 I Pixels 
+-1.46 I Degrees 
+Scale I 1.00 I Ratio I 
+Figure 7. Two scenes (a Landsat-based map in red and a 
+collected image in white) superimposed before registration. 
+Residual differences are due to slight differences in viewing 
+angles. 
+The resulting superimposed images are in Figure 9. Visually, 
+the overlay looks like a good match except for some 
+misalignment in the lower left coastline. Since there were no 
+blocks chosen in this region, the result is reasonable. 
+Figure 9: The input image after an affine transformation and 
+Figure 8: The blocks selected to perform the registration superimposed on the Landsat reference map. 
+were automatically chosen in corner regions where 
+invariant to local The Landsat reference maps also include arrays containing 
+distortions. latitude and longitude values for every pixel. After the 
+transformation model is calculated, the inverse of it can be 
+differences would be 
+4-1961 
+used with the latitude and longitude arrays to achieve 
+registered latitude and longitude arrays for the input image. 
+This same procedure was used on six other data sets of the 
+same region (Massachusetts and Cape Cod), with greater 
+misalignment in the results using an affine transformation, 
+but good agreement when using a 2”d order polynomial. This 
+suggests that there is some difference in the geometrical 
+model used in creating the reference maps which is not as 
+pronounced in this particular dataset due to slightly different 
+viewing geometries. 
+Using a polynomial to correct image mis-registration is not 
+desirable ;as described in Section 4. Future work in this area 
+will fOCU!j on better modeling of all known quantities to 
+generate the reference map. Such quantities may include 
+better modeling of the geometry, distortions due to the sensor 
+optics, focal plane non-uniformities, among others. With the 
+tools described here it is expected that the maps and images 
+will be brought into much closer correspondence. 
+Registration parameters can then be represented by 8 simple 
+transform such as an affine or an x and y translation. If there 
+are still misalignments then the polynomial or other type of 
+transform (such as spline fitting) model will have to be used. 
+_. These results are preliminary and therefore few numbers are 
+given. This is not intended to report on the absolute accuracy 
+achieved with this method. Rather, a method is used and 
+analyzed fin a visual manner to determine the concept and 
+potential of the process. Creation of a larger set of reference 
+maps and collection of more input images is underway and 
+will provide a large testing set to further explore these 
+methods. 
+6.0 - CONCLUSIONS 
+Geo-location of a sensor boresight using synthetic terrain 
+scenes has been investigated with good initial results. Shifts 
+of < 5 pixels, the magnitudes expected based upon known 
+errors in dead reckoning, support the thesis that accuracy can 
+be achieved using Landsat 7 ETM+ scenes, DTED data sets, 
+and an accepted Earth datum. A registration method is 
+developed based upon processing sub-blocks in the sensor 
+image. The registration process yields “corrections” to the 
+image location in scale, rotation and translation as given by a 
+priori sensor location information. The translation correction 
+together with the a priori pointing information provides the 
+best geo-location for the sensor boresight. A methodology for 
+estimating the error bounds on the “corrections” has been 
+developed to establish the accuracy of the final geo-location 
+and specific examples presented. It is expected that the tools 
+developed here will allow location and remediation of the 
+remaining differences. 
+The preliminary results here will be extended in several 
+directions. A wider range of site types and condition:; will be 
+addressed to explore the envelope of satisfactory behavior. 
+The synthetic terrain based upon the Landsat must be 
+extended to lighting conditions other than the 1000 LST 
+Landsat collection condition. This will be done with physics- 
+based models using spectral reflective e,arth models extracted 
+fiom Landsat collects. Eventually, automation of a synthetic 
+terrain, closed loop geo-location method would provide 
+designers of remote sensing systems with a new tool to 
+achieve overall design goals while redwing system weight, 
+power and volume. Moreover, this methodology may provide 
+designers a means of meeting very demanding system 
+requirements for extemal pointing subs) stems on new classes 
+of remote sensors. 
+REFERENCES 
+[l] Brown, L., “A Survey of Image Registration 
+Techniques,” ACM Computing Surveys, Vol. 24, No. 4, Dec 
+1992. 
+[2] http://landsat7.usgs.gov/news/defeph.html 
+[3] http:/lwww.erdas.com 
+[4] http://www. esri.com 
+[ 51 http://www. wgs8.4.com 
+[6] http://mvw.nima.mil 
+[7] Schowengerdt, Robert A., Remote Sensing: Models and 
+Methods j%r Image Processing, Second1 Edition, Academic 
+Press, 19917. 
+[SI Castleman, Kerineth R, DigitaI Image Processing, 
+Prentice Hall, Inc., 11396. 
+[9] Flusser, J., and T. Suk,. “A Moment-Based Approach to 
+Registration of Images with Affine Ge’ometric Distortion,” 
+IEEE Trmsactions on Geoscience and Remote Sensing, 
+32( 2):382-3 87, 1994. 
+[lo] Goshtasby, A., G.C. Stockman, :md C.V. Page, “A 
+Region-Based Approach to Digital Image Registration with 
+Subpixel 14ccuracy,)7 IEEE Transactions on Geoscience and 
+‘Remote Sensing, 24(3):390-399, 1986. 
+[ 111 Casasent, D. Ps:dtis, D., “Position, Rotation, and Scale 
+Invariant Optical Correlation,” Applied Optics, Vol. 
+15(7):1795-1799. 
+[12] Redd.y, B., Chaitterji, B.N., “An FI’T-Based Technique 
+for Translation, Rotation, and Scale-Invariant Image 
+Registration,” IEEE Transactions on Image Processing, 
+Vol. 5( 8): 1266-1271., 
+4-1962 
+BIOGRAPHIES 
+James Stark Draper, Senior 
+Corporate Vice President and Newton 
+Division Manager of Photon Research 
+Associates, Inc., has authored over 90 
+papers in aeronautics, weapons 
+detection and computer technology. 
+He is a leading proponent of the use 
+of high-rate multispectral staring 
+sensors for national needs. He is an authority on weapons 
+signatures, surveillance systems and ordnance use 
+assessment. In 1980 he proposed a new family of 
+surveillance systems to support emerging national needs. He 
+directed a gust measurement program for the 1992 America's 
+Cup, pursued monocular passive ranging and single-sensor 
+3-d tracking, tracking of sea-skimming cruise missiles, 
+production of partial inversions in non-equilibrium MHD 
+channels, developed the theory of high altitude missile plume 
+RCS, pursued the use of neural net classifiers for weapons 
+identification, proposed a Battlefield Ordnance Awareness 
+(BOA) theater asset, pursued Radar Non-Cooperative Target 
+Identification (nCTr) techniques and geo-location 
+processors, and has investigated novel BPI/KKV systems. He 
+founded KTAADN, INC., and received a PhD >om M T  
+Aero/Astro in 1971. 
+Matthew. Hanson is responsible for 
+writing and developing code for 
+automation of signal and image 
+processing applications such as 
+Monocular Passive Ranging (MPR) or 
+image registration. Currently, Mr. 
+Hanson is working on analysis and 
+development of different autonomous 
+image registration algorithms that 
+include feature detection, similarity metrics and 
+transformation models. This is being developed as Software 
+called TIRA (Toolbox for Image Registration Algorithms). 
+Mr. Hanson managed and developed code for passive 
+ranging output, trajectory estimation and impact prediction. 
+Some of the elements include an examination of a Trajectory 
+Matching Code, a parametric study of Kalman Jiltering 
+accuraq, a basic code for simple decoupled Kalman filter 
+built into BIGBIRD software. Mr. Hanson received his BS in 
+Imaging and Photographic Technologv at the Rochester 
+Institute of Technology in 1995 and is currently working on 
+his MS.  in Imaging Sciencej+om RIT. 
+Kevin Tibbetts, an engineer at PRA 
+for two years, is involved in writing 
+and developing code for IMPRESS, 
+PRA 's Monocular Passive Ranging 
+(MPR) software written in IDL code 
+and PRIkfER, an early ID software 
+which provides a rapid scheme for 
+analyzing sensor data and ofers 
+accurate missile and bomb identijkation. In addition, MY. 
+Tibbetts is processing and analyzing the intensity data for 
+Low Intensity Conflict analysis, a project reporting, tracking 
+and analyzing specijic ordnance event collects from a new 
+sensor. MY. Tibbetts received his BS in Engineering Physics 
+in May of 1998 from the University of Maine. While 
+attending the University of Maine he worked at the 
+Laboratory for Surface Science and Technology on campus 
+as an Engineer Assistant. 
+M. Ronald Wohlers, Senior Engineer 
+Manager at PIU, has more than 35 
+years experience in infrared systems 
+with a concentration in the Department 
+of Defense arena. . He is responsible for 
+IR phenomenology and sensor system 
+performance as it relates to Monocular 
+Passive Ranging (MPR) techniques. As 
+lead engineer on the AST and HALO/MPR projects, this 
+included all phases of sensor system design, integration 
+aboard the HALO, and pre- and post mission analysis. 
+Accomplishments included the analysis of the errors in the 
+MPR range estimates, the performance of MPR using ARES 
+data collected during the Willow Dune experiment, and the 
+planning and data analysis of HALO/IRlS data collected at 
+the SFX and CODA missions. His program and field support 
+includes definition and analysis of situational awareness in 
+Low Intensity Conflicts and analysis of MPR experiments on 
+ARES, SFXCODA, THAAD 09 and I O  missions. Mr. 
+Wohlers, who worked at Aerodyne Research Inc. and 
+KTAADN Inc. before coming to PRA, has a M.S., Electrical 
+Engineeringfiom the University of Maryland. 
+Fred Mertz, Senior Stay Scientist at 
+PRA, has developed and enhanced the 
+SSGM cloud scene simulation model 
+(CLDSIM) as well as supporting cloud 
+altitude and type maps. He has provided 
+numerous simulated cloud and terrain 
+radiance scenes for system evaluation 
+and band trade studies. He developed 
+the BSTS Ground Demo radiance data 
+sets used to evaluate sensor performance of the Lockheed 
+and Grumman system designs. Mr. Mer& had principal 
+responsibility for the enhancement maintenance of the SSGM 
+terrain scene model, GENESSIS, prepared numerous data 
+bases for use by several terrain radiance simulation codes 
+resident at PRA, and integrated scene and spectral terrain 
+and cloud radiance simulation and analysis capabilities into 
+an earth resources remote sensing modeling and simulation 
+package called the GCI Toolkit. He directed the 
+development of a hyperspectral analysis and visualization 
+tool; a spectral radiance simulation model with an 
+associated visualization tool to support spectral radiance 
+contrast and mixture analysis; and an atmospheric 
+correction model for remote sensing imagery. Mr. Mertz 
+received his B.A. and M A .  from University of Cal, Santa 
+Barbara. 
+4-1963 
+Karl Walli, Capt., USAF, Program 
+ManagerEOTR at NAIC, 
+contributes program oversight and 
+contracting authority for a 
+revolutionary R&D system that 
+provides daily products to IC, 
+including the CINCs. He gives 
+contracting oversight for $ I  0 
+milliordyr and sponsors hundreds of 
+security clearances. Previously, 
+Capt. Walli was the ChieJ; Systems 
+Integration, at DIAKentral M S I N T  Organization where he 
+provided the critical link between operations and 
+processing/exploitation for CMO. He supported AWJ2 as 
+CM0 representative on the YZK taskforce and EUCOM's 
+CPXOO a:? part of NIST, and developed CMO's MASINT 
+Lessons Learned for ALLIED FORCE. Capt. WaIIi received 
+a Masters Degree in Strategic Intelligence Ji-om the Joint 
+Militaiy Intelligence College/NAIC Branch in 1995. 
+4-1964 

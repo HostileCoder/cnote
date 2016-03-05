@@ -1,0 +1,428 @@
+HTTP Streaming of JPEG2000 Images 
+Sachin Deshpande and Wenjun Zeng’ 
+Sharp Laboratories of America, 
+5750 NW Pacific Rim Blvd., Camas, WA 98607 
+{sdeshpande Izengw} @sharplabs.com 
+Abstract 
+JPEG2000 is a new image compression standard. One of 
+the goals of JPEG2000 is to support large images. Since 
+even the compressed image file can be very big for  large 
+images, downloading the entire image can take long time 
+depending upon the user’s connection speed. Thus we 
+propose to use streaming of JPEG2000 images. We use 
+Hypertext transfer protocol (HTTP) for streaming. The 
+use of HTTP to stream JPEG2000 images will ease its 
+deployment. Thus JPEG2000 images can be hosted by 
+web server and can be streamed to the client helper 
+application. The solution is scalable. Thus client devices 
+with different capabilities, variety of screen resolutions, 
+heterogeneous bandwidths can all achieve a scalable 
+viewing of the same content stored in a single file. I t  is 
+also possible to stream only selected region of the image 
+at a particular resolution and decode this partial stream 
+and display it at the client. Thus the proposed approach 
+can ‘handle resolution, quality and region of interest 
+scalability features of JPEG2000 images. 
+1. Introduction 
+JPEG2000 is a new image compression standard. One of 
+the goals ,of JPEG2000 is to support large images [3]. As 
+an example, one of the JPEG2000 standard test image 
+(aeriall.raw) has 14565 pixels per line and 14680 lines 
+per image, which results in a big file size even after 
+compression. Thus we propose to use HTTP streaming of 
+JPEG2000 images. The motivation for using “streaming” 
+for JPEG2000 images is : 
+Since the image file can be very big for large images, 
+downloading the entire image can take long time 
+depending upon the user’s connection speed. This 
+results in high latency before the image can be 
+displayed at the client side. 
+A large image at its full resolution typically will not 
+even fit the desktop of user. 
+Thus it is a better idea to stream only the relevant portions 
+of the image to the user as necessary. Also JPEG2000 
+codestream is organized in such a way that any 
+independent part of the codestream can be accessed and 
+decoded by itself. The motivation for using H77’P for 
+streaming JPEG2000 images is : 
+Ease of deployment : currently images in JPEG and 
+GIF format are commonly hosted by web servers. 
+The use of web server (HTTP) as opposed to using a 
+separate proprietary server to stream JPEG2000 will 
+ease its deployment. 
+HTTP offers reliable delivery. 
+HTTP [ l ]  streaming concept has been used for streaming 
+media (audio, video) data. RealNetworks [ 51 supports 
+streaming encoded RealMedia (RealAudio, Realvideo) 
+files using a web server. Similarly Microsoft windows 
+media [6] also supports HTTP streaming of its audio and 
+video content. Adobe acrobat [7] uses byte-serving from 
+HTTP servers, to serve individual pages of a large PDF 
+file, using the byte-ranges feature. None of the existing 
+approaches or commercial products support streaming a 
+JPEG2000 file from web servers using HTTP streaming. 
+Vfile, a virtual file media access mechanism for 
+JPEG2000 image browsing was proposed in JPEG 
+committee meetings [SI. This proposes a set of 
+application programming interface (API) for random 
+access of segments of JPEG2000 file, and an architecture 
+for cache management, network packetization, packet loss 
+recovery for JPEG2000 files. There are several drawbacks 
+of this approach. It needs a proprietary server to support 
+the above features, where as our proposed approach can 
+work with any standard HTTP 1 . 1  web server. The Vfile 
+approach tries to re-invent some of the well-known 
+concepts (e.g. use of timers to handle packet loss, using 
+hit counts for 
+W. Zeng is now with Packetvideo Corporation, San Diego, CA 92121. Email: wzeng@pv.com. 
+0-7695-1062-0101 $10.00 0 2001 IEEE 15 
+caching). These concepts are already built-in when we use 
+HTTP which runs on top of TCP/IP, which supports 
+reliable delivery. Caching is also already supported by 
+HTTP. Unlike audio or video data which has real-time 
+properties and thus can not be optimally transmitted using 
+TCP/IP, the JPEG2000 images can be transmitted using 
+such a reliable delivery mechanism. While error 
+concealment and error resilience is an active research area 
+for video and audio data, an image (JPEG2000) typically 
+needs to be transported reliably and any packet loss is 
+better handled by re-transmission. Thus we propose using 
+HTTP streaming for JPEG 2000 images. This will allow 
+an easy deployment, since the JPEG2000 images can be 
+hosted by standard web servers. 
+The rest of the paper is organized as follows. Section 2 
+gives details about our overall streaming scheme. This is 
+followed by section 3 giving a brief introduction to 
+JPEG2000 codestream structure. Section 4 describes how 
+to stream only selected part of the complete JPEG2000 
+codestream. Our proposed HTTP streaming architecture 
+uses an index file to assist streaming in a scalable manner. 
+The structure of this index file is described in Section 5. 
+Section 6 provides a conclusion. 
+2. HTTP Streaming Architecture for 
+JPEG2000 
+Figure 1: HTTP Streaming architecture for JPEG2000 
+images 
+In this part we give the details about our proposed 
+approach for HTTP streaming of JPEG2000 images. 
+0 Web server hosts a web page consisting of 
+thumbnails images (in JPEG or CIF format) or names 
+of JPEG2000 images. Each thumbnail image or name 
+is linked to an index file URL, having an extension 
+which is recognized as a MIME type by the client’s 
+web browser and is associated with the JPEG2000 
+client browser (a client helper application which can 
+handle streaming and display of JPEG2000 images). 
+The index file consists of information which helps 
+the client to determine which portions of the 
+codestream are necessary. It also has an URL which 
+points to the actual JPEG2000 image hosted on a web 
+server. The client creates its HTTP requests using the 
+information in the index files. 
+The index file is downloaded from the web server by 
+the web browser and is passed to the helper 
+application (JPEG2000 client browser), when the 
+user clicks on the thumbnail or name of the image. 
+The index file contains information about the 
+JPEG2000 encoded image as a URL, followed by the 
+main header, tile-part headers and packet header data. 
+The details about index file structure are given in 
+Section 5. 
+The helper application sends a HTTP request to the 
+web server using the URL information from the 
+index file, to stream the lowest resolution version of 
+the JPEG2000 image. This request uses the byte- 
+ranges feature of HTTP/l. 1 [ 1,2] protocol to obtain 
+only a portion of the JPEG2000 codestream. 
+The streamed lowest resolution version of the 
+JPEG2000 image is decoded and displayed in the 
+JPEG2000 client browser window. The user can 
+interact using zoom in / out, pan controls through an 
+user interface on the JPEG2000 client browser. The 
+user can also mark any region on the image by using 
+mouse. The corresponding byte-ranges are found 
+based on the index file and an appropriate HTTP 
+request is sent to the web server. A single request is 
+created to obtain all the relevant parts of the bit- 
+stream corresponding to the region-of-interest. Again 
+this request uses the byre-ranges feature of HTTP/l. 1 
+[ 1,2] protocol to obtain only the required portions of 
+the JPEG2000 codestream. This results in a lo,wer 
+delay. Also the resultant response is easier to parse. It 
+is also possible to send multiple requests so that the 
+resultant response from the web server will be quality 
+or resolution scalable, thus allowing the helper 
+application to progressively provide a high quality 
+rendering of the image. 
+0 The resultant response from the web server is 
+decoded and displayed in the JPEG2000 client 
+browser window. 
+0 
+0 
+Figure 1 illustrates various components described in the 
+above architecture. 
+3. JPEG 2000 Codestream Structure 
+In JPEG2000 [4], an image consists of components. An 
+image may be spatially divided into tiles and tile- 
+components, where each tile is independently coded. A 
+tile-component is then divided into resolutions and sub- 
+bands. A resolution can be partitioned into precincts 
+16 
+using rectangular grids. A sub-band is divided into code- 
+blocks where each code-block is an independent coding 
+unit. A precinct may consist of a rectangular region of 
+code-blocks in all subbands of the same resolution. The 
+coded data of each code-block can be distributed across 
+one or more quality layers in the codestream. The data 
+representing a specific tile, layer, component, resolution 
+and precinct appears in  the codestream in a contiguous 
+segment called a packet. 
+There are two types of headers in the codestream (see 
+Figure 2). The main header is at the beginning of the 
+codestream. The tile-part headers are found at the 
+beginning of each tile-part, where tile-part is a portion of 
+the codestream that makes up some or all of a tile. The 
+main header provides information about the 
+uncompressed image such as width, height, width of a 
+tile, height of a tile, number of components, bit-depth of 
+each component, etc. It also provides the coding style 
+default (COD) (e.g., decomposition levels, progression 
+order, number of layers, code-block size, wavelet filter 
+used, packet partition size, etc.), the quantization default 
+(QCD), as well as some optional information such as 
+region of interest, packed packet headers (PPM), a list of 
+packet lengths (PLM), the length of every tile-part in the 
+codestream (TLM), etc. The main header is followed by 
+one or more tile-parts (each tile-part includes a tile-part 
+header and the tile-part data). Similar information can be 
+included in the tile-part header to override the default in 
+the main header. The tile-part data consists of packets. 
+b 
+LTlh L T l h  LTZh 
+Figure 2 : codestream structure 
+The lengths of the main header and each tile-part header, 
+and the length of each tile-part, can all be easily derived 
+from the main header or tile-part headers. In addition, the 
+length of each packet can be obtained from the main 
+header or derived from the packet headers located in the 
+main header or in the codestream. Based on these 
+information and the length of code-block contribution 
+information included in each packet header, we can 
+identify the locationdsegments of the codestream for a 
+particular code-block, precinct, resolution, component and 
+layer. In fact, an index file can be generated to record 
+these indexing information by parsing the codestream 
+headers, including the main header, tile-part headers and 
+packet headers. This index file can then be used to 
+facilitate the retrieval of a particular portion of the 
+codestream. 
+For a given tile, the order in which the packets are 
+interleaved is called the progression order. The 
+interleaving of the packets can progress along four axes: 
+layer, component, resolution and precinct. There are five 
+allowable progression orders in the standard which are 
+signaled by the COD and/or Progressive order change 
+default (POD) markers in the main header. 
+1.  Layer-resolution-componen t-posi tion progressive, 
+2. Resolution-layer-component-position progressive, 
+3. Resolution-position-component-layer progressive. 
+4. Position-component-resolution-layer progressive, 
+5.  Component-position-resolution-layer progressive. 
+4. Streaming Selected Portions of 
+Codestream 
+he 
+Since a JPEG2000 codestream is well structured, it is easy 
+to retrieve some portion of the codestream for a particular 
+interest. Some typical applications are resolution 
+scalable, quality scalable and region of interest streaming. 
+We will discuss how to locate the corresponding portions 
+of the codestream for these applications in the following. 
+Resolution Scalability : It is relatively easy to 
+achieve resolution scalability. If the progression 
+order follows Order 2 or Order 3, then the data for a 
+particular resolut,ion will1 be a contiguous segment in 
+the codestream. IF the progression. order follows 
+Order 1, then the data for a particular resobtion will 
+be distributed over several separate contiguous 
+segments (one in each quality layer) in the 
+codestream. If the progression order follows Order 4 
+or 5, then the data for a particular resolution will 
+again consists of several separate contiguous 
+segments in  the codestream, with one segment in 
+each precinct and each component. 
+SNR Scalability : It is also relatively easy to achieve 
+SNR scalability, especially when the codestream 
+follows the first progression order. For the other 
+progression orders, the data for a particular quality 
+layer is distributed over several separate contiguous 
+segments in the codestream. Their locations can be 
+obtained from the index file. 
+Region of Interest (ROI) Streaming : It is more 
+involved to achieve region of interest streaming at the 
+client side. For an arbitrary region in the spatial 
+domain, you need to trace how each coefficient and 
+pixel value is reconstructed in the inverse wavelet 
+17 
+transform, and find the corresponding region in each 
+subband that contributes to the reconstruction of the 
+ROI. The precincts and code-blocks that are needed 
+to reconstruct the ROI can then be identified. The 
+compressed data for these precincts and code-blocks 
+can then be located and retrieved at the server side 
+for streaming. 
+For a 1 -D case, let x denote a position in the ROI mask for 
+the parent band and let f j  andf-n denote the positive and 
+negative extents of the relevant synthesis filter. Then the 
+point x is influenced by any subband samples whose 
+“upsampled” locations are in the range x - f j  to x+f-n. In 
+most implementation notation, the low-pass subband 
+samples have upsampled locations 2n, while the high-pass 
+subband samples have upsampled locations 2n+ 1.  If the 
+f j  and f-n are computed with respect to this definition of 
+upsampling, then for low-pass subbands, the subband 
+samples which contribute to x are those in the range 
+ceil((x$j)/2) to floor((x+f-n)/2), while for high-pass 
+subbands, the samples which contribute to s are those in 
+the range ceil((x-fj- 1)/2) to tloor((x+f-n- l)/2). 
+In many applications, the region of interest will be a 
+rectangular area, or can be expanded to a rectangular area. 
+In this case, it is easier to trace the corresponding region 
+in each subband. Only the upper-left and the lower-right 
+corners of the ROI need to be traced. If the ROI mask in 
+the parent subband covers the coefficients between upper- 
+left corner (x0, yo) and lower-right corner (XI ,  yl) ,  then 
+the mask in the newlchildren subband will cover the 
+coefficients between (xO’, yo’) and (xl’, yl’), where 
+For LL band : 
+xO’= ceil((xO-f-p)/2) , xO’= ceiI((yO-f-p)/2), 
+XI’= floor((xl+f-n)/2), yl‘= floor((yI+f-n)/2) 
+For LH band : 
+xO’= ceil((xO-f-p)/2), yo’= ceil((y0-f-p- l)/2), 
+XI’= floor((xI+f-n)/2), yl’= floor((yI+f-n-I )/2) 
+For HL band : 
+xO’= ceil((xO-f-p-1)/2) , yo’= ceil((yO-f_p)R), 
+XI’= floor((xl+f-n-1)/2), y 1’= tloor((y l+f-n)/2) 
+For HH band : 
+xO’= ceil((xO-f-p-1)/2), yo’= ceil((y0-f-p- 1)/2), 
+XI’= floor((x I+f-n- 1)/2), y l’= floor((y 1 +f-n- 1)/2) 
+For rectangular ROIs, the identified precinctskode-blocks 
+will also form a rectangular region in each 
+resolutiodsubband. Depending on the progression order, 
+a row of precincts may occupy a contiguous codestream 
+segment. If some precincts only cover a few code-blocks 
+of interest, then only the data for those code-blocks, 
+instead of the whole precinct, may be retrieved and 
+streamed. In fact, for each left boundary of a code-block 
+in a particular subband, we can identify a vertical line in 
+the spatial domain that has the property that any pixel 
+located to the right of the line or on the line will not 
+depend on any coefficient located to the left of the code- 
+block boundary (Figure 3 ) .  For example, i f  the left 
+boundary of a code-block is at a position x, then the 
+corresponding line in its parent subband will be at a 
+position x’ where: 
+if the code-block is in LL band or LH band, 
+if the code-block is in HL or HH band, 
+x’= x*2+f-p- I .  
+x‘= x*2+f-p. 
+[ Precinct 1 
+I ,  
+( I /  
+W avekt 
+dom a n  
+S p a b l  
+dom a n  
+Figure 3 : mapping from code-block left boundaries to 
+vertical lines in the spatial image domain. 
+These vertical lines will be equally spaced (with an 
+interval twice as large as the code-block width) except 
+possibly the two immediately adjacent to the boundaries 
+of the image where there is an offset based on the filter 
+length. These vertical lines in the spatial domain then 
+divide the image into segments so that based on which 
+segment a ROI left boundary locates, we can conclude 
+which code-block in that particular subband will be the 
+left-most that will be needed for the reconstruction of the 
+18 
+ROI. Note that for different subbands, these vertical 
+lines may be located at slightly different places. Similarly, 
+we can segment the image into vertical strips or 
+horizontal strips so that the right-most, top-most and 
+bottom-most code-blocks needed for the reconstruction of 
+the ROI can be identified. Figure 4 shows the partition of 
+the spatial image for the code-blocks in a particular 
+subband. 
+I Leftboundaries 1 r=l 
+Figure 4: partition of the spatial image for code-blocks 
+in a particular subband. 
+We can also create a partition of the spatial image for the 
+precincts of a particular resolution. For this purpose, we 
+only need to look at the boundary code-blocks of a 
+precinct. 
+5. .Structure of the Index file 
+The index file mentioned previously is intended for 
+facilitating the fast retrieval and streaming of portions of 
+interest of the image. It will be stored at the server 
+together with the JPEG2000 codestream, either as a 
+separate file or as meta-data in the JPEG2000 file format 
+portion. It can be as simple as a collection of all the 
+header.information of the codestream. It can also be as 
+complex as including all the spatial domain partition 
+information discussed above for region of interest 
+streaming. The followings are a few examples for the 
+possible .structure of the index file. The trade-off is the 
+ease of computation at the client side vs. the storage 
+requirement at the server side and the transmission time 
+for the index file. 
+0 simply as a collection of the header information 
+of the codestream 
+including header information and progressive 
+partition information 
+including headers, progressive partition 
+information and spatial domain partition 
+information. 
+6. Conclusion 
+In this paper, we have proposed architecture for streaming 
+JPEG2000 images. The proposed architecture uses 
+standard web server to host the JPEG2000 image content 
+and streams the images to the client using HTTP protocol. 
+The proposed approach cafi handle resolution, quality and 
+region of interest scalability features of JPEG2000 
+images. We have developed a scalable image browsing 
+system based on the architecture described here. We 
+believe the use of standard web server to achieve the 
+scalable streaming will ease the deployment of JPEG2000 
+images and would enable some novel and versatile 
+applications. 
+7. 
+1. 
+2. 
+3. 
+4. 
+5 .  
+6. 
+7. 
+8. 
+References 
+Fielding R., Gettys J., Mogul J. C., Frystyk H., 
+Masinter L., Leach P., Berners-Lee T., “Hyper-text 
+Transfer Protocol -- HTTP 1.1,” RFC 2616, June 
+1999 
+Apache web server website: http://ww\.v.apache.org 
+JPEG2000 Verification Model 7 .0 (Technical 
+description), ISOAEC JTC I/SC 2 9 N G  1 
+WGlN1684, April 2000 
+“Information Technology - JPEG 2000 Image 
+Coding System,”’ ISO/IEC FDIS1.5444-I : 2000 (Aug. 
+2000). 
+RealNetworks website: http://www.rertlnetworks.com 
+website: Microsoft windows media 
+http://www. miciusoft.corn/windo~~smedia 
+Adobe acrobat website: 
+http://WW~v.rtdohC.coin/producIs/rtcrobat/ 
+J. Li, H. Sun, H. Li, Q. Zhang, X. Lin, “Vfile - a 
+virtual file media access mechanism and its 
+application in JPEG2000 images for browsing over 
+internet,” ISO/IEC JTC l /SC29NGl  N 1473, Nov. 
+1999. 
+19 

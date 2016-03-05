@@ -1,0 +1,979 @@
+Multicasting with Advantaged Resources' 
+Mary Jo Zukoski and Robert C. Durst 
+The MITRE Corporation 
+1820 Dolley Madison Blvd 
+McLean Virginia 22 102 
+mz 11 koshi <d!niitrc.org, durst @ mitre. orq 
+703-883-7587,703-883-7535 
+Abstract-Satellite links and other "advantaged" resources 
+are increasingly becoming available in tactical networks. 
+When such resources are used to multicast data, significant 
+reductions in traffic and delay are possible, though not 
+guaranteed. Furthermore, use of these resources is relatively 
+expensive and should be efficiently allocated. This paper 
+presents ARDUP, the Advantaged Resource Discovery and 
+Use Protocol, which re-forms the existing terrestrial route to 
+include the advantaged resource in an efficient manner. It 
+addresses the cost-effectiveness of the advantaged resource 
+by introducing a method of global cost assessment of the 
+multicast paths. This assessment provides a measure of the 
+relative benefit - if any -that using the advantaged resource 
+will bring. The paper also describes the admission control 
+mechanism by which access to the advantaged resource is 
+managed. Results from an OPNET simulation study are then 
+presented to illustrate the performance and benefits of the 
+protocol. 
+TABLE OF CONTENTS 
+1. INTRODUCTION 
+2. KEY AREAS of PROTOCOL 
+3. 
+4. ADVANTAGED NODE ANNOUNCEMENT 
+ASSESSMENT OF TERRESTRIAL MULTICAST ROUTE 
+5. ALTERNATE ROUTE FORMATION 
+6. 
+7. 
+ASSESSMENT OF ADVANTAGED MULTICAST ROUTE 
+RELATIVE COSTS OF TERRESTRIAL AND ADVANTAGED 
+ROUTES 
+8. ADMISSION 
+9. SIMULATION AND RESULTS 
+10. CONCLUSION AND FUTURE WORK 
+11. REFERENCES 
+1. INTRODUCTION 
+Tactical networks are wireless and mobile communications 
+environments in which timely delivery of information to 
+units in the field is critical. Towards this end, airborne and 
+spacebome nodes - here called advantaged resources 
+(ARs) - are being incorporated into these networks. Such 
+nodes can quickly deliver large amounts of data to mobile 
+units, particularly if the data is multicast. This improves 
+performance not only of the receivers directly involved but 
+also benefits the terrestrial network by reducing overall 
+traffic. This is illustrated in Figure 1, where the left side of 
+the figure shows a multicast path through a simple network 
+for Group A. Let the AR in this case be a satellite. The path 
+that group data might take if it could transmit over the AR is 
+shown on the right. Observe that most of Group A's 
+receivers are within the AR's footprint and can be reached 
+Receipt over TerrestrialNetwolk 
+Figure 1. Efficient Use of an Advantaged Resource (Group A) 
+' 0-7803-6599-2/01/$10.00 0 2001 IEEE 
+/ 
+7 -3459  
+by a single broadcast transmission from the satellite. This 
+allows Group A’s data to bypass much of the terrestrial 
+network, decreasing delay to the group receivers and 
+reducing traffic to the terrestrial network. This is an efficient 
+use of the AR since it benefits both the group and the 
+network. 
+It is not always in the best interest of either the sender or the 
+network to use an AR, however. For example, in Figure 2, 
+only one receiver (R5) in Group B is inside the satellite’s 
+footprint while the rest of the group is near the sender. A 
+possible alternate path using the AR - the advantaged path 
+- is shown on the right side of Figure 2. In this situation, 
+the terrestrial path may be preferred since it’s relatively 
+expensive to use the satellite and may not be worth the cost 
+to reduce delay to only one receiver. Further, using the 
+terrestrial path reduces competition for satellite access by 
+those who would benefit from its use (such as Group A). 
+Suppose, however, that receiver R5 in Figure 2 becomes 
+unreachable by the terrestrial network (say, it’s behind a 
+mountain). If communicating with R5 is vital to group 
+operation, then in this case the sender may prefer to use the 
+advantaged path. 
+Most situations, of course, may not be the extremes of 
+Figures 1 and 2 - where the decision to use the AR or not 
+was relatively simple. An evaluation process is needed that 
+will determine the cost-effectiveness of using the terrestrial 
+vs. the advantaged paths for both an individual group and 
+for the overall network. Such a process is described in this 
+paper. 
+teceipt over Terrestrial Netwok 
+.... 0 
+0 
+Before an evaluation can be made, of course, the advantaged 
+path must first be formed and done so in a “reasonable” 
+manner. Note the receivers RI, R2, R3 and R4 in Figure 1. 
+In the terrestrial path, R1 forwards data to R2 and R3 
+forwards to R4. RI continues to forward to R2 in the 
+advantaged path since the latter is outside the satellite’s 
+footprint. On the other hand, R3 no longer forwards data to 
+R4 in the advantaged path since R4 can directly receive data 
+from the AR. Additionally, both Figures 1 and 2 assume 
+that any node within the footprint can communicate directly 
+with the AR. This is typically not the case: a specialized 
+node that acts as a gateway is usually needed and its 
+existence known by receivers. The type of information 
+described in this paragraph - which nodes are within the 
+footprint, which nodes require forwarding and who should 
+do the forwarding, the location of the gateways, the identity 
+and availability of ARs, etc. - is necessary before an 
+advantaged path is formed. Mechanisms to gather this type 
+of information are introduced in later sections of this paper. 
+It is important to keep in mind that many of the nodes in a 
+tactical network will likely be battery-powered radios. 
+Therefore, power is of great concern for protocols operating 
+in this environment. This is especially true when a node will 
+act not only as a senderheceiver of its own data, but also as 
+a forwarding node for the network in general. ARDUP was 
+designed to minimize processing throughout the network 
+while at the same time functioning in an efficient manner. 
+2. KEY AREAS OF THE PROTOCOL 
+The Introduction described several actions that must be 
+Receipt via Advantaged Resoun: 
+Group sender Group receiver 0 Satellite Footprmt 
+Figure 2. Inefficient Use of an Advantaged Resource (Group B) 
+7-3460 
+undertaken before the Advantaged Resource (AR) may be 
+used. The network should first leam of the existence and 
+capabilities of the AR, reroute the multicast path to the 
+resource, determine if it is cost-effective to use, and then 
+possibly contend for access. We term these actions, 
+respectively: Announcement, Altemative, Assessment, and 
+Admission. 
+2.1 Announcement 
+Advantaged Nodes (ANs) are the specialized routers that act 
+as gateways between the AR and the rest of the network. 
+(For example, an uplink to a satellite: the uplink is the AN 
+while the satellite is the AR.) A node in the network that 
+wishes to use the AR must first gain access through an AN 
+associated with it. Note that a node may have multiple ANs 
+through which it may gain access. It is important that nodes 
+discover at least a subset of ANs and the ARs that they 
+serve. This is accomplished through Advantaged Node 
+Announcements (ANAs), a discussion of which can be 
+found in Section 4. 
+2.2 Altemative 
+Before the AR can be accessed, the multicast path must be 
+rerouted to the resource (or, rather, to its ANs). This newly 
+formed route is the alternative, or advantaged, route and is 
+the union of multiple “mini-meshes” rooted in the ANs. The 
+AN at the root of each mini-mesh acts as a proxy source for 
+the true sender. Section 5 provides an overview of this mini- 
+mesh concept. 
+2.3 Assessment 
+Once the altemative route is formed, the relative costs of 
+using the original terrestrial route vs. the new advantaged 
+route must be computed to determine which is more cost 
+effective. To illustrate, suppose we are concerned with a 
+strict hop count in the simple group of Figure 1.  The 
+terrestrial path costs 15 hops while the advantaged route 
+costs 4 hops. The sender in this scenario would probably 
+prefer to use the advantaged route. (In this simple example, 
+we did not “weight“ the AR hop to count for more than a 
+terrestrial hop, as would likely be the case in a real network. 
+ARDUP can accommodate such weighting.) 
+Generalizing, a sender must first choose a cost metric, and it 
+must know the overall costs of both its terrestrial and 
+advantaged routes. Multicast protocols, however, are often 
+limited to local cost information. A method to globally cost 
+the terrestrial multicast distribution route using this local 
+information is introduced in Section 3. A modification for 
+use with advantaged routes is given in Section 6. A brief 
+discussion of what it means to be “cost effective” for both 
+an individual group and for the overall network is given in 
+Section 7. 
+2.4 Admission 
+The fourth major issue in the discovery and use of 
+Advantaged Resources is discussed in Section 8. Admission 
+arbitrates between user requests for access to the AR. 
+It is assumed that all members of the multicast path be 
+multicast-capable. We differentiate between those members 
+that wish to receive data and those in the path that act 
+simply as routers. The former are referred to as multicast (or 
+group) receivers and must participate in both the terrestrial 
+and altemative routes. 
+While the discussions and examples given in this paper deal 
+with one sender and with tree-based multicast routes, it 
+should be noted that the methods described are also 
+applicable when the sender within a group changes or if the 
+path is a mesh. 
+3. ASSESSMENT OF TERRESTRIAL MULTICAST 
+ROUTE 
+Cost measurements in routing protocols are often limited to 
+local information when building and maintaining routes 
+[1,2,3,4]. This section describes a method to compute the 
+global terrestrial cost (GTC) of a multicast path, where the 
+GTC is defined as the sum of the link costs of the terrestrial 
+path where each link is counted exactly once. This 
+computation is accomplished by first sending a probe that 
+gives each receiver its cost from the source to itself along 
+the terrestrial path. The acknowledgment of the probe 
+allows for the computation of the GTC. The global cost 
+function will use existing link costs calculated by the 
+underlying protocols, reducing processing requirements of 
+the assessment. 
+3.1 Terrestrial Probe (TP) 
+The purpose of a TP is threefold to provide cost 
+information to each group receiver along the multicast path; 
+to generate the Terrestrial Acknowledgment at the leaf 
+routers (detailed in the following section); and to assist in 
+the creation of the altemative route (Section 5). These 
+probes will be relatively small in size and it is expected that 
+they be sent fairly infrequently, say, on the order of a few 
+minutes. Thus the burden on the network caused by the 
+probes should be relatively light. 
+The terrestrial probe (TP) is sent from the source to all 
+receivers along the terrestrial multicast route. The probe 
+includes two cost fields: Source Cost (SC) and Neighbor 
+Cost (NC). The SC field gives the cost from the source to 
+that router and is incremented at each router along the path. 
+The NC field is operated on in the same manner as SC 
+except ifthe router is a group receiver, in which case NC is 
+reset to zero. NC effectively gives the cost from the nearest 
+upstream receiver in the path to this router - i.e., the 
+additional cost to the network to add this router to the path. 
+Each router that receives the probe stores its SC and NC 
+values, along with the source and multicast group addresses. 
+Figure 3 shows the fields of a probe at each hop in a simple 
+network in which the cost function is hop count. We see, for 
+example, that R2 is four hops from the SRC (SC,,=4). 
+However, since R1 is already in the multicast path, it costs 
+7-3461 
+S 
+R4 
+Figure 3. Illustration of Source and Neighbor Costs in a TP 
+only one additional hop to add R2 to the path (NC,,=l). The 
+NC field becomes significant when the alternative route is 
+formed (described in Section 4).Either of two events may 
+act as the trigger of a TP transmission: the receipt of an 
+Advantaged Node Announcement (ANA) or the formation 
+of the terrestrial multicast route. The former results in the 
+costing of the terrestrial route only if it is known that at least 
+one AN is reachable. This saves unnecessary processing and 
+traffic if no AN/AR is available within the network. The 
+latter method results in a terrestrial cost assessment being at 
+the ready in case it is needed. Periodic probing is needed in 
+this case as the distribution path - and hence its cost - 
+changes due to the network's ad hoc nature. 
+3.2 Terrestrial Probe Acknowledgment (TACK) 
+The global cost of a multicast path is the sum of the costs of 
+all the individual links used in the path, where each link is 
+included exactly once. Consider a leaf router, which is a 
+group receiver with no downstream nodes. Note that a 
+probe's SC field at a leaf router is equal to the sum of the 
+costs of all the individual links used in the subtree from the 
+source to the leaf router. Therefore, if we sum the SC values 
+of all the leaf routers, it would almost result in the global 
+multicast cost. The discrepancy arises from including the 
+costs of some of the links more than once, since some links 
+are shared by more than one leaf router. However, if we sum 
+the SC values and then remove the duplication over the 
+shared links, the correct global cost results. 
+Let SI, be the sum of the source costs of all the leaf routers 
+in the multicast distribution path. At every branch point, B, 
+in the path, shared links cease being shared for those leaf 
+routers whose paths diverge at that point. That is, the shared 
+links for these leaf routers are from the source to B. The cost 
+of this subpath is the probe field SC, and must be included 
+only once in the GTC. Therefore, if there are m branches at 
+B, we wish to remove (m-1)" SC, from Sleaf' This subtraction 
+of duplicated link costs must be done at every branch point 
+of the downstream distribution path. This, in effect, is what 
+the processing of the Terrestrial Probe Acknowledgment 
+(TACK) does as it traverses back towards the source. 
+To use our example in Figure 3, a visual examination of the 
+network produces a GTC = 7. The leaf routers are R2, R3 
+and R4. Simply adding the SC,, values, i=2,3,4, of the leaf 
+routers results in a sum Sleaf = 13, which is incorrect. We 
+must remove the duplication over any shared links. Observe 
+that RI is the sole branch point, so that the shared links 
+among the leaf routers are from SRCaRl .  There are m=3 
+branches at this router. We know from the preceding 
+paragraph that the cost of the shared links is included three 
+times in Sleaf; whereas to obtain the correct GTC it should be 
+included only once. The cost of the shared links S R C 3  R1 
+is the probe field SC,,=3. Therefore, subtracting off the 
+duplication (m-1)* SC,,, 
+GTC = SI, - (m-1)" sc,, 
+- 13 - (3-1)" 3 
+7 - 
+which is correct. 
+3.2.1 Processing of the TACK-As explained in the above 
+section, the TACK is used to compute the global cost of the 
+terrestrial multicast route. It is sent from the leaf routers to 
+the source. When a leaf router receives a TP, it creates the 
+TACK and initializes its Terrestrial Cost (TC) field to the 
+SC field from the router's TP. Recalling the definition of the 
+SC, this initially sets the TC to be the cost from the source 
+to this leaf router. The TACK is then forwarded along the 
+reverse shortest path towards the source. A non-branch that 
+receives a TACK simply forwards the TACK without 
+modifying the TC field: 
+outgoing TC = incoming TC (1) 
+A branch router that receives a TACK waits a period of time 
+to receive TACKS on all its downstream interfaces (15 i I 
+m) along this route. The branch router then accumulates the 
+incoming TC, costs from the received TACKS and removes 
+7-3462 
+the duplication incurred from shared upstream links. It 
+accomplishes this by recalling that SC is its (cached) Source 
+Cost - computed when it forwarded the TP downstream - 
+and substituting Equation (1): 
+out TC= [c( in  TC,)]-(m-I)*%, (11 i 5 m) (2) 
+The forwarding of the TACK - and the possible 
+modification of its TC - continues until the source is 
+reached. If the source is a branch router it operates on its 
+received TACKS in the same manner. Otherwise it accepts 
+the TC in its received TACK as the global terrestrial cost, 
+GTC, for this multicast route. 
+Equation (2 ) ,  although used to illustrate the processing at 
+branch routers, is also applicable for non-branch routers. At 
+non-branch routers, m = 1. Substituting m = 1 into Equation 
+(2):  
+outgoing TC = C(in  TC)- (m-I)*SC (11 i I 1) 
+= c ( i n  TC,)- (1-l)*SC (i=l) 
+= incomingTC 
+which is Equation (1). Therefore no special processing is 
+needed to distinguish between branch and non-branch 
+routers. 
+If a router does not receive TACKS from all of its 
+downstream routers, the router will retransmit the TP. If this 
+does not result in the receipt of the TACK, the router shall 
+assume that those downstream routers are no longer 
+members of this subpath and will forward any TACKS that 
+it did receive. 
+3.3 Modifications to Assessment 
+The procedure described in this section describes a cost that 
+is incremented by the receiving side of an individual link. 
+(For example, in the case of hop count, it is the node that is 
+receiving the probe that increments the count.) The method 
+- that of probing the multicast path for individual link 
+costs and computing the overall cost through 
+acknowledgements - is also valid for metrics that are 
+determined by the sending side of a link. In those cases the 
+processing of the probe and its acknowledgments would 
+need to be modified, but the concept remains the same. 
+It has been assumed thus far that forwarding at the branch 
+points is accomplished through multiple link layer 
+transmissions. However, this could also be done through a 
+single link layer broadcast. This would affect the cost of that 
+transmission as well as how the cost is determined. Cost 
+metrics that are receiver-incremented may result in an 
+erroneous value for that transmission since every 
+downstream neighbor from the branch point would 
+increment the probe fields - instead of the single increment 
+that a broadcast calls for. The processing of the probe and 
+its acknowledgments can be adapted to handle this, 
+providing that the protocol knows that a broadcast is 
+occurring. Communication between the protocol and the 
+link layer would therefore be required. 
+4. ADVANTAGED NODE ANNOUNCEMENT 
+Advantaged Nodes (ANs) are specialized routers that act as 
+gateways between the AR and the rest of the network. ANs 
+and ARs are not necessarily distinct; some ARs may be 
+directly accessible by any node in the network and in these 
+cases act as their own AN. In general, however, routers 
+wishing to transmit to or receive data from the AR must first 
+go through an AN. Thus it is important that routers discover 
+the existence, location and capabilities of their nearby ANs 
+and the ARs they serve. This is accomplished through AN 
+Announcements (ANAs), which are broadcast, with 
+duplicate suppression, from each ANA. A time to live field 
+(TTL) within the ANA limits the scope of the broadcast. 
+ANAs, via ARDUP, allow the network to use the ANs and 
+ARs but at the same time prevent them from being treated 
+as regular Touters. If an AN instead advertised its 
+connectivity to the AR in a routing update, two undesirable 
+conditions would likely result. First, the AR would be 
+included in unicast routing information and therefore would 
+become enmeshed in unicast routes. Not only does this 
+negate the "specialness" of the resource but also consumes 
+power from the AN and AR. Second, if users were 
+somehow able to recognize the functionality of the AR, they 
+could inundate the AN with requests for service. This leads 
+to congestion in the AN (and possibly in surrounding nodes) 
+and consumption of its battery power. Further, without the 
+costing fields of the ANA, the AN would have no method of 
+distinguishing between user requests for the AR. First-come 
+first-serve would prevail, again negating the uniqueness of 
+the resource. 
+Each ANA will have a SC cost field like that in a TP. The 
+SC measures the cost from the AN to that router and is 
+incremented at each router along the path. The ANA will 
+also have NC fields, but instead of a single NC as in a 
+probe, it will contain a list of them - one for every group 
+that it encounters, Aggregating group NC information 
+allows a single ANA for each AN, rather than one ANA per 
+group for each AN. This seduces traffic and processing 
+requirements of the routers (including the AN). The list 
+shall be of the form {(g,, NC,), (g2, NCJ, ... ( g,, NCJI, 
+where gi is a group address. Each (g, NC) pair is called a 
+NC-struct. When the ANA is created, the list is empty. 
+When a non-group router receives the ANA, it increments 
+every NC, field in the list. If a router belonging to group gi 
+receives the ANA, it increments every NC field in the list - 
+including its own, if such an entry exits. It stores this new 
+value in an internal table and then resets the associated NC 
+field in the ANA to zero before forwarding. A router may 
+belong to multiple groups; processing does not differ in this 
+case. As the ANA encounters members of groups it hasn't 
+"seen" before, a new NC-stsuct is added. The NC field is 
+initialized to the incsemented SC from the ANA. This is 
+done because the incremented SC gives the cost from the 
+AN to this router. Since there was no existing NC-struct 
+7-3463 
+within the ANA for the group g, this means that no other 
+member of g was reached so far by the ANA. Hence, the 
+proxy source - i.e., the AN - is the nearest upstream “group 
+neighbor“ for this router. 
+For each (g, NC) pair, the NC effectively gives the 
+additional cost to the network to add this router to the 
+group’s mini-route. Each router that receives the 
+announcement stores its SC value and source (AN) address, 
+along with the NC values and multicast group addresses (if 
+applicable). The SC and NC fields are used in the formation 
+of the Advantaged Path. 
+Both the cost fields and the manner on which they are 
+operated are very similar to that of the Terrestrial Probe, 
+where the probe is sent by the source. This makes sense 
+since the A N s ,  as stated in Section 1.2, will act as proxy 
+sources for the true source in the advantaged route. 
+Additional fields in the ANA may contain such information 
+as: 
+PSrc - source address of the originating AN 
+Sequence# 
+Which ARs the AN can access 
+Type (uplink, downlink, both) of each associated AR 
+QoS classifications of each associated AR 
+Time to live (TTL) - this field could be a hop count, 
+max time to live, or GPS info that defines a bounding 
+box around the originating AN. 
+This information will be stored at each router receiving the 
+ANA. 
+In order to limit the propagation of the ANAs through the 
+network, a TTL value is included and is examinedoperated 
+on at each router. When the TTL limit is reached, the ANA 
+is discarded. To ensure that all members of a group leam of 
+the existence of at least one AN, a group ANA (GANA) is 
+used. This is important because in some tactical networks, 
+there may be a limited number of uplink-capable ANs for an 
+entire network, but with downlink-capable ANs throughout. 
+The nodes in these networks can be widespread 
+geographically. Knowledge of the ANs (and of the uplink 
+AN, in particular) can permit communication between nodes 
+that would otherwise be prohibitive. 
+Each GANA is group specific and is forwarded only along 
+the multicast route that group. When a member of group gi 
+receives an ANA, it creates a GANA using information 
+from the ANA; it can be thought of as a subset of the ANA, 
+containing all information except for those (g,,NC) pairs for 
+which i # j. If the router belongs to multiple groups, it must 
+create a different GANA for each group. Each GANA is 
+forwarded only along the multicast route for gi. Duplicate 
+GANAs will have the same (PSrc, Sequence#) pair and will 
+be suppressed. 
+An additional method of ANA dissemination is also being 
+examined for use with ARDUF’. The protocol described in 
+“Scalable Location Update-based Routing Protocol for ad 
+hoc networks (SLURP)” is being studied as a scheme2 for 
+locating ANs, possibly requesting ANA probes on a per- 
+group basis [ 5 ] .  
+5. &TEWATE ROUTE FORMATION 
+The advantaged, or alternate, route is the multicast path that 
+includes the AR. Because the AR can be accessed only 
+through ANs (which in some cases may be the AR itself), 
+the advantaged route is formed by the creation of multiple 
+“mini-meshes” that are rooted in ANs. Each AN within a 
+mini-mesh acts as a proxy for a remote source and 
+distributes data to a subset of the entire multicast group. 
+Nodes which are closer to the true source than to any AN 
+receive data directly from the source. A source joins a mini- 
+mesh at the closest AN to complete the advantaged route. 
+One possibility currently being considered is to use the 
+same multicast address for both the advantaged and 
+terrestrial routes for a specific group but to distinguish 
+between them by Differentiated Services code points [6 ] .  An 
+example of an original terrestrial route and its alternate path 
+are shown in Figure 4. 
+As a router receives ANAs and TPs, it builds a proxy table 
+containing, among other information: 
+PSrc: proxy source ID 
+s c :  cost to get from PSrc to router 
+and a series of tuples: 
+where 
+g: group address 
+NC: 
+ts: 
+cost to get from the nearest upstream 
+group receiver to this router 
+time of entry into table 
+In this context, “PSrc” could be either the true source or one 
+of the ANs acting as a proxy source. The router chooses 
+which proxy source, P, to attach to by using the table 
+entries. P is the associated PSrc for the minimum cost in the 
+table, min[SC, NC]. Ties may be resolved by choosing 
+newer entries before older ones. Another option to resolve 
+ties may be to choose the true source before an AN. 
+Mini-meshes will be formed by joining the group g 
+(actually, g’: g with the Differentiated Service code point 
+indicating use of an AN) rooted at P. Note that a router 
+(including the source) may want to wait a period of time 
+before joining g’ to see if ANAs from other ANs arrive, 
+possibly with a lesser cost. If an ANA arrives after a mini- 
+mesh forms and the new AN has lower cost, the router can 
+quit the first mini-mesh and join the second. There should 
+* SLURP is a scalable routing protocol for large ad hoc networks that 
+maintains location information about nodes in the network. We are 
+investigating its use for maintaining location information on Advantaged 
+Nodes. A group that wishes to form an advantaged path would request that 
+an AN announcement be sent to it. Only one group member is required to 
+receive an announcement directly from the AN, the member may then 
+propagate the announcement to the rest of the group. 
+7 - 3 4 6 4  
+Terrestrial Route 
+Group sender Group receiver 
+Alternate Route using 
+Advantaged Nodes 
+<:> Ad\ antaged Nodes c> Satellite Footprmt 
+Figure 4. Terrestrial Path vs. Alternate Path with Advantaged Nodes 
+be some minimum level of deviation -in time or cost- 
+that must be met before the new AN is joined. Proxy table 
+entries expire after a period of time and are deleted from the 
+cache. Proxy table entries are also modified when updates 
+occur due to the ad hoc nature of the network. 
+The terms “joining the AN/group g’ /proxy source P” all 
+refer to the process of a router associating itself with the 
+mini-mesh rooted at the proxy source P and having the 
+address g with the Differentiated Services code point 
+indicating use of an AN. 
+The NC field in the TP, ANA and Advantaged Probe 
+(Section 6 )  messages indicates the cost from the nearest 
+upstream group member to the router receiving the message. 
+An example of the role it plays in forming the advantaged 
+route is given in Figure 5, which uses hop count as the cost 
+metric. The left diagram shows the advantaged route that 
+might be formed if just the minimum source cost was 
+considered. In that case, the true source SRC and both of 
+the advantaged nodes have a minimum cost of 3. If the true 
+source is chosen over advantaged nodes, then R2 would 
+form its mini-mesh by joining to SRC. The GTC of this 
+alternate route is 7. The right diagram shows the advantaged 
+route that is formed if both minimum source and neighbor 
+costs are considered. Here, the min {SC, NC} = 1 ,  which is 
+associated with the proxy source AN2. The GTC of the right 
+diagram is 5, which is less than that of the left diagram. If 
+the goal is to form the lowest cost route, then including the 
+neighbor cost is a useful practice. While it is true that the 
+route on the right results in higher delay to R2, delay was 
+not the cost function used in forming the route. 
+6 .  ASSESSMENT OF ADVANTAGED MULTICAST 
+ROUTE 
+The cost assessment of the advantaged route is very similar 
+to the assessment of the terrestrial route described in Section 
+2. The major differences are the additions of the 
+Advantaged Resource Probe and the Advantaged Probe 
+Acknowledgment, and the use of proxy sources to send TPs 
+to the mini-meshes. 
+An Advantaged Resource Probe (AP) is sent from the true 
+source over the advantaged route to the associated ANs (i.e., 
+PSrcs). When an AN receives the AP, it transmits a TP - 
+with itself as the source - to its attached mini-mesh. This 
+gives the members of the mini-mesh their cost from the 
+PSrc to themselves. The members then reply with a TACK 
+back to the PSrc, providing the PSrc with the overall cost of 
+that particular mini-mesh. The PSrc then forwards this cost 
+in an Advantaged Resource Acknowledgment (AACK) back 
+to the true source. It can be sent to the source over the 
+terrestrial network if it’s unable or inefficient to use the AR 
+uplink. The sum of the costs in the AACKs provides the 
+original source with the terrestrial portion of the advantaged 
+route cost, GAC. 
+The cost of the AR hop remains to be determined and 
+should be implementation-specific. For example, if the cost 
+function is hop count, simply adding 1 seems somewhat 
+inadequate due to the uniqueness of this particular hop. On 
+the other hand, if the cost function is expected delay, its 
+value over the AR link may be sufficient to reflect the true 
+cost of this hop. In addition, it is possible that multiple ARs 
+may exist for a network. Should each AR have its own 
+unique cost value even if the cost functions are the same? 
+Should ARs of the same type or QoS classification have the 
+same cost? These remain open issues. 
+Whatever cost is determined for the AR hop, the source will 
+add that value to the terrestrial portion to obtain the total 
+7 - 3 4 6 5  
+cost, GAC, for the advantaged route. In Figure 1, if the cost 
+function is hop count and the hop over the AR is taken to be 
+2, then the terrestrial route cost is 15 while the cost for the 
+advantaged route is 5. 
+7. RELATIVE COSTS OF TERRESTRIAL 
+AND ADVANTAGED ROUTES 
+The terrestrial and advantaged route costs -- GTC and GAC, 
+respectively -- provide a gauge to the source of which route 
+is more cost effective to use. Because of some level of 
+inaccuracy in the calculations (due to the ad hoc nature of 
+the network), a strict comparison of GTC and GAC is an 
+unwise test. The difference between the values should be 
+large enough so that the decision is clear. Otherwise, every 
+source with even a minor cost benefit would attempt to 
+access the AR, possibly resulting in overloading of the ANs 
+and/or ARs with requests for service. Thus, what is needed 
+is a threshold value, A, such that: 
+if IGAC-GTCI I A, use terrestrial route 
+(comparison too close to call) 
+elseif GAC-GTC > A, use terrestrial route 
+(clear cost benefit) 
+elseif GTC-GAC > A, attempt advantaged route 
+(clear cost benefit) 
+The value for A may fluctuate by taking into account current 
+network conditions: increasing in times of congestion and 
+decreasing when conditions are light. The process by which 
+A is selected is outside the scope of ARDP and should be 
+implementation- or operator-dependent. 
+8. ADMISSION 
+In the test conditions of Section 7, if a source determines its 
+cost benefit to be “sufficient” to use the advantaged route, it 
+can only request access to the AR. Reference [7] describes 
+a set of extensions to the Resource Reservation Setup 
+Protocol (RSVP) [SI to allow specification of a resource 
+range, in order to support adaptive applications in a dynamic 
+environment. We propose to extend this to add a figure of 
+merit derived from GTC and GAC, above. This figure of 
+merit may be used by the AN (and/or AR, depending on the 
+situation) to decide whether a flow should gain access to the 
+AR and what fraction of its resource request should be 
+granted. Currently, this figure of merit is simply a tuple 
+consisting of the GAC and the difference between the GTC 
+and GAC. 
+We have not yet fully explored the issues and opportunities 
+that this technique presents. Clearly, resource reservation in 
+a highly dynamic environment is a research topic in and of 
+itself. However, the reservation scheme provides a 
+mechanism to ensure that as many flows as possible are 
+granted productive access to the resource, and ensures that 
+resources are not over-reserved throughout the network. 
+Remaining issues to be considered include classification of 
+Advantaged Resources, and the varying suitability of these 
+to different Quality of Service requirements, as well as 
+issues related to merging the cost-effectiveness criteria for 
+access to ARs with other access criteria such as priority. 
+9. SIMULATION A D RESULTS 
+The ARDUP protocol was incorporated into an existing 
+simulation model in MIL3’s OPNET Radio Modeler. The 
+model used the Wireless Internet Routing Protocol (WIRP) 
+[9] and the Core-Assisted Mesh Protocol (CAMP) [l]  
+mm(SC. NC} =>choose AN2 m ( S C )  =>choose SRC 
+Group receiver Q Advantaged Node 0 Satellite Footpnut /‘ ! > Group sender 
+Figure 5. Use of the Neighbor Cost field in Forming the Advantaged Route 
+7-3466 
+as its underlying unicast and multicast protocols, 
+respectively. 
+The physical layer model employed a set of tools in 
+combination, MODSAF and TIREM. MODSAF simulates 
+movement of military units relative to each other for each 
+sampling instance. TIREM takes the output from MODSAF 
+and calculates the RF characteristics between all pairs of 
+nodes, considering such factors as terrain, distance, and 
+transmission frequency. The result is a matrix that 
+represents realistic RF path loss between all pairs of nodes. 
+OPNET was modified to read in and utilize these matrices 
+in its physical layer model. 
+In this initial study, an infantry urban terrain scenario was 
+used with five squads of five members each. Nodes moved 
+at a rate of approximately 3 km/hr through flat, urban 
+terrain. Two multicast groups were formed: one (GI) 
+composed of the squad leaders and the second (G2) was one 
+squad plus a single member of a second squad. All were 
+arbitrarily chosen but fixed. 
+Scenarios were run in a control network - i.e., a network 
+without ARDUP - and again with the same network using 
+ARDUP. The focus of the study was to provide proof of 
+concept and to examine ARDUPs effect, if any, on 
+performance. It was not an investigation of WIRP, CAMP 
+or of the OPNET models of either of these protocols. Any 
+potential deficiencies in the protocols or in their models 
+were assumed to be present in both the control network and 
+in the ARDUP network. 
+9. I OPNET Modules 
+The Node model consisted of several modules, with a 
+process model associated with each module. Transport layer 
+and application issues are currently not addressed. 
+Modules[ 101 of particular relevance to this study are: 
+EO (Engagement Operations): generates and receives 
+high priority, user-specified traffic to a specified set of 
+destinations or random destinations. 
+SA (Situation Awareness): generates and receives user- 
+specified traffic, either unicast or multicast destinations. 
+Voice: generates voice traffic to a unicast or multicast 
+destination. Call duration is assumed to be uniform with 
+exponential interarrivals between calls. During a call, 
+fixed sized packets are generated at a constant rate. 
+Routing: contains a model of WIRF'. 
+Mrouting: contains a model of CAMP. 
+Ardup: contains a model of ARDUP. 
+DLC (Data Link Control): supports multiple 
+retransmissions of unicast MAC-layer packets. 
+MAC: implements the MACA protocol. 
+9.2 Key Assumptions 
+Each terrestrial node included both user and routing 
+capabilities. The AR in this simulation was an Airborne 
+Communication Node (ACN) and had routing 
+capabilities only. 
+Each node had a single interface and a single address, 
+so that a node could not receive and transmit packets at 
+the same time. 
+Each node learned during the initial phase of the run 
+which multicast groupsladdresses it wanted to join. For 
+this study, nodes did not quit a group once they joined. 
+The AR was in was view during the entirety of the run. 
+Cost was measured in hop count, with a weight of 2 
+hops for the AR. That is, the hop over the AR counted 
+for double in the GAC (Global Advantaged Cost). 
+Three ANs were located within the network. 
+The ANs could function as both uplink and downlink 
+for the AR. 
+Multicast transmissions were broadcast, as opposed to 
+multiple unicast transmissions to neighbors. 
+9.3 Results 
+Performance factors examined showed improvement in 
+most cases when the advantaged route was preferred. In 
+those instances, global hop count was always reduced since 
+that was our decision metric. Delay measured in time was 
+not always significantly reduced. Because of the relative 
+close proximity of some of the nodes and the fact that 
+multicast transmissions were broadcast (and therefore, many 
+neighbors could simultaneously receive them), the terrestrial 
+route was often preferred. An unforeseen consequence of 
+this close proximity was a high rate of collisions. 
+In general, G1 showed better performance under ARDUP 
+due to the wider geographic dispersion of its members. Use 
+of the advantaged resource in this case allowed a greater 
+consolidation of transmissions than that to G2, which was 
+already fairly consolidated. Note, however, that G2 also 
+potentially benefited under ARDUP since, without the 
+protocol, it may have attempted to use the advantaged 
+resource. Doing so would have resulted in worse 
+performance than that along its terrestrial route (as in Figure 
+2). 
+Table 1 shows hop count (the decision metric) for both 
+advantaged and terrestrial paths when SQ1 is the sender at a 
+sampled moment in time. The individual hop counts do not 
+add up to the Global Costs (GAC, GTC) since broadcasting 
+was employed. In the Advantaged Path assessment, the total 
+hop count is 4; this includes the "weighting" factor. 
+The low number is due to the clustering of SQ2, SQ3 and 
+SQ4 closely together and neighboring one of the ANs at that 
+moment. In addition, SQ1 had been arbitrarily chosen as an 
+AN, which allowed it to transmit directly to the AR. 
+7 - 3 4 6 7  
+Table 1. Ho Count for G1, S 1= sender. 
+Advantaged Terrestrial 
+sender sender 
+SQ4 2 5 
+SO5 2 
+I Choose: I Advantaged Path I 
+5 
+Table 2 shows the hop count for the same relative 
+configuration when SQ4 was the sender. Because of the 
+positions of SQ4 and the AN relative to the other nodes, the 
+GAC increased by one. In this run, A=3 and resulted in the 
+Terrestrial Path being selected. If A=2, SQ4 would have 
+chosen the Advantaged Path. 
+Global Cost 
+Table 2. Hop Count for G1, SQ4= sender. 
+I Advantaged I Terrestrial 1 
+43 7 
+Path Path 
+The Terrestrial Path was chosen in Table 2 even though 
+some members saw reductions in their individual costs with 
+the Advantaged Path. ARDUP performs global costing and 
+therefore the needs of the many (i.e., the network) outweigh 
+the needs of the few. 
+so1 2 
+In Table 3, a typical hop count is examined for G2. For the 
+terrestrial path, all members of this group had a hop count of 
+four, except for M03. MO3 was closest to the source, 
+received the data, and broadcast it to the rest of the group. 
+5 
+SQ2 
+SQ3 
+SO4 
+2 2 
+2 2 
+sender sender 
+M12 
+Advantaged Terrestrial 
+Path Path 
+sender sender 
+MO1 
+For the advantaged path, all members of the group had a 
+hop count of four except for M05, which was an AN in this 
+4 4 
+configuration. It received the data directly from the AR and 
+broadcast it to the rest of the group. The GAC in this case 
+was actually greater than the GTC since the sender's closest 
+AN was not along G2's terrestrial path. Getting to an uplink, 
+therefore, required a detour that the terrestrial path did not. 
+Even with the weighting factor considered, this is a clear 
+case of ARDUP indicating when not to use the advantaged 
+path. 
+I MO3 
+Hop count was used as our simulation costing function and 
+as an example throughout this paper due to its simplicity in 
+instrumentation and illustrative purposes. However, any 
+metric could have been used. 
+4 3 
+An example of the effect of ARDUP on delay can be seen in 
+Figure 6. It shows the measured delay for G1 as depicted in 
+Table 1. Although hop count was our decision metric, delay 
+was also reduced in this instance. This was due to the one- 
+MO4 
+0.009 
+0.008 
+A 0.007 
+8 0.006 
+$ 0.005 
+Q) 0.004 
+.E 0.003 
+0.001 
+0 
+Y 
++ 0.002 
+4 4 
+2 3 4 5  
+Squad Leaders I 
+MO5 
+Terrestrial Path 
+Advantaged Path 
+- -~ ~ 
+3 4 
+Figure 6. Delay for G1, SQl=sender. 
+~~ 
+Global Cost 
+Choose: 
+hop proximity of Gl's receivers to their ANs, as well as to 
+the arbitrary selection of SQ1 as an AN. 
+53 4 
+Terrestrial Path 
+Attempts to optimize one decision metric will not, of 
+course, always result in improved performance of another. 
+Figure 7 shows the delay for G2 as depicted in Table 3. 
+Group Members 
+I Terrestrial Path 
+Advantaged Path 
+- .~ 
+Figure 7. Delay for G2, MlZ=sender. 
+The Global Advantaged Cost (GAC) includes the "weighting factor" for 
+the AR hop. 
+7-3468 
+10. CONCLUSIONS AND FUTURE WORK 
+Satellites and other advantaged resources are becoming 
+more common in tactical ad hoc networks. These resources 
+can provide timely delivery of large amounts of information 
+if used effectively. This improves performance not only of 
+the receivers directly involved but also benefits the 
+terrestrial network by reducing overall traffic. 
+Complications arise due to the ad hoc nature of both the 
+network and the advantaged resources, as well as from the 
+requirement for specialized gateways. The Advantaged 
+Resource Discovery Protocol (ARDUP) described in this 
+paper addresses the issue of effectiveness in the face of 
+these complications. ARDUP introduces: a method of 
+global cost measurement of the multicast path; a mechanism 
+to re-form the multicast path to include the advantaged 
+resource; a modification of the global cost measurement to 
+work with the advantaged route; a means to disseminate 
+advantaged resource information and procedures to 
+effectively use it; and preliminary work on an admission 
+policy to arbitrate between user requests for access to the 
+advantaged resource. This is done with minimal processing 
+to reduce the power required from radio batteries. 
+Simulation results show that the use of ARDUP generally 
+improved performance when the advantaged route was 
+preferred. Reductions in delay were not always observed 
+since delay was not our decision metric. The alternate path 
+formation and route assessment functioned as designed and 
+with no undue effect on network performance. The 
+advantaged path was not always the better choice due to the 
+layout and close proximity of some of the nodes. However, 
+ARDUP functioned as intended in these instances since it 
+correctly chose the terrestrial path as the preferred route. It 
+is important to remember that ARDUP is not simply the use 
+of an AR; it is also the decision of whether or not to use that 
+resource. 
+There were several limitations of this initial study. A single 
+AR was in view of the cluster area for the entire run. Thus, 
+the effects of sporadic link connectivity to the AR or of 
+multiple ARs were not examined. Due to a low level of 
+loading at the ANs, contention for admission was not seen. 
+A comparison in performance of a terrestrial network vs. an 
+advantaged resource network may not be construed as 
+entirely fair. However, there are currently no protocols that 
+the authors are aware of that would provide the same 
+automated functionality as ARDUP. Therefore, our goals 
+were to first show proof of concept for the protocol and then 
+to observe any effects on performance. 
+implementation of ARDUP is planned that may make 
+evident other areas of improvement. 
+11. REFERENCES 
+[I] Garcia-Luna-Aceves, J.J. and E. Madruga, “The Core- 
+Assisted Mesh Protocol”, IEEE Journal on Selected Areas 
+in Communications, Special Issue on Ad-Hoc Networks, 
+V01.17, NO. 8, pp. 1380-1394, August 1999. 
+[ 2 ]  Lee, S-J, W. Su, and M. Gerla, “On-Demand Multicast 
+Routing Protocol (ODMRP) for Ad Hoc Networks”, 
+Internet Draft, draft-ietf-manet-odmrp-O2.txt, January 2000, 
+Work-in-progress. 
+[3] Wei, L., et. al., “Protocol Independent Multicast Sparse 
+Mode (PIM-SM): Protocol Specification”, Internet Draft, 
+draft-ietf-pim-v2-sm-O1 .txt, November 1999. 
+[4] Pusateri, T., “Distance Vector Multicast Routing ”, 
+Internet Draft, draft-ietf-idmr-dvmrprp-v3-O9.txt, September 
+1999. 
+[5] Woo, S.-C. M. and S. Singh, “Scalable Routing in Ad 
+Hoc Networks”, Technical Report TROO.OO1, Department of 
+Electrical and Computer Engineering, Oregon State 
+University, Corvallis, OR, March 2000. 
+<www.ece.orst.edu/-singh> 
+[6] Blake, S., D. Black, M. Carlson, E. Davies, Z. Wang, W. 
+Weiss., “An Architecture for Differentiated Services”, 
+IETF, RFC 2475, December 1998. 
+[7] Thomson, D. S. ,  et al., “An Approach for Providing 
+Quality of Service in a Dynamic Network Environment”, 
+MP-W0000097, The MITRE Corporation, Reston, VA, July 
+2000. 
+[8] Braden, R., L. Zhang, S. Berson, S. Herzog, S. Jamin, 
+“Resource Reservation Protocol (RSVP) -- Version 1 
+Functional Specification”, IETF, RFC 2205, September 
+1997. 
+[9] Murthy, S. and J.J Garcia-Luna-Aceves, “An Efficient 
+Routing Protocol for Wireless Networks“, Mobile Networks 
+and Applications, 1(2):183--197, October 1996. 
+[lo] Schult, N. L., “Overview of CAMP OPNET Model”, 
+White paper, The MITRE Corporation, Reston, VA, 
+September 2000. 
+BIOGRAPHY 
+Future studies will increase the number of ARs and 
+incorporate dynamic link connectivity to them. Heavier 
+loading will enable a thorough examination of admission 
+control. Modifications will allow the network to recognize 
+the ”advantages“ of the AR in a non-ARDUP environment, 
+providing a more equal comparison. Another potential 
+enhancement is the incorporation of different cost functions, 
+such as delay or signal strength. In addition, an 
+7-3469 
+Technical Staff at the MITRE Corporation in Reston, VA. 
+She has been involved in the modeling and simulation of 
+military tactical networks, as well as protocol design and 
+analysis, since 1993. Her research interests include queueing 
+theory and multicasting in mobile networks. She received a 
+B.S. in math and computer science from Wilkes College in 
+1988 and a M.S. in math from Virginia Polytechnic Institute 
+& State University in 1990. 
+Robert C. Durst is a Principal Networking 
+and Communications Engineer at the MITRE Corporation 
+in Reston, VA. He has been involved in research and 
+development of communication protocols for use in mobile 
+environments since 1993. He has been active in developing 
+protocols for use in military tactical networking 
+environments and in spacecraft communication 
+environments. His research interests include multicasting in 
+mobile networks and congestion control algorithms for 
+mixed-loss environments. Prior to joining MITRE in 1986, 
+Mr. Durst was a Member of the Group Technical Staff at 
+Texas Instruments, Inc. He received a B.S. in electrical 
+engineering from the University of Missouri in 1978. 
+l 
+7 -3470  

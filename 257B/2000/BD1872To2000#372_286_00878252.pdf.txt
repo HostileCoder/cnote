@@ -1,0 +1,451 @@
+Autonomous Scan Management (ASM) for Earth Sensors2 
+Joseph D. Anderson, Jerome M. Jump, James W. O’Malley 
+INTELSAT 
+3400 Intemational Drive NW 
+Washington, DC 20008 
+ioseph.anderson@intelsat.int 
+j erome. iunip@intelsat.int 
+james.omallev@intelsat.int 
+202-944-7583 
+Abstract- This paper describes the Autonomous Sensor 
+Management (ASM) monitor used to manage the Earth 
+Sensor Assembly (ESA) configurations of 26 satellites 
+spread across five different series. It applies to 
+geosynchronous satellites that use a scanning ESA as the 
+primary sensor for attitude control. 
+After an initial setup of each satellite, ASM compares the 
+ephemeris data for each satellite with the ephemeris data 
+for the Sun and Moon and determines when a second target 
+could interfere with the ESA Field of View (FOV). When 
+interference is predicted, ASM schedules the commands to 
+properly configure the ESA. ASM then monitors the 
+satellite telemetry data to verify the ESA is in the proper 
+state. If the ESA is not in the proper state as the 
+interference time approaches, ASM will alarm the satellite 
+controllers to correct the problem. 
+The system has performed flawlessly for several years, 
+saving INTELSAT numerous man-hours and reducing the 
+risks to satellite availability due to operator error. 
+INTELSAT owns and operates a global communications 
+satellite system providing capacity for voice, video, 
+corporate/private networks and Internet in more than 200 
+countries and territories. 
+1. 
+2. 
+3. 
+4. 
+5 .  
+6. 
+TABLE OF CONTENTS 
+INTRODUCTION 
+OVERVIEW OF EARTH SENSORS 
+PREVIOUS SENSOR MANAGEMENT 
+AUTOMATION OF SENSOR MANAGEMENT 
+CONCLUSION 
+BIOGRAPHY 
+1 .  INTRODUCTION 
+The INTELSAT fleet has consisted of as many as 26 
+satellites in geosynchronous orbit. The attitude 
+determination and control systems (ADCS) of these 
+satellites are designed to maintain their earth pointing error 
+to less than k 0.1 degrees in normal operations. To attain 
+this performance an earth sensor is used to locate the 
+center of the earth disk relative to the satellite. This sensor 
+operates in the infrared wavelengths to sense the transition 
+between the “hot” earth and the “cold” space. The 
+INTELSAT V, VII, VI11 and New Skies Satellites NSS-K 
+series satellites are all three axis stabilized and use similar 
+earth sensors. The NSS-K as well as several of the other 
+satellites are owned by New Skies Satellites N.V. and 
+operated by mTELSAT pursuant to the transition services 
+agreements governing INTELSAT’s arm’s-length 
+relationship with New Skies. The INTELSAT VI series is a 
+spin-stabilized spacecraft, which uses horizon-crossing 
+sensors. The performance of all these sensors can be 
+dramatically affected by the incursion of other celestial 
+bodies (i.e., sun and moon) into their respective FOVs. To 
+prevent these dramatic effects, commands must be sent to 
+the spacecraft to re-configure the sensors. The re- 
+configured sensor(s) will not respond to the incursion of 
+the second celestial body into its FOV. The overall process 
+from detecting upcoming events through commanding the 
+sensor configurations is called sensor management. 
+The previous technique for performing this sensor 
+management involved significant human interaction and 
+multiple computer platforms and software. This process 
+has now been fully automated and consolidated. 
+Automation of this routine process has: 
+Enabled the Flight Mechanics engineers to focus more 
+of their attention on maneuver planning 
+Enabled the Space Segment engineers to concentrate 
+on more of the non-routine operations, investigations 
+and evaluations 
+Reduced the high volume of repetitive command 
+scheduling required by the Satellite Control Center 
+(SCC) personnel 
+Simplified operational procedures resulting in safer 
+and more consistent operations 
+0-7803-5~5/00i$l0.00 2000 LEEE 
+- Updated December 15,1999 
+445 
+INTELSAT now has a monitor to verify, in real time, that 
+the sensors have been configured properly, based on real 
+time telemetry of the satellite state. This reduces the risk 
+of entering a sensor management period with an incorrect 
+spacecraft configuration. Such operational errors have 
+resulted in large attitude transients and loss of earth lock 
+for many satellite operators. ASM has been created to 
+verify in real time that the spacecraft has been configured 
+properly prior to any scan management period, adding 
+considerable safety to satellite operations. 
+This paper will provide an overview of the earth sensors 
+used on INTELSAT satellites, the method previously used 
+to perform scan management, and the description of ASM's 
+hnctionality and benefits. 
+2. OVERVIEW OF EARTH SENSORS 
+Scanning Earth Sensors 
+The scanning earth sensor is the most common earth sensor 
+used by INTELSAT satellites. They are the primary sensors 
+for INTELSAT V, W, WI and NSS-K satellites. The 
+INTELSAT fleet has scanning ESAs from two different 
+manufacturers: Lockheed Missiles and Space and Nippon 
+Electric Corporation (NEC). What follows is a generic 
+description of a scanning ESA. The description and the 
+numbers specified are different for Lockheed and NEC. 
+The scanning earth sensor uses a scanning mirror and two 
+bolometers to detect the transitions from the cold space to 
+the warm earth and vice-versa. Figure 1 is a rough sketch 
+of this type of earth sensor. 
+/ 
+Figure 1 : Scanning Earth Sensor 
+The scanning mirror oscillates on a torsion bar at a 
+frequency of 8 Hz. The mirror reflects the heat energy 
+scanned onto the two bolometers. One bolometer is used 
+to measure the scan across the northern hemisphere, called 
+the north scan, and the other bolometer measures the scan 
+across the southern hemisphere, called the south scan. The 
+north and south scans are separated by 12 degrees and the 
+bolometers measure the energy in a swath 1.65 degrees 
+tall. Each time the scan crosses from the cold space to the 
+warm earth, or vice-versa, the bolometers output a pulse. 
+These pulses are used to measure the north and south earth 
+chord width (Figure 2). The chord widths together with the 
+scan center reference are then used to determine the roll 
+and pitch angle of the satellite relative to the center of the 
+earth. 
+I I 
+Figure 2: Earth Sensor Geometry Scans 
+The pitch angle is computed by comparing the center of the 
+chord with the center of the mirror scan. The roll angle is 
+computed by taking the difference of the north and south 
+chord widths. 
+The earth sensor has four modes of operation: 
+1) Normal 
+2) Acquisition 
+3) North Scan Inhibit @SI) 
+4) South Scan Inhibit (SSI) 
+In Normal, NSI, and SSI modes the scan width is f 12.5 
+degrees. The Acquisition mode scan width is +_ 25 degrees. 
+When the sensor is in the NSI or SSI modes the earth chord 
+for the scan which is inhibited is replaced with an average 
+chord width measured prior to the inhibit. The pitch angle 
+is then forced to use the scan which is not inhibited and the 
+roll is computed by comparing the one active scan chord 
+width with the average chord width from the inhibited scan 
+prior to being inhibited. 
+The scanning earth sensor has the ability to detect a second 
+body within a scan. For example, if the moon enters into 
+the scan, then the sensor would detect two warm bodies. 
+When this occurs the sensor automatically inhibits the scan 
+and sends telemetry indicating the presence of a second 
+body. The sensor then re-enables the scan once the second 
+body is no longer detected. This process works well until 
+446 
+the second body is near the limb of the earth. When this 
+occurs, the sensor can no longer detect the difference 
+between the two bodies and as a result the scan is re- 
+enabled. At this point, the scan with the second body is 
+significantly larger than normal (Figure 3). This results in 
+an erroneous roll and pitch measurement that causes the 
+satellite to point off the desired attitude with a significant 
+transient. 
+Figure 3: Moon or Sun on Limb of Earth 
+To prevent the large attitude transients the sensors are 
+commanded by ground to inhibit the scan that contains the 
+second body. Once the second body is well outside the 
+scan range the sensor is commanded back to Normal mode. 
+This “sensor management” prevents any large attitude 
+transients, whch may result in loss of communications 
+traffic. 
+Spinning Earth Sensors 
+The INTELSAT VI series satellites are spin stabilized. This 
+means that a large portion of the satellite spins at nominal 
+speed of 30 RF’M while the payload platform remains de- 
+spun to point at the earth. A Bearing and Power Transfer 
+Assembly (BAPTA) is used to connect the spinning section 
+and the de-spun platform (Figure 4). 
+pulses when the scans cross the earth, moon, or sun. The 
+attitude control processor records the times that these 
+pulses occur. These times are used in conjunction with 
+Index Pulses (IPS) generated by the BAPTA to determine 
+the attitude. The index pulses provide a relative position of 
+the spinning section, which contains the sun and earth 
+sensors, with respect to the de-spun platform that is 
+pointed at the earth. 
+Four earth sensors are mounted on the spinning section 
+(Figure 5) of the satellite. Two of the sensors point 5.5 
+degrees north and two point 5.5 degrees south (Figure 6) .  
+The earth sensors are basic bolometers similar to the 
+bolometer used by the scanning sensors. The output of the 
+bolometers is a trapezoidal voltage pulse proportional to 
+the earth radiance. This pulse is used to indicate the 
+leading and trailing edge of the observed earth (i.e., chord 
+width). The attitude control processor uses the time of 
+arrival of the earth sensor leading and trailing edges, sun in 
+center of the sun sensor and the IPS to determine the 
+satellite attitude and spin rate. 
+Figure 5: INTELSAT-VI Sensor Locations (Top View) 
+Figure 4: “ELSAT -VI Spin Stabilized Satellite 
+(Side View) Figure 6: INTELSAT-VI Earth Sensor Scans (Side View) 
+for this type Of what are For attitude control the Platform &spin Controller (PDC) 
+called spinning sun and earth sensors. These sensors are 
+located on the spinning section of the satellite and generate 
+logic 
+compute the pointing and rate 
+data from the sun, earth and Ip to 
+to the despun 
+447 
+platform via the BAPTA. The primary mode of operation 
+for the PDC is called Platform Pointing Mode (PPM). 
+This mode controls the inertial azimuth pointing angle to a 
+value commanded by the ground. The earth or sun sensor 
+may be selected, by command, as the inertial reference 
+sensor (SIR). For normal operations, the earth sensor is 
+typically chosen as the SIR because it provides ease of 
+operation especially during eclipse season. The sensor 
+management that must be performed for PDC includes: 
+During eclipse season the earth sensor selection must 
+be changed to use the scan that is on the opposite 
+hemisphere as the sun. As a result the sensor must be 
+changed in the middle of the eclipse season as the sun 
+moves from one hemisphere to the other. During the 
+period that the sun is in the FOV of an earth sensor, the 
+earth sensor lock status will frequently change from 
+lock to unlock and back again. To prevent these alarms 
+this telemeq value is forced to unlock status for the 
+duration of sun in the FOV. 
+The PDC is also very sensitive to moon on the limb of 
+the earth. Moon on the limb will cause an increase in 
+the earth chord measurement. To prevent any attitude 
+transient from occurring, the SIR is changed from the 
+selected earth sensor to the sun sensor throughout the 
+duration of the moon-on-limb condition. 
+3. PREVIOUS SENSOR MANAGEMENT 
+The previous method of performing sensor management 
+began every Thursday when the Attitude Recovery On-Call 
+Engineer (AROCE) would run one of the two scan 
+interference prediction programs. These programs 
+predicted the position of the sun and the moon with respect 
+to the satellite, and the moon phase angle. They then 
+determined the times at which the sun or moon was w i h  a 
+sensors predetermined "stay-away" zone (Figure 7). 
+Figure 7: Scanning Earth Sensor "Stay-Away" Zones 
+Figures 8 and 9 show a one-year prediction for the sun and 
+moon elevations, and moon phase. Table 1 summarizes all 
+times at which the moon is within the "stay-away" zone 
+elevation, with the shaded rows showing when the moon 
+phase angle is greater than 80 degrees for a zero inclination 
+satellite. 
+SENSOR INTERFERENCE FOR INELSAT 701 ON 71111995 
+SvrVMwn Ekvauon 
+, ,moon 
+I -._. I 
+(17101 am1 tmi imi OM? MI mm1 
+DsdyrvnS 
+Figure 8: Sun and Moon Elevations 
+h p h a a r  
+Figure 9: Moon Phase 
+Table 1 : Moon Interference Prediction for 3 Months 
+11996 1 February I 19 I South I 5 I 
+This software ran on a PC and was a mixture of FORTRAN 
+and MATLAB. The FORTRAN code was a pre-compiled 
+program, supplied by Flight Dynamics. It required as inputs 
+the satellite position and velocity vectors, an epoch for 
+these vectors, and a list of the desired times for predicting 
+the satellite, moon, and sun positions. Once the ephemeris 
+data is generated, the MATLAB program determined if 
+448 
+sensor interference would occur and plotted the positions 
+of the sun and moon for each satellite in the INTELSAT 
+fleet. At the end of the execution, a file was generated that 
+gave the entry and exit times of the moon. 
+If interference was predicted, another software product was 
+run that read the table of interference’s produced by the 
+previous program and produced a summary sheet for each 
+satellite series. These summary sheets indicated which 
+satellites required scan management, at what times, and 
+which command procedures needed to be scheduled. The 
+scan inhibit procedures were scheduled to execute one 
+hour prior to the predicted interference and the return to 
+normal mode procedures executed one hour after the 
+predicted interference ends. The summary sheets were 
+then compared manually by the ADCS engineers with an 
+independent sensor interference output generated by Flight 
+Dynamics. The summary tables were then passed on to the 
+Satellite Control Center (SCC) where the command 
+procedures were manually scheduled for execution. 
+For the satellites that have scanning earth sensors, the 
+commands for scan inhibit and return to normal mode are 
+included in well defined call-up procedures. 
+During eclipse season the sun enters the FOV of these 
+sensors every day. Daily command procedures were used, 
+that were identical to the fixed call-up procedures above, 
+except that they were executed daily for as long as needed. 
+These procedures needed to be manually generated each 
+eclipse season. 
+The INTELSAT-VI scan management procedures required 
+either two or four different procedures depending on 
+whether moon-on-limb condition existed or not. In 
+addition, the commands changed twice per year as the 
+sensor configuration changes from season to season. 
+When moon interference was detected for INTELSAT-VI 
+satellites, a program was run using a moon interference 
+summary, provided by Flight Dynamics, to generate the 
+required timed command procedures. These procedures 
+were then verified, transmitted, and scheduled manually. 
+The INTELSAT-VI eclipse operations requires much less 
+commanding than the other satellites and much of it is still 
+performed manually today. The manual activities are 
+scheduled on the two days per year that the sun crosses the 
+equator. On these days, the earth sensor selected for 
+inertial reference must be switched. 
+From the descriptions above, it can be concluded that the 
+maximum number of moon interference command 
+procedures that could be scheduled at one time was greater 
+than 50. During eclipse season each satellite with scanning 
+sensors, needs to have scan management performed each 
+day due to sun interference (approximately 40 procedures 
+per day). During peak times, when moon and sun 
+interference occur on the same day, as many as 210 scan 
+management procedures may be executed. 
+4. AUTOMATION OF SENSOR MANAGEMENT 
+The ASM program was created to automate and consolidate 
+the sensor management process. ASM’s requirements, 
+basic hctionality, and benefits are described below. 
+ASM Receives and Verifies Ephemeris Data 
+Each week ASM receives a two-week prediction of the 
+ephemeris data for each satellite from the Flight Dynamics 
+group. The table header contains the pitch, roll, and yaw 
+(inverted or not) biases as well as a time stamp for this 
+data. The table itself contains the following data at one- 
+hour intervals: longitude and latitude of the satellite, the 
+azimuth and elevation for the sun and the moon, and the 
+moon phase (Figure 10). ASM uses a simplified altemate 
+means to verify the predicted ephemeris data by using the 
+satellite location and the time-stamp. In addition, the 
+header information is verified via telemetry or some other 
+means. 
+Figure 10: ASM Ephemeris Data Provided Weekly 
+ASM Predictions and Scheduling 
+Using the Flight Dynamics data, ASM predicts the 
+interference times for the duration of the ephemeris file. 
+ASM schedules all commanding activities for a predicted 
+interference, three days prior to its occurrence. ASM uses 
+INTELSAT standard guidelines for commanding the ESA to 
+inhibit mode 15 minutes prior to when the second target 
+enters the “stay-away” zone and commanding the ESA to 
+normal mode 15 minutes after the second target exits the 
+“stay-away” zone. ASM schedules all the commanding 
+activities covering a 24-hour period, three days in advance. 
+In addition to the logic employed above, ASM takes 
+precautions to avoid excessive commanding in cases where 
+449 
+the moon may briefly enter and exit a “stay-away” zone 
+only to re-enter the same “stay-away” zone a short time 
+later. In a case such as this, the ESA scan is inhibited 
+before the first entrance to the “stay-away’’ zone and the 
+ESA is returned to normal mode after the second exit. This 
+special case occurs when the moon skirts along the top or 
+bottom edge of the “stay-away” zone. 
+ASM Monitors Data 
+ASM continuously monitors the ESA configuration for all 
+of the satellites in the Intelsat fleet. In the event that an 
+ESA should change state and the ground did not command 
+position of the moon along this path is updated in real-time. 
+The arrow buttons in the upper left corner allow the user to 
+zoom in and out to see more of the azimuth. The menu in 
+the upper right is used to switch between the moon scan and 
+the sun scan. When the sun is selected (Figure 13), it is 
+seen that the “stay-away” zones are much larger. This 
+figure also highlights the path and current position of the 
+sun in azimuth and elevation. 
+The ASM user interface allows the SCC controllers to 
+filter and sort on a summary of ASMs activities and to 
+easily reschedule command procedures (Figure 14). It also 
+allows the user to disable ASM activities for any satellite. 
+relative to the scan, 2) a plot of the sun and moon elevation 
+and the moon phase versus time as seen from the satellite, 
+including the elevations of the scans for this satellite, 3) 
+the current moon phase as seen from the satellite, and 4) a 
+menu item for setup and editing of the “stay-away zones” 
+for both sun and moon interference. The raw ephemeris 
+data is also accessible through this menu. 
+Figure 1 1 : ASM Global View (Top View) 
+In Figure 12, the moon “stay-away” zone is displayed in two 
+shades. The smaller lighter shaded area is the actual scan 
+size based on the size of the bolometer and sensor mode. 
+The larger darker shaded area is the “stay-away’’ zone 
+margin. The sensor configuration commands are scheduled 
+for 15 minutes prior to entry into this region. The blue 
+horizontal line is the path of the moon. The predicted 
+450 
+Figure 12: Moon “Stay-Away’’ Zone for Scanning ESA 
+ASM Situational Awareness 
+In addition to all the work ASM has relieved and possible 
+traffic outages it has prevented, the situational awareness 
+that it provides to the SCC staff may be equally beneficial. 
+It is used immediately by the SCC controllers whenever a 
+satellite experiences a pitch glitch or monitor trip. When 
+one of these events occurs, the controllers and engineers 
+will immediately open the ASM graphical display to show 
+the position of the sun and moon with respect to the ESA 
+FOV. These graphics provide immediate explanations for 
+some events such as when a full-phase moon is skirting 
+along the edge of the “stay-away” zone. In other cases, if 
+the sun or moon is in the “stay-away” zone, a different 
+procedure is needed depending on where the body is 
+relative to the earth. In t h s  case, the situational awareness 
+provided by ASM makes the choice of procedure fast and 
+obvious. 
+5 .  CONCLUSION 
+An automated system was created that: predicts future 
+events; automatically schedules appropriate satellite 
+commanding procedures; provides real-time monitoring to 
+ensure all sensors are in their proper configuration; and 
+provides displays to indicate the current and future status of 
+the sensor management. 
+The benefits of ASM are twofold. First, it has taken a 
+repetitive tedious process that was prone to errors and 
+replaced it with a tool that is easy to use and has worked 
+flawlessly for three years. Second, and by some 
+considered to be more beneficial, is the situational 
+awareness that the ASM graphm provides to the SCC 
+controllers and engineers. 
+Figure 13: Sun “Stay-Away‘‘ Zone for Scanning ESA 6.  BIOGRAPHY 
+Figure 14: ASM Summary Activities User Interface 
+Joe Anderson is the Section Manager of the ADCS group 
+in the Space Segment Engineering Management (SSEM) 
+directorate at INTELSAT. He has a BS in Aerospace 
+Engineering from the University of Minnesota, an MS in 
+Mechanical Engineering from Stanford, and an MBA 
+from the George Washington University (May 2000). 
+Jerome Jump is a software developer for INTELSAT. He 
+has a BS in Electrical Engineering from Purdue 
+University and an MS in Electrical Engineering from the 
+George Washington University. 
+Jim O’Malley is an engineer in the ADCS group in the 
+SSEM directorate at INTELSAT. He has a BS in 
+Mathematics from the Pennsylvania State University and 
+an MS in Mechanical Engineering from the George 
+Washington University. 
+45 1 

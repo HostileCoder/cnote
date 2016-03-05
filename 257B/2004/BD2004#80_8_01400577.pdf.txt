@@ -1,0 +1,659 @@
+BEAM: Broadcast Engagement ACK Mechanism to
+Support Reliable Broadcast Transmission in
+IEEE 802.11 Wireless Ad Hoc Networks
+Jenhui Chen and Muwen Huang
+Department of Computer Science and Information Engineering,
+Chang Gung University, Gueishan, Taoyuan, Taiwan, R.O.C.
+Email: jhchen@mail.cgu.edu.tw
+Abstract— To safely transfer a broadcast packet to all nodes
+in computer networks is an important issue. However, it is a big
+challenge to transfer broadcast packets over wireless networks
+reliably due to the unsettled wireless links and lack of the
+acknowledgment (ACK) scheme. Therefore, in this paper, we
+proposed a reliable broadcast scheme named broadcast engage-
+ment ACK mechanism (BEAM), which is completely compatible
+with the IEEE 802.11 protocol, in the data link layer rather
+than the network layer. This is because that the overhead of
+raising the reliability of broadcast transmission in network layer
+would be significantly reduced in data link layer. Simulation
+results show that the proposed BEAM can reach approximate
+100% reliability even in heavy traffic load. Besides, by using the
+proposed mechanism, the IEEE 802.11 protocol could provide
+the reliability of unicast transmissions as well as broadcast
+transmissions and avoid redundant control overhead.
+I. INTRODUCTION
+A mobile ad hoc network (MANET) is constructed by
+several mobile handsets or laptops, which is used on-demand,
+and needs dynamic routing protocols when there is a packet
+needed to be transferred more than one hop. In point-to-point
+communication networks a large number of broadcast-routing
+protocols have been proposed [4], [7]. The mobile node usually
+broadcasts a route request (RREQ) packet that is flooded
+through the network in a controlled manner to perform route
+discovery and is replied by unicasting a route reply (RREP)
+packet from either the destination node or intermediate nodes
+that have a route to the destination. However, unlike wired
+networks to which broadcast packets can be easily and safely
+delivered, it is a big challenge to transfer broadcast packets
+over MANETs due to the uncertain of the reception of
+broadcast transmissions and the unsettled wireless links.
+Flooding packets to all nodes in networks could be achieved
+by using multiple unicast transmissions in network layer or
+using broadcast transmissions in data link layer. The former
+solution, however, would cause many control overheads and
+degrade the performance of MANETs since too many dupli-
+cated packet transmissions are performed in one broadcast
+transmission [12]. These solutions have been investigated and
+discussed in many literatures [1], [3], [5], [12].
+In [1], Algar and Venkatesan proposed a reliable broadcast
+protocol, named as AVR, based on replying acknowledgment
+(ACK) packets back to the sender. The basic idea of AVR is the
+provision for each mobile node to retain a so called history
+of messages broadcast to and received from its neighbor(s).
+A node which receives a broadcast packet replies an ACK
+to the sender via unicasting and updates its local history. If
+a sending node does not receive an ACK from a neighbor
+within a certain time, it timeouts and resends the packet. If a
+sender does not receive an ACK after several retries, it assumes
+the link disconnection is not transient and stops sending
+the message. Obviously the exchange of local information
+and redundant broadcast retransmission would lead to the
+broadcast storm problem [12] and degrade the performance
+of networks. Besides, the requirement of sending ACKs in
+response to the receipt of a packet for all receivers may cause
+channel congestion and packet collisions, which is called ACK
+implosion [3]. The ACK implosion problem may worsen the
+broadcast storm problem [12].
+In order to alleviate the broadcast storm problem, Lou and
+Wu proposed a broadcast with selected acknowledgements
+(BSA) [5] protocol for reliable broadcast transmission in
+MANETs. When a node broadcasts a packet, it selects a subset
+of one-hop neighbors as its forwarding nodes to forward the
+broadcast based on a greedy manner. The selection scheme of
+forwarding nodes is based on neighbor-designating algorithm
+[6], [8]. Although the BSA can reduce the ACK implosion
+phenomenon, finding the forwarding nodes in a given graph is
+the NP-complete problem [6]. This drawback would consume
+the limited battery power of mobile nodes rapidly.
+The wastage of redundant transmissions of a broadcast
+packet could be solved in data link layer since the broadcast
+frame is transmitted once by using broadcast identification.
+However, many medium access control (MAC) protocols such
+as IEEE 802.11 [2] adopt blind broadcasting mechanism to
+transmit broadcast frames and leads to unreliable broadcast
+problem due to the lack of ACK1 scheme. The uncertain
+broadcast problem might not satisfy the requirement of reliable
+broadcast transmissions of higher layers.
+In order to solve this problem, a reliable MAC broadcast
+scheme named broadcast medium window (BMW) protocol
+is introduced in [9], [10]. The basic idea of the BMW
+1We notice that the ACK control frame is an MAC control frame, which
+is provided in data link layer.
+0-7803-8521-7/04/$20.00 (C) 2004 IEEE
+28380-7803-8521-7/04/$20.00 © 2004 IEEE
+protocol is that it treats each broadcast request as multiple
+unicast requests. Each node maintains three lists: its neighbors,
+sending buffer, and receiving buffer. In BMW, when a node has
+a broadcast data to send, the sender places the packet into its
+sending buffer and sends out an request-to-send (RTS) control
+frame containing the sequence number of the upcoming data
+frame and the MAC address of the first node in its neighbor
+list. When a node receives a RTS containing its MAC address,
+it will check the list of its receiving buffer to see whether it has
+received all the data frames with sequence number smaller than
+or equal to the upcoming one. If all the data frames (including
+the upcoming one) have been received, the receiver sends a
+clear-to-send (CTS) with appropriate information to suppress
+the sender’s data frame transmission. Otherwise, the receiver
+sends a CTS frame with all the missing data frame sequence
+numbers. This process would be terminated when all nodes in
+the neighbor list have been served.
+Unfortunately, the BMW is inefficient since it requires at
+least n contention phases for each broadcast data frame where
+n is the number of neighbors. Not only is each contention
+phase lengthy time, but also the sender has to contend for the
+right of access to the medium with other nodes. It is possible
+that some other nodes win the contention and thereby inter-
+rupts and prolongs the ongoing broadcast process. Besides, the
+BMW also has a lot of overhead and does not guarantee the
+reliability of the transmission immediately, and needs to cost
+a maintenance of three lists. According to these drawbacks,
+we proposed an efficient reliable broadcast scheme named
+broadcast engagement ACK mechanism (BEAM), which is
+operated in data link layer and is compatible with the IEEE
+802.11 MAC protocol.
+The remainder of this paper is organized as follows. Sec-
+tion II introduces the operations of proposed BEAM and
+illustrates the frame format of the BEAM in detail. The
+simulation models and results are given in Section III. Finally,
+we will give some conclusions in Section IV.
+II. THE BROADCAST ENGAGEMENT ACK MECHANISM
+The reliability of broadcast transmission could be improved
+by adopting the acknowledgment scheme [11] (the ACK
+frame used in data transmission). We use the subfields Type
+(=10) and Subtype (=1000), which is a reserved number in
+the IEEE 802.11 protocol [2], of the frame control field of
+MAC header to indicate a specific broadcast frame that would
+receive broadcast ACK (denoted as BACK for short) frames
+from its neighbors. The frame format is shown in Fig. 1.
+However, requiring all nodes which have successfully received
+the broadcast frames to reply a BACK would be a problem
+since these nodes will reply their BACKs at the same time
+and collide with each other. In order to solve the troublesome
+problem, we use an additional field named BACK Order,
+which is an MAC header extension, to request all receiving
+nodes to reply their BACKs in specified order. The length of
+BACK Order field is determined by its neighbors, which can
+be easily obtained by persistently monitoring the transmission
+activities around its transmission range, e.g., using a neighbor
+MAC Header Frame Body CRC
+Octets : 34
+n  * 6
+0 - 2312 4
+Frame
+Control
+Duration/
+ID Address 1 Address 2 Address 3
+2 2 2
+Nember
+of ACKs
+6 6 6
+2
+Protocol
+Version Type Subtype
+To
+DS
+From
+DS
+More
+Flag Retry
+Pwr
+Mgt
+More
+Data WEP Other
+2 2 4 1 1 1 1 1 1 1 1
+Sequence
+Control
+Address 1 . . . Address n
+6 6
+BACK Order
+2 + (n * 6)
+Octets :
+Bits :
+Octets :
+Fig. 1. The frame format of broadcast data where subfields of the Frame
+Control Type=10 and Subtype=1000, and an additional ACK Order field is
+designed for proposed BEAM.
+table to record the transmitter address (TA) of each data frame
+and maintain for a period. The record would be removed from
+the table when there are no transmissions of the node after a
+specific time period. Since the number of neighbors varies by
+time, we use a subfield Number of BACKs shown in Fig. 1 to
+indicate how many nodes n should respond to the broadcast
+frame. This subfield’s length is 2 octets long (for supporting
+maximum 216 = 65,536 neighbors).
+After receiving the broadcast frame, nodes which are spec-
+ified in the BACK Order would reply BACKs one by one
+according to the order of the list indicated in the frame
+body. Thus the sender node could uses the conditions of
+acknowledgment to confirm the reception of each node. The
+broadcast frame will be retransmitted immediately after doing
+not receive a BACK frame within an idle slot time (e.g.,
+20µs in direct sequence spread spectrum (DSSS) system). This
+process would be terminated after receiving all BACKs of its
+recorded neighbors. However, the sender may not receive all its
+neighbors’ BACKs due to the mobility or the communication
+interference. This problem could be solved by adopting the
+limitation of maximum time of broadcast retransmission.
+The duration of broadcast transmission includes the broad-
+cast data frame transmitting time plus n × (SIFS + ACK)
+in normal condition. The duration will be extended if a
+corrupted data frame or missing a BACK frame occurs. We use
+the network allocation vector (NAV), named broadcast NAV
+(BNAV), recorded in the duration field of the MAC header in
+each broadcast data frame and BACK frame to indicate the
+duration of the broadcast transmission. The duration will be
+recalculated if a broadcast retransmission is performed. We
+note that the duration of new recalculated BNAV denoted as
+extended BNAV equals the length of original duration except
+the portion of having been replied BACKs. We also note that
+the duration field of BACKs records the remaining BNAV in
+its duration field to restrain the hidden nodes’ transmissions.
+Fig. 2 illustrates an example of the proposed BEAM. The
+network topology shown in left side consists of a sender,
+four receivers, and four hidden terminals. The duration of
+original broadcast data frame equals the data frame length
+plus four SIFSs and BACKs. Assume node 1 receives the
+0-7803-8521-7/04/$20.00 (C) 2004 IEEE
+28390-7803-8521-7/04/$20.00 © 2004 IEEE
+S3
+2 1
+4
+5
+6
+7
+8 Broadcast Data
+BACK1
+Broadcast Data
+BNAV
+BNAV
+source
+neighbors
+others
+DIFS backoff SIFS slot SIFS SIFS SIFS DIFS
+Extended BNAV
+Extended BNAV
+BACK2 BACK3 BACK4
+Fig. 2. An example of broadcast transmission process (a) the network topology (b) the time line of the proposed BEAM in ad hoc networks.
+Procedure TRANSMIT BROADCAST()
+BEGIN
+nBACK := number of neighbors;
+RetryCount := 0;
+Sends the broadcast data and waits the BACKs;
+WHILE nBACK > 0 and Retry count < MaxRetry DO
+BEGIN
+waiting the BACKs;
+IF missing a BACK THEN
+rebroadcast the data frame;
+RetryCount := RetryCount + 1;
+ELSE receiving a BACK THEN
+nBACK := nBACK − 1;
+END
+END
+END
+Fig. 3. The algorithm of broadcast transmission procedure.
+Procedure RECEIVE BROADCAST()
+BEGIN
+IF a new broadcast frame THEN
+according to BACK Order to reply BACK;
+calculate the BNAV;
+ELSE a rebroadcast frame THEN
+according to BACK Order to reply BACK;
+recalculate the BNAV;
+END
+END
+Fig. 4. The algorithm of broadcast reception procedure.
+broadcast frame and reply its BACK (denoted as BACK1)
+to sender s successfully but node 2 does not receive the
+broadcast frame (interrupted by node 6) and does not reply
+a BACK. After one idle slot, node s rebroadcasts the data
+frame and recalculates the new duration of retransmission as
+extended BNAV. The length of extended BNAV is the data
+frame length plus the remaining three BACKs. Finally all
+remaining nodes receive the broadcast data and reply their
+BACKs accordingly. The broadcast transmission algorithm is
+shown in Fig. 3 where nBACK represents the number of
+BACKs. Besides, the algorithms of transmission and reception
+are given in Fig. 3 and Fig. 4, respectively.
+III. SIMULATION MODELS AND RESULTS
+In order to evaluate the performance of our proposed
+BEAM, two kinds of simulation models are designed to
+observe the broadcast fraction and broadcast delivery ratio.
+Simulation parameters follow the IEEE 802.11b Standard and
+are listed in Table I. In our simulation models, direct sequence
+spread spectrum (DSSS) system, the long physical layer
+30 mobile nodes
+hidden nodes
+Fig. 5. The environment of full connected with some hidden nodes.
+convergence protocol (PLCP), and PLCP protocol data unit
+(PPDU) format are used. The background data packets arrival
+rate of each mobile node follows the Poisson distribution. The
+broadcast request arrival rate of each mobile node also follows
+the Poisson distribution, and the broadcast frame length is a
+fixed length of 25 octets. Each simulation run lasts 60 seconds
+and each simulation result is obtained by averaging the results
+from twenty independent simulation runs.
+TABLE I
+SYSTEM PARAMETERS IN SIMULATIONS
+Parameter Normal Value
+Channel bit rate 2 Mb/s
+Transmission Range (2 Mb/s) 120 m
+RTS frame length 160 bits
+CTS frame length 112 bits
+ACK frame length 112 bits
+Broadcast frame length 25 Octets
+Preamble and PLCP header 192 µs
+MAC header 34 octets
+A slot time 20 µs
+SIFS 10 µs
+DIFS 50 µs
+aCWmin 31 slots
+aCWmax 1023 slots
+MaxRetry 3 times
+Air propagation delay 1 µs
+The first simulation model, shown in Fig. 5, simulates the
+network of 30 nodes acting within a 300 m × 300 m space.
+All nodes are full connected with each other and each node
+has several hidden terminals around it. These hidden terminals
+are used to play the potential disturbing source of ongoing
+0-7803-8521-7/04/$20.00 (C) 2004 IEEE
+28400-7803-8521-7/04/$20.00 © 2004 IEEE
+Normalized offered load
+B
+ro
+ad
+ca
+st
+fra
+ct
+io
+n
+(%
+)
+0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1
+10
+20
+30
+40
+50
+60
+70
+80
+90
+100
+BEAM
+IEEE 802.11
+Fig. 6. The comparison of broadcast fractions by the BEAM and traditional
+IEEE 802.11.
+broadcast transmissions and the data arrival rate of each hidden
+terminal is 10 packets/second. The unicast data arrival rate of
+each node (consider as background traffic) is 2 packets/second,
+and the broadcast arrival rate of each node is considered from
+0.5 packets/second to 2.5 packets/second.
+Fig. 6 shows the broadcast fractions by the pure IEEE
+802.11 broadcast scheme and BEAM under different offered
+load. This offered load is calculated by data packet arrival
+rate of hidden terminals and background traffic and broadcast
+requests of full connected nodes. We can see that the broadcast
+fraction of the IEEE 802.11 lowers from 70% to 27% gradually
+due to the interference of hidden terminals. However, the
+proposed BEAM uses the BACKs scheme to prevent hidden
+node phenomenon and reaches approximate 100% reliability
+even in heavy traffic load.
+Afterward we run the simulation in the multihop ad hoc
+environment. The working space is enlarged to 600 m × 600
+m with a transmission radius of 120 m. Different numbers of
+nodes (range from 20 to 100) are randomly placed in this area.
+Excepting the first mobile node, the other mobile nodes will be
+reallocated until it has at least one neighbor. This ensures the
+simulated network topology is a connected graph. The unicast
+data arrival rate of each mobile node is 1 packets/second, and
+the data arrival rate of broadcast request in each mobile node
+is considered as 2 packets/second.
+We compare the performance of our proposed BEAM with
+the following schemes:
+• Blood flooding (BF): each node forwards the packet when
+it receives the packet.
+• AV Reliable broadcast (AVR) [1].
+• Broadcast with selected acknowledgements (BSA) [5].
+Two important performance metrics are investigated:
+• Broadcast delivery ratio: The ratio of the nodes that re-
+ceived the broadcast packet to the number of the network.
+• Broadcast forwarding ratio: The fraction of the total
+number of nodes in the network that retransmit the
+broadcast packet at least once.
+Fig. 7, Fig. 8, and Fig. 9 show the broadcast delivery ratio
++ +
++
++
++
++
++
++
++
+Number of nodes
+B
+ro
+ad
+ca
+st
+de
+liv
+ar
+y
+ra
+tio
+(%
+)
+20 30 40 50 60 70 80 90 100
+40
+50
+60
+70
+80
+90
+100
+BEAM
+Blind flooding
+AVR
+BSA+
+Fig. 7. Broadcast delivery ratio of BEAM, Blind flooding, AVR, and BSA
+where retry count set to 1.
++ + +
++
++
++
++
++
++
+Number of nodes
+B
+ro
+ad
+ca
+st
+de
+liv
+ar
+y
+ra
+tio
+(%
+)
+20 30 40 50 60 70 80 90 100
+40
+50
+60
+70
+80
+90
+100
+BEAM
+Blind flooding
+AVR
+BSA+
+Fig. 8. Broadcast delivery ratio of BEAM, Blind flooding, AVR, and BSA
+where retry count set to 2.
+of BEAM, blind flooding (BF), AVR, and BSA in different
+retry counts. BF can’t guarantee the data transmits correctly
+due to it lacks the ACK mechanism. Therefore, the delivery
+ratio of BF is not good. Besides, BEAM, AVR, and BSA have
+ACK mechanism, along with the retry increase, the broadcast
+packet may a more widespread dissemination. If broadcast,
+each receivers must sends ACKs to source in AVR. But in
+BSA, only selected forward node sends ACKs to source and
+broadcast, the delivery ratio of AVR is obvious lower than
+BSA. Regardless of in which environments, BSA use fewer
+nodes to broadcast the message, but its delivery ratio is not
+excellent. Due to our scheme to use schedule method to send
+ACKs and to avoid other nodes influence the broadcast. We
+can see our proposed scheme have highly delivery ratio.
+In Fig. 10, the BSA only selects some forward node to
+reply ACKs and broadcast it, so his forwarding ratio lower
+than AVR and the BEAM. However, the BSA is a network
+layer approach and could combine our BEAM for further
+enhancement. Fig. 11 and Fig. 12 show that the combination
+of BSA and BEAM have low broadcast forwarding ratio and
+highly broadcast delivery ratio. The result indicates that the
+BEAM can achieve higher reliability broadcast transmissions.
+0-7803-8521-7/04/$20.00 (C) 2004 IEEE
+28410-7803-8521-7/04/$20.00 © 2004 IEEE
++ + +
++
++
++
++
++
++
+Number of nodes
+B
+ro
+ad
+ca
+st
+de
+liv
+ar
+y
+ra
+tio
+(%
+)
+20 30 40 50 60 70 80 90 100
+40
+50
+60
+70
+80
+90
+100
+BEAM
+Blind flooding
+AVR
+BSA+
+Fig. 9. Broadcast delivery ratio of BEAM, Blind flooding, AVR, and BSA
+where retry count set to 3.
++
++
++ + + + + +
++
+Number of nodes
+B
+ro
+ad
+ca
+st
+fo
+rw
+ar
+di
+ng
+ra
+tio
+(%
+)
+20 30 40 50 60 70 80 90 100
+0
+20
+40
+60
+80
+100
+BEAM
+AVR
+BSA+
+Fig. 10. Broadcast forwarding ratio of BEAM, AVR, and BSA where retry
+count set to 3.
+IV. CONCLUSIONS
+In this work, we proposed a reliable broadcast transmission
+scheme named broadcast engagement acknowledgment mech-
+anism (BEAM) for broadcast transmission in ad hoc networks.
+The proposed BEAM not only achieved high flooding delivery
+ratio but was fully compatible with the IEEE 802.11 MAC
+protocol. The BEAM enhanced the broadcast fraction of IEEE
+802.11 to 100% even in heavy traffic load. This was achieved
+by enforcing the neighboring nodes to confirm their receipt
+of the broadcast frame accordingly. Besides, the BEAM was
+the data link layer protocol rather than the network layer
+protocol and thus reduced a lot of control overheads in
+achieving reliability. Simulation results showed that the BEAM
+approaches higher broadcast delivery ratio as well as reduces
+bandwidth consumption efficiently.
+REFERENCES
+[1] S. Alagar, S. Venkatesan, and J. R. Cleveland, “Reliable Broadcast in
+Mobile Wireless Networks,” in Proc. IEEE MILCOM’95, vol. 1, pp.
+236–240, San Diego, CA, Nov. 1995.
+[2] IEEE 802.11 Working Group, “Part 11: Wireless LAN Medium Access
+Control (MAC) and Physical Layer (PHY) Specifications,” ANSI/IEEE
+Std. 802.11, Sept. 1999.
+Number of nodes
+B
+ro
+ad
+ca
+st
+de
+liv
+er
+y
+ra
+tio
+(%
+)
+20 30 40 50 60 70 80 90 100
+40
+50
+60
+70
+80
+90
+100
+BEAM + BSA
+Fig. 11. Broadcast delivery ratio of BEAM+BSA where the retry count is
+set to 3.
+Number of nodes
+B
+ro
+ad
+ca
+st
+fo
+rw
+ar
+di
+ng
+ra
+tio
+(%
+)
+20 30 40 50 60 70 80 90 100
+0
+20
+40
+60
+80
+100
+BEAM + BSA
+Fig. 12. Broadcast forwarding ratio of BEAM+BSA where the retry count
+is set to 3.
+[3] M. Impett, M. S. Corson, and V. Park, “A Receiver-orinted Approach to
+Reliable Broadcast Ad Hoc Networks,” Proc. IEEE WCNC’2000, vol.
+1, pp. 117–122, Chicago, IL, Sept. 2000.
+[4] D. B. Johnson and D. A. Maltz, “Dynamic Source Routing in Ad-Hoc
+Wireless Networks,” Mobile Computing, T. Imielinski and H. Korth,
+Eds., chapter 5, pp. 153–181, Kluwer Academic Publisher, 1996.
+[5] W. Lou and J. Wu, “A Reliable Broadcast Algorithm with Selected
+Acknowledgements in Mobile Ad Hoc Networks,” in Proc. IEEE
+GLOBECOM’03, vol. 6, pp. 3536–3541, San Francisco, CA, Dec. 2003.
+[6] ——, “On Reducing Broadcast Redundancy in Ad Hoc Wireless Net-
+works,” IEEE Trans. Mobile Computing, vol. 1, no. 2, pp. 111–122,
+Apr./Jun. 2002.
+[7] C. E. Perkins and E. M. Royer, “Ad-Hoc On-Demand Distance Vector
+Routing,” in Proc. IEEE WMCSA’99, pp. 90–100, New Orleans, LA,
+Feb. 1999.
+[8] A. Qayyum, L. Viennot, and A. Laouiti, “Multipoint Relaying for
+Flooding Broadcat Message in Mobile Wireless Networks,” in Proc.
+IEEE HICSS’02, pp. 3898–3907, Hawaii, Jan. 2002.
+[9] K. Tang and M. Gerla, “Random Access MAC for Efficient Broadcast
+Support in Ad Hoc Networks,” in Proc. IEEE WCNC’2000, vol. 1, pp.
+454–459, Chicago, IL, Sept. 2000.
+[10] ——, “MAC Reliable Broadcast in Ad Hoc Networks,” in Proc. IEEE
+MILCOM’01, vol. 2, pp. 1008–1013, Washington, DC, Oct. 2001.
+[11] S.-T. Sheu, Y. Tsai, and J. Chen, “A Highly Reliable Broadcast Scheme
+for IEEE 802.11 Multi-hop Ad Hoc Networks,” in Proc. IEEE ICC’02,
+vol. 1, pp. 610–615, New York, Apr./May 2002.
+[12] Y.-C. Tseng, S.-Y. Ni, Y.-S. Chen, and J.-P. Sheu, “The Broadcast Storm
+Problem in a Mobile Ad Hoc Network,” ACM/Kluwer Wireless Networks
+(WINET), vol. 8, no. 2–3, pp. 153–167, 2002.
+0-7803-8521-7/04/$20.00 (C) 2004 IEEE
+28420-7803-8521-7/04/$20.00 © 2004 IEEE

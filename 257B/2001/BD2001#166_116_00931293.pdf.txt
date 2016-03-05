@@ -1,0 +1,805 @@
+Automated Threat Response 
+Using Intelligent Agents (ATRIA) 
+A. Quan, R. Crawford, H. Shao, 
+K. Knudtzon, A. Schuler, D. Scott, 
+S. Hayati, R. Higginbotham Jr., R. Abbott 
+The Aerospace Corporation 
+2350 E. El Segundo Blvd. 
+El Segundo, CA 90245 
+Alan.Quan@aero.org 
+Abstruct- Today's dynamic battlefield environment 
+requires rapid reconfiguration and reorganization of 
+warfighter assets, communication links, and computing 
+resources in response to enemy attacks. The extent to which 
+supporting operations can take place autonomously, and 
+thus more rapidly, could be critical to neutralize future 
+enemy threats. This paper describes a software system 
+called Automated Threat Response using Intelligent Agents 
+(ATRIA). The ATRIA software agent architecture is based 
+on a commercial off-the-shelf (COTS) agent development 
+environment. ATRIA agents detect signals indicating an 
+enemy attack and then automatically gather strategic data, 
+generate internal plans, and task surveillance and strike 
+resources to counter an enemy threat. The agents discover 
+and access data and resource information distributed across 
+a dynamic, wide area network. The agent-based design 
+allows rapid access to and communication with 
+heterogeneous military data sources that have been 
+traditionally difficult to coordinate. The initial 
+demonstration scenario deals with the detection, tracking, 
+and destruction of enemy theater ballistic missiles. A 
+simulation infrastructure has been implemented to allow 
+testing of the ATRIA system against various scenarios. The 
+agents are implemented in a combination of the COTS 
+tool's rule-based language, Java, and Prolog. Surveillance 
+and strike resources are simulated using Prolog. 
+TABLE OF CONTENTS 
+1. INTRODUCTION 
+2. SJMULATION E VIRO"T 
+3. SYSTEM COMPONENTS 
+4. PROTOTYPE h4PLEMENTATION 
+5. A DAY IN THE LIFE OF ATRIA 
+6. CONCLUSION 
+1. INTRODUCTION 
+Today's dynamic battlefield environment requires rapid 
+reconfiguration and reorganization of war fighter assets, 
+0-7803-6599-2/01/$10.00 0 2001 IEEE 
+communication links, and computing resources in response 
+to enemy attacks. The changing needs of the mission must 
+drive real-time allocation of assets.' All source information 
+to facilitate this must be available, fused, processed, and 
+interpreted in a timely fashion. In addition, many operations 
+can be automated and decision support systems provided to 
+increase timeliness and reduce error.' This concept echoes 
+several themes elaborated by Joint Vision (JV) 2010 and 
+2020, illustrated in Figure 1 below. [1,2,3,4] 
+Figure 1- Emerging operational concepts (JV20 10) 
+As the need for reaction times in our complex, fast paced 
+world continue to drop into the seconds to milliseconds 
+range, control functions can no longer be confined to stove- 
+piped systems with rigid allocation procedures [Figure 21. 
+Rather, services that deal comprehensively with utilization 
+' An asset is defmed to be a participant in the performance of a mission, 
+including weapons, aircraft, sensors, databases and other information 
+system assets, or military personnel. 
+* This paper does not address which functions should be wholly or partially 
+automated. Virtually all operations, however, will have sub-functions that 
+can be automated (e.g. information gathering), and decisions requiring a 
+human-in-the-loop may benefit from decision support systems. 
+6-2721 
+across all assets are required. Accordingly, although much 
+work remains, the DoD has many efforts underway to 
+increase connectivity and to eliminate or surmount format 
+incompatibilities. There is also discussion about 
+decentralizing and distributing asset control and performing 
+dynamic asset allocation. However, much effort is still 
+needed to create technical solutions and collection doctrines 
+that will support uniform and dynamic asset utilization. 
+P O I  
+We believe that the C41SR4 information infrastructure is the 
+most effective and natural “place” for effecting this 
+unification. The battlefield infrastructure of the future (in 
+the 2015+ timeframe) should and can support services such 
+as asset selection, asset utilization, and mission execution. 
+This paper describes an advanced information system that 
+can provide this capability, called Automated Threat 
+Response Using Intelligent Agents (ATRIA). ATRIA 
+combines an advanced information infrastructure with 
+intelligent software agents to provide connectivity, 
+interoperability, and dynamic control and allocation of 
+ asset^.^ ATRIA agents function on behalf of collectors, 
+scheduling processes, weapon systems, and analysts on a 
+C4ISR idkastructure. The agents dynamically discover and 
+access data and resources distributed across a dynamic, wide 
+area network through the use of Internet directory service 
+technology. The agent-based design hides the complexity of 
+communication with heterogeneous “stovepiped” military 
+systems and data sources that have been traditionally 
+difficult to coordinate. These agents can, in theory, serve as 
+a powerful force multiplier, significantly enhancing human 
+operators’ ability to conduct complex, time-critical 
+activities. 
+The initial demonstration scenario deals with the detection, 
+tracking, and destruction of enemy theater ballistic missiles. 
+ATRIA agents detect signals indicating an enemy attack and 
+then automatically gather strategic data, generate plans, and 
+task surveillance and strike resources to counter the enemy 
+threat. A simulation infrastructure has been implemented to 
+allow testing of the ATRIA system against various scenario 
+configurations. The agent architecture is based on a 
+commercial off-the-shelf agent development environment. 
+The agents are implemented in a combination of the COTS 
+tool’s rule-based language, Java, and Prolog. Surveillance 
+and strike resources are simulated using Prolog. 
+Figure 2 - Stovepiped legacy systems6 
+2. SlhlULATION ENVIRONMENT 
+In an operational environment all ATRIA components 
+would be deployed on one or more different machines 
+connected to a secure network. Military assets such as radar 
+and weapons would be connected to the network and 
+directed by ATRIA. At present the system is implemented 
+as a demonstration, so the function and timing of the 
+military assets must be simulated. ATRIA includes a 
+discrete event simulation component which is based on a 
+previously developed proprietary simulation environment. 
+In discrete event simulations, all significant events that take 
+place must be scheduled by being time-tagged and placed in 
+a master event queue. Such events include database reads 
+and queries, tasking commands, weapon ftrings, missile 
+impacts, etc. Once in the event queue, an event is not 
+actually executed until the simulation time reaches the 
+scheduled time for the event. At that point a master 
+controller (MC) extracts the event from the queue and sends 
+an execute-event message to the “owner” of the event, 
+which is the entity that is supposed to execute or respond to 
+the event. After the event owner completes all processing 
+that is associated with the event, it sends an 
+acknowledgement message back to the master controller to 
+let it know that time within the simulation can move 
+forward and the next event scheduled in the queue can be 
+executed. In this way all activities that take place during a 
+simulation are properly coordinated with respect to intended 
+time of occurrence, regardless of the speed of execution of 
+any process or machine. The simulation component of 
+ATRIA is described below in Section 3, Simulation and 
+Display Controllers. 
+“This current reconnaissance collection doctrine is heavily biased toward 
+the static planning process and reflects the stovepipe architecture of many 
+current systems.” [lo] 
+Surveillance, and Reconnaissance 
+the doctrinal means. 
+Command, Control, Communications, Computers, Intelligence, 
+ATRIA addresses only the technical means to provide this capability, not Figure adapted by M Nichols and the authors of this paper from an 
+Integrated Broadcast Service Executive Agent brief. 
+6-2722 
+Figure 3 - ATRIA component deployment 
+3. SYSTEM COMPONENTS 
+There are four main components that make up the ATRIA 
+system: 
+1. Database 
+2. Agents 
+3. Directory services 
+4. Simulation and display controllers 
+Figure 3 shows the deployment of these components across 
+a wide-area network (WAN). 
+Database 
+The ATRIA database can be thought of as containing a 
+snapshot of the state of the global environment at any given 
+time. It will contain, for example, missile trajectories, 
+impact point predictions, and collateral damage area 
+projections. The ATRIA agents update and query tables 
+within the database to obtain information needed to cany 
+out their assigned tasks. 
+Sofhyare Agents 
+There are two types of agents in ATRIA. The computer 
+processes that select, assign, and coordinate the use of the 
+military resources are implemented as coordination agents. 
+Coordination agents are responsible for responding to 
+incoming events that represent enemy threats and 
+marshalling the appropriate resources to attempt to 
+neutralize those threats and minimize anticipated damage to 
+fiiendly assets. Asset agents serve military assets such as 
+radar, anti-missile batteries, and laser batteries. In an 
+operational environment these agents would interface with 
+the actual physical systems deployed in the field. 
+Once an agent is activated by either an external event 
+message or another agent, it continues to work 
+6-2723 
+autonomously until its activity is completed or resolved by 
+other events occurring in the simulation. 
+Coordination Agents---There are six different coordination 
+agents in ATRIA: 
+1. Search and Acquire 
+2. Track 
+3. Engagement Coordinator 
+4. Collateral Damage Mitigation 
+5 .  Impact Area Alert 
+6. Event Queue 
+The Search and Acquire (SA) agent is the first agent to be 
+notified of an enemy missile launch by surveillance 
+system(s), whether orbital, air, or ground based.7 When an 
+execute-event message indicating an enemy launch is 
+received, the agent creates a new record for that missile 
+containing the current position information, and schedules it 
+to be added to the database. It then attempts to assign 
+appropriate tracking assets to all enemy missiles that are not 
+being currently tracked. The selection of tracking assets is 
+based on proximity, angular separation, and type of tracking 
+asset. In order to task an asset to track a given missile the 
+SA agent must schedule a tasking event for that asset. 
+The Track agent is responsible for updating and maintaining 
+the database that contains the trajectory and assigned asset 
+information for each enemy missile. It receives event 
+messages to add, update, and delete trajectory records fiom 
+the database. When it receives a request to delete a missile 
+it also fiees all assets that are assigned to that missile by 
+scheduling events to terminate tasking of those assets. 
+The Engagement Coordinator (EC) agent is responsible for 
+assigning strike assets (weapons systems) to enemy 
+missiles. These strike assets are tasked to destroy the 
+missiles. Strike assets are assigned based on proximity to 
+target, probability of kill (PK), and type. As with the 
+tasking of tracking assets, the EC agent tasks a strike asset 
+to attack a given missile by scheduling a tasking event for 
+that asset. If at any time the EC agent encounters an enemy 
+threat that it deems to be of a higher priority than a 
+previously occurring threat to which military assets have 
+been assigned, it can retask some or all of those assets to 
+engage the new target. 
+The Collateral Damage Mitigation (CDM) agent is 
+responsible for predicting the locations of “No-kill” zones. 
+These are areas in the trajectory of the enemy missile where 
+friendly assets are in close proximity on the ground 
+underneath the missile, and destroying the missile at that 
+point would cause those assets to suffer damage fiom falling 
+debris. The CDM agent recalculates the location of no-kill 
+zones every time a missile trajectory is updated in the 
+’I This prototype does not attempt to accurately model assets, current or 
+planned, although the simulation component allows us to do so for future 
+versions. 
+database. As with other database updates the CDM agent 
+performs no-kill zone updates by scheduling database 
+update events that are to be executed by the Track agent. 
+The Impact Area Alert (IAA) agent is responsible for 
+predicting the impact locations of enemy missiles if they are 
+not destroyed by strike assets prior to impact. It sends 
+warning messages to friendly assets that are within the error 
+ellipse surrounding the projected impact point. Information 
+from the IAA agent can also be used to reprioritize the 
+importance of enemy attacks. For example, if no friendly 
+assets are within the predicted impact error ellipse (due to 
+the missile going off its intended course), or if the assets 
+there are of a lesser value than other assets that are currently 
+under attack, then that missile’s priority might be 
+downgraded so that any assets assigned to it can be moved 
+to a higher priority target. 
+The Event Queue (EQ) Agent is a buffer between the 
+simulation event queue and the ATRIA agents. Agents 
+schedule events that are to take place in the future by 
+sending a message containing the event, in the agent 
+communication language format, to the EQ agent. The EQ 
+agent then translates this to the simulation language format 
+and sends it to the simulation master controller. When the 
+scheduled time for an event in the event queue is reached, 
+the event is taken off the queue by the master controller and 
+sent to the EQ agent. The EQ agent translates and forwards 
+the event to the recipient agent, who is to execute the event. 
+Upon receiving the message the recipient agent performs all 
+processing that is needed to execute the event and then 
+sends a message back to the EQ agent to acknowledge that 
+all activity for the event is completed. The EQ agent then 
+translates and forwards the acknowledge message and 
+passes it back to the master controller. The EQ agent can be 
+thought of as an “agent wrapper” around the master 
+controller, allowing all agents to communicate with the 
+master controller without the master controller having to 
+understand the agents’ communication language. 
+Asset Agents---Military assets include tracking systems such 
+as radar, and strike systems such as theater defense missiles. 
+Each military asset has an agent that communicates with 
+other ATRIA entities across the WAN. In an operational 
+scenario the agents would be connected to physical tracking 
+or weapons systems in the field. In the ATRIA simulation 
+military assets are represented by Prolog knowledge bases. 
+Asset agents act as intermediaries between their associated 
+Prolog-based assets and other ATRIA entities. Coordinator 
+agents task an asset to track or attack an enemy missile by 
+communicating with the asset’s agent. 
+Tracking assets track the location and velocity of missiles to 
+which they are assigned. They periodically update this 
+information in the database by scheduling update events for 
+the Track agent. Each tracking asset has an associated 
+variance that is used to determine how fast a strike asset can 
+engage the missile being tracked. 
+6-2724 
+Strike assets have the task of engaging and destroying 
+enemy missiles. Once tasked, a strike asset determines if it 
+can fire on a target by checking remaining flight time and 
+no-kill zones. If an attack is allowed it fires at the target and 
+waits for a kill assessment. If the missile is not destroyed, 
+the strike asset continues to fire in this manner at its 
+assigned target until the target is destroyed, ammunition 
+runs out, or the asset is retasked to attack some other higher 
+priority target. For simulation purposes, a kill assessment is 
+made by generating a random number between 0.0 and 0.99. 
+If the random number is less than or equal to the asset’s 
+probability of kill (PK), then the target is considered 
+destroyed and an event message is sent to both the Track 
+agent and the destroyed missile object informing them of 
+this occurrence. 
+Directory Services 
+The directory services allow agents to dynamically find 
+needed assets that have been deployed across the WAN. It 
+is not necessary for agents to have a priori knowledge of all 
+available assets. Instead they can consult the directory 
+services whenever a new asset is needed to accomplish a 
+given task. There are two directory services provided in 
+ATRIA. 
+The Information Directory maps information types to assets 
+that can provide that type of information. It is the ATRIA 
+Display 
+simulation diagram 
+I ‘  
+asset yellow pages. Any agent can send a query to the 
+Information Directory specifying the type of information 
+that it needs (expressed as a unique information identifier), 
+and the directory will return a list of the unique identifiers of 
+the agents of all assets that can provide that type of 
+information. The Information Directory can also return a 
+list of all known consumers of an information type. Agents 
+communicate with the Information Directory via Java 
+Remote Method Invocation (RMI). All available assets 
+must initially register with the Information Directory, either 
+as information providers or consumers of one or more 
+information types. 
+The Asset Directory maps an agenthset unique identifier 
+into a set of attributes that describe that asset. These 
+attributes include the asset type, network address, whether 
+the asset is taskable or queryable, tasking or query 
+parameters, and the asset’s current physical location 
+expressed as latitudehongitude. The Asset Directory is the 
+ATRIA asset white pages. 
+As with the Information Directory, agents communicate 
+with the Asset Directory via Java RMI. All available assets 
+that are listed in the Information Directory must also register 
+with the Asset Directory. 
+Master controller 
+Activity chart 
+Figure 4 - Distributed Simulation Framework (DSF) Support of ATRIA 
+6-2725 
+The directory servers can be located on any machine(s) in 
+the ATRIA network, and replication and referral can be 
+used to allow fast access, scaling, and fault tolerance. 
+Assets can dynamically join or exit the ATRIA system at 
+any time by registering or de-registering with the directory 
+services. This flexibility supports a dynamically changing 
+battle environment, allowing ATRIA agents to quickly and 
+accurately determine what assets are available for a given 
+task at any time, and which of the available assets is the 
+most appropriate for the task. 
+Simulation and Displq Controllers 
+ATRIA uses the Aerospace-developed Distributed 
+Simulation Framework (DSF), which supports the definition 
+and interoperation of distributed discrete event simulations. 
+DSF uses a formal definition of ATRIA simulation object 
+classes to build federates which are tailored to support 
+ATRIA.* This framework provides ATRIA with centralized 
+federation control and operation, the ability to do part or all 
+of any simulation object’s event processing behavior, to 
+share objects among federates, to do object level shared 
+event scheduling, and to centrally display the internal event 
+activity of any federation object. 
+The ATRIA DSF federation consists of a master controller 
+federate, a display federate, and a central ATRIA agent 
+representative federate. All ATRIA agent communication 
+flows through the latter. The master controller provides a 
+window for central control, definition, and operation for 
+ATRIA, i.e., reset, start, stop, and stepping. See the control 
+panels shown in Figure 4 above. For this, control 
+commands and data messages are sent between the master 
+controller, display federate, and central agent. This is how 
+the various operational phases of the federation are 
+synchronized among all federates. 
+The federation operational phases are reset, setup, initialize, 
+start, and run. These phases are respectively, to reset the 
+federates, including flushing their input; federation wide 
+communication of object and event definitions and aliasing; 
+defining initial objects and setting their property values; 
+scheduling simulation starting events; and operating the 
+simulation. As a shortcut to get things to work, each 
+federate input folder has sub-folders for the reset, setup, 
+initialize, and start phases. These sub-folders can be pre- 
+loaded with messages that axe interpreted the same way as if 
+they were received by the federate during the respective 
+operational phase. 
+During the run phase of the simulation, the master controller 
+is the central arbiter of federation simulation time. To 
+perform this function it maintains an event queue containing 
+schedule events received from the central agent and display 
+federates. A schedule event defines the owner name, the 
+event name, and the simulation time for execution. When a 
+given schedule event becomes the earliest event present in 
+the event queue then it is “executed.” Event execution 
+includes the sending of execute event messages to the 
+central agent and display federate. This allows the display 
+federate to centrally display agent event activity plots (see 
+Figure 4) and operate a federation wide animation. 
+The federation can be run freely until a specified time or 
+number of events have been executed, or it can execute a 
+single event at a time, or a specified number of events at a 
+time. The simulation can be stopped after any event. The 
+simulation is complete when there are no more events to be 
+executed in the master controller’s event queue 
+4. PROTOTYPE IMPLEMENTATION 
+ATRIA is implemented using a combination of COTS tools, 
+Open Source soha re ,  and custom Java and Prolog code. 
+Agents communicate with each other via the Knowledge 
+Query Manipulation Language (KQML), a widely used 
+standard. [5,6]. KQML allows the transfer of knowledge 
+between distributed remote agents to enable cooperative 
+problem solving. KQML also allows for information 
+interchange between conventional and agent-based systems. 
+The software agent infrastructure and communication 
+protocol are provided by the COTS product, AgentBuilderB 
+from Reticular Systems, Inc. [7]. AgentBuilder includes the 
+following features used by ATRIA: 
+1. Support for KQML 
+2. Transparent inter-agent communication across a 
+network 
+3. A forward-chained data-driven rule-based language, 
+Reticular Agent Definition Language (RADL), for 
+coding knowledge-based agent behavior [7] 
+Graphical environment for creating, modifying, and 
+debugging agents 
+Java interface allowing importing and calling of any 
+Java class directly from agent rules 
+4. 
+5. 
+ATRIA agents communicate with each other exclusively in 
+KQML and can communicate with agents developed outside 
+of the ATRIA system that speak KQh4L. The network 
+location and protocol of agents is transparent to the 
+developer. When sending a KQML message between 
+agents on different machines only the unique name of the 
+receiving agent needs to be specified. AgentBuilder takes 
+care of mapping the agent name to network address and 
+sending the message to the proper destination. 
+~ 
+* A  federation, as used here, is a group of interoperating DSF simulations, 
+of which there are three: the master controller, the display, and the single 
+agent representative. A federate is a simulation component in a DSF 
+federation and also a unit of organization for DSF simulation objects. The 
+agent network itself could also be classified as a federation, but that isn’t 
+done here. 
+KQML provides the syntactical rules for interagent 
+communication, such as querying and information passing. 
+In addition, the semantics must be communicated in what is 
+typically called a “content language.” There are efforts to 
+6-2726 
+develop standard content languages [SI, however we have 
+located no language targeted to our domain. Accordingly, 
+we have created our own content language called 
+Eventspeak, which has structures especially defined for 
+communicating in terms of event scheduling, execution, and 
+termination. 
+The coordination agents are coded in a combination of 
+RADL rules and Java. Java methods can be called directly 
+from any RADL rule. The asset agents are coded in RADL 
+and Java, and the assets themselves are coded in Prolog 
+rules. This mix of programming languages, made possible 
+by predefined language interface libraries, allows the most 
+appropriate language to be used for each type of computing 
+task, whether it be procedural, knowledge-based data- 
+driven, or knowledge-based goal-driven. 
+When an asset agent receives an event message from the 
+Event Queue agent, the information contained in the 
+message is converted into a Prolog goal and launched in the 
+Prolog environment for that asset. The Prolog environment 
+contains the rules that define the asset’s behavior. The 
+Prolog rules return the result of the query to the asset’s 
+agent along with any new event messages that are to be 
+scheduled. The agent then sends a KQML message to the 
+Event Queue agent containing the new event messages. 
+ATRIA uses a commercial Prolog called AMZI@ Prolog. 
+To call a Prolog goal the agent first calls a Java method that 
+has been imported into the agent definition. The Java 
+method passes the goal to Prolog using the AMZI Java-to- 
+Prolog interface class. Results of the Prolog inferencing are 
+returned to the imported Java method, which in turn passes 
+the results back to the original RADL rule that had launched 
+the Prolog goal. 
+The database contains enemy missile trajectory attributes, 
+asset assignments, and no-kill zones information. An Open 
+Source relational database management system called 
+PostgreSQL [9] is the database used in ATRIA. The 
+directory service interfaces and methods are coded in Java. 
+The Netscape Directory Server, a COTS LDAP compliant 
+server, is used to store and retrieve information in the 
+directory services. 
+The Simulation and Display Controllers are coded in 
+SmallTalk. This choice of implementation language is 
+largely due to the origins of the code, which derive from a 
+legacy application coded in SmallTalk. 
+5. A DAY IN THE LIFE OF ATRIA 
+This section describes a hypothetical run through of an 
+ATRIA simulation for the simplest scenario. Before the 
+simulation begins all agents and other components are 
+initialized with a priori knowledge to their start states. The 
+directory services are populated at this time with 
+information about the initial set of assets to be used during 
+the run. 
+To begin the simulation, the enemy force control center 
+schedules the first event, which is the launch of a SCUD 
+missile against a friendly target. The master controller 
+extracts this event from the event queue and sends an 
+execute message to the SCUD missile object, which updates 
+it’s internal state and sends an acknowledgement message 
+back to the MC. The SCUD then schedules an event to 
+indicate that it has ignited its booster rocket. The recipient 
+(owner) of this event is an orbital infrared surveillance 
+(OIRS) asset. 
+Throughout this example, we will assume that any agent’s 
+events are properly scheduled through the Event Queue 
+agent with the Master Controller. The Event Queue agent 
+receives the execute event message back from the Master 
+Controller, and passes it along to the owner agent. When the 
+owner agent is finished with the associated task, it sends the 
+end-acknowledgement message to the Event Queue agent to 
+be forwarded to the Master Controller. 
+When the OIRS receives the event message, it notifies the 
+SA agent (via an event message) that a launch of an enemy 
+missile has been detected. The SA agent then attempts to 
+task up to two tracking assets to monitor the missile. The 
+SA agent sends a query to the Information Directory to 
+obtain a list of tracking assets that can be assigned to the 
+SCUD. The Information Directory returns a list of 
+appropriate assets. The SA agent takes the first asset in the 
+list, a ground radar (GR) station, and checks the database 
+assigned-assets table to see if it is currently tasked to some 
+other target. It finds that the GR is not tasked, so it queries 
+the Asset Directory to get the attributes of the GR. The GR 
+is within range of the SCUD and it meets other criteria 
+regarding proximity, angular separation fkom other assets, 
+and type, so it is selected. The SA agent sends a message to 
+the GR tasking it to track the SCUD. If more tracking 
+assets are needed then the process is repeated on subsequent 
+members of the asset list that was obtained from the 
+Information Directory. Since assets may not be available 
+when the SA agent needs to assign them to an enemy 
+missile, it is possible that one or more missiles will have 
+less than the desired number of tracking assets assigned to 
+it. Because of this, and the fact that assets can join the 
+network or become fkee at any time, the SA agent 
+continually checks the database, looking for missiles that 
+require additional tracking assets and trying to fill those 
+gaps with any available tracking assets that meet the 
+tracking criteria. 
+As soon as the boost phase of the SCUD is terminated, the 
+predicted impact point, impact error ellipse, and flight path 
+of the SCUD can be calculated and added to the database by 
+the IAA agent. The CDM agent can then begin predicting 
+the location of no-kill zones along the projected path of the 
+SCUD. The CDM agent continually scans the database and 
+when it detects an update to the SCUD trajectory it 
+recalculates the no-kill zones and updates the database 
+accordingly. The IAA agent sends warning messages to any 
+assets that are within the predicted impact zone. 
+6-2727 
+Meanwhile, the EC agent is looking for missiles in the 
+database that are being tracked but have not been assigned 
+strike assets to attack them. It finds the new SCUD and 
+queries the Information Directory to get a list of all strike 
+assets that could engage the SCUD. For each asset in the 
+list, the SA agent queries the Asset Directory to obtain its 
+attributes. The SA agent selects the subset of assets that are 
+within range of the SCUD, and finds the asset with the 
+highest probability of kill (PK) against a SCUD for the 
+current flight phase. In this case that asset is a Theater 
+Defense (TD) missile battery. It checks the database 
+assigned-assets table and finds that the TD is currently free. 
+The SA agent then sends a message to the TD tasking it to 
+engage the SCUD. If more strike assets are needed then the 
+process is repeated on the remaining members of the asset 
+list. As with the SA agent, the EC agent continually checks 
+the database, looking for missiles that require additional 
+strike assets and trying to fill those gaps with assets within 
+range that offer the highest PK. 
+When the TD receives its tasking assignment to engage the 
+SCUD, it queries the database to get the latest position of 
+the SCUD. The TD determines if there is enough time to 
+attack the SCUD before it impacts, given current position, 
+predicted impact time, W i g  reload rate, and time required 
+for tracking and firing. If so then it checks if the SCUD is 
+in a no-kill zone. If the SCUD is free of no-kill zones then 
+it launches an attack against the SCUD. The TD generates a 
+random number and compares it to its PK for the current 
+flight phase. It finds that the generated number is greater 
+than the PK, which for simulation purposes means that the 
+attack has missed. The TD makes another attack at the next 
+opportune time after its firing recovery time has elapsed, 
+and continues to do so until the SCUD is destroyed, it runs 
+out of ammunition, or it is retasked to some other target. 
+Meanwhile, the EC agent has tasked another strike agent, an 
+air-to-air missile (AAM) battery mounted on a fighter 
+aircraft, to attack the SCUD. The AAM goes through a 
+process similar to that of the TD, calculating attack time 
+outside of no-kill zones. When it is ready to fire the 
+simulation generates a random number (to determine attack 
+outcome) and finds that the number is less than the PK, 
+indicating that the AAM has hit and destroyed the SCUD. 
+The AAM then sends a message to the SCUD and to the 
+Track agent informing them that the SCUD is destroyed. 
+The SCUD, upon receiving knowledge of its destruction, 
+updates its internal state to indicate it has been destroyed. 
+When the Track agent receives the SCUD-destroyed 
+message it consults the database to find all assets that are 
+assigned to the SCUD and tells each of them to terminate 
+their tasking. It also deletes the record associated with the 
+SCUD from the database. When the assets receive the 
+terminate message they update their internal states and 
+become idle. At this point the event queue is empty and the 
+simulation terminates with successful resolution of the 
+enemy threat. 
+This sample ATRIA simulation is for the simplest scenario, 
+where only one enemy missile is launched and all friendly 
+assets are available and functioning. If multiple enemy 
+missile launches are added then the SA and EC agents must 
+take priorities into consideration when tasking assets. A 
+fwrther complexity arises if one or more friendly assets are 
+destroyed by collateral damage or direct hit, in which case 
+the coordination agents must recognize this impairment and 
+reorganize the asset assignments to maintain adequate 
+coverage of all enemy attacks. 
+6. CONCLUSION 
+ATRIA employs s o h a r e  agents that exhibit autonomy, 
+multi-agent interaction, reactivity to the environment, and 
+pro-active behavior. Intelligent agent behavior is enabled 
+by a combination of procedural processing and knowledge- 
+based reasoning. Two dynamically updated directories are 
+available to the agents for discovery of and access to 
+network assets. The ATRIA Information Directory, 
+similarly to yellow pages, maps information types to assets 
+that can provide that type of information. In response to 
+agent queries, the directory returns identifiers of all assets 
+that can provide the type of information being sought. The 
+ATRIA Asset Directory, similarly to white pages, provides a 
+set of attributes for a network asset in response to an agent 
+query. Attributes include type, network address, whether 
+the asset is taskable or queryable, tasking or query 
+parameters, and current physical location. 
+These ATRIA capabilities could allow an automated system 
+that can detect enemy attacks, discover and marshal the 
+available resources that are needed to counter the threat, and 
+carry out a plan of action to neutralize the attack. A rapid 
+automated response of this kind will become more 
+important in future battles, where seconds can mean the 
+difference between survival and destruction of key friendly 
+assets. Human intervention is not required, unless 
+considered desirable for safety reasons or to handle cases of 
+greatest complexity. Future ATRIA plans include 
+development of a human interface for this purpose. 
+The current ATRIA prototype is the first step in 
+demonstrating this capability. At the time of this writing, 
+the system is still in the testing phase so results regarding 
+effectiveness of the approach for a variety of scenarios are 
+not yet available. We intend to publish these results in a 
+future paper. 
+In the near future we plan to extend the number and types of 
+simulated assets that can be assigned and reconfigured by 
+the coordination agents. For example, computing assets 
+could be represented in a scenario where nodes on the 
+network are destroyed by enemy attack, in which case the 
+network would have to be dynamically reconfigured to 
+allow continued communication between agents. More 
+varied and complex enemy assets will also be added to the 
+simulation. 
+6-2728 
+Currently the high-level plans for dealing with enemy 
+attacks are pre-scripted and assume that a centralized 
+authority will carry out their execution (e.g., the SA agent or 
+EC agent). We are considering a new approach where plans 
+would arise out of cooperation among many agents who 
+produce multiple possible worlds, each of which has a rating 
+of relative success (minimal projected damage to fiiendly 
+assets). In this strategy the plan with the lowest projected 
+damage would be selected and executed. 
+[8] T. Finin, Labrou, and Mayfield, KIF 101, a brief Intro to 
+the Knowledge Interchange Format, 
+li~:ll~~w.cs.unibc.eduIlise/kif/kiklO I shtml 
+[9] B. Momjian, The History of PostgreSQL Development, 
+http://www.postgresql. org/docs/ devhistory.htm1 
+[ 101 K. Sherman, Orchestrating Dominant Battlespace 
+Awareness, Naval War College, Newport RI, 25 May 1998 
+In the next generation prototype, ATRIA’S discrete event 
+simulation component will employ formal federate 
+definitions using an extension of the Defense Modeling and 
+Simulation Office (DMSO) Higher Level Architecture 
+(HLA) Object Model Templates (OMT). This definition 
+can be directly compiled, with no manual steps, into a 
+federate or federate shell to support interoperation. Our 
+goal is that a DSF federation will be an HLA compliant 
+federate. Multiple other DSF extensions are underway. 
+One capability targeted for future ATRIA development is 
+emergent behavior. Here, the idea is to introduce assets into 
+the environment with a quantifiable objective, whereby they 
+configure themselves and operate on their own. It appears 
+that there could be great value in emergent behavior, in 
+particular for military situations in which communications 
+are not available to the degree needed. There are many 
+important research questions; two of the more interesting 
+deal with the kinds of coordination that is possible and 
+practical, and the controllability and predictability of results. 
+REFEFENCES 
+[l] D. Alberts, J. Garstka, F. Stein, Network Centric 
+Warfare, CCRP, August 1999. 
+[2] Joint Chiefs of Staff, Joint Vision 2010, 
+www.dtic.mil/iv2010 
+[3] Joint Chiefs of Staff, Joint Vision 2020, 
+httn://~~~.dli~.inil / iv2020/ 
+[4] W. Owens, “The Emerging System of Systems,” U.S. 
+Naval Institute Proceedings, May 1995,36-39. 
+[5] T. Finin, R Fritzon, D. McKay, and R McEntire, 
+“KQML as an agent communication language,” 
+Proceedings of the Third International Conference on 
+Information and Knowledge Management, ACM Press, 
+1994 
+[6] H. Nwana and M. Wooldridge, “Software Agent 
+Technologies,” BT Technology Joumal 14(4), 68-78, 1996. 
+Mr. Alan Quan is an Engineering Specialist in the 
+Information Technology Department (ITD) at the Aerospace 
+Corporation, and is the project lead for ATRIA. Previously 
+he has developed expert systems and agent-based 
+applications for real-time spacecraft analysis at NASA ’s Jet 
+Propulsion Laboratory, and at Rockwell International 
+Space Division. Just prior to joining Aerospace he was 
+Director of Special Applications at High Tower Sojiware, 
+where he was a key developer of the Towerview data 
+visualization product. His research interests include agent- 
+based systems for distributed problem solving, symbolic 
+knowledge representation, and natural language analysis. 
+Mr. Quan has a B.A. from Stanford University and a MS. in 
+Computer Science from California State University, 
+Northridge. 
+Mr. Randy Crawford is a senior engineering specialist in 
+ITD. His current work is in distributed and discrete event 
+simulation; object-oriented, diagrammatic, simulation 
+editors; Java-code generating GUI builders for telemetry 
+processing displays; and satellite and payload availability 
+simulation. Mi, Crawford has a BSEEfrom U. C. Berkeley. 
+[7] AgentBuilder FAQ, 1999 
+http://www.aaentbuilder.com/docunientationlFAO,tliml 
+6-2729 
+M .  Kendra Knudtzon is a member of the technical staff in 
+the Information Technology Department at the Aerospace 
+Corporation. Before joining Aerospace, she was a team 
+leader for a Modality Transformation Middleware project 
+for the Harvey Mudd - H E  Laboratories Computer 
+Science Clinic, she was a Computing Research Association 
+summer intern at Georgia Tech, and she designed and 
+developed plans for a computer science summer program 
+for middle school girls. Research interests include human- 
+computer interaction, educational technology, and natural 
+language processing, Ms. Knudtzon graduated with 
+distinction from Harvey Mudd College in Claremont, CA 
+with B.Sc. in Computer Science. 
+Dr. Howard Shao is an Engineering Specialist in ITD. He 
+is the Principal Investigator for the Information Systems 
+Technology IR&D project. His research interests include 
+directoiy services and distributed computing technologies. 
+Dr. Shao has a Ph.D. in Electrical Engineeringfrom the 
+University of Southern California . 
+Dr. Sally Hayati is the Director of ITD. The department 
+conducts applied research, prototype development, 
+technology assessment, consultation, and technical 
+assistance on multiple programs. Prior to that, she was the 
+technical lead and manager of the Aerospace consultancy 
+contract with the Thuraya commercial satellite program. 
+She played a similar role on the IC0 program previous to 
+that. Dr. Hayati has a Ph. D. in Computer Engineering from 
+the University of Southern California and B.Sc. and MS. 
+degrees from U. C. Berkeley. 
+Mr. Don Scott is on the technical staff of ITD. He 
+specializes in web development, database and system 
+administration. His interests include open source solutions 
+with Linux and client-server programming using Java, and 
+C++. He has a B.Sc. in Computer Sciencefrom California 
+State University, Long Beach. 
+Mr. Ron Higginbotham was a Senior Member of the 
+Technical Stafffor ITD. He’s now with Nortel Networks in 
+London. While at Aerospace Mr. Higginbotham provided 
+on-site consulting support to IC0 Global Communications 
+in London. He led the end-to-end requirement verification 
+eflort for the ICONET Ground Facilities contract and the 
+Working Group B integration and test efsort. Mr. 
+Higginbotham has a A4S.E.E. @om Boston University and 
+B.S. E, E. from Stanford Universip. 
+Dr. Russ Abbott is Professor of Computer Science at 
+California State University, Los Angeles and a member of 
+the technical staff at The Aerospace Corporation. His 
+current interests include Complex Adaptive System, 
+Art$cial Life, and Internet-based, distributed systems. Dr. 
+Abbott has a Ph.D. in Computer Sciencefrom the University 
+of Southern California, a BA in Mathematics from 
+Columbia University, and a MA in Computer Science from 
+Harvard University. 
+6-2730 

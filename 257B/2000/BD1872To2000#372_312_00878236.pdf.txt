@@ -1,0 +1,496 @@
+Lossless Compression for Archiving Satellite 
+Telemetry Data 
+Paul Staudinger 
+General Electric Research and Development Center 
+1 Research Circle 
+Niskayuna, NY 12309 
+staudinger @ crd.ge.com 
+5 18-387-73 13 
+John Hershey 
+hershey @ crd.ge.com 
+518-387-7068 
+Mark Grabb 
+grabb @ crd.ge.com 
+5 18-387-7139 
+Namita Joshi 
+General Electric Medical Systems 
+N25 W23255 Paul Rd. 
+Pewaukee, WI 53072 
+Fergus Ross 
+Nokia Mobile Phones, Inc. 
+12278 Scripps Summit Dr. 
+San Diego, CA 92 13 1 
+Fergus.Ross @ nokia.com 
+858-831-4556 
+Tom Nowak 
+General Electric American Communications 
+Four Research Way 
+Princeton, NJ 08540 
+Thomas.Nowak @ gecapital.com 
+609-987-4127 
+Abstract-- We present a method for lossless 
+compression of satellite data for archiving. The 1. Introduction 
+method is of low complexity and has been 
+demonstrated to work successfully on actual 
+telemetry data. 
+It is important for satellite operation centers to 
+monitor and journalize their satellites’ telemetry 
+so that it can be later retrieved and analyzed. 
+Table of Contents 
+1. Introduction 
+2. Lossless Compression 
+3. An Example 
+4. Conclusion 
+5. References 
+Although satellite telemetry is typically a very 
+small portion of the data received from a 
+satellite, over time the satellite telemetry may 
+strain the storage facility provided for its 
+retention. There is, therefore, a reason to 
+compress the received satellite telemetry so that 
+it can be stored in less space. 
+State-of-health telemetry compression methods 
+have been reported [l]  that achieve ratios from 
+1OO:l to 5000:l but these methods are not 
+299 
+lossless. In our case, it has been determined that 
+the compression must be lossless and the 
+compression method must of sufficiently low 
+complexity to be able to run in near real-time. 
+The concept is sketched in Figure 1. 
+181 SATELLITE 
+' . I  
+ARCHNING TELEMETRY 
+RECENER 
+OECOMPRESSI 
+WORK- 
+STATION RETRIEVAL $& 
+Figure 1 Telemetry Archival and Retrieval 
+The telemetry of instant interest is frame based, 
+i.e., a continuous series of delineated blocks of 
+data of the same length. The bits in a particular 
+frame correspond to binary values of samples of 
+monitored variables. The samples are taken 
+periodically and, knowing the frame number and 
+the bit position within the frame, it is possible to 
+reconstruct the value of the monitored variable. 
+We cannot assume to know what a particular 
+actual variable is, however. Further, some 
+variables are sampled at a lower rate than others 
+and it is helpful to think of the process as a set of 
+spinning commutators that are sampling the 
+variables as shown in Figure 2. 
+VAR 2 
+I 
+COMMUTAT+ 
+VARI  --O 0- V I R 3  
+P 
+SUBCOMMUTATOR 
+VARC --O C-- VARA 
+? 
+VAR B 
+In Figure 2, the Commutator samples 4 positions 
+periodically. Three of these positions are always 
+information about the same variables, i.e., 
+Variable 1, Variable 2, and Variable 3. The 
+fourth position, however, is information about 
+Variable A, Variable B, or Variable C. The 
+telemetry transmitter therefore transmits 
+information respecting the variables in the 
+following order: 
+1,2,3,A,1,2,3,B,1,2,3,C,1,2,3,A,1,2,. . .. In the 
+example sketched in Figure 2, Variables 1, 2 and 
+3 are sampled three times as often as Variables 
+A, B, and C. The data variables themselves may 
+also exhibit periodicities. 
+2. Lossless Compression 
+Because telemetry data is usually highly over- 
+sampled, i.e., sampled much faster than it need 
+be to accurately reconstruct the variables 
+reported, there are likely to be significant 
+autocorrelations at the sampling periods. In 
+order to exploit this for purposes of compression 
+the first step is to find the distance, 6, between 
+frames which yields the greatest autocorrelation 
+in the frame sequence. For notation purposes, 
+consider that the telemetry data consists of a set 
+of frames, ( F i } ,  where each frame has B bits. 
+The j-th bit in the i-th frame is denoted as Fj('j). 
+The autocorrelation is estimated for various Zags. 
+Typically a number of consecutive frames is 
+collected as a sample for study. We denote the 
+autocorrelation for lag z by R(2) and define it as 
+Nuniber of Framesin Saniple-r C[A(F,.F,+,)-  D(F, F , + ~ ) ]  
+i=l  R(r )  = 
+B .  (Number of Framesin Sample - r )  
+Where 
+A(.,.) is the number of bits in Frame i 
+that agree with the respective bits in 
+Frame i + z, and 
+D(.,.) is the number of bits in Frame i 
+that disagree with the respective bits in 
+Frame i + 2. 
+We find the value of z, z >= 1, for which R(z) is 
+a maximum. We denote this value z by 6. 
+The next steps are to search for and remove 
+correlations between the bits in the { F i } .  
+Figure 2 The Commutator Analogy 
+300 
+The algorithm to do this has four phases: 
+1. Data preconditioning, 
+11. 
+111. 
+iv. 
+Compression and coding of first frame, 
+F19 
+Compression and coding of frames 2 - 
+6, F2 - F8, 
+Compression and coding of Fscl and on, 
+the steady-state mode. 
+... 
+i. Data preconditioning. The first step is then to 
+precondition the data by performing a bit-by-bit 
+exclusive-OR'ing of the bits in frames spaced by 
+6 and thus convert the sequence of frames 
+{4 } , into a new sequence of frames, {e"}, 
+according to the rule 
+Where the operator ' 0 ' denotes exclusive-or, 
+i.e. 
+O @ O = O  
+0@1=1 
+1 6 0 = 1  
+1@1=0  
+ii. Compression and coding of the first frame. 
+There are many possible choices for this step 
+including simple Huffman or Hankamer coding 
+or the use of publicly available routines such as 
+gzip. 
+iii. Compression and coding of frames 2 - 6. 
+Some simple data preconditioning could be 
+appropriate, such as forming 
+Fi, F I  0 F2, F2 0 F3 ,..., FS - 1 0  FS 
+followed by simple Huffman or Hankamer 
+coding or the use of publicly available routines 
+such as gzip. 
+iv. Compression and coding of frame 6 + 1 
+and on (steady-state). 
+Step 1. A Table of Probabilities (TOP) 
+is prepared based on a study of a significant 
+volume of typical telemetry traffic. The TOP is 
+prepared using the empirically determined 
+quantities ( f i j } ,  where f i j  is the 
+approximation of the probability that the j-th bit 
+in the {e*} is a one. It is computed by simply 
+forming the ratio 
+~ 
+pJ = Numberof Framesiii( F:) 
+Number of onesiii position j i n {  F;} 
+Step 2 .  The Folded Table of 
+Probabilities (FTOP) is prepared from the TOP 
+by replacing any @j > O S  by 1-  f i j  . The j-th bit 
+is also inverted. The telemetry Bit Inversion 
+Table (BIT) is created which keeps track of any 
+such replacements and inversions. This is done 
+so that, on any subsequent decompression, the 
+algorithm will be able to provide the correct 
+sense of any such bit. 
+Step 3. The FTOP is ordered, top to 
+bottom, in non-increasing values of the { f i j ]  . A 
+Bit Selection Table (BST) is created to keep 
+track of the permutation created by the FTOP 
+ordering. The first entry in the BST will 
+correspond to the largest value of the { f i j }  . The 
+BST is preserved along with the BIT. It will be 
+necessary in correctly ordering decompressed 
+bits. 
+Step 4. By the nature of its construction, 
+the BST will cluster bit streams that have similar 
+probabilities. It is expected that telemetry 
+streams will be such that some of the bit streams 
+in a cluster will be highly correlated in the 
+following sense. Two bit streams, c * ( k )  and 
+e * ( k ' ) ,  are defined to be significantly 
+correlated if the probability of the bit stream 
+created by exclusive-ORing c* ( k )  and 
+F]* (k')  , pz is significantly less than both pk 
+and pk' , i.e., 
+pz << miIl(pk, pk') . 
+If two bit stream are found to be highly 
+correlated, one of the bit streams is replaced with 
+the exclusive-OR stream and the stream's 
+probability is replaced with pz . A Correlation 
+Table (CT) is maintained to keep track of such 
+replacements so that they may be undone at 
+decompression. 
+Once the correlations have been removed per this 
+step, the FTOP is reordered so that the top to 
+bottom probabilities are again in non-increasing 
+order. The BST is also appropriately adjusted. 
+30 1 
+Step 5. A variant of the Ohnishi et a1 
+Truncated Run Length Coding technique [2] is 
+now applied to the bits as they are specified, top 
+to bottom, in the BST. This particular 
+codingkompression scheme operates by coding a 
+variable number of bits into variable length code 
+words and uses two tables. The first of these is 
+Table 1, which is termed the R-Table. The 
+second table is Table 2, which specifies the Run 
+Length Substitution Code, 
+I Rangeof i j  1 1 
+0.382 - 0.500 
+0.214 - 0.382 1 2  
+0.113 - 0.214 1 4  
+0.0584 - 0.113 1s 
+10.0296 - 0.0584 1 6: 1 
+0.0149 - 0.0296 
+0.00749 - 0.0149 
+0.00375 - 0.00749 
+0.00188 - 0.00375 256 
+0.000939 - 0.00188 
+IO-0.000235 I4096 I 
+Table 1 The R-Table 
+1 Source Pattern [ Code Word I 
+0 0 1  1 1 1 0  
+0 0 0  ... 1 
+0 0 0  ... 0 1 
+I 1 1 1 1  ... 1 0  
+I 1 1 1 1  ... 1 1  
+0 0 0  ... 0 0  [ o  
+I t R bits .-) I I I t R bits + I 
+Table 2 The Run Length Substitution Code 
+For the instant case one uses the R-Table (Table 
+1) keyed by the specific { $ j }  of the bits to be 
+coded.' 
+Observation: Stepping though the bits to be 
+coded, the first bits will probably have $j values 
+in the range 0.382 -- 0.500 and would therefore 
+be assigned code words of length 1, i.e., there 
+would be no compression. The lowest 
+information content of a bit in that probability 
+range occurs when ijjO.382 and is 
+H ( j j )  =0.959 bits. The Ohnishi, et.al. method 
+will, in general, be greater than 95% efficient 
+The procedure proceeds as follows: 
+I. Start at the top of the FTOP and work 
+down 
+11. Find the R corresponding to the 
+probability of the first uncoded bit per 
+Table 1. Construct the Run Length 
+Substitution Code per Table 2. 
+For the case where R=l, the coding is 
+the trivial case wherein the coded bit is 
+simply the source bit. Return to STEP 2. 
+For the case where R>1, examine the R 
+uncoded bits starting at the first 
+uncoded bit. If the R bits are all zeros, 
+then replace a11 of the R zeros with a 
+single 0 as per Table 2. 
+i. If there is a run of 
+K,O 5 K I r - 2 ,  zeros, 
+starting with the first uncoded 
+bit, replace the K zeros and the 
+one following the K zeros with 
+the K+2 bit code word per 
+Table 2. 
+ii. If there is a run of K=R-1, 
+zeros, replace the K zeros and 
+the one following the K zeros 
+with the R ones as per Table 2. 
+111. 
+IV. 
+Return to STEP 11. 
+There is one exception to the above procedure 
+and it provides for the termination of the coding. 
+If after replacing a smng of bits, there are no 
+more bits in the frame, then the frame coding is 
+completed. A counter may be used to keep track 
+of the number of bits that have been encoded. 
+Additionally, if there are fewer than R bits 
+remaining and they are all zero, then the code 
+word 0 should be used to replace the remaining 
+bits. Finally, if the last bit in the frame being 
+coded is a 1, then the algorithm is declared 
+finished after the coding of that bit. 
+The following three tables, Table 3-5, are 
+examples of the coding specified by Table 2 for 
+R=l, 2, and 4. 
+provided that the {bj} are independent. The 
+maximum inefficiency incurred by essentially 
+not coding bits in this 
+probability range is thus less than 5%. 
+302 
+Uncoded Bits 
+0 
+1 
+Table 3 R=l 
+Coded Bits Remarks 
+0 "Trivial" Case 
+1 
+Uncoded Bits 
+0 0  
+0 1  
+10  
+1 1  
+I I this step. 
+Coded Bits Remarks 
+0 The small, 
+1 1  highlighted, 
+10 and italicized 
+10 uncoded bits 
+signify that 
+they remain 
+uncoded and 
+still await 
+coding after 
+Table 4 R=2 
+1011 
+1 1 0 0  
+1101 
+1110 
+1111 
+Uncoded Bits Coded Bits I E F k F t  
+10 
+1 0  
+10 
+1 0  
+1 0  
+0 0 1 0  11110  
+0 0 1 1  I 1 1 1 0  
+l o i n n  I i i n  I 
+Remarks 
+The small, 
+highlighted, 
+and italicized 
+uncoded bits 
+signify that 
+they remain 
+uncoded and 
+still await 
+coding after 
+this step. 
+Table 5 R=4 
+Step 6. After the Ohnishi et a1 
+Truncated Run Length Coding technique has 
+been applied to a frame, it is followed by 
+encoding by the publicly available gzip routine. 
+This is done for two reasons. The first is to try to 
+achieve a bit more compression as the statistics 
+of the telemetry slowly depart from the design 
+point which causes the compressions's efficiency 
+to degrade. The second reason to do this is to 
+attempt to achieve at least nominal compression 
+for those instances where the statistics of the 
+telemetry stream depart suddenly and 
+significantly from the expected statistics. This is 
+a relatively unusual occurrence but occasionally 
+systems are reset or otherwise ovemdden. 
+In general, the telemetry bit streams will most 
+likely not exhibit stationarity, and it may be 
+prudent to periodically, or aperiodically, 
+reinitialize the algorithm if, for example, the 
+observed compression ratio drops significantly 
+below its peak. Reinitialization will decrease the 
+initial compression as it will be increasingly 
+amortized as the algorithm runs until its next 
+reinitialization. 
+3. An Example 
+We applied the algorithm to a telemetry stream 
+of interest. The telemetry data consisted of two 
+4096-bit frames every second. A study of about 
+an hour's worth of data produced the histogram 
+displayed in Figure 3. The histogram bin size for 
+the probability, p, is 0.01. 
+I v) 1000 ti E, 
+H 1 
+n 'O0I t  n 
+r 
+L 
+d 10 s z 
+1 
+0.0 0.2 0.4 0.6 0.8 1.0 
+P 
+Figure 3 Histogram of Bit Probabilities 
+We applied the algorithm to this telemetry source 
+and reinitialized the algorithm every hour, i.e., 
+we computed the FTOP, BST, and CT tables and 
+stored them ahead of the compressed and coded 
+telemetry. Doing this every hour helped greatly 
+as it became evident that the telemetry statistics 
+change over time and storing the tables 
+periodically allows us to make a stationarity 
+assumption. 
+Using a large sample of actual data, we measured 
+the compression afforded by different R-value 
+regions of the variant of the Ohnishi, et al coding 
+method and observed the results summarized in 
+Table 6. 
+303 
+R Value Midpoint R Average Best Observed 
+Region Possible Compression 
+2 
+4 
+Entropy Compression 
+0.87 1.15 1.14 
+0.61 1.64 1.62 
+Table 6 Compression Afforded by Different 
+R-value Regions 
+8 1 0.40 I 2.5 
+16 I 0.24 I 4.2 
+We see that this part of the compression 
+algorithm is less effective for the middle range 
+R-values. This is symptomatic of a change in bit 
+stream probabilities. This was confirmed. For 
+example, Figure 4 displays an especially 
+pronounced example of the non-stationarity 
+encountered. Over a hour’s duration, the average 
+probability of a one in this particular bit stream 
+is about 0.365. Figure 4 displays the average 
+probability over an hour computed using a 
+sliding window of 10 minutes width. 
+2.16 
+2.86 
+1 .oo I I 
+32 
+64 
+128 
+0.90 
+0.70 
+0.15 6.67 3.8 
+0.087 11.5 6.2 
+0.049 20.4 26.9 
+0.10 
+0.00 
+0 10 20 30 40 50 
+Minutes 
+Figure 4 Example of Non-stationary Behavior 
+of Bit Probability 
+For this sample of the particular telemetry stream 
+studied, the best 6 was found to be 32. On 
+coding the {e’} using the variant of the 
+Ohnishi et a1 coding without first removing the 
+correlations (Step 4), we realized a compression 
+of 14. Removing the correlations pushed the 
+compression to 17. Running gzip afterwards 
+boosted the compression by about 13%, to 19. 
+Periodic storage, of course, diminishes the 
+compression, but storage once an hour does not 
+result in significant mitigation of the 
+compression. 
+4. Conclusion 
+The procedure described here works reasonably 
+well for compression of frame based telemetry. 
+In a larger sense, for data compression 
+challenges wherein the data statistics themselves 
+are constantly changing, a hybrid of techniques 
+(such as conventional schemes concatenated with 
+other, less conventional schemes) proves to be a 
+useful approach. 
+5. References 
+[ l]K.Nickels, C.Thacker, J.A.Storer and 
+J.H.Reif, “Satellite data archives algorithm”, 
+Data Compression Conference, 1991, p. 447. 
+[2JH.Tanaka and A.Leon-Garcia, “Efficient Run- 
+Length Encodings”, IEEE Transactions on 
+Information Theory, Vol. 28, pp. 880-890, 1982. 
+304 

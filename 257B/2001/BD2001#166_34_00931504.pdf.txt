@@ -1,0 +1,537 @@
+Estimating Road Networks using Archived GMTI Datal 
+Sean D. O'Neil 
+The MITRE Corporation 
+202 Burlington Rd, MS H145 
+Bedford, MA 01730-1420 
+sdo@mitre.org 
+78 1-271-295 1 
+Abstract-It is increasingly accepted that accurate maps of 
+road networks can make a critical difference in enabling 
+accurate tracking of ground movers using GMTI radar data, 
+especially when sensor resources are limited. However, road 
+maps are often incomplete and inaccurate to such an extent 
+that their utility is eliminated or greatly reduced. At the 
+same time, users of GMTI data have noted in heavily 
+trafficked areas that the road networks are readily apparent 
+on positional displays of GMTI data. This has lead to the 
+notion of estimating the road networks using GMTI data, 
+an idea, which is operationally appealing given that the data, 
+can be collected over a time period of several days to 
+several months. 
+This paper addresses one of. the fundamental issues of 
+estimating road networks fkom GMTI data. We derive a 
+methodology for estimating a road network the views the 
+road in a fundamentally different way than has been the case 
+in previous approaches to this problem. The methodology is 
+motivated by the stochastic models typically employed to 
+model target trajectories as indexed by time, which we 
+modify to come up with a stochastic model for the road 
+trajectory which is indexed by arc-length. We apply this new 
+method and compare it to a recently presented method that 
+views the road as fundamentally composed of segments and 
+vertices, and show using a limited data set that the stochastic 
+estimation approach seems to offer much better 
+performance. 
+1. 
+2. 
+3. 
+4. 
+5. 
+TABLE OF C 0 " T S  
+INTRODUCTION 
+ROAD ESTIMATION: PRIOR METHOD 
+STOCHASTIC ROAD ESTIMATION 
+RESULTS 
+CONCLUSIONS 
+1 .  INTRODUCTION 
+beginning to be deployed on other airborne platforms such 
+as the Air Force's Global Hawk UAV and the Army's Aerial 
+Reconnaissance Low (ARL) platform, and this trend is likely 
+to continue. 
+As has been noted by others GMTI radar can be used not 
+only to provide an overall picture of ground trafllc activity, 
+but can also be used to track individual targets. However, 
+the difficulties associated with individual tracking of ground 
+targets are far more formidable than those associated with 
+tracking air targets [ChongOO]. For example, the relative 
+levels of maneuverability when normalized by separation 
+and typical revisit rate are much greater for typical ground 
+traffic than for typical air trafilc. To this can be added 
+complications due to intermittent, possibly prolonged 
+dropouts of data due to terrain and foliage masking, 
+minimum-detectable velocity issues, high clutter and false 
+alarm levels, and sensor blackouts due to turns. 
+For this reason, the use of a priori information to assist in 
+the overall tracking process is considered by many to be 
+critical. The most significant source of such information is 
+the presence of road maps, which give preferred paths of 
+motion for ground vehicles, and indeed digital road maps 
+have been used to assist trackers for several years now as 
+shown in pitzgerald991, Ipopp991, and [KlameBB]. 
+One unfortunate fact is that digital road maps produced by 
+the National Imagery and Mapping Agency (NMA) as well 
+as the United States Geodetic Survey (USGS), the two most 
+common sources of such maps, often have errors that are 
+large compared to the resolution of fielded GMTI sensors. 
+This disparity will only increase with the GMTI sensors that 
+are, or soon will be, coming on line. Perhaps a greater 
+problem is the fact that road maps even for well-surveyed 
+areas such as the contiguous United States are incomplete, 
+often woefully so. An example of this problem can be seen 
+in Figure 1 below, which contains two roadmaps, one fiom 
+NIMA (in red) and one from the USGS (in black), of a 
+The advent of GMTI radar has changed the nature of ground 
+surveillance since the successful deployment of the Joint 
+surveillance Target Attack Radar System (Joint STARS) to 
+he haqi theater during Operation D~~~~ Stom in 1990- 
+1991. addition to Joint STUS, GMTI are 
+portion Of Holloman AFB in New Mexico. be 
+noted that the NIMA map contains far fewer roads 
+than does the USGS one, and, in addition, it is easy to spot 
+places where the identical road on both maps disagrees in 
+location and shape, even at the approximate 40x40 km scale 
+of the map. 
+It 
+~ ~~~~ 
+0-7803-6599-2/01/$10.00 8 2001 EEE 
+4-1865 
+Figure 2. “Mother of All Ketreats” 
+Figure 1. Overlaid NIMA and USGS Road Maps for 
+Holloman AFB, NM2 
+The underlying cause of such gross disagreements and errors 
+is the fact that most digital road maps have been created 
+from paper maps, which typically are distorted to make them 
+easier to1 interpret (e.g., paper maps typically push roads 
+away from water edges and other boundaries to make them 
+visible). As a result, tracker developers have sometimes 
+turned-off the road-aided tracking fimction because road 
+errors degraded precision. 
+Recently, it has been noted that this process could be turned 
+around, so that prior to using road maps to aid in GMTI 
+tracking, accumulated GMTI data could be used to help 
+extend and refine digital road databases. The motivation 
+behind this is not new: GhITI operators have long noted that 
+the cumulative picture of GMTI detections gives a fairly 
+precise rendering of the road network for a given area of 
+surveillance. An example of this can be seen in Figure 2, 
+which contains the now-famous picture of the “Mother of 
+All Retreats” as seen by the JSTARS platform at the 
+beginning of the US ground operation to liberate Kuwait in 
+February 1991. 
+Source: Paul Castleberg, Toyon Research Corp. 
+It may seem paradoxical to use lower-quality GMTI data to 
+improve road network information to the point that it can 
+itself be used to improve both decisionmaking and accuracy 
+within a GMTI-based tracking system, but in fact several 
+features of either roads or GMTI radars come together to 
+make this possible. One is the fact that roads are static 
+constructs and do not change over time. Thus, unlike time- 
+evolving objects such as ground vehicles, information 
+gathered on a particular road is cumiulative, and does not 
+dissipate over time.. Thus, there is in principle no lower 
+limit to the amount of integration gain that can be achieved 
+by combining an ever-increasing number of passes of the 
+sensor looking for vehicles on the road in question. 
+Another facet of road-estimation using GMTI data is that it 
+may be the case that multiple radars observe a road at the 
+same time, and this idormation could be combined. This is 
+important because multi-lateration for GMTI sensors results 
+in a tremendous overall increase in aiccuracy, since GMTI 
+detections typically have an associated error ellipse that is 
+highly eccentric. The minor axis of this ellipse 
+(corresponding to the range measurement) is often smaller 
+than the major axis (corresponding to the azimuth 
+measurement) by an order of magnitude or more. Finally, 
+we show in this paper that another fcirm of multi-lateration 
+can be used in this particular problem, one which requires 
+only onle sensor present. This form of‘multi-lateration arises 
+because the sensor itself may view the road from 
+fundamentally different angles during its’ mission or 
+missions, over a period of hours to weeks. Suitably framed, 
+this tirne-separated multi-lateration can be invoked to 
+achieve similar accuracy improvements as long as the 
+vehicle; detected by the sensor or sensors at different times 
+are recognized to have traversed the same segments of road, 
+a requirement which is in general not very onerous. 
+This rest of this paper is organized as follows. The 
+succeeding section introduces the basics of road estimation 
+from GMTI data, and presents a prior technique for doing 
+4-1866 
+such estimation. The next section reformulates the problem 
+so that the road itself is described as a stochastic Ito-process, 
+and a suboptimal method is derived for solving the 
+estimation problem that arises from this reformulation. 
+Finally, it is shown that the entire GMTI -> Road Map -> 
+GMTI Track procedure can be viewed more directly as a 
+process of estimating the kinematic history of a vehicle fiom 
+GMTI data in the presence of prior GMTI data collected 
+against vehicles known to be traversing the same stretches of 
+road. 
+2, ROAD ESTIMATION: PRIOR METHODS 
+Roads are often given in standard vector product form 
+(VPF), that is, as linked lists of line-segment end-points. 
+For clarity we make the following definitions. A road 
+segment is considered to be the portion of the road that lies 
+between any two end-points. These segment endpoints shall 
+be referred to as vertices v. A special type of vertex is a 
+node, which is used to refer to a vertex that is the endpoint 
+for a number of segments not equal to two. A road stretch 
+is defined by a set of linked segments that run between two 
+nodes. A picture of a roadmap with the various portions 
+labeled can be found in Figure 3. 
+Figure 3. Road Map Elements 
+In [Enders], a method for improving road networks using 
+GMTI data is put forth. An overview of the method is as 
+follows: 
+1. Prep initial map database (if any) into requisite 
+format including initial guesses for vertex error 
+covariances 
+Associate track updates with road segments 
+associated segments 
+2. Run tracker on reports 
+3. 
+4. Introduce new segments where tracks lack 
+5. 
+6. 
+7. Absorb vestigial vertices 
+8. 
+Introduce new vertices where indicated 
+Nudge vertices to minimize error criterion 
+Repeat steps 3-7 as needed 
+It is shown in [Enders] that there can be some ambiguity in 
+step 3, inasmuch as associating track points to roads in a 
+statistical nearest-neighbor sense can easily lead to multiple 
+track points that associate to a vertex. Such cases are 
+handled by declaring that such track points are associated 
+(i.e., will be used to compute error metrics) with all 
+segments connecting to that vertex. 
+New vertices are introduced in step 5 by sliding a window 
+along each segment and calculating a mean perpendicular 
+offset of the track as well as an associated standard 
+deviation. A segment is broken into two (i.e., a new vertex 
+is inserted) when the largest perpendicular offset is more 
+than twice as large as the mean offset, and passes a 
+significance test. Similarly, step 6 is carried out by 
+calculating a mean perpendicular offset for each segment 
+connecting to a vertex, then computing a covariance- 
+weighted adjustment to the vertex combining the estimated 
+offset for each connecting segment along with the initial 
+uncertainty associated with the vertex position. 
+Finally, vestigial non-node vertices are absorbed by 
+comparing the uncertainty envelope of the two connecting 
+line segments and removing those vertices that are contained 
+in both envelopes. 
+The approach in [Enders] has several virtues. It is easily 
+motivated, works with road networks as they are currently 
+described, and is not computationally prohibitive. However, 
+there are some drawbacks that should be noted. Step 4 
+outlined above is not completely set down (the author states 
+it to be undetermined as yet), and so the expansion of the 
+road network on the basis of GMTI data is not yet defined. 
+Another possible drawback is that filtering of the data 
+(tracking) is required prior to using it to update the roads, 
+which may be a troublesome aspect especially if data is 
+intermittent or sampled with long periods in between revisits 
+(which is a likely mode during pre-conflict surveillance). 
+3. STOCHASTIC ROAD ESTIMATION 
+The standard VPF form that digital road databases come in 
+implicitly view the road as a set of connected links. As 
+such, most work until now aimed at modifying or improving 
+the road networks takes that model of road structure as 
+given, and attempts to work within that framework. 
+However, other models for roads may be imagined. 
+Consider the related problem of estimating the trajectory of 
+a moving object from a set of observations of that object. 
+One way of approaching this problem is exemplified by the 
+method of fitting splines, an approach which is similar in 
+4-1867 
+spirit to that outlined above for road estimation, though the 
+fitting functions are straight line segments in that case. 
+Another way of handling the moving object estimation 
+problem is to take the approach of Kalman, which is to 
+model the object motion itself as an It0 (stochastic) process 
+driven by white noise or its integral (Brownian motion), and 
+derive an estimation procedure directly from that model. 
+This approach has wide appeal and can be considered as the 
+standard for this type of problem [Gelb][Bar-Shalom]. One 
+of its' main virtues is that it imposes a probability density 
+structure on both the U priori distribution of the target 
+trajectory as well as on the observations of that trajectory, 
+and so optimal estimation methods, such as the Kalman 
+filter, can be derived in a straightfomard manner. 
+Consider again the road estimation problem. The road itself 
+is a trajectory through space, though there is no time 
+component to it. However, it can be viewed as a function x 
+of the arc-length s along the road. If we wish to consider 
+how x evolves with s then it is probably not a good idea to 
+consider as consisting of position alone, since this would 
+lead to a very random behavior on the part of the road. 
+What is :needed is some way of introducing local correlation 
+in the increments of the road with arc-length. 
+Consider the road 'state' to consist of position (u,v) and a 
+heading CO. Then the road trajectory as a function of arc- 
+length s can be written in discretized form as 
+x(s + A S )  = f ( x ( s ) , & )  + G,w, (1) 
+where the road state x is given by 
+f is given by, 
+(3) 
+and G ,  is given by, 
+G ,  f ] ,  
+and w, is a normally distributed r.v. with unit variance. 
+As just seen, equations 1-4 give a model for the road. Now 
+consider an object moving down the road. GMTI 
+observations of that object consist of slant range, azimuth, 
+and Doppler. For simplicity, we will assume that we are on 
+a flat Earth with a fvred sensor location, thus removing 
+issues related to platform motion, altitude, and Earth 
+models. However, the following treatment is easily 
+generalized to handle those (admittedly important) real- 
+world aspects of GMTI estimation. 
+Since we are assuming that the target is on a road, we can 
+summarize its' stale using arc-length s, and its' time- 
+derivative . Thus, we can write the equation for the 
+motion of the target in urc-length as 
+s(t + At) = F,s(t) + GSws ( 5 )  
+where 
+F& =(; 4') 
+and the r..v. term G,w, has covariance [Bar-Shalom] 
+with 
+(7) 
+Finally, observations are made of the target at known times 
+t. These observations are given as, 
+z = h(x(t))+ v(t)  , (9) 
+where the function 'h is defined as 
+f 
+and v is a 3-vector of corrupting measurement noise with 
+known covariance matrix R, 
+Thus, tco summarize, we have defined a model for the road 
+that defines it as a stochastic trajectory as a function of arc- 
+length, and defuled (standard) equations for the target 
+motion and observations. 
+4-1868 
+At this point, the question is how to properly estimate the 
+road function x given the observations z. One might be 
+tempted to try and apply the Kalman filtering methodology 
+by stacking the equations up so that there is a single plant 
+equation, but the difficulty with this approach is that it 
+requires one to estimate one function (x) that depends on a 
+variable s with observations made at unknown, or 
+imprecisely known, values of s. This does not fit within the 
+standard Kalman formalism. 
+The issue is, of course, that we do not know the road 
+function x ahead of time. If we did, the estimation process 
+for the values of s and s-dot could proceed unimpeded, and 
+we could then turn around and estimate x, which we 
+assumed we already know! However, it does not seem 
+unreasonable to imagine that an approximate version of x 
+might be constructed that could then be substituted in for the 
+real x and used to estimate values of s and s-dot for the 
+target. These in turn could be used to refine the estimate of 
+A. 
+Thus, a suboptimal estimation procedure can be defined as 
+follows: 
+1. Filter the observations z in the normal fashion to 
+estimate the target trajectory 
+Transform this trajectory in (u,v,u,v) into a trajectory 
+in (s, s, w )  , all as a function o f t  
+Use this mapping to transform z(t) to z(s) 
+Estimate x(s) using the observations z(s) 
+Use s(t) to transform x(s) to x(t), then to ( s , s ,w)  as a 
+function oft  
+Repeat steps 3-5 to convergence 
+* .  
+2. 
+3. 
+4. 
+5.  
+6. 
+Note that we have now defined a procedure for estimating a 
+road function x fiom scratch (or using prior information) 
+fi-om GMTI measurement information, constraining the road 
+shape only probabilistically as defined in equations 1-4. 
+While this algorithm does not address the specific issue of 
+adding new road stretches, which should be required of any 
+final scheme, once a road has been added or deemed 
+present, the estimation process outlined above can proceed 
+to convergence. 
+Steps 1 and 4 involve actually carrying out an estimation 
+procedure. Note that we have not yet specified how this is 
+to be done. The obvious answer is to use a Kalman filter, 
+yet there are a few points to consider before doing this. 
+Perhaps the most important point is that all the data is 
+assumed present prior to doing the estimation. Another 
+point is that it is useful to estimate the road function x at as 
+many places as possible, independent of the density of 
+samples of the road. 
+Both of these points lead to the idea of smoothing the data 
+[AndersonMoore], i.e., coming up with an optimal estimate 
+of the road function x for any value of arc-length s given all 
+the data received on all portions of the road stretch. This 
+problem is commonly referred to as the fixed-interval 
+smoothing problem. and there are a number of ways to 
+tackle it. The approach used in the results section [Gelb] 
+below is to first run Kalman filters forward and backward on 
+the data, then to construct the smoothed estimate at any 
+point by taking the straddling points fiom the forward and 
+backward filters, projecting them forward or backward to 
+the desired point, and computing a covariance-weighted 
+combination of the two values. An example of the 
+improvement in arc-length velocity estimates that can accrue 
+fiom using this procedure can be seen in the example in 
+Figure 4, which shows the forward and backward estimates 
+as dashed lines, with the smoothed estimate given by the 
+solid line. 
+I_ I 
+100 150 200 250 
+Tlme (Sec, 
+'0 , 50 
+Figure 4. Arc-Length Speed Estimates Using Forward and 
+Backward KF, and Smoothing Estimate 
+Thus, at all stages of estimation, a smoothing routine as 
+described above was used rather than standard Kalman 
+filtering. 
+4. I&SUI.,TS 
+A single comparison was made between the two 
+methodologies described earlier. As the basis of 
+comparison, we used a single 3.4 km road stretch from a 
+very detailed digital road database of Holloman AFB, the 
+assumption being that the high density of sample points from 
+the road represented a compromise between the assumptions 
+for either methodology (i.e., the vertex-adjustment method 
+or the stochastic estimation method). 
+Target motion was simulated along the road using a standard 
+stochastic model as given in equation 5. It was assumed 
+that a GMTI sensor made ten passes of the area (the sensor 
+was assumed stationary at each pass, though the location 
+was varied fi-om pass to pass), and each time observed a 
+4-1869 
+single vehicle on the road. The revisit time was held at 5 
+seconds, though it could have been varied, to allow for a 
+more even comparison of the improvement as more passes 
+occur. 
+dis lacement I 
+However: because of the random nature of the target 
+trajectory generation process, each pass contains a different 
+number of ‘hits’, since the amount of time the vehicle is on 
+the road stretch cannot be set ahead of time. Indeed, the 
+vehicle can behave rather oddly, often not traversing the 
+entire road stretch but turning around and exiting out the 
+way it came, or turning around more than once. This type of 
+behavior can occur, though it is likely that the present 
+simplistic: simulation causes it to occur more frequently than 
+would actually be encountered. It is tolerated for the time 
+being since both algorithms can handle vehicles reversing 
+direction. 
+Radar detections were simulated using a unity probability of 
+detection, zero false alarm rate, a range error of 20m, an 
+azimuthal error of 2 m a d  (20Om at lOOkm standoff range), 
+and a Doppler error of 1 d s .  The sensor was placed at a 
+random orientation plus or minus 60 degrees to the boresight 
+perpendicular to the axis defined by the starting and ending 
+points of the road at a distance of 100 km from the midpoint 
+of the road axis. 
+For each algorithm, the stochastically generated road was 
+first quantized to a VPF form with 21 vertices using a simple 
+algorithm, and then the vertices were corrupted to give a 
+starting point. Each estimation algorithm was applied and 
+the resulting distortion of the estimated road from the true 
+road was computed. The results for the vertex-adjustment 
+method are given in table 1 below as a function of the 
+number of passes used to estimate the road. The metrics 
+used to evaluate the accuracy of the estimation procedure 
+were: 
+1. Overall arc-length discrepancy (meters) 
+2. Perpendicular displacement from the true road 
+3. 
+(meters) 
+Heading error at the displacement point (degrees) 
+Arc-length 
+error (meters) 
+I error(:deg) 1 
+Table 1. Results for Vertex-Adjustment Estimation 
+The identical starting point was then used for the stochastic 
+estimation algorithni with the results shown in Table 2 
+below. 
+Metric 
+error (meters) 
+Heading 
+Table 2. Results for Stochastic Estimation 
+A comparison of the two sets of results indicates a clear 
+improvement in performance for almost all metrics and all 
+cases for the stochastic estimation algorithm. It is worth 
+commenting on the large improvement in perpendicular 
+displacement going from one pass to two for the stochastic 
+estimation algorithm as shown in Table 2. This is due to the 
+fact that the frrst two passes were taken at substantially 
+different look angles (-8 degrees VS. +52 degrees off 
+boresight), so some benefit from the virtual multi-lateration 
+of the mad is appeiuing here. Contrast this with the vertex 
+adjustment algorithm which cannot really benefit from this 
+facet, and so shows only & type improvement with n 
+passes, with the limiting factor being the very large 
+azimuthal uncertainty, whereas the stochastic estimation 
+procedure is essentially range-accuracy limited. 
+5 .  CONCLUSION s 
+It is cleiu that this approach offers benefits not available in 
+previous “cookie-cutter” approaches to modifying roads. 
+However, several tluings must also be considered. As stated 
+in the .prior section, the approach taken to solving the 
+estimation problem is somewhat heuristic, and the 
+assumption that the procedure would converge, while borne 
+out in the simulations, is merely an assumption not 
+supported by any analysis. This is a.n important point that 
+needs to be addressed in future work. Perhaps more 
+important than this is the estimation procedure itself-it is 
+quite likely that the heuristic approach employed by the 
+author could be improved upon. 
+The reader should also consider the issue of how prior 
+informa.tion such as roadmaps might Ibe useful to a tracking 
+algorithm. While the actual placement of roads is of prime 
+importance, they are only part of the answer when the 
+problem posed is one of tracking military vehicles such as 
+tanks that may go offroad. A vary useful adjunct to 
+roadmaps such on and ofl6road wehicles are so-called 
+“hospitability for maneuver” maps that yield information 
+above preferred directions and ease of motion over all 
+4-1870 
+terrain (see ~usickKastella]). The final piece of the puzzle 
+in getting additional information relating to likely stopping 
+points, such as “rest areas” and the like where vehicles may 
+be considered to be much more likely to pull over and stop 
+(and hence disappear). Having good prior knowledge of 
+such locations would greatly aid both the decision-making 
+process of the ground tracker when faced with possible 
+stopping vehicles (and the attendant loss of detections), as 
+well as the overall sensor tasking and planning, which might 
+be able to much more efficiently allocate SAR and or optical 
+sensors to look at places where stopped vehicles are likely to 
+congregate. 
+REFERENCES 
+[Enders] Robert Enders, “Improving Road Networks through 
+Archived GMV’, 1999 Ground Moving Target Tracking 
+Conference, Lincoln Laboratory, 14-1 5 December, 1999 
+[Gelb] Arthur Gelb, ed., Applied Optimal Estimation, MIT Press, 
+Cambridge, MA, 1974 
+[BarShalom] Yaakov Bar-Shalom and W. D Blair, ed., 
+Multitarget-Multisensor Tracking - Applications and Advances 
+Volume III, Artech House, Dedham, MA, 2000 
+[AndersonMoore] B. D. 0. Anderson and G. B. Moore, Optimal 
+Filtering, Prentice Hall, Englewood Cliffs, NJ, 1979 
+~usickKastella] Stan Musick and Keith Kastella, “Track and 
+Bias Estimation Without Data Association”, SPIE Aerosense 
+2000 Proceedings, SPIE Vol. 4052, pp. 258-269 
+Sean 0 ’Neil received his BSEEfrom M T  and MSEE from 
+RPI where he did his thesis on image compression. He has 
+worked for the MITRE Corporation since 1985 in a number 
+of areas, including image processing, number-theoretic 
+algorithms for advanced signal processing, multi-target 
+tracking, and multi-sensor data fusion. Most recently he 
+has been involved with the DARPA Affordable Moving 
+Surface Target Engagement (AMSTE) program, which is 
+exploring the potential of multi-laterated GMTIplaqorms to 
+provide all-weather, long-stando8Jii-e-control quality 
+information to a command-guided weapon against a moving 
+target. 
+4-1871 
+This page intentionally left blank. 
+4-1872 

@@ -1,0 +1,945 @@
+Estimation of Sea Surface Temperature Using the 
+AVHRR Mid-wave IR Band * 
+Jennifer C. Davis Jerry X. Tu11 Sean P. Byme James J. Lisowski 
+SciTec, Inc. 
+100 Wall Street 
+Princeton, NJ 08540 
+(609) 921-3892 
+Bandpass(pm) 
+jend@scitec.com itullGkcitec.com 
+1 2 3 4 5 
+0.55- 0.725- 3.55- 10.3- 11.5- 
+0.68 1.10 3.93 11.3 12.5 
+Abstract - We describe a method for estimating sea surface 
+temperature (SST) using mid-wave idi-ared (MWIR) band 
+data from the AVHRR polar orbiter. Currently, SST is 
+routinely calculated with a split-window, non-linear multi- 
+channel algorithm incorporating data from AVHRR 
+Channels 4 and 5 (10.3-11.3 and 11.5-12.5 pm, 
+respectively). The accuracy of these results is dependent to 
+a certain degree upon regional variations (especially of 
+water vapor in the atmosphere) and is inherently limited by 
+the spatial resolution of the measurements. Nevertheless, 
+these SST maps are generally considered reliable, and are 
+widely used for studying ocean currents and their effect on 
+weather patterns. We are interested, however, in testing 
+the feasibility of using MWIR data in the absence of LWIR 
+measurements for estimating SST both at night, when 
+reflected solar radiance is not an issue, as well as during the 
+day, when it is. A MWIR SST algorithm of the type we 
+discuss here would be using data, for example, from a 
+satellite without LWIR capabilities in order to calculate a 
+parameter that is ancillary to the satellite mission (but which 
+is nevertheless of high interest). 
+The SST algorithms we describe are based upon the 
+comparison of MODTRAN ocean radiance values, at a 
+variety of surface temperatures and calculated over the 
+aforementioned AVHRR bands, to the values of the 
+collected pixels in these bands. These MODTRAN 
+calculations are scene-specific, as viewing angle and 
+atmospheric conditions are important input parameters. 
+MODTRAN is therefore launched from within the main 
+SST program architecture for a range of different 
+temperatures. The results of such calculations could 
+conceivably be implemented, however, as a look-up table 
+for a grid of LZAs, standard atmospheres and temperatures. 
+Before the temperature of the pixels can be assessed, the 
+scene must be screened for clouds, which tend to lower the 
+temperature estimation for contaminated pixels. We 
+accomplish this screening using our CloudDI algorithm, a 
+modified least squares template-matching approach 
+described in detail at IEEE Aerospace 2000, for day scenes, 
+and with threshold tests for night scenes. Finally, we test the 
+validity of our results against the AVHRR SST algorithms 
+as well as against available ground truth. Since the 
+MODTRAN calculations require sensor geometry and 
+?meters, it is possible, in 
+* 7803-6599-2/01/$10.00 0 2001 IEEE 
+. .  
+spbSwitec.com iimlj@scitec.com 
+theory, to correct for the effect of high levels of water vapor 
+on the SST results in certain situations. 
+TABLE OF CONTENTS 
+1. INTRODUCTION 
+2. SCENE DATA 
+3. THEORY 
+4. RESULTS 
+5. CONCLUSIONS AND FUTURE DIRECTIONS 
+6. REFERENCES 
+1. INTRODUCTION 
+One of the primary missions of the AVHRR sensors carried 
+aboard the N O M  polar-orbiting spacecraft is to remotely 
+determine sea surface temperature (SST) on a global scale. 
+The SST product is then used to study ocean currents and 
+trends in ocean climate, among other things. Although the 
+algorithm that has been used to generate the AVHRR SST 
+product has evolved since the simple, linear, multi-channel 
+algorithm (MCSST) was ftrst employed in the 1980’s, the 
+present non-linear version (NLSST) still retains the basic 
+premise of the original algorithm: Use of the channel4 
+brightness temperature in addition to the (channel4 - 
+channel5) brightness temperature difference. Both channels 
+4 and 5 are in the 10-12pm “Window” region and are almost 
+exclusively “thermal” (i.e., little or no solar contamination). 
+Loss due to atmospheric absorption is parameterized using 
+the difference in transmission between the two channels. 
+The AVHRR spectral regions are outlined in Table 1. 
+Table 1. Bandpass in Microns for AVHRR in NOM-14 
+Indeed, the present AVHRR SST algorithm has proved 
+quite accurate [l]. Its use, however, not only relies upon 
+LWIR measurements, but also requires the input of a 
+somewhat intricate array of empirical data. Although the 
+MCSST and (linear) variations also rely upon LWIR data 
+and are less accurate than the NLSST, they nevertheless 
+produce reasonable results in most cases without depending 
+upon the NLSST buoy data input. We are interested in 
+4-1935 
+determining the potential for accurately estimating SST 
+using MWIR satellite data in the absence of corresponding 
+LWIR measurements and (ideally) buoy “ground t ruth 
+data. 
+We present here a method for calculating SST using data 
+from AVEXR Channel 3 and compare the results to those 
+calculated using several AVHRR SST algorithm variations 
+as well as to the results gained by applying our method to 
+the AVHIUt LWIR bands. 
+46002 - Oregon 
+46005 -Washington 
+46030 - Blunts Reef 
+CHH - Chi3ththam 
+2. SCENEDATA 
+42’3 1”. 130”15’W 
+4 1’40”. 69’58’W 
+At the present time, AVHRR data from three NOAA polar- 
+orbiting spacecraft are available (NOAA-12, NOAA-14, and 
+NOAA- 15). Although NOAA- 16 was launched recently, 
+data from this platform are not yet widely distributed. The 
+AVHRR ,data we employ for our SST analysis are all from 
+the NOAA-14 platform, and were obtained via ftp from the 
+NOAA Satellite Active Archive (SAA) 
+(http:~/lu?l,rc~:.saa.noaa.gov2. These data are fiee to all 
+registered users. Details about the spacecraft and AVHRR 
+sensor ma.y be obtained via links in the SAA website [2]. 
+*/O 
+Through SAA, we obtained seven data sets covering the 
+northeast coast of the United States, collected over the time 
+period from 13 June - 24 June, 2000 and two night time 
+data sets covering the west coast of the United States, 
+collected on 6 July and 8 July, 2000. Two of the east coast 
+scenes were collected at night (defined as having a solar 
+zenith angle - SZA - greater than 90’) and the remainder 
+during the afternoon (local time). All of these data sets are 
+Global Area Coverage (GAC), with a nominal resolution of 
+4 km x 4 km. A summary of the scene parameters is 
+provided in Table 2. 
+Table 2. AVHRR Datasets Used in Analysis 
+Time (GMT) Lat./Long. 
+08:28:00 53’9”. 29’36’W (NE) 
+2 
+30°1’N, 76’43’W (SW) 
+61231’00 20:08:00 61”53’N, 52’45’ W (NE) 
++IO0 
+25”32’N, 87’48’W 
+63’57’N, 41’55’W 
+53O57’N, 37O34’W 
+26’14’N, 79O7W (SW) 
+09:03:00 
+Ancillary data were also collected for these analyses (i.e., 
+“ground truth”) in the form of buoy data from the National 
+Data Buoy Center [ 3 ]  for three sites in( the Massachusettes 
+coast area as well as for three sites on ihe Pacific coast and 
+radiosonde data from Chatham, MA [4]. The geographic 
+coordinatles for these sites are listed in Table 3 below. 
+Current and historical buoy data are available over the 
+Internet in hour time intervals. Both air temperature (4m 
+above sea level) and bulk sea temperature (0.6m below 
+surface) are reported, in addition to wind speed, wave 
+height, clew point, atmospheric pressure, etc. The 
+radiosonde data are archived by the Department of 
+Atmospheric Science at the University of Wyoming and are 
+collected twice daily at 0O:OO:OO GMT and 12:OO:OO GMT. 
+6/13/00 20:24:00 
+12:52:00 
+Table 3. Location of ground truth points 
+26’6’N, 80’27’W (SW) 
+61’14’N, 57’4’W (NE) 
+25’50’N, 83’20’W (SW) 
+59’59”. 84”35’W (NE,) 
+I Station I Location I 
+h 0  12:28:00 
+44008 - Nantucket 
+4401 1 - Georges Bank 
+I 40’30’N, 6 9 ” ; ! 6 ’ W ~ ~ l  
+41’04”. hh”O5’W 
+15O36’N, 145’19’W 
+59’59’N, 78’34’W (NI 
+44013 -Boston I 42’2 l’N.70’4 1’W ~ --1 
+3. THEORY 
+All of the variations of the AVHRR SST algorithms are 
+based upon the fundamental MCSST equation, 
+ISST,, = 61 + bT4 + c(T4 - 7‘’) , 
+where the constants a ,  b , and c are derived via a least 
+squares fitting of in situ data, and T,and T’are the 
+brightnes:; temperatures for Channel 4 and Channel 5 ,  
+respectively. Since Channel 4 and Channel 5 are both in the 
+same atmospheric “window”, this algorithm is called a “split 
+window” algorithm. In a variation of Eq. (l), the Channel 3 
+(with a spectral response in the 4 pm window) - Channel 4 
+difference is used and the algorithm is now described as a 
+“dual window” approach. Because of the solar 
+contamination problem of Channel 3 during the day, the 
+“dual winldow” approach is usually employed only for night 
+scenes. 
+I I I , I  
+I I 15’0’N, 129’39’W (SW) I 
+Although the (T4 -T5) term of Eql. (1) accounts for 
+atmospheric losses from the detected Channel 4 radiance to 
+a certain extent, no correction term is included to account 
+for the difference in path length to the sensor at individual 
+pixels due to the changing sensor scan angle. As the 
+AVHRR scan angle changes from nadir (in the center of the 
+scene) to 55.4” off nadir at the edges of the scan, the path 
+from sea :level to the sensor changes considerably from pixel 
+4-1936 
+to pixel. 
+variation of Eq. (1) may be employed: 
+In order to account for this effect, the following 
+SST,, =a+b*T,  +c*(T, -T5)+ 
+’ (2) d(T, - T,)(sec(O) - 1) 
+where once again the a ,  b , c ,  and d coefficients are 
+calculated via least squares analysis of in situ data, and 8 is 
+the scan angle (i.e., the sensor look zenith angle - LZA). 
+The current algorithm that is used to calculate the AVHRR 
+SST product [ 5 ]  uses a non-linear atmospheric correction 
+term in order to achieve the most accurate result. The non- 
+linearity, in this case, is in the use of two sets of coefficients 
+corresponding to two different (T4 -T,) regimes. In 
+short, the NLSST algorithm is written, 
+NLSST = a + PT, + y(T4 - T, )T,,,, + 
+2 (3) 
+s[sec(O) - 1](T, - T,) 
+where Ts,ess is an estimated SST and the a , p , y , and 
+6 coefficients are calculated separately for 
+(T4 - T,) < 0.7 and (T, - T,) > 0.7. A complete 
+description of how the NLSST coefficients and T,,,, are 
+calculated is given in [5] .  
+In order to calculate SST using data from the MWIR in the 
+absence of LWIR measurements, one must account for 
+losses due to atmospheric absorption and. during the day, 
+for the effects of solar “contamination”. In Figure 1, we 
+illustrate the ’solar contamination problem by plotting the 
+reflected solar component of a surface with an albedo of 0.1, 
+as measured at a space-based sensor, with the thermal 
+component at two temperatures spanning the range of 
+temperatures found on earth. It is clear from inspection of 
+Figure 1 that, whereas in Channel 4 the thermal component 
+dominates the reflected portion, in Channel 3, the solar 
+component falls in between the thermal radiance curves at 
+200K and 300K. In reference [6],  the Burke group at MIT 
+Lincoln Labs describes a method for first subtracting the 
+solar components from GOES MWIR data and subsequently 
+correcting for atmospheric absorption losses using 
+MODTRAN calculations for transmission and atmospheric 
+radiance components. The MODTRAN calculations are 
+based upon input environmental data (humidity profiles, 
+wind speeds, etc.). In this study, the Burke group found that 
+the more “ground truth” data they were able to input into the 
+MODTRAN calculations, the higher the fidelity of their 
+surface temperature results. The SST method we outline 
+here is similar to that described in [6] ,  but less reliant upon 
+ground truth data input. 
+2 4 6 8 
+WAVEZNGTH [p” 
+Figure 1. Reflected solar vs. thermal radiance at 2 
+temperatures in AVHRR Channels 3 and 4. 
+Our approach to calculating SST using AVHRR Channel 3 
+MWIR data is to calculate radiance look-up tables (LUTs) 
+in which Channel 3 radiance values are tabulated as a 
+h c t i o n  of ocean temperature. These tables are calculated 
+for each individual scene using the MODerate 
+TRANsmission (MODTRAN) code, which was developed 
+and is maintained by the Air Force Research Laboratories 
+(AFRL) [7]. The MODTRAN tool is comprised of a series 
+of FORTRAN77 routines that solve the radiative transfer 
+equations to predict either transmission through a model (or 
+user-input) atmosphere or the radiance measured by a sensor 
+at a location defined by the user. 
+Thus, a LUT is compiled by running MODTRAN for a 
+series of different surface temperatures at the observer 
+geometry and under the environmental conditions of a 
+particular scene or section of a scene. M0DTRA”s built-in 
+ocean surface albedo database is used. The LUTs for one of 
+our AVHRR data sets is shown in Figure 2. The 6 solid line 
+curves shown represent 6 different tables compiled for a 
+single AVHRR GAC scene at the 4 corners and at the top 
+and bottom middle. The dashed line curve represents a LUT 
+calculated using the exact sensor geometry at one of the 
+ground truth buoys and using radiosonde data fiom 
+Chatham, MA as the model atmosphere. 
+Comparison between the various curves reveals that both 
+the look zenith angle (LZA) and the solar zenith angle 
+(SZA) affect the composition of the LUT. Specifically, at 
+large LZAs, a greater portion of the thermal component of 
+the radiance leaving the surface is lost to the atmosphere 
+than at the smaller LZAs. Furthermore, under the 
+MODTRAN condition of a Lambertian (isotropic) surface, 
+the solar reflected radiance reaching the sensor increases as 
+the SZA decreases. In terms of the curves in Figure 2, the 
+two curves at high LZAs and lower SZAs (dark blue and 
+maroon) run almost parallel to and directly above the 2 
+curves at high LZAs and higher SZAs (cyan and green). 
+4-1937 
+-- 26N, 79W * U A  54, SZA 41.6 
+2575. 280 285 290 295 300 305 
+Temperature (K) 
+Figure 2. LUTs calculated for data set LO811942 at the 4 
+corners a’f the scene (LZA 54) and at  the top and bottom 
+middle (ILZA 0). The LUT represented by the dashed 
+line was calculated for the observer conditions 
+appropriate to buoy 4408. 
+In order to correct for the isotropic approximation inherent 
+in MODTRAN, we ‘*normalized” the AVHRR Channel 3 
+radiance values using the anisotropic reflectance factor 
+(ARF) database available at [SI. These factors were 
+compiled using data from the NIMBUS-7 ERBE 
+experiments as described in [9]. In these experiments, the 
+7-km resolution (at nadir) data were binned into sub-target 
+areas of approximately (160 km)* [9]. The surface types in 
+the sub-target areas were determined using geographic 
+databases and cloud data fiom other sources. Essentially, 
+ARF values relate the “equivalent” isotropic flux associated 
+with a measured radiance with the “true” flux, defined as: 
+where y is the SZA, 0 is the LZA, and 4 is the relative 
+azimuth b’etween the sensor and the sun. R( y ,0, 4) is the 
+measured radiance and is a function of SZA, LZ4, and 
+azimuth. F ( y )  is the flux for a given SZA. Thus, the ARF 
+is simply, 
+(5) 
+An example of the A R F s  calculated for typical SZAs, LZAs 
+and M A S  of our data sets is illustrated in Figure 3. The 
+azimuth angles for these data are defined as extending from 
+the principal plane on the side awqJEom the sun to the 
+sensor. The principal plane is the plane containing the ray 
+from the sun to the target area and the zenith ray that is 
+normal to the target area. Therefore, forward scattering is 
+associated1 occurs at an azimuthal angle of 0 degrees and 
+backward scattering at 180 degrees. It is assumed that the 
+azimuthall component of the ARF’s are symmetric about the 
+principal plane. 
+ARF Values tar Clear Ocean - SZAs Between 46 and 53 Degrees 
+*I- m-90 .- 90-120 .- 1M-150 
+-8.. 171-180 
+2 5  
+, Y  
+LZA (Degrees) 
+3 
+Figure 3. ARF values for SZA rainge 46-53 degrees 
+plotted for indicated azimuth ranges as a function of 
+LZA. 
+The ARF’s greater than 1 in Figure 3 are associated with 
+measured radiance values that are greater than the values 
+that would be calculated using an isotropic approximation. 
+In general, the Channel 3 radiance normalization should be 
+accomplished simply by dividing the measured value by the 
+appropriate ARF. We found, however, that doing so tended 
+to over-compensate the Channel 3 radiance values. This is 
+perhaps dlue to the nature of the ARF database, which was 
+compiled using the broadband (0.2 - 4..0 pn) “shortwave” 
+NIMBUS-7 channel. We therefore weighted the normalized 
+radiance as a function of the SZA in the following way: 
+(6) 
+R 
+R‘= C O S ( ~ ) * R + ( ~ - C O S ( ~ ) ) * -  
+ARF(V/, 07) 
+The ARF normaliz,ation thus becomles more and more 
+important as the SZA increases. 
+As a test of method, we also calculated SST using LUTs 
+both for Channel 4 and for Channel 5 .  Given an accurate 
+model atmosphere for the MODTRAN calculations, use of a 
+Channel 4 or a Channel 5 LUT should yield SSTs 
+comparabde to thcise calculated using the algorithms 
+described by Eqs. (1-3) above. A comparison of the 
+Channel 3, Channel 4 and Channel 5 LUTs for the same 
+AVHRR scene is presented in Figure 4. In the upper panel, 
+we plot the LUT curves as a fimction of radiance. 
+According to this graphic, the Channel 4 LUT should 
+produce lhe most reliable results, as its absolute radiance 
+values are the largest (an order of magnitude larger than the 
+Channel 3 radiance values) and the LUT curve appears to be 
+the steepest. In the lower panel, however, where we plot the 
+normalized radiance: of the LUTs against temperature, it 
+becomes clear that the Channel 3 curve is actually the 
+steepest. Given accurately calibrated Channel 3 data, with 
+4-1938 
+adequate SNR (which often can be quite a bit lower than 
+that of LWIR band data), and a robust method for removing 
+solar contamination, then, the Channel 3 LUT method holds 
+some promise. 
+- -  
+U d 200- 
+In theory, the solar components of the Channel 3 radiance 
+should be contained in the MODTRAN calculations. The 
+MODTRAN surface albedo databases, however, do not 
+include angular information. In other words, it is assumed 
+in MODTRAN that the ocean surface, in this case, is 
+Lambertian, and that the reflection does not change with the 
+azimuthal angle between the sensor and the sun. Thus, the 
+MODTRAN calculated reflected radiance is too low when 
+the relative sun-sensor azimuthal angle is -0 (forward 
+scattering) and the reflected radiance too high when the 
+azimuthal angle is closer to 180. We adjust for this 
+approximation using the ARF data as described above. Of 
+course, the specular nature of the reflection of solar 
+radiation off water is related to the structure of the water 
+(i.e.> its wind-wave characteristics). We make no attempt to 
+adjust for wind speed or wave height, but note that the 
+ocean surfaces were fairly uniform for our datasets 
+according to the wind speed (high: 8.3 m l s ,  low: 1.4 m l s ,  
+avg.: 3.8 d s )  and wave height data (defined as the average 
+height of the 113 highest waves - high 1.94 m, low: 0.23 m, 
+avg.: 0.94 m) collected at the buoys. It is likely that the 
+accuracy of our method would degrade at high latitudes, 
+where the ocean surface is often quite structured. 
+- 
+1 
+B 0.9 
+4 0.8 
+c 0.7 
+0.6 
+1 0.5 
+z" 0.4 
+0 . k  ' ' ' 280 ' ' ' ' ' 285 ' ' ' ' 290 ' ' ' ' a 5  ' ' ' ' ' 300 ' ' ' ' " 305 
+Temperature (K) 
+Figure 4. LUTs for Channels 3, 4, and 5 in terms of 
+absolute radiance (upper panel) and normalized 
+radiance (lower panel). 
+Before SSTs can be calculated, a given scene must first be 
+screened for cloudy pixels. All of the SST algorithms 
+described above rely upon a cloud-free line of sight, as 
+cloud interference will lead to temperatures that are too low. 
+Clouds, in short, are usually a great deal colder than the 
+underlying terrain and thus, radiate less in thermal bands. 
+Therefore, a given scene is screened for clouds before SST 
+is calculated and only pixels that are determined to be 
+cloud-free are analyzed. 
+Several methods may be used for determining whether or 
+not a pixel is cloud-free. In the SERCAA (Support of 
+Environmental Requirements for Cloud Analysis and 
+Archive) algorithm [lo], for example, an AVHRR scene is 
+screened for clouds based upon a variety of threshold and 
+multi-band ratio tests. Data from all of the AVHRR 
+channels are employed in one or another of these tests 
+during the day. At night, only Channel 3, 4, and 5 data are 
+used. For daytime cloud masks, another method that may 
+be used is a modified least squares template matching 
+approach, the "Cloud Detection and Identification 
+(CloudDI) algorithm, which we have described in detail 
+elsewhere [ 1 1,12,13]. 
+In summary, cloud and terrain templates are calculated over 
+the spectral range of interest using MODTRAN and 
+integrated into the sensor channels. The templates are then 
+compared to the pixel spectra via least squares 
+minimizations. The least squares calculations are 
+constrained by the specification that the coefficients must all 
+be positive. In order to calculate a cloud-no cloud mask, at 
+least 2 bands (as well as 2 templates - one cloud and one 
+"terrain") are required. During the day, CloudDI may be 
+run on an AVHRR scene using Channels 1, 2, and 3 only 
+(avoiding the LWIR data for reasons described in the 
+Introduction). At night, however, Channels 1 and 2 are not 
+viable, so use of LWIR data cannot be avoided. 
+4. RESULTS 
+The AVHRR Oceans Pathfinder SST product is available to 
+the public on-line [14]. These SST data are offered both in 
+image format (.gif) and ascii format. The derived SST 
+product is produced at a resolution that is lower spatially 
+(9km, 18km, and 54km) and temporally (daily or monthly) 
+than the original GAC AVHRR data sets - apparently in 
+order to mitigate the effects of cloud obscuration and pixel- 
+to-pixel sensor variations as well as to achieve continuous 
+spatial coverage at lower latitudes, where there is no spatial 
+overlap between consecutive passes. Since we wanted to 
+compare the results of our algorithm directly with the 
+AVHRR algorithm-derived SSTs, we did not use the 
+AVHRR Oceans Pathfinder SST product. Instead, we 
+calculated SST ourselves using Eqs. (1)-(3). The 
+coefficients that we used for these algorithms were found in 
+references [2] and [15]. The coefficients for the NLSST 
+algorithm, Eq. (3) - are updated monthly and are listed for 
+NOAA-14 over the period of 1995-1998 in Appendix A of 
+[16]. We used an average for the values listed for the month 
+of June from each year. In the AVHRR SST product, 
+T,,, is derived from the Reynolds Optimally Interpolated 
+SST (OISST), which are calculated using both in situ and 
+satellite data [17]. Another option for Tguess is simply to 
+use the linear SST result, which is the course we followed. 
+4-1939 
+One of the main tools we employed for manipulating the 
+AVHRR data is ENVI, Version 3.2(‘%Nvironment for 
+Visualizing Images”), a product of Research Systems, Inc. 
+ENVI ofiers utilities for reading in AVHRR data (which is 
+sent in binary BIP format), calibrating the data, 
+georeferencing each pixel (based upon latitudeflongitude 
+information stored within the data set), and calculating SST. 
+We used ENVI to calibrate the data into percent albedo for 
+Channels 1 and 2 and brightness temperature for Channels 
+3-5. We then calculated radiance in W/sr/cm2/pm 
+(“Flicks”) by inverting Planck’s equation for the brightness 
+temperatures and by substituting the albedo values into the 
+equation, radiance = albedo* f /(lOOwx), where f is the 
+integrated solar spectral irradiance, weighted by the spectral 
+response function of the channel and w is the equivalent 
+width of the spectral response function. These constants are 
+tabulated for the NOAA-14 AVHRR sensor in the User’s 
+Guide [2]. 
+In Figure 5, we show a portion of the SST images calculated 
+using (A) Eq. 2, (B) LUT for Channel 3 (without radiance 
+normalization), and (C) LUT for Channel 4 for scene 
+number 2 over the region of our ground truth buoys. 
+Cloudy pixels have not been masked for purposes of 
+illustration and are shown in blue. Although all of these 
+images look similar, there are a few differences that should 
+be noted. Specifically, i) the SSTs in the Channel 3 LUT 
+image (El) are generally lower than those of images (A) and 
+(C) - a characteristic that is improved by using the ARF 
+normalization method - and ii) wispy cloud pixels that 
+appear yellow off the tip of Cape Cod in (A) and ( C )  appear 
+red in (B). The wispy clouds appear “hot” in (B) because 
+the increase in reflective radiance due to the high albedo of 
+the cloud is, in this case, a greater effect than the decrease in 
+thermal radiance due to the clouds’ altitude. This effect 
+should be contrasted with the cloud pixels in the lower 
+corner of images (A) - (C), which appear blue (cold) in all 
+three cases. 
+The complete results of our SST estimations are included as 
+Appendix A. Residuals (buoy temperature - SST 
+estimation) are summarized in this section in Tables 4 and 5. 
+We have separated the day scenes (Table 4) from the night 
+scenes (Table 5) ,  as there is an appreciable difference 
+between the Channel 3 results for the two types of scene. 
+The seven methods (day - methods 1,2, & 4-7 and night 
+methods 1-4,6, & 7) for which we report results here are: i) 
+the “linear” SST method of Eq. (1) - SSTh, ii) the NLSST 
+method of Eq. (3), which uses SSTh as T,,,, , iii) the 
+modified “linear” SST method of Eq. (2) - SST,,, iv) a 
+Channel 3 LUT - SSTLm3, v) the Channel 3 LUT method 
+using ARF normalization, vi) a Channel 4 LUT - SSTLm4, 
+and vii) a Channel 5 LUT - SSTLmS. For the 7 scenes 
+covering the Boston area, we used sonde atmospheric 
+profiles from the CHH station (collected within -4 hours of 
+the AVHRR data) in the MODTRAN calculations. We 
+found, Ihowever, that use of the MOD” midlatitude 
+summer model atmosphere resulted in SST estimations that 
+were usually within 1 “C of the sonde results and that, 
+furthermore, were clloser to the buoy SSTs. It is likely that 
+use of sonde data from the buoy stations themselves, 
+collected contemporaneously with the AVHRR data would 
+yield more accurate SSTs. 
+160 1” 180 190 a00 
+Figure 5. SST images from a portion of the 2nd AVHRR 
+scene. The land features (red - the tip of Cape Cod is 
+visible) appear to be warmer thani the ocean (orange). 
+Clouds appear in blue in the bottom right corner. A. is 
+4-1940 
+SST calculated using Eq. (2), B. is SST calculated using a 
+Channel 3 LUT, and C. is SST calculated using a 
+Channel 4 LUT. 
+One of the first issues to note before discussing Tables 4 
+and 5, is that the cloud masking procedure was somewhat 
+questionable for the night scenes. In data set LOS1 1941, for 
+example, SST values for pixels designated as cloudy appear 
+to be reasonably close to the in situ "ground truth" values. 
+We have highlighted these cases in green in Table Al .  On 
+the other hand, in data set L0744391, the SSTs calculated 
+for one of the pixels designated as cloud-free (highlighted in 
+pink - Table Al )  are far too low. We have included the 
+SSTs for all of the yellow- and green-highlighted cells of 
+Tables A1 and A2 in our statistical analyses of Tables 4 and 
+5 and have not included the pink and un-highlighted cells. 
+Upon inspection of our study's residuals, defined here as the 
+difference between the buoy temperature (both air and 
+water) and the calculated SST value, several points become 
+clear. First, as expected, our Channel 3 LUT method works 
+best for night scenes, when solar contamination is not an 
+issue if the measured radiance is not first normalized with 
+the NIMBUS-7 ARF data. An interesting outcome of the 
+night SST calculations is that the Channel 3 LUT method 
+returned results that are closer to "ground truth" than both 
+the Channel 4 and Channel 5 LUT results. It is not clear at 
+this point, why this should be the case. One possible 
+explanation is that both Channel 4 and Channel 5 radiance 
+values are more susceptible (by a factor or -100) to 
+variations in water vapor than are Channel 3 radiance 
+values. Thus, single channel techniques using only Channel 
+4 or Channel 5 are unduly affected by water vapor 
+absorption. A more robust LUT approach would be to use 
+2-channel match-ups. 
+The Channel 4 and Channel 5 LUT results are more 
+encouraging, however, for the day scenes. In this case, as 
+seen fkom Table 5, the Channel 4 LUT approach yielded 
+residuals that are closer to the "ground truth" measurements 
+than the 'MCSST variation methods' for the buoy air 
+temperatures comparisons and basically equivalent to these 
+methods for the sea temperature comparisons. The Channel 
+3 LUT method, on the other hand, is different from the 
+ground truth by an average of -5' (air) or -3.5' (sea), as 
+opposed to averages of -1.25' (air) and -0.1' (sea) for the 
+LWIR methods. It is evident, however, that there is a bias 
+in the un-normalized Channel 3 results. This bias appears to 
+be caused by a predictable MODTRAN Lambertian surface 
+approximation error as the error is mitigated once the ARF 
+data are used. Using the ARF-normalized Channel 3 
+radiance values, the SST average residuals reduce to 0.65" 
+(air) and -0.68' (sea). Clearly these values are more in line 
+with the LWIR SST residuals than are the un-normalized 
+results. 
+Table 4. Residuals: SST Calcs. on Night Scenes ("C) 
+AIR SSTli. NLSST SSTenvi S S T L ~ ~  S S T L ~ ~  S S T L ~ ~  
+average 2.03 1.90 1.72 2.75 3.62 5.90 
+std 0.94 0.87 1.03 1.75 2.71 4.58 
+median 2.30 1.80 1.75 2.85 4.00 6.40 
+H20 SSTI;, NLSST SSTenvi SSTLOT~ S S T L ~ ~  SSTLDT~ 
+average 0.60 0.47 0.28 1.32 2.18 4.47 
+std 1.00 1.44 1.12 2.60 3.47 5.38 
+median 0.90 0.65 0.35 0.15 1.95 4.15 
+Table 5. Residuals: SST Calcs. on Day Scenes ("C) 
+AIR SSTli. NLSST SSTLwj SSTj., SSTLa4 SSTLas 
+average 1.23 1.32 4.84 0.65 1.10 1.82 
+std 1.87 1.40 1.96 2.28 2.35 3.22 
+median 1.70 1.70 5.20 0.10 1.10 1.40 
+Hz0 SSTli. NLSST SSTLUTI SSTJ., SSTLMT~ S S T L ~ ~  
+average -0.10 -0.01 3.51 -0.68 -0.23 0.49 
+std 1.37 1.09 1.47 2.26 1.97 2.85 
+median 0.00 -0.20 3.80 -1.35 -0.20 -0.30 
+5. CONCLUSIONS AND FUTURE DIRECTIONS 
+In summary, we have tested a procedure for calculating SST 
+using data from a single channel in the h4WlR. Our method 
+is based upon the comparison of measured Channel 3 
+radiance values, normalized using tabulated ARF data, with 
+a LUT of MODTRAN Channel 3 radiance values calculated 
+as a function of surface temperature. The MODTRAN 
+calculations are based either upon a built-in model 
+atmosphere (e.g., midlatitude summer, subarctic winter, 
+etc.) or upon user-input atmospheric profiles for 
+temperature, relative humidity, and pressure and use the 
+built-in (isotropic) ocean albedo database. 
+We have found that the Channel 3 LUT approach produces 
+results for night scenes (average residuals of -1.3 "C) that 
+are less accurate than the 2-channel LWIR methods 
+(average residuals between 0.3" C and 0.6" C), but which 
+are still of acceptable accuracy for many applications. For 
+the day scenes, use of ARF normalization improves the 
+Channel 3 LUT SST average residuals f?om -3.5' C to 
+-0.7' C. These results are now comparable to the LWIR 
+residuals. In testing the LUT concept itself using Channel 
+4 and Channel 5 data, we found that use of these channels 
+returned close matches to buoy data during the day. For the 
+night scenes we tested, on the other hand, the Channel 3 
+method actually produced closer predictions than the 
+Channel 4 and Channel 5 LUT methods. In short, if a single 
+channel algorithm is to be employed, sensitivity to 
+atmospheric water vapor is an important consideration. In 
+this case, the MWlR is preferable (at night) as the water 
+4-1941 
+vapor absorption coefficient is -100 times lower in the 
+MWIR than in the LWlR. 
+It is clear that additional work needs to be done to test the 
+ARF method described above for mitigating the solar 
+radiance contributions to the daytime Channel 3 AVHRR 
+data under a wider set of conditions. 
+ACKNOWLEDGMENTS 
+The authors wish to thank Michael Griffin at M[T/’Lincoln 
+Labs for his help locating the anisotropic reflectance factor 
+data, JeE Barnes at SciTec, Inc., for his help resolving 
+several AVHRR data issues, as well as the following 
+investigaiors: 
+J.T. ISuttles, R.N. Green, P. Minnis, G.L. Smith, W.F. 
+Staylor, and B.A. Wielicki 
+Langley Research Center, Hampton, VA 
+I.J. Walker and D.F. Young 
+Planning Research Corporation, Hampton, VA 
+V.R Taylor and L.L. Stowe 
+N O M  National Environmental Satellite, Data and 
+Information Service, Washington, D.C. 
+0 
+0 
+for the production of the ARF dataset, and the Distributed 
+Active Archive Center (Code 902) at the Goddard Space 
+Flight Center, Greenbelt, MD, 20771, for putting these data 
+in their present format and distributing them. These 
+distribution activities were sponsored by NASA’s Mission 
+to Planet Earth program. 
+REFERENCES 
+[l] E.J. K.earns, J.A. Hanafin, RH. Evans, P.J. Minnett, & 
+O.B. Brown, “An Independent Assessment of Pathfinder 
+AVHRR Sea Surface Temperature Accuracy Using the 
+Marine Atmosphere Emitted Radiance Interferometer 
+(MAEN:)”, Bull. Am. Meteor. Soc., 81 (7), 1525 (2000). 
+[2] NOAA, NOAA Polar Orbiter Data User’s Guide, 1998. 
+http://w.~w2 .ncdc.noaa.rrov/docslnodu~i 
+[3] National Buoy Data Center, 
+httv:!/sea.board.ndbc.noaa.gov/ 
+[4] Dept. of Atmospheric Science, University of Wyoming, 
+Atmospheric Soundings for United States, http://wwF 
+das .UWYO. edu/upuerair/soundinng. html 
+[5] J. Vazquez, K. Perry, and K. Kilpatrick, “NOAAiNASA 
+AVHRR Oceans Pathfinder Sea Surface Temperature Data 
+Set User’s Reference Manual Version 4.0,” JPL Publication 
+D-14070, April 10,1998. 
+httv://poclaac.ivl.nasa.Izov/vublsea susface tempergat 
+/avhrs/pathfinderldoc/usr~de4-O.html 
+[6] J.W. Snow, H-h.K. Burke, M.P Jordan, D.C. Peduzzi, 
+and K.E. Rhodes, “hIWIR Atmospheric Correction Through 
+Transmksive Clouds,” Briefing Charts, CIDOS I997 
+Conferen,ce; 23-25 September, 1997. 
+[7] Battlespace Environments Division, AFRL. 
+httv : Iivm w-vsb~n.t~lli. af mil i 
+[SI ftp site: daac.gsfc.nasa.gov. Files aire located in the 
+Idatdinte r-disc/remote-sensing-sciencc:/erbe-angle/ 
+directory. Documentation is available a a  the Internet at: 
+http://daac.gsfc.nasa,gov/CAMPAIGN-DOCS/FTP-SIT’E/ 
+INT-DIS/readmes/e rbe-angle. html 
+[9] V.R. ‘Taylor & L L. Stowe, “Reflect” Characteristics 
+of Uniform Earth and Cloud Surfaces Derived From 
+NIMBUS-7 E m , ”  J. Geophys. Res., 89’ (D4), 4987 (1984). 
+[lo] G.B. Gustafson, et al., “Support of Environmental 
+Requirements for Cloud Analysis and Axchive (SERCAA): 
+Algorithm Descripti”~~,” Report #PL-TR-94-2 1 14, Phillips 
+Laboratory, Directorate of Geophysics, Air Force Material 
+Commanld, Hansconi Air Force Base, MA, 28 March, 1994. 
+[ l l]  M.A. Najarian, T.J. Slusarchyk, J.J. Lisowski, and D.E. 
+Sene, “Cloud Detection and Altitude Estimation in the 
+S/MWIR Utilizing PLRES Data,” 1998 IEEE Aerospace 
+Applications Conference Proceedings, March 1998. 
+[12] M.A. Najarian, B.J. Borowski, M.Hryszko, J.J. 
+Lisowski, and D.E. !Sene, “Impact of Reduced Spectral 
+Resolution on Cloudl Detection and Altitude Estimation,” 
+I999 IEEE Aerospace AppZications Cor ference 
+Proceedings, March 1999. 
+[13] J.C. Davis, J.X. Tull, J.J. Lisowski., and T. Caldwell, 
+“Cloud Characterization in the S/MWIF: Using a Linear 
+Least Squares Algorithm,” 2000 IEEE Aerospace 
+Applications Conference Proceedings, ]March 2000. 
+[ 14lAVHRR Pathfinder Oceans, 
+h~: l i~~.rsmas.ni i~mi.edu/rrrouns/nsl~sl /~ai~~nderf i i~d~~.ht in~ 
+[15] Research Systeims, Inc., “Equations used in ENVI to 
+Calculate Sea Surface Temperature,” Article ID 2798, 
+http://w~w.rsinc.coid 
+[16] R. Evans & G. Podesta, “Pathfimder Sea Surface 
+Temperature Algorithm Version 4.0,” February 6, 1998. 
+httv://u?vw.rsmas.m iami.edu/~ouvs/rr!;~pathfinderl 
+Alporithdalgo indexhtml. 
+[ 171 Clinlate Diagnostic Center, NOM,, 
+httr,:l/\.i??ic\..cdc.noa;i.aovlcdc/data.se\.n,olds sst.html 
+4-1942 
+APPENDIX A 
+Table Al. Results from Night Scene Analyses 
+LO811941 air temp HzO temp 
+sta 44008 
+sta 4401 1 
+sta 44013 16.5 16 
+LO811943 air temp H20 temp 
+sta44008 12.7 10.6 
+sta44011 13.4 12.1 
+sta 44013 16.7 15.7 
+LO744391 air temp HzO temp 
+sta 46002 
+sta 46005 12.6 12.8 
+sta 46030 10.9 9.2 
+LO744392 air temp HzO temp 
+sta 46002 14.1 14.1 
+sta 46005 12.6 12.9 
+sta 46030 11.2 9.3 
+SSTh 
+12:5, 
+11 
+14.4 
+SSTh 
+2.3 
+12.3 
+10.7 
+SSTh 
+4.1 
+7.8 
+SSTh 
+8.9 
+11.9 
+8.2 
+NLSST 
+12 
+14 
+NLSST 
+1 
+12.6 
+8.6 
+NLSST 
+4.9 
+7.7 
+NLSST 
+9.3 
+11.3 
+8.8 
+i 3 3  
+Table A2. Results from Day Scene Analyses 
+SSTenvi SSTLm3 
+14.8 13.0 
+SSTenvi SST, 
+1.7 6.0 
+12.4 12.7 
+9.8 12.4 
+SSTenvi SSTLm3 
+4.4 -0.5 
+7.6 8.4 
+SSTenvi SSTLm3 
+9.3 5.2 
+12.3 7.1 
+8.5 4.5 
+LO811942 air temp HzO temp SSTh NLSST SSTenvi SST, 
+sta 44008 15.6 14.2 11.3 11.8 11.6 8.9 
+sta 44011 14.4 12.5 12.3 12.6 12.4 7.8 
+sta 44013 19.9 16.7 18.1 18.2 18.1 14.7 
+LO811944 air temp HzO temp SSTh NLSST SSTenvi SSTLm3 
+sta 44008 13.7 12.2 12 11.5 12 9.5 
+sta 44011 14.2 12.9 12.5 13.1 13 7.6 
+sta 44013 18.7 17.5 17.9 18 18.1 15.1 
+LO811946 air temp HzO temp SSTh NLSST SSTenvi SSTLUT3 
+sta 44008 14.5 11.9 -3 -2.1 -2.7 17.6 
+sta44011 14.9 12.8 12.3 12.6 12.5 71 
+sta 44013 16.7 16.5 -41.7 -38.8 -42 -23.1 
+LO811947 air temp HzO temp SSTh NLSST SSTenvi SSTLm3 
+sta 44008 10.6 11 8.6 8.4 8.4 25.2 
+sta 44011 12.2 10.6 10.6 10.4 10.4 6.5 
+sta 44013 12.1 12.9 9.2 6.7 8 28.8 
+LO811948 air temp HzO temp SSTh NLSST SSTenvi SSTLm3 
+sta 44008 10.9 11 11.3 11.1 11.2 23.2 
+sta 44011 10.9 10.3 11.3 11.1 11.3 6.5 
+sta 44013 11.4 12.1 13.9 12.4 13.1 10.8 
+SSTLuT4 
+12.4 
+12.6 
+11.3 
+SSTLUT4 
+-1.8 
+13.2 
+6.5 
+SSTLUT4 
+1 .o 
+4.4 
+SSTLUT4 
+4.9 
+6.5 
+5.8 
+SSTLUT5 
+11 :o 
+12.1 
+7.9 
+SSTLUTS 
+-4.8 
+13.1 
+3.7 
+SSTLUT5 
+-2.0 
+1.4 
+SSTLUTS 
+0.84 
+1.2 
+3.2 
+Cloud? 
+52s 
+Yes 
+no 
+Cloud? 
+Yes 
+no 
+Yes 
+Cloud? 
+Yes 
+no 
+Cloud? 
+Yes 
+Yes 
+Yes 
+SST3new SSTLUT4 SSTLUTS 
+14.9 11.5 10.2 
+14.4 11.8 10.2 
+19.4 18.9 18.5 
+SST3new SSTLUT4 SSTLUTS 
+13.6 9.7 7.2 
+8.9 13.1 13.2 
+18.9 19.1 18.8 
+SST3nm SSTLUT~ SSTLUTS 
+-26.6 -49.0 
+13.4 16.5 
+-107.4 -190.4 
+SST3.m SSTLUT4 SSTLUTS 
+7.4 5.5 
+10.6 10.3 9.3 
+3.2 -2.1 
+SST3new SSTLUT4 SSTLUTS 
+13.2 14.0 
+9.1 13.0 13.8 
+14.6 13.7 13.4 
+Cloud? 
+no 
+no 
+no 
+Cloud? 
+no 
+no 
+no 
+Cloud? 
+Yes 
+no 
+Yes 
+Cloud? 
+Yes 
+no 
+no 
+4-1943 
+BIOGRAPHIES 
+Jennifer Davis started work as a scientist at SciTec, Inc. 
+after completing a Ph.D. in femtosecond chemistry at 
+Princeton University in June of 1999. The focus of 
+Jennifer’s thesis work was ultrafast (picosecond and 
+femtosecond) lasers and their applications in chemistry and 
+high-speed communication systems. Since arriving at 
+SciTec, she has shifted her attention to cloud physics (“and 
+she’s had her head in the clouds ever since...”). Currently, 
+she is working on developing algorithms for analyzing 
+remote sensing data in a variety of spectral bands. ,Jennifer 
+received her a. b. in chemistry and religion from Dartmouth 
+College in 1992. 
+Jerry Tull has been a Scientist at SciTec, Inc. since 1996. 
+He obtained a Ph. D. in chemistry at Princeton Unversi@, 
+where hi:: thesis focussed on the development of ultrafast 
+laser pulse shaping techniques and their application to 
+chemical 4namics. Since he has been at SciTec, he has 
+been involved with the development of target detection 
+algorithms for hyperspectral data sources, as well as the 
+development of algorithms for characterization of 
+atmospheric conditions from multispectral remote sensing 
+data. 
+Sean Byrne joined SciTec, Inc. just over a year ago a#er 
+graduating f.om Rutgers University with a B.S. in 
+Mechanical Engineering. Sean ’s senior work included 
+energy emission predictions related to thermophotovoltaic 
+energy conversion cells. This experience allowed Sean to 
+segue into work at SciTec developing tools that combined 
+various transient and spectral signature prediction 
+algorithms, both existing and under development. The 
+synergistl‘c effects of unifving SciTec s suite of modeling 
+codes with one another as well as with other tools (such as 
+MODTRAN) will hopefully be realized through these ef fos .  
+Jim Lisowski is a Senior Scientist at SciTec, Inc., and has 
+been the principal analyst for exploitation of data collected 
+with ARES since its earliest flights in the mid-I 980’s. In 
+recent years his focus has been on the interpretation and 
+exploitation of transient event signature data and analyzing 
+the nature and impact of clouds and terrain on overhead 
+infrared sensors. Today, ARES related efsorts involve the 
+analysis and exploitation of hyperspectral data collected by 
+the MLIVIR SEBASS system. Mr. Lisowski received his 
+Bachelor’s degree in Physicsfrom Rutgers College in 1985 
+and has been a member of the technical staff at SciTec since 
+1984. 
+4-1944 

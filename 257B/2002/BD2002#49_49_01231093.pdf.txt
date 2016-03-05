@@ -1,0 +1,455 @@
+APPLICATION OF A BIG BUSINESS PROJECT MANAGEMENT TOOL 
+TO VISUALIZE MICROPROCESSOR RESOURCE USAGE 
+M. R. Smith 
+Department of Electrical and Computer Engineering, 
+University of Calgary, Calgary, Canada, T2NlN4 
+Contact: smithmr @ ucalgary.ca 
+ABSTRACT 
+Current microprocessors have the capability of 
+manipulating many internal resources concurrently. 
+Optimizations achieved through intelligent compilers will 
+not incorporate specific algorithm howledge available 
+only to the developer and applicable in one-off situations. 
+Hand optimization is difficult because of the issue of 
+reliably identifying all of the resource interrelationships. 
+In this paper we will demonstrate the use of Microsoft 
+Project to assist with the visualization of bottlenecks in 
+the implementation of high-speed DSP algorithms. The 
+visualization permits easier investigation of the relative 
+successes of a variety of code optimization techniques 
+across various architectures -an approach useful for both 
+teaching and research applications. 
+1. INTRODUCTION 
+Today’s complex real-time applications require the 
+execution of a large number of algorithmic operations 
+essentially within in the finite time between interrupts. 
+High speed and parallelism are two requirements that 
+must be present in a processor for practical real-time 
+applications. 
+Current microprocessors have the capability of 
+manipulating internal many resources concurrently. This 
+may occur through the temporal overlap of the execution 
+of multiplication, addition and memory operations with 
+different execution times, or the architectural capability of 
+issuing multiple operations at the same time. Appropriate 
+resource management is critical with the new Very Long 
+Instruction Word Processors (V.L.1.W) processors from 
+Texas Instrument and Analog Devices. These V.L.I.W. 
+processors are capable of issuing eight simultaneous 
+instructions, useful for real-time DSP applications in 
+telecommunications and biomedical engineering. 
+Intelligent compilers can provide general optimization of 
+the code, but cannot incorporate specific algorithm 
+0-7803-81 16-5/02/$17.00 02002 IEEE. 145 
+knowledge available only to the developer, and applicable 
+in one-off situations. 
+Hand optimization is straightforward for simple DSP 
+loops involving only a few lines of code. Application of 
+the process to larger code sequences is difficult because 
+of the issue of reliably identifying all of the 
+interdependencies in the use of the internal 
+microprocessor resources. Serendipitously, the 
+investigation of the use of a husiness-scheduling program, 
+Microsoft Project, to solve this DSP resource usage 
+problem lead to a tool that made it possible to visualize 
+the DSP processor’s resource inter-relationships across a 
+variety of optimization approaches. 
+In this paper we discuss how to use Microsoft Project 
+to permit visualization of CPU resource usage. The 
+advantages and disadvantages of this approach are 
+discussed relative to implementing DSP algorithms on 
+Single Instruction Single/Multiple Data (SISD and SIMD) 
+and Multiple Instruction Multiple Data (MIMD) 
+processors. 
+2. NEED FOR CODE VISUALIZATION 
+Consider a simple code example, shown in Table 1, that 
+performs the basic Celsius to Fahrenheit temperature 
+conversion on external arrays. Despite its simplicity, the 
+code has all the basic operations expected in more 
+complex DSP algorithms. The loop involves additions and 
+multiplications on both constants and variables accessed 
+over multiple data busses from memory. 
+This code sequence has been prepared for the Analog 
+Devices SHARC family of processors which includes 
+SISD (ADSP21061/21065L), SIMD (ADSP21161N -- 
+Hammerhead) and MIMD (TigerSHARC) architectures. 
+Note the C/C++ extensions dm and pm which permits the 
+programmer to signal to the compiler to activate the use 
+of the Harvard. architecture where simultaneous data 
+operations are permitted over the data (dm) and program 
+(pm) busses to avoid datddata reaawrite conflicts during 
+memory intensive algorithms. Datdinstruction read/write 
+conflicts are avoided through the use of a third bus 
+connected to a two-way associative instruction cache. 
+The majority of current DSP processors have an 
+equivalent ability to handle one, or several, multiplication 
+and addition operations in the same cycle as multiple 
+memory data operations. To permit such parallel 
+operations to occur, it is necessary to “UMOII the loop”. In 
+its simplest form, unrolling the loop means that code of 
+the form 
+For loop = 0 to N-1 
+A elements of code for index loop 
+B elements of code for index loop 
+End loop 
+is changed, N even, to have the form of 
+For loop = 0 to N-1 steps of 2 
+A elements of code for index loop 
+B elements of code for index loop 
+A elements of code for index loop t 1 
+B’ elements of code for index loop+l 
+End loop 
+or, N odd, to have the form 
+For loop = 0 to N-2 steps of 2 
+A elements of code for index loop 
+B elements of code for index loop 
+A’ elements of code for index loopcl  
+B‘ elements of code for index loop+l 
+End loop 
+A ’  elements of code for index N-I  
+B” elements of code for index N-I 
+The advantage of this approach is that resources used 
+by elements of code for index loop + 1 can be organized 
+in parallel with the resources used by elements of code 
+from index loop. This parallelism can he achieved within 
+a single instruction, or temporally on when addition, 
+multiplication and memory operations occur through 
+separate pipelines of differing lengths. The problem is to 
+identify the best approach to doubling the loop, either 
+through compiler design or hand-optimization: For 
+Table 1. This simple loop involves all the typical DSP 
+operations of additions and multiplications on both 
+constants and variables brought from memo? over 
+multiple data buses 
+void ConvertUsingArrays(void) ( 
+int count; 
+dm *in-pt = 
+pm float *out-pt = &pm-~ahre,,,,eit[~~; 
+for (count = 0 count < MAXSIZE: count = count + 2) 
+= h-pt[count] * 9.015.0 t32; out-pt[countl 
+out-pt[counttl] = in-pt[count+l] * 9.0/5.0 +32; 
+void ConvertUsingArrays(void) { 
+int count; 
+dm float *in-pt = &celsius[O]; 
+pm float *out-pt = &pm-Fahrenheit[O]; 
+for (count = 0 count < MAXSIZE, counttt) 
+out-pt[countl = in-pt[count] * 9.0/5.0 +32; 
+Table 2. This unrolled loop involves simple “cut-and- 
+paste” duplication of the original instructions 
+void ConvenUsinghays(void) { 
+int count; 
+dm float * k p t  = &celsius[Ol; 
+pm float *out-pt = &pm-Fahrenheit[O]; 
+for (count = 0 count < MAXSIZE; /* empty */ { 
+out-pt[count] = in-pt[count] * 9.0/5.0 t32; 
+count++; 
+outgt[count] = in-pt[count] * 9.0/5.0 t32; 
+count++; 
+Table 3. This unrolled loop involves modijication of the 
+addressing mode used fo  imnipulafe memory and may be 
+easier to optimize for a particular processor architecture 
+than the code in Table 2 
+146 
+It is important to he able to answer the following 
+questions at an early stage in the development of a real 
+time application. 
+Can the processor handle the real-time application 
+even ‘theoretically’ - meaning what is the theoretical 
+fastest code speed if all the parallelisms could he 
+identified in a ‘realistic way‘? 
+Can the bottlenecks in either code sequence he 
+quickly visualized and removed by using fuaher 
+unrolling of the loop or alternate algorithms? 
+Can new, better optimized valid code he generated in 
+a semi-automated way, from either an initial hand or 
+compiler generated code sequence? 
+Can a quick estimate he made of the resources 
+needed at an early stage in the project development? 
+In many processors the available on-chip data and 
+program memory places severe limitations on the size 
+of a new application and whether upgrades can he 
+added to an existing system. 
+In the next section we discuss how Microsoft Proiect. ~. 
+a business tool, can he brought to hear on a number of 
+these microprocessor resource management issues related 
+to code development. We will then discuss the successes 
+and limitations of the approach. 
+3. BASIC MICROSOFT PROJECT FOR 
+MICROPROCESSORS 
+Microsoft Project is a general business-scheduling tool. A 
+plan is made for series of tasks, e.g. the stages of 
+constructing a building, The tasks are input into Microsoft 
+Project with the following additional information 
+o Information on the resource needed to complete the 
+task. This includes the number (units) of the 
+resources and when the resources are available. A 
+resource can he a person or a piece of equipment. 
+The expected duration of each task (hours or days) 
+The inter-relationship between the tasks, i.e. whether 
+task A can he completed with, or without, regard to 
+the start or completion of task B. 
+Deadlines and available slack time within the project. 
+All these components have an equivalent in the 
+context of microprocessor resource management. The 
+following paragraphs show the major steps that lead to the 
+visualization of the code from Tables 1 and 2.  We assume 
+a processor where the multiplication unit is 4 times as 
+slow as the adder unit and data memory fetches along the 
+pm data bus is a factor of 2 slower than along the dm 
+bus. 
+o 
+o 
+o 
+147 
+The first stage is to start a new project within 
+Microsoft Project. A hasic tutorial on Microsoft Project 
+entry can he found at the author’s weh-site.[3] The 
+Standard Calendar used with the project is changed for 
+work during all 7 days of the week using the option Tools 
+I Change Working Time. This simply improves the 
+display of resource management by making each resource 
+default to 8 hours (1 project day) every day. For 
+simplicity, we will adopt that 1 project day corresponds 
+to 1 microprocessor clock cycle. 
+The available microprocessor resources are then 
+added via the VIEW I Resource Sheet option. We will 
+identify the resnurces ADDER, MULTIPLIER, 
+DM-BUS and PMBUS for this simple example. 
+Reflection of the speed of the MULTIPLIER resource 
+relative to the ADDER resource is handled through 
+changes to its availability. The times that the 
+MULTIPLIER is available as a resource is modified to 2 
+hrs a day (8:OO am to 1000 am) using Tools I Change 
+Working Time I Multiplier Calendar. Thus to 
+complete a task using the MULTIPLIER will now occur 
+over an elapsed time of 4 days rather than 1 day on the 
+ADDER. Similarly, the availability of the PMBUS 
+resource is reduced to 4 hours a day (8:OO am to 12:OO 
+pm) to reflect its speed. 
+Microsoft Project applies different types of 
+constraints when calculating schedules. To ensure the 
+proper scheduling occurs use Tool I Options I Schedule 
+so that all new task will not he Effort Driven or Split in 
+progress tasks. The default task type must he set to 
+Fixed Unit rather than Fixed Duration. In addition set 
+TOOLS I RESOURCE LEVELLING to permit 
+MANUAL and MINUTE BY MINUTE LEVELLING. 
+The tasks associated with the hasic loop from Table 1 
+are then entered into the project using the GANTT Chart 
+view. The tasks are 
+a Task 1: Load in-pt[count] using the DMBUS 
+Task 2: Load constant 1.8 using the DM-BUS 
+Task 3: Load constant 32.0 using the DMBUS 
+Task 4: Perform MULTIPLIER operation 
+Task 5: Perform ADDER operation 
+Task 6:  Store out-pt[count] using the PM-BUS 
+Task 7: Increment count using the ADDER resource 
+The tasks are added under TASK NAME and the 
+resources added by RIGHT CLICKING on the task and 
+setting the resource using the RESOURCES option. Note 
+that the ELAPSED TIME for the tasks using the 
+MULTIPLIER and PM-BUS resources have increased 
+relative to the tasks performed by the other resources. 
+Next the interdependencies between the 
+microprocessor tasks must he introduced into the timing 
+diagram. This requires introducing the following FINISH 
+to START links between the tasks 
+1- 4,2+ 4 to provide the multiplier sources 
+3+ 5,4- 5 to provide the adder sources 
+5- 6 to provide the source for the store. 
+These links are added by LEFT CLICKING on the fust 
+task, CONTROL LEFT CLICKING on the second task 
+and then LEFT-CLICKING on the LINK menu option. 
+By contrast a START to START link is needed 
+between the store operation (task 6) with the increment 
+operation (task 7) as the count variable can be 
+incremented as soon as the store operation commences. 
+This link is formed in the same way as the FINISH to 
+START links and then the TASK DEPENDENCY is set 
+to START to START by LEFT CLICKING on the link. 
+Figure 1 shows the resource management diagram at 
+this point in time. Note the resource conflict associated 
+with DM-BUS (VIEW I RESOURCE SHEET or 
+VIEW I RESOURCE GRAPH). This resource conflict 
+can he resolved by activating the LEVELLING 
+capability of Project -- TOOLS I RESOURCE 
+LEVELLING I LEVEL NOW - to produce the result 
+shown in Figure 2. 
+4. ADVANCED VISUALIZATION OF 
+MICROPROCESSOR RESOURCE MANAGEMENT 
+With the basic loop in place, it becomes a simple task to 
+investigate the advantages of changes in algorithm 
+structure. In Figure 3 it is demonstrated how the complete 
+tasks of the original loop structure have been cut-and- 
+pasted to investigate the advantages of “unrolling the 
+loop” (Table 2) .  The project is re-leveled after the 
+dependency associated with the use of the incremented 
+count value is introduced by linking tasks 7 and 9. (Figure 
+4). 
+The “theoretical” advantages of switching from a 
+SISD processor to a MIMD processor (twice the busses, 
+multiplier and adder resources) can be visualized by 
+changing the maximum number of units of these 
+resources from 100% to 200% (VIEW I RESOURCE . 
+SHEET). Speed improvements in the multiplier and 
+adder are visualized by changing the availability of these 
+resources (TOOLS I CHANGE WORKING TIME). 
+The saving in time by changing to the new processor 
+architecture can be visualized by comparing Figures 4 and 
+5. 
+Additional constraints must be added to the tasks to 
+achieve a proper, rather than “theoretical”, indication of 
+the time needed for the program execution and resource 
+usage. 
+i;--1~~.i ........ .......... ~ i ........... 5 i i  
+Figure I :  The tasks from the simple DSP loopfrvm Table 
+I entered into Microsofr Project. Blue bars are used to 
+denote the time the microprocessor resources are used. 
+The task interdependencies are denoted by the blue links. 
+Note the over allocation of the DM-BUS resource. 
+Figure 2: Use of Microsoft Project’s resource leveling 
+(rescheduling) capability is used to remove the over 
+allocation of the DM-BUS resource. Note the 
+visualization of valid parallel operations. 
+U ...... ’ ! I  I 1 
+Figure 3: Simple cut-and-paste operations within the 
+Microsoft GUI interface permit the investigation of the 
+advantages of unrolling the loop associated with the DSP 
+algorithm. The interdependencies between the loops must 
+be introduced before the resource usage is leveled. 
+148 
+Figure 4: The releveled algorithm demonstrating resource usage within a double unrolled SISD loop. Note that certain 
+operations from the second loop are optimized by being placed in parallel with operations from thefirst instance of the 
+loop 
+Figure 5: The releveled algorithm demonstraring resource usage within a double unrolled loop for a MIMD processor 
+with higher resource throughput 
+5. PRACTICAL APPLICATION 
+In principle, the application of the Microsoft Project 
+business tool to microprocessor resource management is 
+straightforward. In practice there are so many 
+interdependencies between the tasks that hand-generation 
+of the linkages is unreliable for any thing but the simplest 
+code. For example, the best optimized code for the 
+temperature conversion (Table 1) on the ADSP21061 
+DSP processor is achieved by placing the constants in 
+registers, unrolling the loop six times, with additional 
+copies of the loop code used to prime and empty the 
+pipelines associated with memory access, addition and 
+multiplication.[4] 
+We have developed a tool, SquishDSP, that will 
+convert the assembly language source code generated by 
+hand, or from the ADSP21XXX C/C++ compiler, into a 
+format that can be accepted into Microsoft Project as a 
+formatted .txt file. The rescheduled project output from 
+Project 2000 is then reformulated into a set of parallel 
+assembly language instructions that can be used in the 
+project. 
+SquishDSP is essentially a parser that performs the 
+following operations 
+o 
+o 
+Identify the basic atomic, low-level tasks, present in 
+the existing parallel insuuctions. 
+Identify the processor resources needed for each of 
+the tasks. 
+149 
+o Identify the interrelationships between the tasks, e.g. 
+data register usage, memory register control usage 
+(address and modify registers). 
+’ o Introduction of special constraints associated with 
+specific architectural ADSP2lXXX features. 
+We have found the tool very useful for examining the 
+critical inner loops of DSP algorithms, after initially 
+profiling the code to identify tasks that require time 
+optimization. The concept can be extended to other 
+processor architectures. 
+6. CONCLUSION 
+We have demonstrated that the Microsoft Project 
+Business tool, in conjunction with a simpler parser, can be 
+used to optimize the scheduling of the resources used in 
+SISD, SIMD and MIMD processor. Although the 
+rescheduling could be programmed outside of Microsoft 
+Project, we have found that the GUI associated with 
+Project was particularly useful in visualizing the 
+bottlenecks in code developed for highly parallel systems. 
+The effect of special microprocessor architectural 
+limitations on code speed can be visualized by introducing 
+various constraints into the relationships between the 
+tasks associated with the program. For example, in code 
+from the Analog Devices ADSP21XXX architecture, 
+there are constraints on the use of saved address registers. 
+If an index (address) register from DAGl (Bank I )  is 
+recovered from memory, then this register cannot be used 
+for 1 cycle after it has been recovered. If an attempt is 
+made to use this register in the following instruction, then 
+the processor transparently stalls. However, if an alternate 
+instruction (one not using a DAGl register) is used, then 
+no stall is added to the execution time. 
+This sort of constraint is straightforward to add to the 
+code visualization. The instructions involving the DAGl 
+registers are linked with a FINISH to START link with a 
+delay of 1 day to reflect the required constraint. 
+However, it is not strictly true that “the addition of 
+constraints is limited by the imagination of the developer 
+and an understanding of the architectural restrictions of 
+the microprocessor under consideration”. There are also 
+limitations associated with the tool itself. It is far from 
+trivial to add the constraints associated with using the 
+two-way associative instruction cache to avoid bus 
+conflicts associated with fetches of data and new 
+instructions along the program memory (PM) bus. 
+Programming that constraint has been likened to 
+implementing a Project Business Macro that will [ 5 ]  
+o Schedule all the normal tasks for 4 groups of 
+consultants (ADDER, MULTIPLIER, D M B U S  and 
+PMBUS).  
+o The tasks must be scheduled taking into account that 
+the contracts for the P M B U S  consultant group allow 
+these consultants to work out at a health club on the 
+second day after they have been performed a task. 
+However, the business bottom line means that there 
+are only 32 passes to the health club that can only be 
+used within certain 16-day cycles across the elapsed 
+time of the total project. 
+The scheduling task is complicated by the fact that 
+the health passes can be used in the first 16 day cycle 
+at the start of a project. This is to compensate for the 
+fact that late in the project the consultants may not be 
+able to use the passes because of other time conflicts. 
+We are currently investigating whether other project 
+management tools, such as those from Primavera [6], 
+have the ability to permit custom resource scheduling in 
+such a totally “un-business like” manner. 
+o 
+o 
+I. ACKNOWLEDGEMENTS 
+The author wishes to acknowledge the financial support 
+of the Natural Sciences and Engineering Research 
+Council of Canada (NSERC), the University of Calgary 
+and the University Suppon Program of Analog Devices 
+(Mimi Pichey). The author is Analog Devices University 
+Ambassador for 2002/2003.[7] 
+8. REFERENCES 
+[ 11 J. K. Otnura, “On the Viterbi Decoding A l g o d z m ’ ’ ,  IEEE 
+Transactions on Information Theory, IT-15 (I) ,  177-179, 1969. 
+[2] M. S. Ryan and G. R. Nudd, “The Viterbi Algorithm”, 
+Warwick Research Report RR238, Department of Computer 
+Science, University of Warwick, Coventty, CV4 7AL, England, 
+February 1993. 
+(31 M. R. Smith, “Introduction to Microsoft Project”; 
+h t t p : / / w w w . e n e l . u c a l g a r y . c a / P e o p l e / S m i t h 2  
+Iindexhtm 2002. 
+[4] M. R. Smith, “SquishDSP ~ A process tool for systematic 
+identification of parallel operations in instructions generated from 
+an optimizing compiler or present in custom code”, SHARCZOOI 
+Conference, Boston, U.S.A. September 2001 
+[SI M. R. Smith and B. Howe, “CacheFlow - A process tool for 
+identifymg, and reducing, cycles lost through cache conflicts in 
+highly parallel ADSP2106X DSP code”, SHARCZOOI 
+Conference, Boston, U.S.A. September 2001. 
+[6] Primavera Project Management Tools - www.primavera.com, 
+2002. 
+[7] Analog Devices University Suppon Program -- 
+http://www.analog.comltechnologyld~pl~~~~~~ity/~Nversity. html 
+2002 
+150 

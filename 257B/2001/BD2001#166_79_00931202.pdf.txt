@@ -1,0 +1,650 @@
+The Effect of Faults 
+on Plasma Particle Detector Data Reduction 
+Michael L. Rilee, Scott A. Boardsen, and Maharaj K. Bhat 
+Emergent ITI, NASA Goddard Space Flight Center, Mailstop 93 1, Greenbelt, MD 20770 
+Phone: (301) 286-4743, email: Michael.L.Rilee. 1 @gsfc.nasa.gov 
+Steven A. Curtis 
+NASA Goddard Space Flight Center, Code 695, Greenbelt, MD 20770 
+Phone: (301) 286-9188, email: Steven.A.Curtis. 1 @gsfc.nasa.gov 
+Abstract-Missions in NASA’s Solar-Terrestrial Probe line 
+feature challenges such as multiple spacecraft and high data 
+production rates. An important class of scientific instruments 
+that have for years strained against limits on communications 
+are the particle detectors used to measure space plasma density, 
+temperature, and flow. The Plasma Moment Application (PMA) 
+software is being developed for the NASA Remote Exploration 
+& Experimentation (REE) Program’s series of Flight Proces- 
+sor Testbeds. REE seeks to enable instrument science teams 
+to move data analyses such as PMA on board the spacecraft 
+thereby reducing communication downlink requirements. Here 
+we describe the PMA for the first time and examine its behavior 
+under single bit faults in its static state. We find that -90% 
+of the faults lead to tolerable behavior, while the remainder 
+cause either program failure or nonsensical results. These re- 
+sults help guide the development of fault tolerant, non-hardened 
+flighvscience processors. 
+TABLE OF CONTENTS 
+1. INTRODUCTION 
+2. PLASMA MOMENT APPLICATION 
+3. TESTING METHOD 
+4. RESULTS 
+5. CONCLUSIONS 
+1. INTRODUCTION 
+UTURE missions in NASA’s Solar-Terrestrial Probe (STP) F line have challenging requirements involving multi space- 
+craft operations and science data communication. These mis- 
+sions form an important part of NASA Sun-Earth Connec- 
+tions theme [1,2]. One such mission is STP’s Magnetospheric 
+Multi Scale (MMS, launch 2007), which consists of five space- 
+craft each carrying a full complement of science instruments 
+designed to observe the fundamental processes that structure 
+Geospace, the near Earth space environment [3]. To fit within 
+mission resource budgets, MMS science return is purposefully 
+limited by obtaining data at a high rate during “burst mode” op- 
+erations during limited portions of MMS orbits. For the rest 
+of the orbit, “normal mode” stores low resolution data for later 
+transmission to Earth. By performing some data analyses on 
+board the spacecraft, the science return of missions such as 
+MMS may be dramatically enhanced [4]. 
+For example, the particle detectors used in space physics experi- 
+ments measure properties, e.g. mass, momentum, and energy, of 
+the particles making up the space environment. For many years 
+these science instruments have been capable of producing more 
+information than can reasonably be downlinked to Earth. Thus 
+communication limitations have restricted the quality of the raw 
+measurements which in turn limit the conclusions that we may 
+draw from our observations. The STP component of NASA’s 
+Remote Exploration and Experimentation Project (REE) is de- 
+veloping methods of on board data analysis that will enable 
+STP missions that are currently infeasible due to communica- 
+tion limitations [5] .  
+Before science data can be used to achieve mission goals, im- 
+portant calibrations and reductions must be performed. Results 
+ofthese analyses require storage that is often thousands of times 
+smaller than the storage required of the original raw data. By 
+performing these analyses on board spacecraft and transmitting 
+the results to Earth one gains the opportunity to reduce sci- 
+ence communication requirements by thousands as well. How- 
+ever, performing these analyses in real-time on board spacecraft 
+requires computing capability that is not feasible if obtained 
+by traditional techniques of constructing radiation tolerant sys- 
+tems. The REE Testbed is a prototype flight processor that uses 
+a mixture of hardware and software techniques to mitigate the 
+effects of radiation induced faults while providing supercom- 
+puting performance. 
+In this work, REE/STP presents a software application being 
+developed for the REE Testbed that analyzes particle detec- 
+tor data. The Plasma Moment Application (PMA) calculates 
+plasma (fluid) moments including the space plasma density, 
+bulk flow, pressure, and heat flux. These moments are cal- 
+culated using spatial discretization techniques reminiscent of 
+finite-element analysis (FEA). These unstructured grid tech- 
+niques allow the analysis of almost arbitrarily constructed or 
+edited data sets. Model fitting and parameter estimation will 
+be used to address inescapable “blind spots” and other imper- 
+fections in particle detector data. PMA represents a first step 
+towards autonomous space science data analysis, and this paper 
+is, to our knowledge, the first description of how a data analysis 
+code developed within the space science community responds 
+to faults. 
+US. Government work not protected by U.S. copyright. 
+5-2427 
+Spacecraft spin “z“ axis 
+Instrument normal 
+Particle Path 
+& Instrument 
+Figure 1. Particle detector geometry 
+2. PLASMA MOMENT APPLICATION 
+The Plasma Moment Application consists of a model particle 
+spectrometer and an analysis program. The model particle spec- 
+trometer produces a set of sensor readings and related infor- 
+mation; from these sensor readings, sensor configuration, and 
+spacecraft attitude, a map of the plasma in velocity space is con- 
+structed. The analysis program converts the sensor readings to 
+a plasma particle density per unit volume of phase space (ve- 
+locity x position). After this conversion, the analysis program 
+fits an anisotropic temperature plasma distribution to the data; 
+this fit is used to patch data gaps and as a check on subsequent 
+analysis. The analysis program then constructs a grid from the 
+distribution of sensor readings which it then uses to calculate 
+statistical moments by numerical quadrature. Though motivated 
+by existing plasma particle spectrometers, these models are im- 
+plemented at a slightly more abstract level so that they may be 
+specialized to a variety of detectors and measurement strategies. 
+PMA Spectrometer Model 
+Our initial spectrometer model is loosely based on the Electron 
+Spectrometer Experiment (ESE) on ISEE-1 [6]. This device 
+is designed to observe the three dimensional elecbron plasma 
+distribution function as the spacecraft moves through Geospace 
+including the solar wind, magnetosheath, outer magnetopause, 
+and near tail regions. At the output of each of six e:lectrostatic 
+analyzers a two channel electron multiplier registers the influx 
+of electrons from given differential energy ranges and direc- 
+tions. The ESE logarithmically steps through 16 enlergy levels, 
+dwelling equally at each, and completes one energy sweep every 
+half second. Each electron spectrometer is paired with another, 
+and the pairs are arranged on three mutually orthogonal axes. A 
+single detector is depicted in Figure 1. As the ISEE- I spacecraft 
+rotates every three seconds, the views of the spectrometers are 
+swept across the sky and a three dimensional picture of the elec- 
+tron and their flow in the vicinity of the spacecraft is recorded 
+every half second. 
+~ 
+5-2428 
+The PMA Spectrometer Model is not constrained to specifically 
+represent the ISEE-IESE. Many of the parameters that deter- 
+mine the data production rate of the ESE can be changed so that 
+the requirements of other particle observation strategies can be 
+studied. These parameters include: the number of energy steps, 
+the central energy and range of each step, the step rate, and the 
+number of detectors. The effective aperture of the instrument 
+and the solid angle from which particles are admitted can also 
+be specifed. At the moment we presume ideal efficiency, in that 
+each entering particle is counted. The spacecraft’s, and hence 
+the instrument’s, rate of rotation may also be specified. These 
+parameters control how particle velocity space is sampled. 
+To detennine the flux of particles into the instrument, a small set 
+of simple plasma models has been implemented. These models 
+map the particle velocity space to a real valued phase space dis- 
+tribution function. The model we use here is a simple Gaussian, 
+or normal distribution, centered on the mean drift of the plasma 
+relative to the spacecraft, and with a width determined by the 
+plasma temperature. The integration of this particle distribu- 
+tion over a sample region of velocity space yields the average 
+number of particles that enter the detector, neglecting statistical 
+fluctuation. To model the actual number of particles entering the 
+detector we select a random number from a Poisson distribution 
+with the aforementioned average as its mean. This process is the 
+inverse of the data reduction which is described in more detail 
+below. 
+The preceeding two paragraphs have dealt with how velocity 
+space is shp led  by a model instrument and how the contents 
+of velocity space are determined. Thus as the instrument pro- 
+ceeds through its observations it builds up a data set of measure- 
+ments and relevant auxillary data including time and duration of 
+observalion, and instrument configuration and position. These 
+data and metadata are read into and processed by the analysis 
+portion of the PMA application. 
+PMA Analysis Program 
+The instrument-modelling portion of the PMA reads a file that 
+contains parameters which define a model spectrometer and 
+plasma and produces a set of files that contain flux measure- 
+ments and descriptive information. The analysis portion of the 
+PMA reads these files with the objective of calculating the sta- 
+tistical moments of the observed plasma distribution in veloc- 
+ity spacle. The moments to be found correspond to the plasma 
+density, bulk velocity, temperature, and heat flux. The steps 
+required to transform the measurements into the desired fluid 
+moments are outlined in Table 1. 
+Portions of the PMA program are not exercised for this work. 
+The calibration step mentioned in Table 1 is usually iterative in 
+nature, ;and not qualitatively different from the “patching step”. 
+The patching step is similarly truncated for the runs presented 
+here. The model used for patching the data is constructed to 
+exercise the linear algebra library; the model thus obtained was 
+saved for later comparison to the results of the moment calcula- 
+tion. However, for this work the actual patch is not constructed. 
+TABLE 1 
+OUTLINE OF PMA PROGRAM 
+1. Input data 
+2. Transform to working coordinates & units 
+3.  Calibrate 
+4. Patch holes in data set 
+5. Construct grid from data 
+6. Calculate moments 
+7. Write results 
+Constructing a patch requires a matrix-vector multiplication and 
+the addition of a “few” modeled data points to the data set. Our 
+experiences with this process will be documented elsewhere, 
+but here the focus is the behavior of PMA under faults, and we 
+feel that an additional matrix-vector multiply will not signifi- 
+cantly affect our results. 
+Here, calibration means accounting for the different sensitivi- 
+ties of the various detectors. These different sensitivities are 
+due to intrinsic variability in these devices as shipped, or differ- 
+ences in how they wear. These differences can be ameliorated 
+by comparing how different detectors respond to a predictable 
+environment, for example, by using the solar wind as a calibra- 
+tion beam. For these instruments the calibration, though impor- 
+tant for the analysis of real data, looks like a filter, a model fit, or 
+iterates of these. Because a model fit is required for the patch- 
+ing step, the addition of the calibration step will not add to the 
+present study but will be addressed in future work. Therefore, 
+our models presume ideal (cross) calibration. 
+Spacecraft often acquire an elect+ charge, which leads to a 
+spacecraft electric potential CpSc. Charged particles which enter 
+the detector move through this potential, changing their ener- 
+gies. Therefore, in reconstructing the PDF from the sensor data, 
+we must account for the shift A E  in particle energy E: 
+This energy shift is usually small and the velocities low, so 
+nonrelativistic formulae may be used. Current code simply 
+drops data with E < q&, and fits the patch to higher energy, 
+E > q&, data. 
+Model Fitting 
+Model fitting is one method that has been used to address irreg- 
+ularities in plasma analyzer data. Particles with low velocities 
+relative to the spacecraft are particularly difficult to measure for 
+two reasons. First, a lower velocity implies a lower flux into the 
+instrument which implies lower count rates and greater uncer- 
+tainties and fluctuations in particle flux. Second, lower veloc- 
+ity particles are more susceptible to the electric potential of the 
+spacecraft. A spacecraft placed in the Sun’s ultraviolet radia- 
+tion becomes electrically charged and drives an electric current 
+in the surrounding plasma that “corrupts” measurements of the 
+properties of the space plasma. For these two reasons, mea- 
+surements of the plasma particle distribution function at lower 
+energies are difficult to interpret and often look like a “hole” in 
+the data. A way around this problem is to “patch” the hole by 
+fitting a model distribution function, e.g. a Maxwellian or Gaus- 
+sian, to the measurements and then using this model to generate 
+model data in the hole. 
+In this work, we use a ten parameter generalized Maxwellian 
+(Eq. 2). The parameters are of the following form: 
+In f M Bo + B .  v + vT . B. v, ( 2 )  
+where B is an upper triangular 3 x 3 matrix; the symbol de- 
+notes transposition. Note that h f is a column vector of data, in 
+the computer scientific sense, indexed by v. Hence the model 
+In f is linear in the parameters B = (Bo, B, a), Eq. 2 can be 
+rewritten: 
+Inf=VB, (3) 
+where V is defined to make Eqs. 2 and 3 equivalent. Further- 
+more, V depends on the velocities v at which the data was ob- 
+tained. We can write the jth row of V 
+hfj = (1, vj, VT..Vj) B,  (4) 
+where j indexes the measurements fj, vj. One can test the patch 
+to f by checking for kinks or non-monotonicity. 
+Because the logarithm of the model distribution function is lin- 
+ear, we use a linear least squares fitting procedure implemented 
+with PLAPACK [7] and LAPACK [SI. PLAPACK (Parallel Lin- 
+ear Algebra Package) is an object oriented library that provides 
+dense linear algebra for multiple processor computers using the 
+Message Passing Interface (MPI) [9]. Furthermore, experiments 
+in Software Implemented Fault Tolerance (SIFT) are being per- 
+formed with PLAPACK, with the plan that applications such as 
+PMA will gain enhanced robustness to faults simply by using 
+a SIFT based version of PLAPACK. After the model parame- 
+ters have been found, they can be used to patch irregularities as 
+mentioned above, or they can be compared with the results of 
+the plasma moment calculation to be discussed below. 
+Plasma Moments 
+The primary function of the PMA is the plasma moment cal- 
+culation, which proceeds after calibration and patching have re- 
+sulted in a consistent, complete data set. To allow a great variety 
+of measurement strategies to be studied, as well as to allow easy 
+import of existing particle spectrometry data, the PMA uses a 
+very general method to partition velocity space using techniques 
+from finite element analysis [lo]. 
+The fundamental quantities of interest are the plasma or fluid 
+moments of the distribution of particles in the space environ- 
+ment. The density, bulk flow velocity, and the pressure tensor 
+are 
+(5) n = J d3v f(v), 
+5-2429 - 
+TABLE 2 
+QUANTITIES ASSOCIATED WITH PDF ESTIMATION. 
+Symbol Interpretation Dependencies 
+t Time 
+q5,0 Azimuth and co-altitude t 
+n Detector unit normal 094 
+V Velocity magnitude v = [ V I  = --n . v 
+C Measured particle counts V 
+f . Distribution function c. v, 6.  d 
+V Particle velocity 0, 4, t 
+TABLE 3 
+THE GEOMETRIC FACTOR 17 CONNECTING THE PDF AND COUNTS. 
+Symbol Interpretation Dependencies 
+A Detector collecting area t 
+E-lbE Energy bandpass t 
+6n 
+6t Measurement duration t 
+n Intemation factor n = A 6R 6t (2 E)-'dE 
+Solid angle subtended 6R = sin 0 60 64, E 
+u=l  J d3v f(v) v, and 
+n 
+P = m J d3v f(v) (v - u)(v - u), (7) 
+where we interpret the dyadic product in Einstein's notation 
+thusly: ab = aibj. The integrals are evaluated ov& the particle 
+velocity space, and m is the mass of the particle, e.g. electron, 
+proton, ionized Oxygen, being studied. The tensor product is 
+defined by: P . v 
+The heat flux tensor is given by: 
+Pij vj . 
+& = -  d3 , "s 2 
+(8) 
+where U = 1.1. Finally, in practice it is not always necessary 
+to evaluate n, U, P, 9, as written above. For some purposes, 
+integrals of the dyadic powers of v are adequate, and from these 
+the pressure and heat flux can be calculated. 
+The differential number of particles entering the detector, which 
+ideally equals the number of counts registered by the detector, 
+during a given data gathering interval is 
+C(v) = -d3v f(v) A n  v 6t. (9) 
+In the case of nonrelativistic energies, the velocity volume dif- 
+ferential may be related to particle detector parameters via Ta- 
+bles 2 and 3 to find 
+19 September 1374: 1:45--1:50 
+Y--- ' " " " " " ' " " ' " ' ' ~  
+Figure 2. Particle distribution function in PMA data format. Data is from the 
+HAWKEYE, spacecraft [11,12]. 
+Unstructured Grid & Quadrature 
+A three dimensional grid or mesh is constructed in velocity 
+space from the positions of the spectrometer data. The grid is 
+constructed using the Delaunay triangulation implemented in 
+the GEOIMPACK library [13,14]. The resulting grid is a set of 
+tetrahedral volumes that partition velocity space; the vertices 
+of these t'etrahedra correspond to velocity space measurements. 
+From there it is a simple matter to evaluate functions defined 
+on the mi:asurements, including the calculation of moments of 
+the plasma particle distribution by numerical quadrature. Inte- 
+grations over velocity space become summations over the set of 
+tetrahedra. 
+An advantage of this approach is that nearly arbitrary distribu- 
+tions of measurements may be handled. A key disadvantage is 
+one that also arises in E A ,  namely the errors that can be in- 
+troduced by poorly shaped tetrahedra. Poorly shaped tetrahedra 
+lead to difficulties both in grid construction and numerical errors 
+during carlculation. Nevertheless, we feel that this FEA inspired 
+approach allows one to extract information from the data set 
+with minimal transformation because the data is left "in place", 
+and not accumulated into bins or scattered onto a grid. Thus 
+our approach will provide the best time resolution possible for a 
+given data set because there is no grid to be filled with data: the 
+data defiines the grid. Furthermore, our approach allows particle 
+spectrometer developers to start to consider reactive, adaptive 
+measureinent strategies that allow the instrument to focus on 
+features .within velocity space, obtaining higher time and veloc- 
+ity space resolution. 
+Another issue involving grid construction, is that GEOMPACK 
+forms a 'convex-hull of the data points. The convex hull is the 
+minimal convex surface that encloses all of the points. For sam- 
+plings of velocity space that are essentially non-convex, this can 
+lead to grids (discretizations) that have copious, ill-shaped tetra- 
+hedra as mentioned above. The way around this problem that 
+we have pursued is based on the recognition that in spherical 
+coordinates the regions of velocity space samples are essentially 
+5-2430 
+Figure 3. The discretization of velocity space. 
+convex (Figure 3). 
+The location of the data points in the angular dimensions are 
+trivially bound, while the magnitude of the velocity has given 
+upper and lower limits. Therefore, the data points lie within a 
+rectangular volume in spherical coordinates. As long as there 
+is a sufficient density of points within this volume, one obtains 
+good results for both the automated discretization and the nu- 
+merical calculation. Futher details regarding the automated dis- 
+cretization are beyond the scope of this work and will be pre- 
+sented elsewhere, including a discussion of issues relating to 
+troublesome degenerate points. 
+Let denote the direction and velocity state of the detector dur- 
+ing measurement i: ti = {vi, &, di}. With this definition we 
+write the estimate distribution function at & as fi. We can then 
+evaluate the integrals Eq. 5-8 by numerical quadrature because 
+we know the integrands as functions of the data: and fi. After 
+the triangulation, a list of tetrahedra is constructed. The volume 
+of each tetrahedra is determined by its four vertices determined 
+by Q .  We determine the tetrahedra's contribution to the inte- 
+grals by linearly interpolating the appropriate functions of fi 
+and & from the nodes. 
+3. TESTING METHOD 
+Application Form 
+In this paper we consider the effect of faults on this data anal- 
+ysis scheme. A goal of the REE effort is to allow instrument 
+operators or scientists to run data analysis programs on board 
+TABLE 4 
+APPLICATION ENVIRONMENT 
+Apple PowerBook 2000 
+384 MB RAM 
+Yellow Dog Linux Champion Server v1.2 
+Kernel version 2.2.15pre19 
+PLAPACK 2.08 
+GEOMPACK version 3 
+LAPACK version 2.0 (Very few routines used) 
+Message Passing Interface MPICH 1.2.0 & p4 [15,9,16] 
+ABSOR Fortran 90 version 3.0 & bundled IMSL 
+GNU gcc 2.95.2 
+Optimization enabled for C & Fortran compilers 
+the spacecraft. Furthermore, REE seeks to provide a computing 
+environment, based on commercial-off-the-shelf (COTS) com- 
+ponents, augmented by Hardware implemented fault tolerance 
+in conjuction with SIFT (H/SIFT), that otherwise closely re- 
+sembles the computing environment used by the ground-based 
+scientist. Scientist generated analysis programs are to run on the 
+REE Flight Processor and will suffer faults. Therefore, most of 
+the PMA code was constructed using Fortran 90 and 95 with 
+enough C and shell scripting to allow for library access and run 
+management (Table 4). Much arithmetic was performed using 
+double precision floating point. 
+To start to determine how faults affect such science programs, 
+we have subjected the PMA to faults and have studied their ef- 
+fects. REE is in the process of bringing a hardware and soft- 
+ware based fault injector on line; this fault injector will allow 
+faults to be injected into various parts of the REE Flight Proces- 
+sor Testbed, including memory, cache, registers, etc. Currently, 
+however, we do not have ready enough access to the run-time 
+state of the PMA and processor to allow extensive testing of the 
+dynamic portions of the PMA process. 
+On the other hand, we have full access to the static state of the 
+program.'. Therefore to start our testing we have pursued the 
+following simple procedure. The PMA analysis executable and 
+model data were archived without compression. This archive 
+was copied and then a randomly chosen bit in the copy was 
+flipped. Every bit had an equal chance to be chosen. The PMA 
+and data were then extracted fromthe archive and the analysis 
+was run. The run-time environment for the tests used here is 
+detailed in Table 4. The size of the executable and data set are 
+given in Table 5; this shows the relative sizes of the two parts 
+of the application, which implies that the executable likely suf- 
+fered about 50% more faults than the data. No special effort 
+was expended to reduce executable size or enhance run-time 
+robustness, and the data set used did not model any particular 
+instrument. 
+By static stare we mean that state available before run-time. Dynamic slate 
+is complementarily defined. 
+5-2431 
+TABLE 5 
+SIZES OF STATIC PORTION OF PMA 
+PMA Portion MB: Megabytes 
+KB: Kilobytes. 
+Data set 1.1 MB 
+Executable 1.6 MB 
+Run-control input files 1.5 KB 
+TABLE 6 
+RESULTS FROM ERROR TESTING. 
+Percentage Number Characteristic 
+100.0 1161 Iterations 
+7.6 88 Severe control flow errors 
+92.5 1074 Produced n & U 
+91.0 1057 n within 0.5% of correct 
+80.7 937 n negligible difference 
+90.4 1050 U within 0.5% of correct 
+77.0 894 U negligible difference 
+1.5 16 n intolerably corrupted results 
+1.7 20 U intolerably corrupted results 
+4. RESULTS 
+The results of a series of runs is tabulated in Table 6. The zeroth 
+moment (density) was examined for discrepancies frorn the non- 
+corrupted control run. Two tenths of the runs either did not 
+successfully complete, or produced a density that differed from 
+true. However, half of the non-negligibly corrupted results, i.e. 
+one tenth of the runs, produced densities that were within 0.5% 
+of true and are therefore usable. Similar results are obtained 
+if the first velocity moment, i.e. the bulk flow velocity U, is 
+studied. 
+The types of errors are summarized in Table 7. Of the 88 errors 
+that halted the program, just under half seem to have caught 
+within the “lower” levels of MPICH and its p4 substrate. An- 
+other 15% were caught by the operating system (OS), which 
+never faltered during these tests. Just under 25% of the seri- 
+ous errors occured in PLAPACK or higher levels of MPI, e.g. 
+incorrect PLAF’ACK arguments or faulty MPI communicattion 
+parameters, etc. A number of Fortran run-time errors also oc- 
+cured, though about half of them seem due to corruption of the 
+archive and thus are not directly relevant to the current problem. 
+Table 8 shows the source of faults that caused the 88 serious 
+errors. Over three fourths of the serious errors were caused 
+by bits flipped in the executable. Package level errors, e.g. 
+PLAPACWDLINRG, are due mainly to data corruption. Error 
+induced “user aborts” are evenly split between data and exe- 
+cutable corruption. For segmentation violations caught in MPI, 
+faults in the executable outnumber faults in the data by nine to 
+one. The faults that produced the 16 intolerable results recorded 
+in the Table 6 did not cause the PMA to crash; consistent with 
+this is that 15 out of those 16 faults occured in data. 
+TABLE 7 
+CLASSIFICAITON OF THE 88 SEVERE ERRORS 
+Number Type of severe error 
+42 
+21 
+13 
+10 FORTRAN run-time errors 
+2 
+MPI or p4 caught SIG BUS/SEGV 
+PLAPACK or higher level MPI/user abort 
+OS caught illegal instructionkegmentation faults 
+Terminated due to excessive run-time 
+TABLE 8 
+LOCATION OF FAULTS LEADING TO THE 88 SEVERE ERRORS 
+Number Application area of fault 
+67 executable 
+15 data 
+6 archive (file) structure 
+5. CONCLUSIONS 
+In this work we have shown that a data analysis program writ- 
+ten by a scientist for a COTS parallel computer and develop- 
+ment system can have reasonable performance in the presence 
+of faults to its static state. This is partially due to the robustness 
+of double precision floating point arithmetic to single bit errors. 
+Another reason for the application’s robustness is that PMA re- 
+duces the data to statistical moments, which reduces the overall 
+impact of data errors. Furthermore, PMA operates as a filter that 
+undergoes only a limited amount of iteration. Therefore, there is 
+not a great deal of time for faults and their consequences to ac- 
+cumulate. Fresh, new processes will continually start and limit 
+the effect of faults to old, expired processes. 
+Applications that require long lifetimes, servers, operating sys- 
+tems, sys,tem monitors, mission planner/schedulers may drive 
+fault tolerance development, but science analyses seem from the 
+start more robust, However, for science analyses that may affect 
+mission operations, stringent real-time requirements on system 
+or instrument health and safety may drive higher levels of sci- 
+ence appllication robustness than we have observed with our ex- 
+periments with the PMA. Certainly, given the inherent robust- 
+ness of PMA, achieving these higher levels of reliability seems 
+feasible within the REE technology development framework. 
+The logical continuation of this work is to perform a similar 
+series of tests using the fault injection capabilities of the REE 
+Testbed. With that system we will be able to determine how 
+PMA responds to errors in its dynamic state. We doubt that 
+the results will differ greatly from what we have found here, 
+though there may be a somewhat wider range of consequences 
+due to the broader range of faults. Certainly, we will gain a bet- 
+ter appreciation for the behavior of the PMA when other parts 
+of the computing subsystem suffer faults, because that is some- 
+thing we are currently not able to test. Our results point out 
+that the REE emphasis on hardware, software libraries, and OS 
+fault tolerance is well placed. PMA will be used to test the fault 
+tolerant ,versions of these COTS components for space borne 
+5-2432 
+applications. 
+6. ACKNOWLEDGEMENTS 
+Acknowledged is support from the Remote Exploration and Ex- 
+perimentation Project of NASA’s High Performance Computing 
+and Communications Program which is funded by the Office of 
+Space Science with the work performed under contract NASS- 
+32350. A. Figueroa-Viiias played an important role during the 
+formulation of this work. 
+REFERENCES 
+NASA, “Solar terrestrial probes program,” http://stprobes.gsfc.nasa-gov. 
+NASA, “Sun-earth connections theme,” http://sec.gsfc.nasa.gov. 
+J. L. Burch, S. A. Curtis, J. k i n g ,  et al., ‘The magnetospheric multi- 
+scale mission ... resolving fundamental processes in space plasmas,” Tech. 
+Rep. NASA/TM-2O00-209883, NASA Goddard SFC, December 1999. 
+S. Curtis et al., “Small satellite constellation autonomy via on-board su- 
+percomputers and artificial intelligence,” in The 51st International Astro- 
+nautical Congress, October 2000. 
+NASA, “Remote exploration and experimentation program,” http://www- 
+ree.jpl.nasa.gov. 
+K. W. Ogilvie, J. D. Scudder, and H. Doong, “The electron spectrometer 
+on isee- 1 ,” IEEE Transactions on Geoscience Electronics, vol. GE- 16, no. 
+3, July 1978. 
+R. A. van de Geijn, Using PLAPACK: Parallel Linear Algebra Package, 
+The MIT Press, 1997. 
+E. Anderson et al., LAPACK User’s Guide, SIAM, 1995. 
+W. Gropp et al., Using MPZ: Portable Parallel Programming with the 
+Message Passing Interjace, The MIT Press, Cambridge, MA, 1994. 
+[ 101 C. Hirsch, Numerical Computation of Internal and Exremal Flows, vol. 1, 
+J. Wiley & Sons, 1988. 
+[l 11 R. Kessel et al., “Evidence of high-latitude reconnecting during northward 
+imf: Hawkeye observations,” Geophys. Research Letters, 1996. 
+1121 J. Bonnell et al., “On the use of specific entropy for onboard plasma 
+regime characterization,” presented at the Spring Meeting of the American 
+Geophysical Union, May-June 2000. 
+[ 131 B. Joe, “GEOMPACK - a software package for the generation of meshes 
+using geometric algorithms,” A h .  Eng. Somare, vol. 13, pp. 325-331, 
+1991. 
+[14] B. Joe, ‘Tetrahedral mesh generation in polyhedral regions based on con- 
+vex polyhedron decompositions,” Intem J. Num. Meth. Eng., vol. 37, pp. 
+693-713, 1994. 
+1151 W. Gropp and E. Lusk, “Installation guide for mpich, a portable imple- 
+mentation of mpi,” Tech. Rep. ANL-96/5, Argonne National Laboratory, 
+1996. 
+[16] R. Butler and E. Lusk, “User’s guide to the p4 parallel programming 
+system,” Tech. Rep. ANL-9Y17, Argonne National Laboratory, IL, 1992. 
+Michael L. Rilee is a scientist with Raytheon suppon- 
+ing the GSFC Laboratory for Extraterrestrial Physics 
+and the Science Computing Branch of the GSFC Earth 
+and Space Science Computing Division. For NASA’s 
+Remote Exploration and Experimentation project he 
+has lead development of the Plasma Moment Appli- 
+cation and the Rad10 Astronomical Imager whch are 
+science data analysis applications designed for space 
+*, bome supercomputers. He is currently researchng a 
+High Performance Computing System that may fly on 
+Magnetospheric Multi Scale (launch 2007). At GSFC 
+he has been active in Nano-Satellite technology development and the appli- 
+cation of parallel computing to data analysis and astrophysical fluid simula- 
+tion (PARAMESH). He received his Ph.D. and M.S. in Astrophysics (Plasma 
+Physics) from Come11 University, and his B.A. in Astrophysics and Mathemat- 
+ics from the University of V i n i a  in Charlottesville. VA. 
+Scott A. Boardsen is a scientist with Raytheon at 
+GSFC and has fifteen years of expenence in Geospace 
+research involving data analysis and modeling and in 
+space rmssion support achvities. He is currently in 
+charge of the daily poinhng plans for the imagers on 
+the POLAR spacecraft. He IS in charge of developing 
+the simulation model of the radar echoes and plasma- 
+grams for the Radio Plasma Imager on board IMAGE 
+(launched 2000). He plays a key role in developing 
+ISTP key parameter and orbit products and in d a g  
+them accessible to the Geospace research community. 
+He has a seong background in numerical analysis, computer modeling, and 
+data visualization applied to many areas of endeavor, from data analysis, to in- 
+strument modelling, to rmssion planning. He currently contributes to NASA’s 
+Remote Exploration and Expenmentation Program. 
+Maharaj K. Bhat is a computational scienbst with 
+Raytheon supporting the GSFC Laboratory for 
+Extraterrestnal Physics and the Science Computing 
+Branch of the GSFC Earth and Space Science 
+Computing Division. He has extensive experience 
+in computational fluid dynarmcs, parallel algorithm 
+implementahon, software development, and expen- 
+mental techniques. He received his Ph.D. 111 Aerospace 
+Engineenng from the University of Tennessee Space 
+Insotute, Tennessee in 1988. 
+Steven A. Curtis has been the Head of the Planetary 
+Magnetospheres Branch in the Laboratory for Ex- 
+traterrestrial Physics at Goddrurl Space Flight Center 
+for the pmt decade. He is ;I Principle Investigator 
+in NASA’s Space Physics Theory Program (Global 
+Exploration and Experimentation Prognm (advanced 
+spacecraft onboard computing). He is presently 
+Project Scientist for the 4-5 spacecraft Magneto- 
+spheric Multi Scale in which he has played a leading 
+role in conceptualization of the science and spacecraft 
+design implementation. His research interests include the global and mesoscale 
+structure of the magnetosphere and its simulation, atmosphere-magnetosphere 
+interactions, and wave-panicle interactions in Geospace. He is particularly 
+interested in the multiscale closure needed between theory and observations. 
+He received his Ph.D., M.S.. and B.S. in Physics from the University of 
+Maryland. 
+Magnetospheric SlmulaUOnSJ and in NASA’s Remote 
+5-2433 

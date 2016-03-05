@@ -1,0 +1,460 @@
+Combination of Wavelet Analysis and Color Applied to  
+Automatic Color Grading of Ceramic Tiles 
+Ai Jiaoyan
+ķ
+,  Liu Di
+ĸ
+,  Zhu Xuefeng
+ĸ
+ķCollege of Electric Engineering, Guangxi Univ., China;  IEEE Member  shinin@vip.163.com 
+ĸCollege of Control Science and Engineering, SCUT Univ., China  rainyld@21cn.com;  xfzh@scut.edu.cn 
+Abstract
+The automatic color grading of ceramic tiles is still a 
+big challenge, which needs more researching work. The 
+classifying methods based on color means or histograms 
+can’t meet current factory requests, because in modern 
+building, various types and color patterns have been 
+applied to floor & wall ceramic tiles. In this paper, a new 
+method has been proposed to tackle the question that is 
+wavelet texture analysis combined with color information. 
+The selection of wavelet has been discussed, as well as the 
+extraction and optimization of feature set based on 
+wavelet decomposition of samples’ color images. Knn 
+classifier and the error rate have been used to evaluate 
+classifying performance, and FFFS (Floating Forward 
+Feature Selection) method has been applied to 
+feature-sets’ sub-optimization. The experimental results 
+have shown that the sub-optimal wavelet textural features 
+combined with color information well described the 
+samples’ clustering based on color, texture and resolution, 
+and the classifying results have taken on very good 
+agreement with experts’. The experiments also have 
+shown the feature optimization greatly decreased feature 
+vectors’ dimensionality, and consequently decreased 
+computational complexity. 
+1. Introduction 
+In ceramic tiles industry, the automation of visual 
+inspection is still a difficult work because of the 
+complexity of human visual perception. Nowadays, there 
+are some published research [1,2,3,4] on the final 
+inspection at which stage the major job include the 
+grading tiles into distinct color categories or the rejection 
+of tiles with defects and pattern faults, and some methods 
+have been developed for color grading. For example, C.
+Boukouvalas etc. used the average either of all pixels of 
+the tile for the grading of uniformly colored tiles [1], or 
+the average of each chromatic category of the tile 
+separately for the grading of two-colored tiles with 
+well-defined large-scale pattern [2], and the color 
+histogram [3,4] is considered the main method to deal 
+with multi-colored randomly textured tiles.  
+Both methods are challenged when more colors and 
+more complex patterns appearing on modern tiles’ surface. 
+The fatal limitation of color histogram is that it can’t 
+describe the spatial distribution of colors although with 
+advantage of being invariant to translation and rotation, 
+that means two tiles with different color distribution may 
+be mistakenly graded to the same category when their 
+histograms are similar but appearances maybe are 
+different. So currently how to effectively conduct the 
+color grading of multi-colored randomly textured tiles still 
+need further efforts. In this paper, a new method based on 
+wavelet analysis of color image is introduced. 
+We have learnt the visual perception of a colored tile is 
+a combination of color, texture and scale (or the distance 
+between the tile and human’s eye). The change of scales 
+will lead to change of textural appearance, as well as 
+change of color perception. According to this, wavelet 
+texture analysis is an effective tool because of good 
+localization both in spatial region and frequency region. G. 
+Van de Wouwer [5] made great efforts to add color 
+information to wavelet texture analysis of gray images, 
+namely the wavelet texture analysis of color images. It is 
+a good method to combine information of color, texture 
+and scales into a compound set of features. The 
+experimental result shown it is feasible and effective 
+when color grading multi-colored randomly textured tiles. 
+2. Wavelet Texture Analysis of Color Images
+Mallat first proposed the term of multi-resolution 
+analysis (or approximation) [6]. In his famous paper [6], 
+He constructed the uniform framework of orthogonal 
+wavelet base, and with the framework the multi-resolution 
+representation of image decomposition was given, that 
+makes it quick and easy to wavelet transform and reverse 
+transform, which is called Mallat algorithm.  Based on 
+those works, Wouwer suggested the method to extend 
+wavelet decomposition algorithms from gray image to 
+color image, and the method to extract textural features 
+[5].
+2.1. Wavelet Decomposition of Gray Image 
+Given )(xϕ  and )(xψ  are scaling function and 
+wavelet function respectively, and if define )(),( ngnh
+as the impulse responses of discrete filters GH , , then 
+Proceedings of the 17th International Conference on Pattern Recognition (ICPR’04) 
+1051-4651/04 $ 20.00 IEEE 
+the impulse responses of their mirror filters GH
+~
+,
+~
+should 
+be )(~),(
+~
+ngnh [6]
+)(),()(
+),()(
+~
+1 nxxnh
+nhnh
+−=
+−=
+−
+ϕϕ
+                    (1) 
+)(),()(
+),()(~
+1 nxxng
+ngng
+−=
+−=
+−
+ϕψ                    (2) 
+According to Mallat algorithm, we obtain the wavelet 
+decomposition of image ),( yxI [5]
+°
+°
+°
+¯
+°°
+°
+®
+­
+∗∗=
+∗∗=
+∗∗=
+∗∗=
+↓↓−
+↓↓−
+↓↓−
+↓↓−
+2,11,213
+2,11,212
+2,11,211
+2,11,21
+]]
+~
+[
+~
+[
+]]
+~
+[
+~
+[
+]]
+~
+[
+~
+[
+]]
+~
+[
+~
+[
+nyxn
+nyxn
+nyxn
+nyxn
+LGGD
+LGHD
+LHGD
+LHHL
+              (3)
+where * denotes the convolution operator,
+)2,1(1,2 ↓↓ means keeping one sample out of two along 
+the rows (columns), 321 ,,, nnnn DDDL represent the 
+one approximation sub-image and the three detail 
+sub-images respectively at a lower resolution and 
+),(0 yxIL =  is the origin image. After decomposition, 
+the image can be represented by wavelet coefficient set { }
+3,2,1,1
+,
+=≤≤ idnnid DL ˈ which is called multiscale 
+representation of depth d of image ),( yxI .
+The textural characteristics can be measured from the 
+wavelet representation of image of which energy is the 
+most important one. Usually energies of the detail 
+sub-images are used as textural features because they are 
+the high frequency part of origin image and include the 
+primary textural information. Energy of the 
+sub-image niD  is defined as  ( ) 22)( RbbdbDE nini ∈= ³ GGG                  (4) 
+The wavelet energy signatures { }
+3,2,1,1 =≤≤ idnniE
+compose a textural feature set of given image with 
+wavelet decomposition of d depth, which reflect the 
+distribution of energy along the frequency axis over scale 
+and orientation and have proven to be very useful for 
+gray-level texture characterization [5].  
+2.2. Extension to Color Image 
+The most straightforward extension of the wavelet 
+energy signatures to color images is to transform each 
+color plane separately and compute the energies of each 
+transformed plane, i.e. replace I by the R, G, and B-plane 
+(when deal with RGB color images) consecutively in 
+equation (3) and (4), and we denote such an energy by 
+jX
+niE  where the jX  indicates the color plane (for 
+example, { }
+3,2,1=jj
+X  represent R, G, and B plane 
+respectively in RGB color image case).    
+Usually the three planes of color images aren’t 
+independent, so the wavelet coefficients between different 
+color planes exist correlation. Wouwer define  
+bdbDbDC kjkj
+X
+ni
+X
+ni
+XX
+ni
+GGG
+)()(³=                  (5) 
+and call the set { } kjkj
+idn
+XX
+ni
+kjC
+≤=
+=≤≤
+,3,2,1,
+3,2,1,1
+ the wavelet 
+covariance signatures [5]. When kj =  the wavelet 
+covariance signatures include the energies and the others 
+represent the covariance between different color planes 
+and consequently reflect the coupling between the color 
+and texture properties of the image. 
+3. Wavelet Selection 
+With the development of wavelet analysis in recent 
+years, a variety of wavelets of different properties have 
+been constructed. Consequently in application a selection 
+must be conducted to make features more efficient with 
+suitable wavelet. In automation of tiles’ inspection, the 
+computational complexity is a key factor, so the first 
+consideration is the selected wavelet must be able to apply 
+Mallat algorithm. Nowadays there are several families of 
+wavelet meeting this request such as Daubechies compact 
+support wavlets, Coifman wavelets, biorthogonal spline 
+wavelets and reverse biorthogonal spline wavelets etc. In 
+this paper, we discussed the selection of suitable wavelet 
+through classification performance comparison of 60 
+multicolored tiles which have been color graded as 6 
+categories by professional inspector.  
+Through following schemes, we conduct performance 
+comparison: 
+(1) Samples. In this paper, test samples are necessary 
+to evaluate performance of classification. To improve 
+classification performance of limited samples, we 
+construct test samples by leave-one-out method that is to 
+take one out of the whole samples as test sample and the 
+others as design samples.  
+(2) Classifier design. We choose Knn classifier with 
+k=3, because it is simple, effective and robust. 
+(3) Feature extraction. More than twenty wavelets all 
+of which support Mallat algorithm have been chosen to 
+conduct decomposition on the sample tiles’ color images 
+and their wavelet covariance signatures have been 
+extracted as feature sets.   
+(4) Performance evaluation. In this paper, we take error 
+rate as error estimation, and define it as 
+totalsamples
+totalsamplesclassifiederror
+e =ˆ            (6) 
+Table 1 has shown the classifying performances of 
+different wavelets of different orders from 1 depth of 
+Proceedings of the 17th International Conference on Pattern Recognition (ICPR’04) 
+1051-4651/04 $ 20.00 IEEE 
+decomposition to 3 depth of decomposition consecutively. 
+Table 1. Classifying performances of different 
+wavelets
+error rate %˄Knn classifier with k=3˅
+wavelet
+1 depth 2 depth 3 depth
+bior3.1 20 11.7 28.3
+bior2.2 6.7 3.3 28.3
+bior3.3 15 30 31.7
+bior2.4 8.3 30 40
+bior1.5 20 23.3 43.3
+bior2.6 10 28.3 51.6
+db2 10 21.7 28.3
+db3 8.3 28.3 25
+db4 11.7 13.3 18.3
+db5 8.3 23.3 33.3
+db6 11.7 13.3 25
+db7 10 8.3 30
+db10 11.7 28.3 30
+coif1 13.3 10 23.3
+coif2 13.3 23.3 33.3
+coif3 13.3 30 48.3
+coif4 13.3 31.7 53.3
+coif5 13.3 10 46.7
+rbio3.1 10 15 25
+rbior2.2 13.3 16.7 23.3
+rbior3.3 13.3 20 23.3
+rbior2.4 13.3 26.7 30
+rbior1.5 11.7 10 41.7
+rbior2.6 11.7 26.7 48.3
+biorNr.Nd-biorthogonal spline wavelet of Nd order; 
+dbN-Daubechies compact support wavelet of N order; 
+coifN- coifman wavelet of N order;  
+biorNr.Nd-reverse biorthogonal spline wavelet of Nd 
+orde  
+We come to the conclusion that the classifying 
+performance is much better when selecting biorthogonal 
+spline wavelet of 2 orders. Also the table shown that the 
+performance didn’t go up with the wavelet decomposition 
+depth. The phenomenon may be explained with 
+resolutions (or scales) of images. In wavelet 
+representation, the detail sub-images of different 
+resolution describe the different physical construction of 
+image, at lower resolution, which represent bigger 
+physical construction and reflect the outline information 
+of image. As we known, the wavelet decomposition 
+conduct through high resolution to low resolution, that is 
+more decomposition depth, more outline information will 
+be included in feature set. In tiles’ color grading, the 
+outlines between tiles are very similar, so the 
+superabundance of outline information make classifying 
+performance worse. 
+4. Optimization of Feature Set 
+We have learnt the fact that classification performance 
+does not always ascend with growth of feature set 
+dimensionality that also has been verified by our 
+foregoing experimental result in above section. 
+Accordingly it’s reasonable to conduct dimensionality 
+reduction and feature selection in terms either of 
+computational complexity or of classification 
+performance [7]. For example, the feature set is of 36 
+dimensions after conducting wavelet decomposition of 2 
+depths on color image and extracting the wavelet 
+covariance signatures as features, but not every one of 
+which is good and efficient for classification. The 
+optimization of feature set aims to search those features 
+the most representational and the most efficient. In this 
+question we must decide how many features and which 
+features come to the best classification performance under 
+given criteria. One answer to this question is full 
+searching that is performance comparison of all possible 
+feature combinations, but it is usually big time consuming 
+despite good performance. So in practice, suboptimal 
+methods are used to replace it. There are many alternative 
+suboptimal methods, among which the FFFS (Floating 
+Forward Feature Selection) is verified the best [8]. 
+Based on the experiment in section 3, we select 
+biorthogonal spline wavelet of 2 orders and conduct 
+wavelet decomposition of 2 depths on color images of the 
+same 60 tiles and extract the wavelet covariance 
+signatures (of 36 dimensions) as their raw feature sets. 
+Then optimize the raw sets by FFFS algorithm [9] with 
+Knn as classifier and error rate as cost function. The 
+experimental results have shown in figure 1. 
+75%
+80%
+85%
+90%
+95%
+100%
+1 6 11 16 21 26 31 36
+Feature set dimension
+C
+o
+rr
+ec
+t 
+ra
+te
+Figure 1. Optimal feature set dimensionality and the 
+corresponding classifying performances
+where the abscissa indicates dimensionality of selected 
+Proceedings of the 17th International Conference on Pattern Recognition (ICPR’04) 
+1051-4651/04 $ 20.00 IEEE 
+feature set, and the ordinate indicates corresponding 
+classifying performance (here namely correct rate eˆ1− ).
+Figure 1 shown that when the dimensionality of 
+selected feature set is 3, the classification performance is 
+up to saturation of correct rate 98.33% then hold on until 
+the dimensionality is 31 at which point the classification 
+performance begin to descend that means some bad 
+features have been added. 
+From experimental data, when the dimensionality is 3, 
+the optimal features combination is: the energy of 
+horizontal detail sub-image of 1 depth decomposition on 
+red color plane, the energy of horizontal detail sub-image 
+of 1 depth decomposition on blue color plane, and the 
+covariance signature between horizontal detail sub-images 
+of 2 depth decomposition on red color plan and blue plane 
+respectively. Additionally all the bad features of more 
+than 31 dimensions are almost the energies of green color 
+plane or covariance signatures between green color plane 
+and the other two planes. By observation on sample tiles 
+(see figure 2, two tiles of different color grading are taken 
+as example), we found that all tiles have the similar 
+pattern of alternate with red and blue color on white 
+background, but the spatial distribution of red and blue 
+color is different that discriminate tiles of one color grade 
+from those of another color grade. 
+(a) Sample of grade 1 
+(b) Sample of grade 2 
+Figure 2. Various color grading tiles
+4. Conclusion 
+Human’s visual perception on colored tiles is a 
+complex combination included colors, brightness and the 
+spatial distribution (or texture) and even psychological 
+factors. In addition, the textural perception will vary with 
+distance between the tiles and human eyes that mean the 
+resolution (or scale) must be taken into consideration. In 
+the view of this point, wavelet texture analysis combined 
+with color information should be an effective tool.  
+In this paper, the experimental results shown the 
+wavelet representation of color image effectively describe 
+the spatial distribution of colors and textural information 
+over scale and direction, and the optimization of feature 
+set not only drastically reduce feature set dimensionality 
+(from 36 to 3) consequently greatly decreased 
+computational complexity, but also improve classifying 
+performance (from correct rate 96.7% to 98.33). 
+To summary it up, we come to the conclusions: first, 
+the wavelet representation of colored image is a powerful 
+tool for color grading of multi-colored randomly textural 
+ceramic tiles; second, to effectively applied the tool, the 
+wavelet selection and feature optimization must be 
+conducted. 
+5. References 
+[1] C. Boukouvalas, J. Kittler, and R. Marik etc, "Automatic 
+Grading of Textured Ceramic Tiles", Mach. Vis. Applicat. Ind. 
+Inspection III, SPIE, 1995, 2423: 248-256 
+[2] C. Boukouvalas, J. Kittler and R. Marik etc. "Automatic 
+Color Grading of Ceramic Tiles Using Machine Vision", IEEE 
+Trans. Ind. Electron., 1997, 44: 132-135 
+[3] C. Boukouvalas, J. Kittler and R. Marik etc. "Color Grading 
+of Randomly Textured Ceramic Tiles Using Color Histograms", 
+IEEE Trans. Ind. Electron., 1999, 46: 219-226 
+[4] Luo Wei, Peng Fuyua, and Liu Jia, "Automatic Grading 
+System for Color Ceramic Tiles", Trans of HUST, China, 2001, 
+29(3): 79-81 
+[5] G. Van de Wouwer, Wavelets for Multiscale Texture Analysis, 
+Vision lab, Department of Physics, Univeristy of Antwerp, 
+Belgium, 1998 
+[6] Stephane G. Mallat, "A Theory for Multiresolution Signal 
+Decomposition: The Wavelet Representation", IEEE Trans. 
+PAMI, 1989, 11(7): 674-693 
+[7] Bian Zhaoqi, Zhang Xuegong, Pattern Recognition, Tsinghua 
+university press, Beijing, China, 2000 
+[8] A. Jain and D. Zongker, "Feature Selection- Evaluation, 
+Application, and Small Sample Performance", IEEE Transaction 
+on PAMI, 1997,19(2): 153-158 
+[9] P. Pudil, J. Novovicova, and J. Kittler, "Floating Search 
+Methods in Feature Selection", Pattern Recognition Letter, 1994, 
+15: 1119-1125.
+Proceedings of the 17th International Conference on Pattern Recognition (ICPR’04) 
+1051-4651/04 $ 20.00 IEEE 

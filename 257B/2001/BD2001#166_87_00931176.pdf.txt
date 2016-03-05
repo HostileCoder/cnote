@@ -1,0 +1,594 @@
+Level-0 Telemetry Collection for Spacecraft Command 
+and Data Handling Subsystems 
+Michael E. Epperly, Buddy J. Walls 
+Southwest Research Institute 
+6220 Culebra Road 
+San Antonio, TX 78230 
+Mepperly@SwRI. edu 
+210-522-3477 
+Abstract-This paper presents Southwest Research 
+Institute’s (SwRI) continuing development of flexible Level- 
+0 command and telemetry collection hardware. Results of 
+the requirements analysis, systems design and hardware 
+fabrication and test are presented in detail. 
+The objective of this research program was to provide a 
+module that could handle a variety of interfaces accessible 
+from either a spacecraft’s main computer or an on-board 
+micro-controller. The module must serve as a level-0 “safe” 
+mode processor and be able to execute commands received 
+from the ground. The system designed as a result of this 
+IR&D will be used in those applications where a critical 
+need exists for a level-0 “safe” mode processor. The design 
+may also be used to speed up system throughput by way of 
+parallel processing with the main computer. 
+1. 
+2. 
+3. 
+4. 
+5. 
+6. 
+7. 
+TABLE OF CONTENTS 
+INTRODUCTION 
+TCM ARCHITECTURE 
+TCM DESIGN 
+RADIATION CONSIDERATIONS 
+PHYSICAL CHARACTERISTICS 
+CONCLUSIONS 
+ACRONYM TABLE 
+1. INTRODUCTION 
+The Consultative Committee for Space Data Systems 
+(CCSDS) is a multi-national organization established over a 
+decade ago to set standards for spacecraft communication at 
+all levels from the spacecraft to the ground system and on to 
+the user communities. The CCSDS recommendations 
+establish a standard format for all uplink command data and 
+downlink telemetry data based on a specified packetization 
+scheme. CCSDS recommendations provide increased 
+commonality of both hardware and software systems across 
+program boundaries, reducing the cost of the ground 
+systems. For example, two mid-size explorer programs 
+(IMAGE and MAPS) take advantage of this commonality by 
+sharing a ground station at Goddard Space Flight Center. 
+These standards are .finally gaining acceptance within the 
+space community and are becoming a requirement on most 
+new civil and defense space programs. 
+A Level-0 or “Safe Mode” processor is a low-level 
+command processor that controls the spacecraft whenever 
+the main processor is off-line. Such events can happen 
+during early orbit activities (before spacecraft is fully 
+operational), during load shedding operations (when power 
+must be removed from all non-essential subsystems), or 
+during an anomaly (like the upset of the main processor due 
+to cosmic radiation). During these periods, the safe mode 
+processor collects a subset of normal housekeeping 
+telemetry, formats it, and downlinks it along with the 
+command echo information required by CCSDS 
+Telecommand recommendations. This subset of normal 
+telemetry collection includes housekeeping telemetry from 
+critical spacecraft systems such as attitude control, power 
+regulation, solar array control, and payload maintenance. 
+To determine the optimal number of interfaces and telemetry 
+points, SwRI polled several spacecraft vendors. SwRI used 
+this information to implement Level-0 CCSDS command 
+processinghelemetry collection with the development of 
+Command and Telemetry Module (CTM) and the Telemetry 
+Collection Module (TCM). 
+To implement the Data Handling System for the IMAGE 
+spacecraft, SwRI designed a flexible command telemetry 
+board, designated CTM, which performs low-level CCSDS 
+command processing functions without the interaction of a 
+computer. The module also implements a fully compliant 
+CCSDS telemetry downlink. This is an extremely important 
+capability because it guarantees that the user can command 
+the spacecraft and continue to downlink telemetry in the 
+event of a primary computer failure. The CTM, when 
+coupled with the TCM, created a low-level command and 
+telemetry capability to support any small spacecraft as a 
+safe-mode processor and in some cases act as the entire 
+command and data handling system. 
+2. TCM ARCHITECTURE 
+Objectives 
+The objective of this research program was to provide a 
+design prototype that could handle a variety of interfaces 
+accessible from either the systems main computer or the on- 
+board micro-controller. The TCM must be capable of 
+5-2191 
+serving as a level-0 "safe" mode processor and be able to 
+execute commands received from the ground. The system 
+designed as a result of this IR&D will be used in those 
+applications where a critical need exists for a level-0 "safe" 
+mode processor. The design may also be used to speed up 
+system throughput by way of parallel processing with the 
+TCMRequirements 
+The TCM should have a sufficient number of U 0  to convey 
+system status back to the ground and provide a means of 
+independently controlling the spacecraft. The TCM design 
+requires three main sections of circuitry: local control, VME 
+MUXCTRL 
+x4 / 
+Figure 1 - ' E M  Functional Block Diagram 
+spacecraft's main computer. 
+Requirements DeJnition 
+In order to determine the requirements for a typical Level-0 
+processor, SwRI approached personnel fromi several 
+spacecraft vendors to determine the minimum capability and 
+the number and sources of telemetry required on a mid level 
+explorer mission to provide mission health and status. 
+These data were collected and tabulated and the results used 
+to establish TCM requirements. 
+masterhlave interface, and I/O telemetry interfaces, 
+including MIL-STD-1553. Arbitration is needed to control 
+access to the I/O functions via the controller and VME slave 
+interface. All portions of the TCM design process must 
+consider the radiation characteristics of the microcircuits 
+used in the design. The TCM circuitry must fit on an 
+extended 6U VME form factor to maintain compatibility 
+with the majority of existing designs. 
+5-2192 
+3. TCM DESIGN 
+Micro-coatrouer Label 
+Address 
+0x0000-0~07FF YO 
+Micro-controller 
+Wait States 
+Arbitrated 
+A micro-controller controls the TCM and can be used as a 
+“back up” processor in the event the main processor is out of 
+commission. The micro-controller is responsible for 
+capturing current system status and transferring it to the 
+CTM over the auxiliary bus where it is downlinked to the 
+ground system. In the event the ground system chooses to 
+operate in a level-0 “safe” mode, commands can be up- 
+linked from the ground to the CTM and transferred to the 
+TCM across the auxiliary bus for execution. Various 
+interrupts are available to the micro-controller to enable 
+timely responses for specific activities. Micro-controller 
+support includes PROM, EEPROM and SRAM memory. A 
+serial UART is included to communicate with the micro- 
+controller from an external terminal 
+The United Technology 806196 micro-controller was 
+chosen for the TCM. The 80C196 is radiation hardened and 
+includes several embedded features that minimize the need 
+for additional external circuitry. The features utilized 
+include digital I/O ports, a serial Universal Asynchronous 
+Receiver-Transmitter (UART), Pulse-Width Modulated 
+(PWM) ports, timers and built-in Error Detection and 
+Correction (EDAC) circuitry. 
+Micro-controller conJiguration-The micro-controller 
+operates at 12 MHz and is configured for 16-bit data. The 
+address latch enable pin serves to capture the addresses for 
+all external micro-controller readwrite operations. A 
+54ACTS138 decoder is used to decode external accesses. 
+The address decoding for the micro-controller is as follows: 
+0x8000-0~1FFF 
+Ox2OOO-Ox3FFF 
+0x4000-0~7FFF 
+0x8000-OxBFFF 
+OxCOOO-OxFFFF 
+VME ACK Cycle 
+PROM 0 
+1553 Shared SRAM Arbitrated with 
+16Kbytedpage 
+SRAM 0 
+EEPROM 4 
+Internal U 0  resources do no perform external readwrite 
+cycles and therefore do not require arbitration. Any external 
+I/O resource is arbitrated as either the micro-controller or 
+the VME slave interface can take access of the particular 
+resource for any given instant in time. Further decoding 
+occurs within the FPGA’s for the I/O based accesses. 
+EEPROM and PROM accesses are buffered by 
+54ACTQ16646 buffkrs to prevent bus contentions during 
+chip de-selection as these devices are typically slower when 
+transitioning from driven to the high-impedance state. The 
+SRAM is considerably faster and does not present this 
+limitation. 
+To reduce the amount of time the PROM accesses require 
+before providing valid data, the PROM is constantly 
+accessing data based on the current address. This mode of 
+operation enables the PROM to run with zero wait states as 
+opposed to the traditional chip-select method. 
+EDAC-The micro-controller can be hard-wire programmed 
+to perform EDAC on PROM, EEPROM and SRAM 
+memory. The EDAC can only operate on word operations, 
+however. For SRAM EDAC to operate properly, the user’s 
+code must only perform on even word (16-bit) boundaries. 
+The EDAC circuit is capable of detecting and correcting 
+single bit errors and detecting double and most triple bit 
+errors. 
+Interrupts-The following external interrupts are available 
+to the micro-controller: 
+10 Hz 
+1553 Interrupt (Logical OR of MSG-RDY and 
+YOU-FAIL interrupts 
+VME Talk 
+ADC Complete 
+Differential Sense 
+Receive Aux Command 
+FIFO Empty 
+MC Talk 
+VME Master/Sluve 
+The TCM operates as a VME A32D16 master/slave 
+interface. The main processor can access the TCM to use the 
+I/O resources. The VME slave intempt interface operates as 
+Release on Acknowledge to enable timely responses for 
+specific interrupt activities. Arbitration is included to 
+provide the ability to access the shared U 0  resources with 
+the micro-controller. 
+The VME slave interface is implemented in an FPGA. This 
+design is based on a previous design and imported into the 
+TCM design. The VME slave interface operates from a local 
+16MHZ oscillator and provides an A32 D16 interface with 
+interrupt capability. The TCM provides normal VME Slot- 
+0 functions including bus arbitration and interrupt handling. 
+Datu Transfers-The VME Slave interface enables a main 
+process or master capable card to access the TCM I/O 
+resources. All VME slave accesses require arbitration 
+between the VME slave interface and the micro-controller 
+with the exception of VME based interrupt acknowledgment 
+cycles. Since the address decode for VME slave operations 
+is considerably larger than the micro-controllers 1 Mbyte 
+space there is no need for the VME to page the 1553 Shared 
+SRAM. 
+The majority of the data paths between the slave VME and 
+the TCM 80C196 processor are shared with the master 
+VME. The memory map for the board allows the processor 
+5-2193 
+Figure 2. TCM Top View 
+direct access to the VME bus. A section of memory from 
+Ox800 to OxOFFF allows the microprocessor to initiate 
+sixteen-bit VME read and write cycles. The upper address 
+bits are specified with a holding register that is configurable 
+on a per-cycle basis. 
+Interrupts-The VME slave interface provides the following 
+VME interrupts: 
+1oHz 
+1553Interrupt 
+0 VMETalk 
+ADC complete 
+0 Differential Sense 
+0 Receive Am Command 
+0 FIFOEmpty 
+Each of these interrupt sources can be hard-wire cmtigured 
+to operate on a give priority fiom 1 to 7. A priority of 7 
+represents the highest priority and 1 the lowest. Each 
+interrupt source may further be masked by s o l h e  to 
+prevent the interrupt. The default configuration is all 
+interrupts masked. Software may mask all interrupt sources 
+in the event s o h e  wishes to use event polling. A separate 
+register is provided for this purpose, and when written to, 
+will clear the condition. 
+If the user wishes to perform VME interrupt 
+acknowledgment cycles spawned from the main processor, 
+the interrupts of interest would be unmasked and the board 
+ID registers configured to identify the board during interrupt 
+servicing cycles. The interrupt acknowledgment cycle 
+would automatically clear the pending interrupt when 
+serviced. This configuration is more typical of a flight 
+system and requires the least system resources to operate. 
+Interfaces 
+The TCM has a variety of input and output interfaces for 
+status and control capabilities. These interfaces are 
+accessible by both the micro-controller and the VME slave 
+interfaces (main processor). A 12-bit analog to digital 
+converter was necessary to determine thermistor and analog 
+input values to sufficient resolution. A combination of 
+single-ended and differential analog inputs provides the 
+TCM with a versatile analog input interface. DAC outputs 
+are also provided as a source for variable analog output 
+5-2194 
+control. Both digital inputs and outputs are provided for placed after the differential amplifier to maintain a sampled 
+discrete logic control functions. Pulse Width Modulation version of the analog inputs while the ADC is performing 
+(PWM) outputs provide yet another means of variable conversion. The last stage is comprised of an OP27 
+output control coupled with high precision. A military amplifier that allows for both gain and offset adjustments 
+standard 1553 interface is included to allow communications prior to reaching the ADC. 
+Differential Sense-The TCM will accept a differential input between the various sub-systems. 
+YO Interface Summary voltage. The TCM uses three OP400 amplifiers in a 
+The TCM contains a flexible interface capability. The 
+interfaces fall into three basic categories: analog YO, digital 
+U 0  and communication. A summary of the various 
+interfaces is as follows: 
+0 
+0 
+0 
+0 
+0 
+0 
+0 
+0 
+0 
+Thermistors 
+Analog Input 
+Differential Sense 
+Analog Output 
+Digital I/O 
+Optical Inputs 
+Pulse Width Modulation 
+1553 Communications 
+Serial Communications 
+12-bit, 50 External, 
+5 VME 
+lZbit, 16 differential1 
+45 single ended 
+Capture MET for given 
+trip-voltage input 
+8-bit, 3 channels 
+32 channels, byte 
+configured for I/O type 
+3 channels 
+3 output channels 
+1 redundant interface 
+BC or RT 
+1 channel, TTL levels 
+differential amplifier configuration to process the input. The 
+output of the differential amplifier is fed to the input of a 
+comparator for comparison against a separate fixed voltage 
+level to determine a trip voltage. Once the trip voltage has 
+been met, an interrupt is generated and the Mission Elapsed 
+Timer (MET) is captured for later retrieval. This provides a 
+mechanism by which the elapsed time can be correlated to 
+the differential voltage exceeding the specified trip voltage. 
+Analog Outputs-Three Digital to Analog Converter (DAC) 
+outputs are available on the TCM. The voltage output of the 
+DAC is based upon the duty cycle of the PWM output. The 
+PWM output is based upon an 8-bit value and thus the DAC 
+output is an 8-bit value. The PWM output feeds a RC filter 
+that provides an average voltage based on the PWM duty 
+cycle. The average voltage is further buffered and amplified 
+by Analog Devices OP400 amplifiers before reaching the 
+external connector. The OP400 can be short-circuited for an 
+indefinite time without damage to the amplifier. The RC 
+time constant of 20mS was chosen to minimize voltage 
+droop to within a single count over the duration of the PWM 
+period of 42.67~s. The RC filters time constant also defines 
+the amount of time for a full step voltage change, which for 
+an eight-bit count would result in approximately 5 time 
+constants or 1OOmS. 
+Of 50 e*erna1y vME’ On-board 
+and 4 Built In Test (BIT) thermistors are available on the 
+TCM. Each thermistor interface includes a 1OK Ohm 
+resistor in parallel for linearization. A single 1mA current 
+source is multiplexed with the selected thermistor to provide 
+thermistor excitation. The thermistor circuits utilize a 
+summation amplifier to level shift the thermistor voltage by 
+5 Volts to span the ADC range of +/-5V. The resulting 
+analog voltage is further realized as an analog input and 
+placed within the same path to the ADC for 12-bit resolution 
+ADC digitization. OP-27 amplifiers were used to provide 
+adequate slew rate to ensure a 1OV step to within 12-bit 
+accuracy in approximately 60uS. 
+Analog Inputs-A total of 16 differential or 45 single ended, 
++/-5V precision references, DACl-3, +5V and +/-12V 
+primary and redundant power sources and analog ground 
+analog inputs are available for conversion. The analog 
+voltage range can be hard-wire configured but must be the 
+same for all analog input sources. The TCM was originally 
+designed to accommodate a +I-5V voltage span. The analog 
+input design utilizes the Harris RH1840 radiation hardened 
+16 channel analog multiplexers to provide the necessary 
+switching of the various inputs into the Analog Devices 
+AD524 bipolar differential amplifier. Additional capabilities 
+exist for software configuring the first 15 analog inputs into 
+either single ended or differential operation. Various Harris 
+HS303RH radiation hardened analog switches provide the 
+necessary type conversion for this capability. A Harris 
+HS2420RH radiation hardened sample hold microcircuit is 
+Digital I/-Thirty-two digital U 0  points are provided by 
+the TCM. Each bank of 8 (4 total) can be s o h a r e  
+programmable for input or output operation. All digital U 0  
+is TTL or CMOS compatible. A National 54ACTQ16646 
+microcircuit is used for both input and output operation. A 
+series 200-Ohm resistor provides short circuit protection. 
+All external connectors are pulled high using a 100-KOhm 
+resistor to ensure unconnected inputs do not oscillate. The 
+digital YO may also drive National 54AC05 outputs for 
+open collector output use. 
+Mission Elapsed Timer-The TCM provides a 48-bit 
+mission elapsed timer (MET) accessible by the micro- 
+controller and the VME slave interface. The upper 24-bits 
+of the MET represent seconds and the lower 24-bits 
+represent fractions of one second. The MET may be loaded 
+by the CPU or VME Slave interface and the load may be 
+synchronized with an external pulse. The MET may also be 
+stored on an external event so timing information can be 
+gathered. 
+Optical Inputs-There are three optical inputs on the TCM. 
+The optical isolation is provided using a HP HCPL-6551 
+quad package microcircuit whose bandwidth is 9h4Hz with 
+an isolation of 1500Vdc. A 1-KOhm resistor is placed in 
+series with the voltage input of these devices to provide a 
+5-2195 
+current limit to the photo diode. The micro-controller’s 
+serial interface is optically protected through this dewice. 
+Pulse Width Modulation-Three PWM outputs are available 
+on the TCM. The PWM outputs are made available on an 
+external connector and also serve to drive the DAC outputs. 
+The PWM period is s o h a r e  configured for 42.6.7~s. For 
+each P W M  output, a single %bit quantity determines the 
+duty cycled. Each PWM output is buffered prior to reaching 
+the external connector using National 54ACT14 
+microcircuits with 200 Ohm in series resistors for short 
+circuit protection. 
+1553 Communications-A single UTMC 1553 SUMMIT 
+controller (69151DXE) is used for primary and redundant 
+1553 communication. The 1553 interface can be configured 
+for both short and long stub applications. 32K;bytes of 
+shared SRAM are available for the 1553 memory interface. 
+Special arbitration performed in the FPGA ensures proper 
+access to both the memory and the 1553 SUMMIT 
+controller. The SUMMIT controller may be software 
+configured for either Bus Controller (BC) or Remote 
+Terminal (RT) operation. 
+Serial Communications-The micro-controller provides an 
+internal serial UART that communicates at T[z 0-5V 
+levels. The configuration parameters such as baud rate, 
+parity, data bits and a mode of operation are software 
+configured. Two National 54ACT14 microcircuits are used 
+to buffer the transmitter output with 200 Ohm in series 
+resistor for short circuit protection. The receive input is 
+optically isolated. The external interface must provide the 
+appropriate level shifting if desired to communicatc: with +/- 
+12V levels for PC serial RS-232. 
+4. RADIATION CONSIDERATIONS 
+Total Ionizing Dose 
+Total Ionizing Dose (TID) is used to define the totid amount 
+of radiation the microcircuit can withstand before specified 
+criteria are not met. Cobalt 60 radiation sources are 
+generally used to test the microcircuits. As a result of TID, 
+the microcircuit might degrade from either a fictional 
+viewpoint or need additional power or both. Some 
+microcircuits might not function as specified in the data 
+sheet after 30 Krad TIDY but the degradation does riot pose a 
+significant effect as used in the design. The miJ0riQ of 
+microcircuits after exposure will have increased power 
+consumption. The dose rate to which the total dose is 
+accumulated cm sometimes change the behavior of the 
+microcircuit adding another level of uncertainty / complexity 
+to the analysis. Additional shielding can decrease the TID at 
+the microcircuit but is costly in terms of additional mass and 
+weight. TID is usually expressed in rad( Si) and a given dose 
+rate. Functional parameters and power consumption are 
+usually measured during various exposure levels. A 30 
+Krad TID baseline was used for TCM parts selection. 
+~ 
+5-2196 
+Single Event Latch-up 
+Single Event Latch-up (SEL) can be either destructive or 
+non-destructive. Destructive latch-up results in permanent 
+damage to the microcircuit and non-destructive latch up 
+usually requires the system to cycle power to clear the 
+latched condition. Both types pose a potential hazard to the 
+mission. Sometimes latch detection circuitry is placed in the 
+design to monitor and prevent the circuitry in question from 
+latch up and possibly perform automated power cycling 
+once detected. This approach requires additional circuits 
+resulting in additional mass, power and size. The best 
+approach is to design with microcircuits that have a 
+reasonably high SEL to minimize the chance of latch up 
+fiom occurring. The magnitude at which this condition 
+occurs is expressed as SEL whose units are MeV/(mg/cm2). 
+Parts selected for TCM had an SEL threshold of 100 MeV 
+or greater. 
+Single Event Upset 
+Single Event Upsets (SEU) is non-destructive and results 
+from an energetic particle hitting a memory node (flip-flop 
+or equivalent) within the microcircuit and upsetting the 
+device (toggling the stored state). Upsets can refer to the 
+flipping of memory bits or momentary upsets in the 
+operation of the microcircuit. Error Detection and 
+Correction (EDAC) circuitry can effectively detect and 
+correct single bit errors in memory devices and detect 
+double bit errors. Designers can also include triple vote 
+mechanisms intemal to Field Programmable Gate Array 
+(FPGA) designs, if deemed critical. These methods all 
+require additional circuitry, possibly resulting in additional 
+mass, weight and power. Where necessary, the TCM 
+implements both of these techniques. 
+5 .  PHYSICAL CHARACTERISTICS 
+Power 
+Power measurements provided in Table 1 were acquired 
+under the following conditions: 
+0 TClM is in its power up configuration state 
+0 MicTo-controller executing monitor instructions 
+0 NoVMEactivity 
+0 1553 communication is idle 
+Table 1. Power Measurements 
+Weight 
+The weight of the prototype TCM with frame attached was 
+1.48 lbs or 0.671 kg. Figure 1 is a view of the assembled 
+TCM. 
+Table 2: Radiation Hardened Microcircuit Selection 
+Parts Selection 
+Refer to Table 2 below for a list of parts selected for the 
+TCM. The listed microcircuits are suitable for space 
+qualifiedradiation harsh environments. 
+6. CONCLUSIONS 
+The TCM provides users with a powerful Level-0 capability 
+in a small-integrated package. The TCM may be integrated 
+in a variety of spacecraft C&DH architectures as either a 
+stand-alone unit or a backup processor. Coupled with the 
+Command Telemetry Module, the pair provides all of the 
+capabilities necessary to command and control a small 
+spacecraft. 
+7. ACRONYM TABLE 
+ADC 
+BC 
+CMOS 
+CTM 
+DAC 
+EDAC 
+EEPROM 
+FPGA 
+IR&D 
+PROM 
+Analog to Digital Converter 
+Bus Controller 
+Complementary Metal Oxide 
+Semiconductor 
+Command and Telemetry Module 
+Digital to Analog Converter 
+Error Detection and Correction 
+Electronically Erasable Programmable 
+Read Only Memory 
+Field Programmable Gate Array 
+Internal Research and Development 
+Programmable Read Only Memory 
+PWM 
+RT 
+SEL 
+SEU 
+SRAM 
+SWRI 
+TCM 
+TID 
+TTL 
+UART 
+UTMC 
+Pulse-Width Modulator 
+Remote Terminal 
+Single Event Latch-up 
+Single Event Upset 
+Static Random Access Memory 
+Southwest Research Institute 
+Telemetry Collection Module 
+Total Ionizing Dose 
+Transistor Transistor Logic 
+Universal Asynchronous Receiver 
+Transmitter 
+United Technologies Microelectronics 
+Center 
+REFERENCES 
+[ 11. The VMEbus Handbook, W. D. Peterson, VITA, 
+Scottsdale, Arizona, 1997. 
+Michael Epperly is a senior research engineer with 
+Southwest Research Institute. Prior to joining Southwest 
+Research, Mr. Epperly spent 13 years at Westinghouse 
+Electric Space Division, as a lead digital designer on the 
+Defense Meteorological Satellite Program. Since coming to 
+Swm, Mr. Epperly has managed the Central Instrument 
+Data Processor for the I M G E  satellite program, the New 
+Millennium Intelligent 1553 Controller for the DS-1 
+satellite program, the ESA/ROSETTA ROSNA Waveform 
+Capture System (WCS), as well as programs producing 
+5-2197 
+CCSDS command decoderddata formatters for QuikSCAT 
+and ICESat. Mr. Epperly received his bachelors in 
+electrical engineering from the University of Texas, and 
+masters degrees in electrical engineering, computer science, 
+and systems engineering from n e  Johns Hopkins 
+University. 
+Buddy Walls is a research engineer with Southwest 
+Research Institute. Prior to joining SwRI, Mr Walls worked 
+on low bit rate ‘speech coding as part of the recent 
+Department of ‘Defense Digital Voice Processing 
+Consortium study. Since joining SwN, he has developed 
+m t o m  hardware for the IMAGE, QuikSCAT, Cor.iolis and 
+ROSETTA satellite missions, as well as the CAPER 
+sounding rocket program. Mr. Walls is currently serving as 
+deputy program manager for SwRIs PCI / VMlC Bridge 
+eflort, as well as project manager for the PCI / VME 
+Assembly development. Mr. Walls has a Bachelors and 
+Masters degree in electrical engineering #om Oklahoma 
+State University. 
+5-2198 

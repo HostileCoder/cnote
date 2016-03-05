@@ -1,0 +1,307 @@
+An OC-768 Transponder for 40 and 43 Gb/s Short-Reach Links 
+John Paul Mattial, and the Big Bear Networks Technical Team 
+Big Bear Networks, Sunnyvale, California 
+ABSTRACT 
+This presentation will review several aspects of an OC- 
+768 transponder that has been successfully implemented for 
+data rates of 40 to 43 Gbis. The high-level operation is 
+described, as well as selected details of a chipset designed 
+specifically for this transponder. Measurements 
+demonstrate that the performance has significant built-in 
+margin and is suitable for long-term operation over short- 
+reach OC-768 fiber links. 
+INTRODUCTION 
+An optical transponder converts data between a serial 
+optical stream and several parallel electrical streams. There 
+is a continuing trend for optical-system manufacturers to 
+employ transponders in long-reach, intermediate-reach, and 
+short-reach links, for economy of both resources and cost. 
+This paper focuses on an optical transponder that 
+operates at data rates of approximately 40 Gh/s for short- 
+reach links (< 2 km), and also supports operation at 43 Gb/s 
+for applications including forward-error correction. (Unless 
+otherwise noted, we refer to these line rates collectively as 
+simply “40 Gbis” for brevity: Similarly, “10 Gb/s” and “2.5 
+Gbis” refer to the divide-by-4 and divide-by-I6 rates, 
+respectively.) Applications for the transponder often reside 
+inside of a central office, transferring data between two core 
+routers, or a router and the client-side of a long-haul system. 
+These applications require high standards of reliability over 
+the operating range. 
+This paper is organized as follows: a description of the 
+high-level transponder operation will be presented. Next, 
+we will discuss the choice of fabrication technology for the 
+ICs that were implemented. We will then present some of 
+the implementation details of both the transmitter and 
+receiver chains. 
+TRANSPONDER BLOCK DIAGRAM 
+The block diagram is shown in Fig. 1. Our summary of 
+the transponder operation begins with the transmit direction, 
+in which the 16:l SFI-5 MUX block takes the 16 lanes of 
+data as well as a deskew lane. The data and deskew lanes 
+have arbitrary phases relative to one another, and are 
+physically implemented as differential traces running at 2.5 
+Gbis. The deskew operation is built to conform to the 
+serdes-framer interface SFI-5 specification [ 11 and is 
+described in more detail below. After skew in the data is 
+removed, the data are multiplexed to 40 Ghis. This data 
+stream is fed to the modulator driver, which amplifies the 
+signal to a level suitable for an electro absorption modulator 
+(EAM). The EAM imposes the electrical data onto an 
+optical signal being fed from a CW laser, and the optical 
+data are sent out over fiber. 
+-: 
+In the receive direction, the photodiode converts thc-~ 
+optical signal into an electrical current, which is then 
+amplified by the transimpedance amplifier (TIA). The 
+signal is sent to the limiting amplifier (LA), at which point 
+the decision threshold is introduced. Clock and data 
+recovery (CDR) occurs, and the data are demultiplexed by 
+1:16. Finally, the deskewing information is generated, and it 
+is sent along with the 16 data lanes to the framer at 2.5 Ghis. 
+I 
+Fig. 1. Block diagram of the transponder. The right and 
+left sides schematically show the optical and parallel- 
+electrical interfaces, respectively. The input and output 
+electrical interfaces each have 16 lanes of data and 1 
+lane of deskew, the latter of which is labeled DSC. 
+We have designed and implemented a chipset for the 
+transponder in SiGe [2] that includes the following ICs: the 
+16:l SFI-5 clock-multiplier unit (CMU) and MUX, 
+transimpedance amplifier (TIA), limiting amplifier (LA), 
+and 1:16 SFI-5 CDR/DEMUX. The packaging for the 
+CMUMUX, modulator driver, LA and CDRDEMUX were 
+designed intemally as well. The remaining parts are 
+purchased commercially. 
+Our constituent components are engineered so that the 
+transponder operates with a case temperature range of -10 
+to 70 degrees C, as required by the applications. The overall 
+power dissipation is 25 W. 
+Both the 16:l MUX and the 1:16 DEMUX conform to 
+the SFI-5 specification, which simplifies the PC board 
+design by automatically removing the skew between 
+different 2.5 Gbis data lanes. The SFI-5 specification is 
+designed to correct for the skew that could be introduced 
+through 8 inches of FR4 as well as an electrical connector. 
+Substantial amounts of skew can arise on these lanes since 
+the propagation time for signals between the transponder to 
+the framer is significant compared to the bit time. The skew 
+can be cxacerbated by process and temperature variations in 
+the ICs as well. 
+’ Now with Tarkus Consulting. Email: jpmatlia@TarkusConsuIting.com 
+0-7803-7833-4/03/$17.00 02003 IEEE 27 2003 IEEE GaAs Digest 
+In order to correct for the skew, a 17th lane is added to 
+the 16 data lanes. The data on the 17th lane is constructed 
+from the other sixteen in the following manner: an 8 bytes 
+header, 8 bytes of information from lane IS, then lane 14, 
+and so on until 8 bytes of lane 0 have been sent. The pattern 
+‘m then repeats starting at the 8-byte header. 
+~ 
+TECHNOLOGY CHOICE: SiGe vs. InP 
+Choosing a fabrication technology was the first step for 
+assuring proper operation of the ICs that needed to be 
+designed. Meeting the product specifications required that 
+the decision include diverse criteria. The relative merits of 
+the two finalist technologies, SiGe and InP, are summarized 
+in Table 1. 
+If the speed of the technology were paramount, InP 
+would have been well positioned. At the time of the 
+investigation, production-level technologies for InP had f f s  
+nearing 200 GHz, and technologies in development were 
+close to 300 GHz. SiGe on the other hand was considerably 
+less, running at approximately 120 GHz in production-level 
+wafers, and 200 GHz in development. Since using ff as a 
+proxy for speed must he done with care, we verified the two 
+production-level technologies using test circuits (such as 2: 1 
+MUXs and 1:2 DEMUXs). The test results indicated that 
+SiGe would provide adequate performance. 
+Other criteria shown in Table 1 also weighed heavily. 
+Production-level technologies in InP had superior 
+performance in both speed and drive voltage, hut SiGe was 
+superior in the remaining criteria. For instance, the 
+minimum lithographic features were approximately 10 times 
+larger in InP, and InP had about 1/3 of the thermal 
+conductivity of SiGe; both of these factors contribute to 
+increased complexity of packaging for InP. The number of 
+transistors that is possible in a SiGe IC is orders of 
+magnitude larger than that of InP. The reliability of SiGe 
+subsumes a long history of silicon, with many applications 
+in consumer and nonconsumer fields. SiGe also leverages 
+the economies-of-scale of generic silicon. Finally, there is 
+an important nontechnological consideration for this 
+application: customer acceptance. To use the router 
+application as an example, SiGe electronics have easy 
+customer acceptance, whereas InP was considered an 
+“exotic” technology, and therefore adding to the perceived 
+risk of an overall project. For business reasons, this last 
+element weighed quite heavily for the acceptance of the end 
+product. 
+Table 1. Summary of InP vs. SiGe Attributes for 40 Gb/s 
+Transponder Electronics 
+TRANSMITTER CHAIN 
+The 1 6 1  SFI-5 CMUMUX is physically implemented as 
+2 ICs: a 16:4 SFI-5 MUX, and a 4:l CMUMUX. Detailed 
+descriptions of the circuits summarized here can be found in 
+[3] and [4]. 
+An abbreviated block diagram for the 2-die solution is 
+shown Fig. 2. Each of the ~ 1 7  lanes of incoming data is 
+buffered before the phase-and-data recovery (PDR) occurs. 
+The PDR is necessarily implemented on a lane-by-lane 
+basis, and is built using an Alexander phase detector (APD) 
+[SI in conjunction with a 1-of-16-phase selector. The phase 
+selector also includes a self-calibration loop, to insure proper 
+operation over process and temperature variation. 
+.~~~~ 
+DSC 
+- ,  
+. . .  . . .  . . .  . .  . 
+0 . .................................. 
+Y : 4 1  CMUlMUX ..................................................... 
+Fig. 2: Abbreviated block diagram of the 16:l SFI-5 
+CMUIMUX. The deskew lane is labeled as DSC. 
+Next, the data are demultiplexed by 1:8 in preparation for 
+a slower CMOS logic block. Since each of the 17 lanes is 
+entering the deskew block with an arbitrary phase, a circular 
+FIFO is used first in the logic block to convert from the 
+individual lane phases to the single-phase domain of the 
+remainder of the circuit. Moreover, the FIFO also absorbs 
+any PLL wander in the source framer. The CMOS block 
+then deskews the incoming data and sends it to the 128:4 
+MUX, which is composed of a binary tree of 2:1 selectors. 
+We note that all of the clocking for this IC is derived from a 
+5 GHz clock sent from the 4: 1 IC. 
+The four 10 Gb/s data outputs are sent synchronously to 
+the 4:l CMuiMUX IC. The 4:l MUX is also implemented 
+as a binary tree of selectors, and a block diagram of the final 
+selector stage is shown in Fig. 3(a). As seen by the circuit 
+schematic of the latch in Fig. 3(b), the digital-circuit 
+topology is fairly conventional, as are most of the highest- 
+speed digital circuits throughout the ICs presented here. 
+However, great care must be taken in their implementation 
+in order to achieve high performance. One example of this 
+is seen in the block diagram: Delay compensation insures 
+proper timing over process, temperature, and supply voltage 
+28 
+DELAY 
+CLK 
+CLKP 
+CLKN 
+DP 
+DN QP 
+QN 
+VB 
+(b) 
+Fig. 3: (a) Block diagram of the final 2:l selector 
+stage and (b) schematic of single latch in the 4 1  MUX. 
+variation. Finally, after the last 2 1  selector stage, the signal 
+is sent to a traveling-wave amplifier before going off-chip. 
+One of the input 10 Gb/s streams to the 4:l is also fed to a 
+delay-lock loop for the 5 GHz clock, so that the arriving 
+data are latched at the proper time. The 5 GHz clock is a 
+divided down version of a local 20 GHz clock that is 
+generated with an on-chip voltage-controlled oscillator 
+(VCO). The VCO uses a coupled-oscillator architecture and 
+is critical to providing a low-phase-noise sinusoid, so that 
+the overall SONET jitter-generation specification can be 
+met. Measurement of the output of this stage shows that it 
+mects both the wide- and high-band jitter specification. The 
+measured jitter in the output eye is 880 fs RMS. Also, by 
+using a fixed pattern, the VCO and selector circuitry are 
+measured to have approximately 175 fs ofRMS jitter. 
+After the MUX, the signal is sent to a multistage 
+modulator driver. These ICs are fabricated in GaAs and 
+wcre purchased externally since there are several 
+commercially available amplifiers. GaAs is well suited 
+because the transistor count of the circuits is not high, and 
+the circuits require large output swing and bandwidth over 
+the entire operating range. This block provides 3 Vpp 
+swing to the EAM. 
+There are many aspects to verifying the performance of 
+the transmit chain. One example is the optical output, 
+shown in Fig. 4. The figure also shows a SONET eye mask 
+that is expanded by 13%, demonstrating that there is suitable 
+margin in both the electronics and optics. 
+The performance of the SFI-5 circuitry is demonstrated 
+via a jitter-tolerance measurement. This result is seen in 
+Fig. 4: Optical output of the transponder at 43Gb/s. The 
+SONET eye mask is expanded by 13%, and has no 
+violations, demonstrating margin in the electronics and 
+optics. 
+1 10 100 1K 10K 
+JmER FREQUENCY (Hr )  
+Fig. 5: Plot of the jitter tolerance of the SFI-5 receiver in 
+the 16:4 MUX. Squares and diamonds represent data 
+taken by jittering the data-input and CMU reference- 
+clock signals, respectively. 
+Fig. 5 along with the jitter-tolerance specification for 
+comparison. The lower-frequency data in this plot were 
+taken by introducing sinusoidal jitter to the data-input 
+reference clock, which could only be jittered to 
+approximately 150 Hz due to test-hardware limitations. The 
+remainder was taken by jittering the 5 GHz reference to the 
+16:4. Examining the slow speed portion of the jitter- 
+tolerance performance shows that the IC can correct for 42 
+bits of static skew, well in excess of the specification. 
+5. RECEIVER CHAIN 
+The optical receiver uses a photodiode copackaged with 
+an intemally designed TIA [ 6 ] ,  which is fed to a LA [7]. 
+The decision threshold is introduced at the LA, which is 
+packaged separately in order to reduce switching noise from 
+the CDR. The front end of the photodiode, TIA, and LA 
+29 
+detectors, which are operating at half-rate and out of phase 
+from each other. As a consequence of this architecture, the 
+latches from the dual-APDs also yield the first 1:2 stage of 
+demultiplexing. These two outputs are then fed to a 2:16 
+demultiplexer, which is composed of a binary tree of 1:2 
+CHARGE LOOP 20GHz stages. Finally, the demultiplexed data are then sent to a 
+logic block that generates the SFI-5 deskew information. 
+Generation of the deskew information is significantly less 
+involved than recovery; however, all logic at high speeds 
+must be executed with care. Finally, the 16 data lanes and 
+deskew lane are sent off-chip and to the electrical connector 
+of the transponder. 
+As with the transmitter, there are many aspects to 
+verifying the performance of this chain. Figure 7 shows the 
+recovered clock (divided down to 672 MHz) for 43 Gb/s 
+operation as well as the output of the deskew lane. Another 
+CDWDEMUX. verification of the performance is found in the jitter- 
+tolerance measurement. For this purpose, we have 
+constructed a jitter-tolerance-measurement apparatus; the 
+results show that the receiver meets the ITU-specified jitter- 
+tolerance mask, as can be seen in Fig. 8. Finally, long-term 
+loop-back measurements demonstrate that all of the 
+electronics and optics have an intrinsic hit-error ratio that is 
+less than lo.'', with 97% confidence. 
+D15-W 
+~ i ~ ,  6, fireviated block diagram of the 1:16 
+-G.8251 TOLERANCE 
+W 
+n n 
+Fig. 7: CDR output for 43 Gbls operation: the recovered 
+clock (divided down to 672) and the deskew lane are 
+shown. 
+meet the sensitivity specification of 4 d B m  for a IO1* bit- 
+error ratio, with significant margin over the operating range. 
+The CDR is based on dual-APDs operating at half rate. 
+A detailed description of the circuit summarized here can be 
+found in [XI, and an abbreviated block diagram is shown in 
+Fig. 6. The recovery process begins by the lower loop 
+locking to a frequency provided by an off-chip reference. 
+This lock brings the on-chip VCO inside of the frequency 
+pull-in range of the phase detector formed by the upper 
+loop. The upper loop is based on two Alexander phase 
+0.001 0.01 0.1 1 l o  100 loo0 
+JITTER FREQUENCY (Wiz) 
+Fig. 8: Measured jitter tolerance at 40 Gbls for two CDRs. 
+The ITU-specified tolerance mask, G.8251, is also shown. 
+[I] Optical Intemetworking Forum, Implementation 
+i agreement OIF-SF15-OI .O, Jan. 29,2002. 
+[2] A. Joseph, etal., Proc. B U M ,  p. 143-146,2001, 
+[3] M. Xu, et al., Proc. ISSCC, p. 238,2003. 
+[4] D. Schaeffer, et al., Proc. ISSCC, p. 236,2003. 
+[ 5 ]  J. D. H. Alexander, Electron. Lett., p. 541, 1975. 
+[6]  S. Kudszus, etal.,  Proc MT, p. 1387,2003. 
+[7] A.Shahani, et al., unpublished. 
+[8] A. Ong, et al., Proc. ISSCC, p. 234,2003. 
+30 

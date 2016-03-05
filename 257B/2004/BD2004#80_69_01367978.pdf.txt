@@ -1,0 +1,1289 @@
+2004 IEEE Aerospace Conference Proceedings 
+ISAR Echoes Coherent Processing 
+and Imaging1•2 
+Xing Mengdao. LAN Jinqiao, BAO Zheng, Liao Guisheng 
+Key Laboratory of Radar Signal Processing 
+PO 374 Box, Key Laboratory for Radar Signal Processing, 
+Xidian University, Xi'an, Shaanxi, 710071, People's Republic of China 
+86-29-8202348 
+xmd@xidian.edu.cn 
+Abstract-The general approach to ISAR imaging is range­
+Doppler (RD) imaging approach. For this approach, the 
+translational motion compensation (TMC) is fustly obtained 
+by envelope alignment and autofocus, so the target can be 
+treated as a rotating target for the next processing. But in 
+this method, scatterers' migration through resolution cells 
+(MTRC) caused by rotational motion is neglected. However 
+in practice, MTRC exists with the improvement of 
+resolution or for big target. For MTRC compensation, a 
+keystone transfonnation in SAR is used in this paper. Before 
+keystone transfonnation, it is demanded that the raw data is 
+coherent, while in fact, the ISAR raw data is usually not. So 
+a coherent processing of raw data is proposed. In this paper, 
+the coherent processing of raw data is firstly done and the 
+next step is to correct MTRC. Finally a parameter estimation 
+method of multi-component amplitude modulation and 
+linear frequency modulation (AM-LFM) signal is proposed 
+to estimate the scatterers' instantaneous amplitudes and 
+frequencies, and the Range-Instantaneous Doppler (RID) 
+ISAR image is obtained. The effective of this algorithm is 
+testified by the processing of simulation data. 
+TABLE OF CONTENTS 
+I.INTRODUCTION . ..... ........... ............ ..... . ............................. I 
+2.THE COHERENT PROCESSING OF ISAR ECHOES ........... 2 
+3.RANGE MOVEMENT CORRECTION OF SCA TIERERS ...... 5 
+4.1SARAzIMUTH IMAGING .................... ........................... 7 
+5.BLOCK DIAGRAM: OF [SAR IMAGING ALGORITHM ....... 8 
+6.1SAR IMAGING OF SIMULATION DATA ................. ....... ... 9 
+7.CONCLUSION ................................... ...... ....... ................. . I I  
+ApPENDIX A. THE PREPROCESSING FOR THE ECHOES 
+OF MISSILE WITH HIGH SPEED ........ ................... ............ 11 
+ApPENDIX B. FAST REALIZATION OF KEYSTONE 
+TRANSFORMATION ................................. .......................... 13 
+REFERENCES ..................................................................... 14 
+1 0-7803-8155-6/04/$17.00 © 2004 IEEE 
+, IEEEAC paper #1041, Version 3, Updated September 30.2003 
+1. INTRODUCTION 
+Inverse synthetic aperture radar (lSAR) imaging has 
+received intensive attention during the past twenty years [1-
+32], due to its capability to produce high-resolution target 
+images over long ranges, under all weather conditions, day 
+and night. Fine range resolution is obtain by transmitting a 
+signal that has a wide frequency bandwidth. Doppler 
+frequecny resolution, and hence crossrange resolution, 
+inversely proportional to the coherent integration time 
+intervaUangle [1]. 
+In ISAR, the relative motion needed to obtain the synthetic 
+aperture is induced by the moving of target itself In general, 
+the relative radar/target motion can be decomposed into 
+translational motion and rotational motion with respect to a 
+reference point of the target. In order to obtain high 
+resolution ISAR imaging, the translational motion must 
+firstly be accurately compensated. 
+The translational motion compensation can usually be 
+divided into two steps: envelope alignment and autofocus. 
+There are a number of envelope alignment methods, such as, 
+amplitude correlation method [2], improved correlation 
+method called averaged correlation method [3], global range 
+alignment method [4], and so on. There are also a large 
+number of autofocus methods, such as, dominant scatterer 
+algorithm [5], maximum-likelihood algorithm [6], centroid 
+tracking algorithm [7], multiple PPP algorithm [8], PGA [9], 
+contrast optimization algorithm [10], weighted least square 
+algorithm [ 11], entropy minimization algorithm [12], 
+AUTOCLEAN algorithm [31], and so on. 
+After the translational motion is compensated, the target can 
+be treated as a rotating target with respect to a reference 
+point. The rotation of an ISAR target can roughly be 
+categorized into the following three classes [13]: (I)  
+unifonn planar rotation with a constant angular velocity, (2) 
+0-7803-8155-6/04/$17.00 ©2004 IEEE 1946 
+nonuniform planar rotation with a time variant angular 
+velocity, and (3) three dimensional (3-0) rotation with pitch, 
+roll and yaw. For class (I), the range- Doppler (RD) 
+algorithm or polar formation algorithm, can be used to form 
+a focused ISAR image [1, 2]. For class (2), interpolation or 
+time-frequency techniques can be used to fonn a focused 
+ISAR image [13, 14]. For class (3), if the target is small, or 
+the required resolution is low, the scatterers' migration 
+through resolution cells (MTRC) caused by rotational 
+motion can be ignored after range compression. The 
+Doppler frequency of each scatterer is time-varying because 
+the maneuvering target's rotational velocity and axis vary 
+with time. In this case, the time-frequency analysis is used to 
+obtain Range- Instantaneous Doppler (RIO) images, and 
+imaging problem became an instantaneous Doppler 
+parameter estimation problem. A number of estimation 
+methods or imaging methods have been proposed, such as, 
+joint time-frequency method [15, 16], Radon-Wigner 
+method [17], chirplet decomposition method (I8], Extended 
+Weighted RELAX method [13], Capon estimator method 
+[19], smoothed-pseudo-Wigner-Ville (SPWV) transform 
+method [20], 2-D ESPRlT method [25], short time Fourier 
+transform method [26], and so on. 
+If the target is big, such as big airplane, ship, or the required 
+resolution is very high such as 0.15m, the scatterers' MTRC 
+caused by rotational motion can not be ignored. In this 
+situation, the target's wavenumber support region can not be 
+approximated as a rectangular plane or box, the 
+wavenumber vectors with different spatial angles are not 
+parallel to each other, so range curvature does occur. 
+Because the rotation of a non-cooperative maneuvering 
+target is usually nonuniform and three-dimensional (pitch, 
+roll and yaw), moreover, the rotation is unknown and 
+difficult to estimate, the polar formation algorithm is not 
+suitable to overcome range curvature or MTRC caused by 
+rotational motion. 
+In SAR, R.P Perry and Soumekh et a1 [21-23] proposed 
+keystone transformation in the fast frequency-slow time 
+domain, which can correct moving target's linear range 
+migration caused by its linear constant velocity. In this paper 
+this keystone transformation is used in ISAR to correct 
+range movement (also called linear range migration, linear 
+MTRC) caused by target's rotational motion, but keystone 
+transformation is done in the fast time after range 
+dechirping-slow time domain. 
+Before keystone transformation, it is demanded that the 
+rawdata is coherent, while in fact, the ISAR rawdata is 
+usually not because it is difficult to tracking the target center 
+precisely. So a coherent processing of rawdata is proposed. 
+In this paper, the rawdata is phase compensated in time 
+domain and frequency domain to make it coherent. That is 
+to say, on the basis oflhe generallSAR translational motion 
+compensation which only the envelope alignment of rang 
+image and the auto focus are done, the data are multiplied by 
+the linear phase in rang image domain to make the envelope 
+of rawdata also align. After this coherent processing the 
+rawdata is completely coherent. In the next, the keystone 
+transformation is done to correct linear MTRC. 
+After range movement correction and range compression, a 
+parameter estimation method of multi-component amplitude 
+modulation and linear frequency modulation (AM-LFM) 
+signal is proposed to estimate the scalterers' instantaneous 
+amplitudes and frequencies, and the RID ISAR image is 
+obtained. The effective of this algorithm is testified by the 
+processing of simulation data. 
+For the more, an analysis of velocity compensation of 
+missile with high speed before coherent processing and a 
+fast realization of keystone transformation are made. The 
+one-dimension range image compensation can be done by 
+phase compensation in time and frequency domains after the 
+target's velocity has been estimated with map drift (MD) 
+method commonly used in SAR autofocus. For keystone 
+transformation, the fast realization is obtained by discrete 
+Fourier transform and inverse fast Fourier transform (DFT­
+lFFT). or scaled Fourier transform and inverse fast Fourier 
+transform (SFT-IFFT). 
+The remainder of this paper is outlined as follows. In 
+Section II, the method for the coherent processing of ISAR 
+echoes is investigated. In Section Ill, the scatterers' range 
+movement correction is discussed. In Section IV, the 
+azimuth imaging is presented. The whole algorithm block 
+diagram is shown in Section V. The experimental results 
+obtained by using simulation radar data are presented in 
+Section VI. Finally in Section VII, the conclusion is given. 
+In Appendix A, the preprocessing of the echoes of missile 
+with high speed is analyzed, and in Appendix B, the fast 
+realization of keystone transformation is introduced. 
+2. THE COHERENT PROCESSING OF ISAR 
+ECHOES 
+In theory, the coherent echoes of tSAR can be obtained by 
+coherent receiver. In practice, in order to increase transmit 
+power, and decrease the receiver bandwidth, the radar 
+usually transmits LFM signal, and then dechirps the 
+received signal. Suppose the transmitting signal is 
+s(i,lm) =rec{ :Jcxp�'2;r(f.:I+V·2 L (I) 
+h {I luJ::; + .  fr . ul w ere rect(u) = 
+II I' Ie 
+IS center equency, Tp IS P se o u >7 
+width, y is the frequency modulation rate, i '" I - mT is fast 
+time. m is an integral number, T is pulse repetition period, 
+1m = mT is slow time. 
+2 
+1947 
+Suppose the target have Q scatterers, the range of i th 
+scatterer from radar is Ri(tm) , the received data is sR(i,lm) , 
+• Q (i-2R;(lml!C) j2"
+(f,(,_2R'�lm) H+_2Ri�'m)r l 
+s.CI,lm) � I A;fCCI e (2) 
+j Tp 
+where c is the velocity oflight. Because the echoes of every 
+scatterers are independent, so the echoes sil�(i,lm) of i th 
+scatterer is firstly to be studied, that is 
+. (i _ 2R(r liC) j2if{- 2Ri;'ml)+t{r_ 2Rj;'mlr) 
+sm(t,tm) = Ajrect ;p m e (3) 
+where the range of this i th scatterer from radar is Ri(I",) . 
+The reference range of the receiver dechirp signal is got by 
+measuring range with low resolution echoed signal, so its 
+error is large. Suppose range measured is R.(tm) , then the 
+reference signal is 
+. i2+C
+(1 2Rs�m))H{t 2R,�rm)n 
+snf(t,lm;R.(tm» =e . 
+After dechirping, 
+Si(i,lm) = Sm(i,lm)' 8;.f (i,lm; Rs (1m)) 
+that is, 
+{i-2R(t )!e) 
+jjeRi�tmlr fR'�/m)r ) 
+= A "fee 'm . e "'l l Tp , 
+· e  
+. (J2RiUm) 2R,Uml1· J. (2Rj(tml�)) 
+-}21r r�-c---c r c -c- c 
+(4) 
+(5) 
+$.(t I ) = A.reet ' m . (i - 2R(1 )!C) 
+, , m , Tp (6) 
+4,,( . 2R.(lm) ]
+( ) .4"7"( 12 -i7 fc+y(I--c-) Ri(tm)-R.{tm) JZ Ri(lm)-R.(/mJ,-
+. e e (:: 
+From Eq.(6) above, the received differential frequency is 
+single and its value is proportional to the position of the 
+scatterer. So, the complicated target's echoes are just the 
+range images that take frequency as its parameter. If the 
+reference range R,(tm) is very close to the target, the 
+bandwidth of the received differential frequency signal can 
+be narrow. But From Eq.(6) above, because of the large 
+error of the target range R,(/",), moreover, the error is 
+random, so the raw received signal is not coherent. 
+The movement of ISAR target can be decomposed into 
+translational motion and rotational motion. It is needed to 
+compensate the translational motion firstly and the target 
+can be treated as a rotating target with respect to a reference 
+center point. Suppose there is a virtual center point of the 
+target 0, its distance from the radar at time t", is Ro(tm)' In 
+the following, a discussion of how to compensate the 
+received data to make it to be a rotating model is made. 
+In the translational motion compensation, it is generally 
+divided into two steps in practice, which are envelope 
+3 
+alignment and the initial phase correction. For the phase 
+correction, it is demanded that the phase error be smaller 
+than Ir/8 that is corresponding to sub-millimeter, which is 
+diffIcult to achieve in practice. But the influence of phase 
+error is a value modulo 2lr, so the initial phase correction is 
+suffIcient. For envelope alignment, it should be done with 
+actual time, but the demanded precision is low, so in this 
+paper, two-step compensations are made. 
+Suppose the reference range of the dechirping signal is 
+R,(tm) , it is needed to compensate to virtual reference range 
+RoUm) for dechirping, so a phase compensation function HI 
+is constructed as 
+HI (i.lm) = srej(i,tm; R,(tm»' s:f(i,lm;RD(t",») 
+",/2{fc(t 2K.�m))H{i_2K,�t"')n 
+, 
+. e -j2'{fc (t- 2RD:,m) H+ 2RO;'.,) r) 
+(7) 
+L " . 2R (I) h . I' l' . . Tp Tp et Is = t __ '_m_, t e SIgna s SamP mg regIOn IS [--.-j , 
+c 2 2 
+and RAso(rm)= R.(t",) - Ro(t",), Eq.(7) can be transformed to 
+(8) 
+After multiplying received signal by HI , the signal of the 
+i th scatterer that has been phase compensated is 
+s;(;, 1m) = $; (i,lm)H1 (i, 1m) 
+(i -2RClm)/c] -j7[fc+)'(i-2R'�'m)))(Ri(tm)-Ro(t.,)) = A·reet � e , Tp 
+j 4';'" r(R, I'm )-1<, Ilm))2 -(R,II,. )-1<. (1m )2) 
+'e ' 
+(i-2R.(1 )/c) -j�(f'+I'\;_2R'�f")))(R;I'm)-"o(lml) 
+= A.feet l m e , Tp 
+j 4-7 {[Ri(lml-RQ-(lm )]l-2fn, (t",)-RO(i/ta )][R.f (tm )-Rt)(tm )1} ·e ' 
+(9) 
+(10) 
+After the compensation of H\(i,f.,) , the phase of signal has 
+been compensated to be dechirping form where reference 
+range is Ro(tm). But the sampling region still exists error 
+because of the difference between R.(tm) and R,(tm) , so it 
+needs to compensate, The envelope movement 
+compensation can be achieved in frequency domain where 
+the second phase term in Eq.(lO) that is residual video phase 
+(RVP) can be compensated at the same time. In the 
+following, Fourier transform with respect to i, results in [8] 
+1948 
+According to term sinc(.) of Eq.(12), for the scatterer i 
+whose range is Ri{t",l, the range frequency It and range are 
+related by /; = - 2r (RjUm) -R. (1m)) • Substituting It and c 
+R/uo(tm) =R,(t",)-Ro(lm) into Eq.(l2) results in 
+Si(/;,Im) = A;Tpsinc( TpUi + 2�(Ri(tm) -Ro(t.,»)) 
+-/" fc(Ri(tm)-R.(t",J) /!..!! j�R/uo(t .. )fi 
+.tJ C .e r ce C 
+(13) 
+The phase compensation function of R VP and linear phase 
+IS 
+. lIftl 4" -)- -j-R/uo(tmJ!i H2(f;,t.,,)=e r'e c (14) 
+After compensation the H2, we obtain 
+s;Ui'/m) = S;(!;,I",}H1(!;,t",) 
+. ( r( 1) -j�fc(Ri('m)-Ro(lm)}. '" A;Tpsmc Tp(i'; + 2-;; R,(tml - R,,(i.,) 'e C 
+The inverse Fourier transform ofEq.(15) is 
+(' (io) -/Ir(/,;+i.l(R,(lmJ-R,,('m») Si f().lm) = Ajrecf T . e 
+C , 
+p 
+h . 2R (I ) were 10 =1 __ 0_"'_. 
+c 
+(IS) 
+(16) 
+After the above processing, it can be seen from Eq.(16) that 
+the echoed signal can be compensated to become the 
+coherent signal dechirped with virtual center point of the 
+target 0 . In order to achieve that, it needs to get accurate 
+Rt.>o(lm), while Ro.\"O(t",) is got from envelope alignment, and 
+there exists error which is generally smaller than 1/4 ceil in 
+envelope alignment, so in the following, an analysis of the 
+influence of the envelope error is made. Suppose the 
+estimated range difference of the dechirping reference point 
+between the target center point is R&.ro," (1m) , which obtained 
+by envelope al ignment . the realtionship of the estimated 
+Ro.soefT(tm) and the real RAso(lm) is 
+R,I,i'Oerr(t",) = RAso(tm)+R/J./T(lml , so the estimation error caused 
+by envelope alignment is Rll£rr(t",), Suppose the estimated 
+range of target center 0 is R.",(lm) , according to 
+Rl!.so(lm) � R,(t.,)-RD(tm) and RAs.err(tm) = R,Um)-R.«lm) , the 
+4 
+estimated range R .. (tm) is related to the actual Ro(tm) by 
+R..,(tm)""R.(tm)-R6.err(tm)' In the actual coherent processing, 
+R .. (lm) is used, so Eq.(l5) is  
+S,C!;,lm) = A;Tpsin{ TpCf; -I- 2; (R;Clm) -RoCtm) + R/J.rI'(tm)l) . 
+-j�!c{R'('m)-Ro(tm)} -j�!cRt.err(lm) 
+- e C • e C 
+(17) 
+In Eq.( 17) above, the initial phase term is the needed term, 
+the second phase term is the initial phase error term which is 
+caused by the envelope alignment error. The precision of 
+envelope alignment is generally smaller than 1/4 resolution 
+ceil, that is IRMrr(tmJI :<; L� and 428 
+411" 1r 1. J. . --fcRMITCtm) E -[---'-.�]mod(2Jr), because of Ie »B , thIS c 2 8 B 
+phase error may be so large that it needs further 
+compensation by auto focus. Suppose the phase 
+compensation function is 
+4,.. j-Rll£fT(rml!c '" ( 
+H3(!;,lml =e c e! err'm) (18) 
+where ¢err(tm) is phase error caused by autofocus. 
+After the compensation of the initial phase error by 
+multiplying SiC!;,lm) in Eq.(l7) by H3(J;,lm), the inverse 
+Fourier transform of it is 
+.(' )=A (�J' -/:(fc+�",,'(Ri(1m)-R .. (lm)} JV""('m) 3, tO€,t", Ireet e e .,  Tp (19) 
+h . .  2R (I) Tp Tp were 10< =1 -�E [-""2'""2] substituting 
+R",,(tm)=< Ro(tm) - R",rr(tm) into Eq.(l9) produces 
+. _ 
+{i - 2[RQ{lml �.R"",",.( t .. )ll 
+5i (1"",1",) - Airec . Tp (20) 
+-/" (fc+)ioel(Ri(t",J-RoU",I}-/" I'""",R",,,.(I .. )+ j;.".(rm) e C c 
+After coherent processing, the sampling region of signal is 
+i"", but in theory, the sampling region what it needs is i" , 
+thus the position error caused by sampling is 
+i",,-io = 2Ro.m(tm). Because of 2R",rr(lm) $�..!.�=....!....«...!..., c c c 4 28 4B F, 
+in this situation, the position error caused by sampling does 
+not exceed one sampling point. In Eq. (20), the third phase 
+411' • • h I' term --}toeR6.err(t .. ) IS t e mear phase term of envelope 
+c 
+alignment in data domain. Substituting chirp rate r =.!!.... • 
+Tp . 
+IR/J.",Umll :<;.!.� and toe E [_.::£., T p 1 into the third phase term 428 2 2 
+E!!.. iDe E [_E. !!..] where mostly all 2 Tp 4' 4 ' 
+1949 
+points are much smaller than !!... and can be neglected. 
+4 
+Finally, the comparison of Eq.(16) with Eq.(2D) shows that 
+the phase error term of actual coherent processing is 
+(2 I) 
+As it can be seen, if the errors of sampling position and 
+phase are been ignored, Eq.(20) is equivalence to Eq.(16). In 
+what follows, a further analysis of Eq.( 16) is made in the 
+discussion of the correction of range movement caused by 
+rotational motion and azimuth imaging. 
+The equation above is the coherent processing for the 
+targets, which meet the "stop-go" such as airplane modeL 
+For missile with high speed, this signal model is not 
+suitable. In this condition, the influence of the target's 
+velocity is also needed to take into account in the fast time 
+echoed signal of range. As a result, the coherent processing 
+of missile's signal is more complicated and it needs 
+preprocessing. The detail discussion of that is shown in 
+Appendix A. 
+3. RANGE MOVEMENT CORRECTION OF 
+SCATTERERS 
+The azimuth resolution of ISAR depends on the relatively 
+rotation of the target. The higher azimuth resolution is, the 
+larger the rotation angle needed. Suppose the center 
+frequency of the radar is IOGHz, bandwidth of the signal is 
+I GHz, the length of the wave is 1 = 0.03m , and thus the 
+range resolution is p, = 0.15m . If we let the azimuth 
+resolution Pa equal to the range resolution p" the rotation 
+angle needed is about t...8 = 1/2t...Pa = 0. 1177rad = 6.7418' . 
+Suppose the cross range width of the airplane is Ax =40m, 
+thus the maximum of MTRC is ilr=t...06x/2"" 0.1I77x20 
+= 2.354m , which is much larger than range resolution. 
+Therefore, the range movement caused by rotation must be 
+corrected when high resolution image of the target is needed. 
+y 
+Fig.1 3-D rotating target 
+After the coherent processing of echoes with respect to the 
+center point 0 , with the phase error neglected, the target is 
+corresponding to be a three-dimension (3-D) rotating target 
+shown in Fig.l. 
+Let RI(tm)-Ro(tm) = ,,(1m) , then for the i th scatterer, the range 
+at time 1m is [24] 
+Rj(lm)-Ro(rm)=r,(lm)=rj(O)_ !mvi/os(tm)dlm, (22) 
+where Vjlo, is the radial velocity of the i th scatterer after the 
+target transformed to rotating target. 
+"ilo, = V(I)' j = -(!".l(t)xi)(I»)' R , (23) 
+where R ;;:; [O,D,If . The range vector of the i th scatterer is 
+ri(lm) =[Xj(tm).Yi(rm),zj(tm)f. 
+The rotating vector of the target is OUm) , 
+O(tm) "'[w.(t.,)'�v(tm),w,(lm)f . 
+(24) 
+(25) 
+The velocity vector of the i th scatterer in Eq.(23) can be 
+simplify as 
+"ilos(tm) '" Wy (tm)xi (tm)-w,,(tm)Yi (tm) . 
+The Taylor series expansion of Vi lv, (t m ) is 
+(26) 
+(27) 
+The Taylor series expansion of (dy(tm) , (d,(t",) , xiUm) and 
+Yi(lm) which in Eq.(26) are 
+�v(tm) = �v(O)+Wv(O)lm +tiil/Q)I;' + .. . , 
+w,(tm) = wAO) 1- dI.(O)tm + tiil,(O)I;' 1-'" , 
+xi{lm) = Xi (0) + Xi (O)lm 1-tXi(O)I;'+"" 
+Yj(l.,)"' Yj(O) + .ri(O)t., +7Yi(O)I;' + .... 
+Substituting Eq.(27) �Eq.(31) into Eq.(26) results in 
+(28) 
+(29) 
+(30) 
+(31) 
+"jlo,(O) = Wy (O)Xj (0) - CtI.(O)y;(O), (32) 
+Vj/o,cO) = [Ctly(O)Xj(O) + Wy (O)Xi (0) - (dx(O)Yi(O) - Wx (O)Yj (0)] , (33) 
+;;1/os(O) = Wv(O}Xi(O} + Xi (O)iiI), (0) + Wv (O)Xi (0) -wx(O)Yj(O) - Yi(O)aix(O) - wx(O).r;(O)· (34) 
+Substitution of Eq.(27) into Eq.(22) gives 
+r,{lm) = r;(0)-1m [vi/",(O)+Vj/",(O)tm +;;jl",(O)I;' +· .. Jdfm 
+1 . 2 I.. 3 • (35) = Ii (0) -[Vllo, (O)t m +"2 Vi/o.< (O}t., +"6 Vitas (O)t., + ... J 
+Let I -; io and RI (t., ) - Ro (t m ) = ri (t m), substituting them into 
+Eq.(16), we get 
+{I 
+J 
+-/"'l!c+fr.Om) SJI,lm} = Alrcc - e C • 
+TpY 
+Substituting ri(tm) ofEq.(35) into Eq.(36) yieds 
+(36) 
+( } 48 (£ f> 1 . ) 2 1.. 0 3 J f -j-vc+ .lr, (O)-Vilos (Oltm-L'i/o.r(O tm-Vi[os-( )'m+··· s.(1 I ) = Meet _ c 2 6 r ' m r TpY 
+. (37) 
+Separately writting down the high order phase term, thus 
+S;(/,lm) is 
+5 
+1950 
+S;(j, I",) = Aifeet - e '  e C e ' '" , (38) 
+[ I ) -/�(fc+f)'i(O) /1I"{Je+f)vilo,(O)lm j��U ) 
+TpY 
+where the high order phase tenn is 
+(39) 
+The term cxp(j � .tvilo, (O)t",) in Eq.(38) represents a coupling 
+between range and Doppler due to linear range migration of 
+the scatterers. This range migration is the dominant bluring 
+mechanism that must be compensated in order to obtain a 
+high-resolution image of target [22]. 
+We can remove the linear range migration if we rescale the 
+time axis for each frequency by transformation. This is well-
+known keystone transformation that is to let I'm = if" + I) tm• 
+fc 
+After time scale transfonn, the scatterer's echoes are, 
+( I ) -/I!'(fc+flr;(oj j!!'-!cv'los(Oj'''' ''''( ) si(j,I'.,)=A/cct -T e C e C e'"" '" , pY 
+where the high order phase tenn of scatterer i is 
+�(rm)= 4; I,j;, + I{ rViJo,(O(U::f) 'm r + t;;"",(O(U::/) 'm r + ... ) 
+Thus, the received two dimension array signal is 
+� {f 
+J 
+-j�(jC+/j,i(") J�fc.il"'(")'m j'P�(' ) S(f,rm)=L..i Aire - e C' e e e ' m , 
+,,) Tpl 
+where 
+�j(rm) = 4Jr Ie (tvilDS (0) (I.':,) ,;, +i;;iI"'(O)�";' + ... J. C C (fc+f) 
+B 
+2 
+• • • • •  U
+B 
+-2" 
+f 
+(a) Data before time scale transform (Q) 
+(b) Data after time scale transform ( 0 ) and after 
+interpolation ( • ) 
+Fig.2 Two-dimension transformation of data 
+(40) 
+(41) 
+(42) 
+(43) 
+6 
+Here, a time scale transfonn I'm = I + Ie 1m is used, and the 
+Ie 
+data S(j, tm) is needed to transform to SU, Tm) , which can be 
+achieved by interpolative sampling over again, which is 
+shown in Fig.2. Appendix B will deal with how to realize 
+the interpolation with FFT. 
+The inverse Fourier transform in range direction (I domain) 
+results in 
+(44) 
+Now that linear MTRC is compensated, time-frequency 
+analysis for every range cell or dechirping processing is 
+made to let the echoes to be integrated coherently. 
+After range compression, all frequencies are compressed 
+upon I'" 0, however, for the time axis of 1=0, according 
+to 'm = f + fc 1m , I'm = 1m is got. It is that, it follows that time Ie 
+Tm is equal to time 1m • 
+At the same time, Eq.(43) is �i(Tm) =¢i(tm) , and it can 
+approximately be 
+(45) 
+After keystone transformation and range compression, the 
+i th scatterer's Doppler frequency at time tm = a is 
+(46) 
+in which Eq.(32) Vilw(O) = Wy (O)xi (0) - wx(O)y;(O) has been 
+used, 
+After the estimation of the Doppler frequency of the i th 
+scatterer at time 1m =0, Range-Instantaneous Doppler (RID) 
+image is obtained, 
+J(r,ld) '" :f:A;Sinc(2)'fp [r - ri(O)]) ' sinJ TJld - 21G vila/Ol]), (47) 
+1:;:1 C \ c 
+where 1;, is the azimuth coherent integration time. 
+In what is to follow, an analysis of the physical meaning of 
+the obtained image, that is the imaging plane, is made. At 
+time 0, according to Fig.l, the difference of the i th 
+scatterer's range and the center point 0 's range is 
+ri(O) =�xl(o)+ y;(O)+(Zj (O)+ Ro(0»2 -Ra(O) 
+2 2 (48) 
+=Zi(O)+ Xi (0)+ Yi (0) +"'�Zi(O) 2(z; (0) + Ro (0» 
+In which, suppose that the target is within a sphere with 
+radius of 30m, thus f;(0)i<30m, iYi(OH30m. For the more, 
+suppose Ro(O) > 1500m , then the second term of the expansion 
+in Eq.(48) is smaller than O.06m which is generally smaller 
+1951 
+than one resolution ceil (for radar whose bandwidth is lGHz, 
+the resolution is O.ISm), so it can be neglected. As a result, 
+/j(0) = ";(0) , which is just the z coordinate of the i th 
+scatterer in F ig.1. 
+In Eq.(46), the Doppler frequency of the j th scatterer at 
+time t m = 0 can be further written down as 
+2Jm;(0)+ol,(O) "".(0) m,(O) (49) k(O) � [ %;(0) J;(O)] , ,! J"';(O)+m;(O) �"';(o)+m;(o) 
+Constructing the projection plane T through z axis and 
+perpendicular to the effectual rotating component 
+fie = [wz(O),l'lIy(O),ot , at the same time constructing an axis w 
+through the center 0 and perpendicular to z axis, which is 
+just shown in Fig. I. Thus the coordinate of the projection 
+point of scatterer on the projection plane T is 
+_ (0,(0) wAO) . (SO) (Wj(O),zp(O»-( x;(O)- I . 
+y;(O),z;CO)) �w;(O}+ w�(O) \fw;(O} + m�(O) 
+By cross range scaling, multiplying fd j (0) in Eq.( 49) by 
+J , we can obtain that its result is equal to the 
+2�l'lI;(0) + �(O) 
+horizontal coordinate w, (0) of the scatterer on the projection 
+plane T. 
+The analysis above indicates that the RID image obtained of 
+the target is just the projection of the target's scatterers on 
+the Plane T, that is the imaging plane at time 1m =0 is just 
+the projection plane T that is perpendicular to the effectual 
+rotating component at time IHI = 0 , 
+4. ISAR AzIMUTH IMAGING 
+In section above, after the range compression of the target's 
+echoes, the signal has been compressed to a point in any 
+range direction, but because of the influence of �(l'm)' in 
+azimuth direction is it generally a nonstationary signal with 
+. modulation ratio which sometimes has more· higher order 
+term, Suppose there are P scatterers' signal in a range cell, 
+according to Eq.(44) and Eq.(45), each azimuth echo of this 
+range cell is 
+(51 ) 
+,,,,I 
+where fOj = fd, (0) , here it is written as fo; for 
+convenience in the following, Thus Eq,( 51) is 
+.f j2I1'UO,/m"'!'.uo,/l+.L1/o,/�+"·)+ j'PO; s(tm)= "",A,e 2 6 ) . 
+;�I 
+(S2) 
+Eq.(S2) also indicates that s(lm) is a nonstationary signal. 
+By the section above it can be concluded that it is needed to 
+7 
+get the Doppler frequency h, (0) , that is fo; of any scatterer 
+i at 1m = 0 , as a result, it needs to estimate fo; from Eq.(S2). 
+In Eq,{S2), the amplitudes of the echoes of every scatterer 
+i are equaivalent, which is impossible in practice, so we 
+substitute aj(tm) for A; • Therefore, the echoes of every 
+scatterer can be look as amplitude modulate-frequency 
+modulate (AM-FM) signal. To a certian extent, AM-FM 
+signal is approximate to amplitude modulate-linear 
+frequency modulate (AM-LFM) signal, or segment AM­
+LFM, thus signal of any range cell in Eq.(52) is the multi­
+component AM-LFM signal under the noise and clutter 
+condition. As a result, azimuth imaging is a parameter 
+estimate problem of multi-component AM-LFM signal 
+under the noise and clutter condition. 
+Therefore, for Eq.(S2), it can be expressed by using a AM­
+LFM signal model containing P components as 
+p )·2 .... ( '0' ..+, ... . /2 )+)'-( ) _ � ( ) "i m 2"'" m �; ( ) stm -L.a, 1m e +etm , 
+j=-l 
+(53) 
+where a;(lm) is a real variable, for constant amplitude LFM 
+signal, a;(lm) is a constant, in which we assume that the 
+amplitude variation is slow, and its spectrum is narrow. In 
+fact, s(lm) is linear superimpose of multi AM-LFM 
+component, so we only need to analysis one component, that 
+is 
+j2J1'uorm+1JJQI;')+ j'PO (54) s(lm) = a(lm)e +e(I",). 
+Fourier transform of s(lm) is 
+. . 2 
+F[s(lm)]=e}'POF[a(tm)]05(f - fo)®F[e-ill/Jotm]+F{e(lm)]. (55) 
+Because the variation of a(lm) is slow, F[aUm)] is a narrow 
+spectrum centered in zeros frequency. 5(f -10) is 
+modulation, which will shift the spectrum, F[ejll/Jot1 J is the 
+spectrum of chirp factor, the greater JI<J is, the wider 
+spectrum is . 
+It is usually to use dechirping method to estimate chirp rate 
+Po , that is multiply s(lm) by negative chirp rate factor 
+.1 2 
+e-J"2"'m , which results in 
+(56) 
+If K' "" 14J, then fr(t",) "" a(tm)t!2;rfO'm+j'PO , the Fourier transform 
+of frUm) is F[J,(lml] = "j'PO F[a(tm)] 0 o(f - fol , which is a 
+narrow spectrum around initial frequency fo ' From the 
+position of peak, fo is estimated, The search method of fa 
+is: change T(, and do FFT for each fy(tm) , and draw two 
+dimensional distribution along initial frequency fa and 
+chirp rate T( ,  and estimate two parameter fo and Po of 
+LFM component from the peak 
+1952 
+After estimated initial frequency fo and chirp rate 110 , 
+dechirping the original component and shift it to zero 
+frequency, then 
+(57) 
+By Fourier transfonn, the phase of zero frequency is the 
+estimation of 11\). By filter the narrow spectrum around zero 
+frequency, and do inverse Fourier transfonn, the estimation 
+of aUm) is obtained, in order to reduce sidelobe, taylor or 
+hamming window is needed when do Fourier transform and 
+after inverse Fourier transform it is needed to divide the 
+result by window coefficient 
+For multi-component AM-LFM signal, many peaks are 
+emerged in two dimensional distribution map (the initial 
+frequency f and chirp rate J( ), according to the position of 
+peaks, the estimation of fo, and 110; are obtained. At these 
+peaks' position, filter the narrow spectrum along the initial 
+frequency f direction, shift it to center, and do inverse 
+Fourier transform, the estimation of each component a;(lm) 
+is obtained. 
+Because the search of the initial frequency I and chirp rate 
+f( in two dimension is time consuming, especially the 
+higher precision of f( is, the greater search computation 
+load is, so we adopt "clean" method to estimate AM-LFM 
+component from great to small. 
+Suppose one range cell signal is composed by P AM-LFM 
+components and white noise, the slow time 1m ;,mT, where 
+T is pulse repetition period, so the signal s(tm) can be 
+written as, 
+s(mT)�±a,(mT)ej2"O;"'T+jn;<.;(",T)2+i""; +e(mT), m � I,···,M. (58) 
+i:::::L 
+The k th AM-LFM component's initial frequency 10k and 
+chirp rate )JOk are determined by the peak of two 
+dimensional distribution C(f.K) of sk_,(mT), 
+C(f,/C);, I{[sk_,(mT).e-J2J(Oimr-j...-(",rj2]}! M, (59) m=l 
+(60) 
+where ,._,(mT) is remainder signal obtained by subtracting 
+the estimated k-I AM-LFM components from original 
+signal, and where arg expresses to get the independent 
+variable of the fimction. The estimate of 10k and JIfl. can be 
+obtained quickly by utilizing FFT. 
+(jok.Atl;, max (max{FFT(sk_'(mT) e-j...-(mTh! M]}}. (61) 
+/C f 
+The initial phase is the phase of peak, 
+itt � L.C(iOk,i1<Jk) , 
+where L expresses to get angle. 
+(62) 
+8 
+Suppose Wink (f) ;, {ol fLk < II < fRk is filtering window of esc 
+k th component in frequency domain, and iRk > 0, I£k < 0 , 
+whose value is determined by spectral width of peak which 
+is shifted to zeros. The discrete fonn of Wink(f) can be 
+written as Wink(�)' The time variation amplitude is IFFT 
+module of filtered spectrum peak, which is shifted to zero 
+frequency, that is, 
+ak(mT) =IIFFT{Wind l:'rJ' FFT[Sk_' (mT) . e -J<I'k(mTj-jfuk lll. (63) 
+where <l>k(mT);, 2,(OkmT + jlr[Jo.(mT)2 . 
+After subtracting k th AM-LFM component in frequency 
+domain from St_, (mT), Sk (mT) is obtained, 
+s,(mT) = IFfTlIl- Win.(;;;'Jl' FFT[sk-\(mTje-J ... ( .. T)Jj ,.,,">(mT) (64) 
+Now, we give the step of AM-LFM signal's parameter 
+estimation method as follow: 
+Step(J): k=l, that is '-o(mT);,s(mTj, according to Eqs. (61), 
+(62) and (63) the first AM-LFM component's initial 
+frequency, chirp rate, initial phase and time variant 
+amplitude are estimated, then according to Eq'(64) the 
+reminder signal sl(mT) is obtained by subtracting this AM­
+LFM component from original signal. 
+Step(2): k= 2 ,  according to Eqs. (61), (62) and (63) the 
+second AM-LFM component's initial frequency, chirp rate, 
+initial phase and time variant amplitude are estimated, then 
+by subtracting the second AM-LFM component from s,(mT) 
+according to Eq.(64), the reminder signal s2(mT) is obtained. 
+Remaining steps: when k;,K, according to Eqs. (61), (62) 
+and (63), the K th AM-LFM component's parameters are 
+estimated, then subtracting the K th AM-LFM component 
+from sk_,(mT) according to Eq.(64), the remainder signal 
+sK(mT) is obtained. If the reminder signal's energy is small 
+enough, or K reaches the required component number P, 
+the iterative is end. 
+In the estimation processing, expect K needed searching, 
+else parameters only need simple FFT, getting maximum 
+and multiplying, so it is easy to realize and the computer 
+efficiency is high. Moreover, the parameter Pot can be 
+searched step by step to reduce computation load, each step 
+have eleven points, usually it only needs to search three or 
+four steps. 
+5. BLOCK DIAGRAM OF ISAR IMAGING 
+ALGORITHM 
+The key to the high-resolution imaging is that the range 
+1953 
+movement caused by rotational motion must be 
+compensated. When the target is rotating, the scatterers' 
+range movement rates are different, and keystone 
+transformation can correct range movement with different 
+rate at the same time, but it is demanded the signal before 
+keystone transformation be coherent. In this paper, ISAR 
+echoes is first to be make coherent with virtual center 0 of 
+the target, so that the target can be treated as a three� 
+dimensional rotating target that is rotating with respect to 
+the virtual center 0 , which is equivalent to the dechiping 
+referent point. Secondly, the range movement correction is 
+done. For the range alignment with virtual center 0 , many 
+envelope alignment algorithms, such as amplitude 
+correlation method and minimum entropy method, can be 
+used to estimate R6s. (t",) which is used in phase 
+compensation function HI and H2 • For autofocus, many 
+autofocus algorithms such as multiple PPP algorithm and 
+PGA can be used to estimate phase compensation function 
+H1 • In conventional translational motion compensation 
+(TMC), phase compensation function H2 does not do, that 
+is, rawdata envelopes usually need not to compensation. 
+After coherent processing with the virtual center 0 ,  for a 
+steadily flying target, the target's rotation is uniform and 
+planar, the received data is same to the data received by a 
+spotlight SAR in polar format, so the polar formation is 
+usually used. But for a non-cooperative target, the rotation is 
+usually nonuniform and three-dimensional (pitch, roll and 
+yaw), as a result, the polar format algorithm is not suitable. 
+For this situation, keystone transformation is used to correct 
+MTRC, certainly, it only correct linear range migration and 
+can not completely correct MTRC. After the range 
+compression, the time-frequency analysis is made to 
+estimate scatterers' instantaneous Doppler frequencies for 
+each range celL Finally, the target's RID image is obtained. 
+Fig.3 shows the block diagram of ISAR echoes coherent 
+processing and imaging algorithm for maneuvering target 
+high resolution ISAR processing. 
+Fig.3 Block diagram of ISAR echoes coherent processing 
+and imaging algorithm for maneuvering target high 
+resolution ISAR imaging 
+9 
+6. ISAR IMAGING OF SIMULATION DATA 
+In what follows, there is an example of ISAR imaging of 
+simulation data. It is a Yak-42 aircraft model with 330 
+scatterers shown in FigA, and its length, width and height is 
+separately 70m, 60m and 9m. The radar center frequency is 
+1 0GHz, bandwidth is 1 000Ivlliz, pulse repeat frequency 
+(PRF) is 50Hz, and the fast time (range direction) sample 
+rate is 40MHz. The model is flying in a curve, and the target 
+range is 400 kilometer. The range measuring precision is 
+±lOm, that is say, the position error of dechirp reference 
+signal and target center is within ±l Om. 
+.... r- � _  
+I I 
+FigA Three-dimensional view diagram of simulation Yak-
+42 aircraft 
+Fig.5(a) shows the simulation data in the range fast time and 
+azimuth slow time domain after receiver dechirping 
+processing. In Fig.5(b) the envelope of range image after 
+IFFT is shown, and because the referent signal is not 
+accurately tracking the target's center, the range image is 
+saltant and not align. Fig.5(c) shows the RD image obtain by 
+conventional motion compensation that is range image 
+envelope alignment and autofocus. As it is shown, the 
+scatterers are defocus seriously and form a slant line. It also 
+shows that the MTRC of scatterers exits and the azimuth 
+Doppler varies with time. After the range image envelope 
+alignment and autofocus, returning to the range fast time 
+and azimuth slow time domain, but without phase 
+compensation H2 , that is there is not the translational 
+motion correction of rawdata' s  envelope, keystone 
+transformation is done to correct the range movement, the 
+range image obtained in Fig.5(d). In this condition, because 
+the raw range is not completely coherent, keystone 
+interpolation is not accurate, and the envelope is disorder, 
+the ratio of signal to noise is low. Fig.5(e) shows the general 
+RD image of the Fig.( d) data. Fig.5Ct) is the RID image of 
+the Fig.(d) data using AM-FM signal parameter estimation 
+method proposed in the paper to estimate instantaneous 
+Doppler parameter. As it is shown, the image is bad. Fig.5(g) 
+is RD image after completely coherent processing but 
+without MTRC, this image is more better than Fig.5(c), but 
+defocus and range movement are still exist. Fig.5(h) is the 
+1954 
+range image after completely coherent processing and 
+keystone transformation. The range movement of the 
+scatterers is eliminated. Fig.5(i) is the RD image of Fig.5(h) 
+data, comparison of Fig.5(c) with Fig.5(i) shows that in 
+Fig.5(i) the scatterers are defocus only in cross range 
+direction, it can show than the range movement is eliminated 
+but the Doppler frequency is still time-variable. Fig.5(j) is 
+the RID image ofFig.5(h) after azimuth imaging using AM­
+LFM parameter estimation method, that is, Fig.5(i) is the 
+finally RID image result of simulation data with the block 
+diagram processing of FigJ. As we can see, the imaging 
+result is very good. 
+500 1000 1 500 
+Azimuth Pulse 
+Fig.5(a) Simulation data 
+500 1 000 1500 
+Azimuth Pulse 
+2000 
+2000 
+Fig.5(b) Range image of simulation data 
+1 400 
+'5 1 200 U 
+!.t § 1000 � 
+::LI���� __ �� __ �. ���� 
+600 800 1 000 1 200 1 400 
+Cross Range Cell 
+Fig.5(c) RD Image after conventional TMC 
+10  
+SOD 1 000 1500 2000 
+Azimuth Pulse 
+Fig.5(d) Range image after conventional TMC and keystone 
+transformation 
+1400 
+:n 1200 
+U 
+OJ 0() § 1000 
+;::z:: 
+800 
+600 
+1400 
+:n 1 200 U OJ OIl 
+a 1 000 
+;::z:: 
+800 
+600 
+1400 
+:n 1 200 U 
+!.t § 1 000 ;::z:: 
+800 
+600 
+6()0 800 1 000 1200 1400 
+Cross Range Cell 
+Fig.5(e) RD image of Fig.5(d) 
+600 800 1000 1 200 1400 
+Cross Range Cell 
+Fig.5(f) RID image of Fig.5(d) 
+600 800 1000 1 200 1400 
+Cross Range Cell 
+Fig.5(g) RD image after coherent processing but without 
+MTRC 
+1 955 
+500 1000 1 500 2000 
+Azimuth Pulse 
+Fig.5(h) Range image after coherent processing and 
+keystone transfonnation 
+1400 
+::;:; 1 200 
+U " � § 1000 
+� 
+800 
+600 
+1400 
+::;:; 1200 U 
+& § 1000 � 
+600 
+600 800 1000 1200 1400 
+Cross Range Cell 
+Fig.5(i) RD image ofFig.5(h) 
+600 800 1 000 1200 1400 
+Cross Range Cell 
+Fig.5G) RID image ofFig.5(h) 
+Fig.5 Coherent processing and imaging of ISAR simulation 
+data 
+7. CONCLUSION 
+In the ISAR imaging with high resolution, after the 
+translational motion compensation of the target, the MTRC 
+caused by rotational motion is also needed to be 
+compensation. Because the target is non-cooperative, and 
+the rotating angle of the target is nonuniform and three­
+dimensional, it is not suitable for the polar formation 
+algorithm. In this paper, keystone transformation proposed 
+in SAR imaging for moving target is used to correct the 
+linear range migration caused by rotation. 
+Because the dechirp referent point of the ISAR rawdata 
+varies with the movement of the target, moreover it is 
+difficult to precisely tracking the target center, the rawdata is 
+not coherent. 
+In this paper, the rawdata is separately phase compensated in 
+time domain and frequency domain to make it coherent, it is 
+that, on the basis of the general ISAR imaging in which only 
+the envelope alignment of rang image and the auto focus are 
+done, we multiply the data by the linear phase in rang image 
+domain to make the envelope of raw returned data also align, 
+so the raw returned data is completely coherent. In the next, 
+the keystone transformation is done to correct linear MTRC. 
+After the correction of MTRC and compression of range, a 
+parameter estimation method of multicomponent amplitude 
+modulation and linear frequency modulation(AM-LFM) 
+signal is fmally proposed to estimate the scatterer's 
+instantaneous amplitudes and frequencies, and the 
+instantaneous ISAR image is obtained. 
+ApPENDIX A. THE PREPROCESSING FOR THE 
+ECHOES OF MISSILE WITH HIGH SPEED 
+ISAR Echoes Coherent Processingfor Missile 
+Echoes of the target belongs to airplane class meet the "stop­
+go" model, while for the missile with high speed, the model 
+does not work, in this case, the velocity of the target is also 
+needed to take into acount in range fast time. 
+Suppose the transmitted signal of the radar is the same as the 
+analysis above, which is 
+, { i 
+J 
+j2"(fct+·V2) S(t,lm) '" ree - e , Tp 
+(
+A-I) 
+where recl(U) = {I Ilull::; t ' fc is center frequency , Tp is pulse o u > 1"  
+width, r is the frequency modulation rate, i = t -mT is fast 
+time, m is an integral number, T is repetition period, 
+1m '" mT is slow time. 
+Suppose the target have Q scatterers, the range of i th 
+scatterer from radar at time (/"" i) is Ri Ci, lm) = Ri (tm ) + VrJ , 
+the received data 
+(" ) -�A  { i - 2Ri(i. lml/C) j,+{ 
+2R;(�.'ml}t{_ZR;(�"mln (A
+_
+2) SR 1 .lm i.J ircc e ; Tp 
+where c is the velocity of light. Because the echoes of every 
+scatterers are independent, so the echo SiR(i,lm) of i th 
+scatterer is first be studied, it is 
+. J ( 'Ril','ml) l{  'Ril',{mlf) 
+s. (i I ) � A_(i - 2Ri (i,/ml/C )e JZ'·liC 
+' --, - +t ' --, - (A-3) 
+rlt • m 11��1 Tp 
+1 1  
+1 956 
+where the range of this scatterer from radar is R;(I, I", ) , 
+where, 
+<fJ1(i,t",) = -�{j;.[Ri(t.,) -R,(I.,)] c 
++ Ltc - r2lR;(I",) - Rs(t",ll c 
+VT r 2R, (I",) JVT 2R,(I",)) c c c 
+(A-6) 
+, 411' 2 48 VT , 2R,(I", ) 2 (A 8) <fJ,(t,I", ) = ?"" l1R,(tml-Rs(tm )] +-;:- r(-;:--I)Vr (I --c-l -
+where <1>[(;, 1., ) is initial phase, <P 2 (i,lm) is the tenn that 
+expresses the position information, <1>3 (i, I., ) is residual 
+video phase (RVP) and the second order phase term for fast 
+time, (Ie _ 2R;(tm l + 2(I _ VT j
+2R, (tm» )Vr in <1> 2 (;,1.,) produces 
+r c c c 
+the range image shift, 4� nR, (I,.}- R, (t., l]2 in 4> 3 (i,I., ) is the 
+c 
+term called RVP which does not effect the width of range 
+image, the second term 4;r y(r - 1)Vr (i _ 2R,(lm)i in c c c 
+<P J (i, 1m ) widens the spectrum of range image. 
+Let <1>[«(,1.,) ; 4>la(i,I .. )+ <IllcCi,lm) +<P1c(i,lml , where 
+• 48 <1>1.(1,1",) = --fAR;(I",) - R. (tm )] '  c 
+... (' ) _  4.IT U; VT 2R, (tm) lV 2R, (tm ) "'Ib 1 , lm - -- c -- y--- r --- , c c c c 
+... (' ) _  4.IT 21:Ri(tm)- R,(t.,)] v 2R, (I.,) "'le 1 , lm - - y  T --- ' C C C 
+Let <l>2(i, l.,) = 4>2aCi,lm) +<I>2b(i, lm) +  4>2« i,/.,) , where 
+, 4.IT • 2R, (I., ) 
+<l»Za(t , lm)  = --[Rj (lm ) - R, (I .. )]· y(1 ----) , c C 
+... (' ) _ 48 2[(R,(I., )-R.(I",)] " ",' 2R, (I.,) ) w2c I,t", - · "r · /\t - -- , C C C 
+(A-9) 
+(A-lO) 
+(A- l I )  
+(A-12) 
+(A-14) 
+where <l>2c(i, lm ) = <I>2cl (i'/m ) + 4>Zc2(i,lm ) , which can be 
+divided into two components, 
+..... (" ) _ 47t 2{(R,(lm) - Ro(t.,)] V 'Vf' 2R,(lm) "V2d r,tm - . 7 - /\.1 --- , c c C 
+tb (' ) 4.IT 2[(R,(tm}- Ro (tm}} ' VT ' y(I' _  2Rs(lm ») , 2c2 t , /", = c c C 
+(A- IS)  
+(A-l 6) 
+12  
+where <l>2c[ (i,lm) is the coupling phase o f  fast time and slow 
+time, and 4>2Ai,lm) is also coupling term, but its coupling 
+coefficient is only 2Vr/c times <l>2aCi,I", ) . Suppose 
+VT =4S00m/s, then 2Vr/c =0,0003 that is very small, so the 
+coupling term of <l>2dCi,lml can be neglected. The linear 
+phase of <l>2c2(1,1.,) brings about the range image shift. 
+Suppose the error of R""o (t", ) ", R,(t", ) - R,)t.,l is 60m, as the 
+same, Vr is 5000mls, the translational motion error of range 
+image is Rruo (lm ) Vr!C that is equal to O.OOlm, which can be 
+neglected. 
+Let <1>](1,1., ) = tb)o Ci, I", )+<I>3b Ci,lm l , where 
+, 4.IT 2 
+<l>3u (l , t"' ) = "'T nR; CI", ) - R, (tm l] , c 
+... (' ) _ 4;r ..,.. VT I)V (' 2R, (I"'
+) 2 ..... 3b t , tm � - f \,- - T ( ---- , C C C 
+(A�17) 
+(A-18) 
+The comparison of those with Eq.(6) shows that 'l'a(I,I.,} '" 
+IP]oCi'/m) + <l>za(i,lm l +  <I» a Ci, tm l is the whole phase term of 
+general target with low speed, 
+Firstly the initial phase cause by high speed target, the linear 
+phase that brings about range image shift and the second 
+order phase term that widen range image 's spectrum are 
+compensated, and the compensating function is constructed 
+as 
+(A- 1 9) 
+Suppose the referent dechirping range of rawdata is Rs (rm ) , 
+in order to compensate it to dechirped signal with referent 
+range Ra (tm )  , construct the phase compensating function Hl 
+as 
+H[(i,lm) '" exp{ - j � (fe + is)Rillo(t., ) - j :7 (Rillo(tm)f} (A-20) 
+After the compensation of raw signal with Hm](i,lm} and 
+H[ Ci,tm ) , FFT on 1, = i _
+2R
+,
+(l
+m
+) 
+can obtain 
+c 
+S, c!; ,lm) =A;Tpsinc(Tp(!; + 2� (R,(lm)- Ro (tm))} , (A-2 1 )  
+-j�/e(Ri(lm)-Ro(lml) /'_/2 /��R""o(I"')/i ,"<I>] (h' I ) e C - e  Y r e C e c t , m  
+(A-22) 
+1 957 
+into <I> Ie U; , 1m) in frequency domain 
+$lcCf.' , tm) = - 411" /;Vr 2R,Um) _ 411" lRt..o(rm) Vr 2R,(tm) . (A-23) I c ' c c c c 
+The compensating function to compensate the linear phase 
+in frequency domain is 
+HmZ U; ,lm ) = exp {-j<l>lc (/j ,lm l} . (A-24) 
+The following processing is the same as the steps behind 
+Eq,( l4) of the general target. In finally, Eq.( l 6) is obtained 
+by compensating. If $2d(i.fm) is not neglected, the signal 
+after coherent processing is 
+. ( i  
+J 
+-j�(fc+(1 2Y(t)j)io)(R,(I",J-Ro(lm)} 
+Si (to ,1m) = Aireel ...!!... • e e c , Tp (A-25) 
+While if $2c1(i.lm) is neglected, the signal after coherent 
+(A-26) 
+The Velocity Estimate Methodfor Missile 
+The analysis before shows that it is needed to know the 
+target's velocity in the beforehand coherent processing of 
+the missile with high speed, The target's velocity can be 
+obtained by two methods: I) estimate from dechirp 
+reference ranges; 2) estimate from the frequency modulation 
+rate of every range image whose spectrum has widened, that 
+is, estimate from <l>3h in Eq.(A- IS) (where $3h can 
+11 b . • 411" . 2R (I ) 2 ) genera y e approximate to <J>Jb(t,tmJ "' --rVr(/ __ ,_m_) , C c 
+and the frequency modulation rate of every range image can 
+be estimated by MD method that is usually used in SAR 
+imaging [8]. Suppose the unitary .frequency modulation rate 
+estimated from the m th range image is k(rn) , then the actual 
+frequency modulation rate is k,(rn) = k(m) . F/ , where F, is 
+range sampling rate, As a result, the estimated velocity of 
+the target at slow time 1m = mT is 
+V ( J "' - kr(m) · c  e lm • 4r 
+(A-27) 
+After the velocity estimation from all range images, it is 
+needed to use second order or third order curve-fitting to 
+promote the precision of velocity estimation 
+APPENDIX B. FAST REALlZATION OF KEYSTONE 
+TRANSFORMATION 
+Realize keystone transformation by DFT-IFFT 
+According to Eq.(3S), the radar received i th scatterer's 
+echoes after dechirping are 
+1 f 
+J 
+-j�Vc+ rhlOj j�Vc+ rivl/",(Oj'm el"V ) (B-1) Sj(f,lm) = Ajre -T e C e < m • pY 
+1 3  
+Because th scatterer's frequency is 
+'d = - 2'11")0) = _ 2/eVi/os (0) and the pulse width is wide, j ' i A. c t 
+Eq.(B- I )  can be simplified as, 
+(B-2) 
+Because in fact the received data is discrete, so Eq,(B-2) can 
+be written as, 
+Q 
+S( ) = '" A-. -j2Jr{Ji" j2;r(I+f/1I)/im n, m L.. Ie e . 
+i=1 
+4Jt 
+reO) B B - -)-/<,, (0) where Pi = -'-- , /; = /d.T , '1 =- ,  Ai = Ale e 
+c N J feN 
+(B-3) 
+DFT and IFFT transform is done on m coordinate, so 
+Eq.(B-3) can be rewritten as, 
+, � ..;;. -;--lm J-Im 
+I=�_l m=M-I . 2I1"(1+lJ'I) } .br '
+S(n,m ) = J= �  m
+:-'
+� 
+S(n. m)e M M ,  (B-4) 
+M M M - I , M M M - I  where 1 =[-21'[-21 + 1" " ' [-2-1 . m = [-21.[-2] + 1 . . . .  ' [-2-1 ' 
+and [J denotes rounding. 
+The transform of S(n.m) into S(n,m) just is keystone 
+transformation. 
+Realize Keystone Transformation by SFT-IFFT 
+Suppose s(t) and s(f) is the Fourier pair, the 
+FFr 
+set). �s(f) . 
+The time scaled Fourier transform is, 
+SJoT f '2J1i1" set). �s(b,f) '" s(t)!-) " dt .  
+This transform can be realized with chirps 
+Fig,B- \ '  For Eq,(B-6), b = (l + '1n) , 
+(B-S) . 
+(B-6) 
+as shown in 
+The realization of Eq,(B-4) using SFT-IFFT transform as 
+shown in Fig.B-2, where time domain convolution is 
+realized by frequency domain multiplication. 
+S(t)�S(f) 
+e-ftrb" e-jrrbf' 
+Fig.B- I  Time scaled Fourier transform realized with chirps 
+Fig.B-2 The diagram of keystone interpolation realized by 
+SFT-IFFT 
+1 958 
+ACKNOWLEDGMENTS 
+The authors would like to thank the reviewers for their 
+helpful comments and suggestions. 
+This work is partially supported by the National Science 
+Foundation of China (No.6983 1 04o) and the National 
+Defense Pre-research Foundation of China (No:4 1 3070502, 
+No:4o 106020 10 I ). 
+REFERENCES 
+[I]  [Aushennan, D.A.. Kozma, A., Walker, J.L., Jones, H. 
+M., and Poggio, E.C. "Developments in radar imaging," 
+IEEE Transaction on A erospace and Electronic System, 
+Vo1.20, No.4, pp.363-40o, July 1 984 
+[2] C .  C. Chen ,H. C. Andrews, "Target-Mot ion-Induced 
+Radar Imaging," IEEE Transactions on Aerospace and 
+Electronic System, Vo1. l6, No I .  pp.2-14, 1 980 
+[3] Delisle, G.y', and Wu.H. ( 1 994) "Moving target 
+imaging and trajectory computation using ISAR," IEEE 
+Transaction on Aerospace and Electronic Systems, 
+Vo1.30, No.3, pp. 887-889, July 1994 
+[4] Junfeng Wang; Kasilingam, D. "Global range alignment 
+for ISAR", Aerospace and Electronic Systems, IEEE 
+Transactions on, Volume: 39 Issue: 1 , Jan 2003, 
+Page(s): 3 5 1  -357. 
+[5] Steinberg, B .D, "Microwave imaging of aircraft," 
+Proceedings of IEEE, Vo1.76, No. 1 2, pp . 1578- 1592, 
+1988. 
+[6] Berizzi, F.; Pinelli, G., "Maximum-likelihood ISAR 
+image autofocusing technique based on instantaneous 
+frequency estimation," Radar, Sonar and Navigation, 
+lEE Proceedings - , Vol. I 44, No. 5 ,  pp. 284 -292, Oct 
+1 997. 
+[7] Hoh, T., Sueda, H., and Watanabe, Y, "Motion 
+compensation for ISAR via centroid tracking,
+.
+" IEEE 
+Trans. on AES, Vo1.32. No.3, pp. 1 1 9 1 - 1 1 97,  July 1996. 
+[8] Walter G. Carrara, Ron S. Goodman, Ronald M. 
+Majewski , Spotlight Synthetic Aperture Radar Signal 
+Processing Algorithms, Artech House Boston. London, 
+1995, pp423-424. 
+[9] Wahl,D.E. ,  P.H.Eichel, D.C.Ghiglia, and C.V.Jakowatz, 
+Jr., "Phase Gradient Autofocus�A Robust Tool for 
+High Resolution SAR Phase Correction," IEEE 
+Transaction on Aerospace and Electronic Systems, 
+Vo1.30, No.3 , July 1 994, pp.827-83 . 
+( 1 0] Berizzi, and Cosini, G., "Autofocusing of inverse 
+synthetic aperture radar images using contrast 
+optimization," IEEE Trans AES. VoL32 ,  No.3, July 
+1996, pp. 1 185-1 1 9 1 .  
+[ 1 1] Wei Ye, Tat Soon Yeo, Zheng Bao, " Weighted least­
+squares estimation of phase errors for SARIISAR 
+autofocus, " IEEE Transaction on Geoscience and 
+Remote Sensing, Vo!.37, No.5. 1 999. 
+[ 12] Li, Xi, Liu Guosui, Jinlin Ni, "Autofocusing of ISAR 
+Images Based on Entropy Minimization," IEEE Trans. 
+AES, Vo1.35, No.4, pp. 1 240-125 1 ,  1 999. 
+[13] Zheng Bao, Changyin Sun, Mengdao Xing, "Time-
+1 4  
+frequency approaches to ISAR imaging of maneuvering 
+targets and their limitations," IEEE Trans. AES, Vo1.37, 
+No.3, pp. 1 09 1 - 1 099, Jul 200 1 .  
+[ 14] Genyuan wang, Zheng Baa and Xiaobing Sun, "Inverse 
+synthetic aperture radar imaging of nonuniforrnIy 
+rotating targets," Optical Engineering, VoL35 ,No. l O, 
+Oct. 1996, pp.3007-30 1 1  
+[ 15 ]  Trintinalia, L.C.; Hao Ling, "Joint time-frequency ISAR 
+using adaptive processing," IEEE Transactions on 
+Antennas and Propagation, VoL45, No.2, Feb. 1 997, 
+pp.22 1 -227. 
+[ 1 6] V.C.Chen, S.Qian, "Joint time-frequency analysis for 
+radar range Doppler imaging," IEEE Transaction on 
+Aerospace and Electronic System, Vo1.34, No.2, 1998, 
+pp486-499. 
+[ 1 7] Bao Zheng, Wang Genyuan, Luo Lin, " Inverse 
+Synthetic Aperture Radar Imaging of Maneuvering 
+Targets," Optical Engineering, Vol.37, No.5, pp1 5 82-
+1 588, May 1998. 
+[ 18] Genyuan Wang, Zheng Bao, "Inverse synthetic aperture 
+radar imaging of maneuvering targets based on chirp let 
+decomposition, " Optical Engineering, Vo13 8, No.9, 
+September 1999. 
+[ 19] Zheng-She Liu; Renbiao Wu; Jian Li, "Complex ISAR 
+imaging of maneuvering targets via the Capon 
+estimator, " IEEE Transactions on Signal Processing, 
+Vo1.47, No.5, May 1 999, pp. l262 -127 1 .  
+[20] Berizzi, F.; Mese, E.n.; Diani, M.; Martorella, M., 
+"High-resolution ISAR imaging of maneuvering targets 
+by means of the range instantaneous Doppler technique: 
+modeling and performance analysis," IEEE Transactions 
+on Image Processing, Vol. l O, No. 12, Dec.200 1 ,  
+pp. 1 880 - 1 890. 
+[2 1 ] Soumekh, M., Fourier array imaging, Englewood 
+Cliffs, NJ: Prentice- Hall, 1 994, ch.5.  
+[22] R.P.Perry, R.C.Dipietro, RL.Fante., "SAR Imaging of 
+Moving Targets," IEEE Trans. AES, Vo1.35, No. 1 ,  
+pp. l 88-199, 1 999. 
+[23] Robert.C. DiPietro, Ronald L. Fante, Richard P. Perry., 
+"Multi-Resolution FOPEN SAR Image Formation, " Part 
+of the SPfE Conference on Algorithms for Synthetic 
+Aperture Radar Imagery VI, SPIE VoL 372 1 ,  pp58-67. 
+[24] Chen, V,C., Lipps, R., "ISAR imaging of small craft 
+with roll, pitch and yaw analysis," Radar Conference, 
+2000. The Record of the IEEE 2000 International, 2000. 
+Page(s): 493 -498, 
+[25] Yuanxun Wang, Hao Ling, "A frequency-aspect 
+extrapolation algorithm for ISAR image simulation 
+based on two-dimensional ESPRIT,"  IEEE Transactions 
+on Geoscience and Remote Sensing, Vo1.38, No .4 , Part: 
+I , July 2000, pp. 1 743 -1748. 
+[26] Xiang-Gen Xia, Genyuan Wang, Chen, V.C, 
+"Quantitative SNR analysis for ISAR imaging using 
+joint time-frequency analysis-Short time Fourier 
+transfonn." IEEE Transactions on Aerospace and 
+Electronic Systems, Vo1 .38 , No.2, April 2002, pp.649 -
+659. 
+[27] Qun Zhang, Tat Soon Yeo, Du, G., "ISAR imaging in 
+1959 
+strong ground clutter using a new stepped-frequency 
+signal fonnat," IEEE Transactions on Geoscience and 
+Remote Sensing, Volume: 41 Issue : 5 , May 2003, 
+Page(s): 948 -952 
+Liao Guisheng was born in Guangxi, China, in 1975. He 
+[28] 1. Li, R. Wu, and V.C. Chen, "Robust autofocus 
+algorithm for ISAR imaging of moving targets," IEEE 
+Transactions on Aerospace and Electronic Systems, VoL 
+37, No. 3, pp. 1 056-1069, July 200 1 .  
+[29] D.L. Wehner, High Resolution Radar, Norwood, 
+MA:Artech House 1 987. 
+BIOGRAPHY 
+Xing Mengdao was born in Zhejiang, China, in 1 975. He 
+Lan Jinqiao 
+I . 
+fl:h '  
+received the B.S and Ph.D in 1997 and 
+2002, respectively, from Xidian 
+University. Now he is an associate 
+professor in Key Laboratory for Radar 
+Signal Processing (RSP) of Xidian 
+University. His research interests are 
+radar imaging, target recognition and 
+over the horizon radar (OTHR) signal 
+processing. 
+was born in Guangxi, China, in 1 978. She 
+- "  received the B.S in 200 1 from Xidian 
+University. Now she is master of 
+Xi dian University. Her research 
+interests are radar imaging, system 
+simulation and radar signal processing. 
+f//;l� : 
+Bao Zheng was born in Jiangsu, China in 1927. He 
+graduated from the Communication 
+Engineering Institute of China in 1953.  
+Currently, he is  a professor at Xidian 
+University and a member of the 
+Chinese Academy of Sciences. He has 
+authored or co-authored 6 books and 
+published over 300 papers. Now, his 
+research fields are space-time adaptive 
+processing (ST AP), radar imaging 
+(SARIISAR), automatic target 
+recognition (ATR), over-the-horizon radar (OTHR) signal 
+processing, passive coherent location (PCL). 
+1 5  
+1960 
+received the M.S and Ph.D in 1990 
+and 1992, respectively, from Xidian 
+University. Now he is a professor in 
+Key Laboratory for Radar Signal 
+Processing (RSP) of Xi dian 
+University. His research interests are 
+array signal processing, space-time 
+adaptive proce-ssing (ST AP), 
+communication signal processing and 
+so on. 

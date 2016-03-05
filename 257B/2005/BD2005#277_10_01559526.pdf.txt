@@ -1,0 +1,592 @@
+ 1
+Fault Protection for the Space Interferometry Mission 
+ 
+Scott Peer 
+Jet Propulsion Laboratory, California Insitute of Technology 
+4800 Oak Grove Drive 
+Pasadena, CA  91109 
+scott.peer@jpl.nasa.gov, 818-393-3702 
+ 
+Abstract—The Space Interferometry Mission (SIM) is a 
+deep space mission with limited ground contact and 
+challenging instrument fault protection requirements. Some 
+faults that could occur on SIM have symptoms only visible 
+in the scientific measurements, and many of the 
+observations that SIM makes must be repeated to be useful. 
+Because of this, SIM needs to be very reliable. 
+We are addressing these challenges by combining several 
+approaches. The use of redundancy in the instrument will be 
+important in making the complex instrument with several 
+dozen actuators reliable. Probabilistic Risk Assessment and 
+reliability modeling are being performed to study the most 
+cost effective areas for redundancy. Ground checks are 
+important parts of the fault detection approach. Special 
+approaches such as “flood mode” (providing large amounts 
+of raw data) and diagnostic data dumps are also 
+important.1,2 
+TABLE OF CONTENTS 
+1. INTRODUCTION......................................................1 
+2. SIM OVERVIEW ....................................................1 
+3. SIM FAULT PROTECTION PHILOSOPHY...............2 
+4. SIM FAULT PROTECTION ARCHITECTURE..........2 
+5. RELIABILITY MODELING ......................................3 
+6. FAULT PROTECTION REQUIREMENTS ..................4 
+7. FAULT PROTECTION DESIGN ................................6 
+8. CONCLUSIONS .......................................................6 
+9. ACKNOWLEDGEMENT ...........................................6 
+REFERENCES .............................................................7 
+BIOGRAPHIES ............................................................7 
+1. INTRODUCTION 
+The Space Interferometry Mission (SIM) presents unique 
+challenges for fault protection design.  Although it is a deep 
+space mission with limited weekly ground contact, SIM has 
+less fault protection autonomy than interplanetary missions 
+because it does not have an orbit insertion or other rigorous 
+time critical event. At the same time, SIM has challenging 
+instrument fault protection requirements because some 
+faults that could occur on SIM will be extremely subtle, 
+resulting in symptoms only visible in the scientific 
+measurements. SIM is a single instrument mission, and so 
+                                                          
+1 0-7803-8870-4/05/$20.00© 2005 IEEE 
+2 IEEEAC paper #1066, Version 5, November 30, 2004 
+an instrument failure equates to mission failure.   
+SIM has a higher level of ground segment involvement in 
+fault protection due to the unusually high level of precision 
+required for the instrument to function and large amount of 
+ground analysis. The most precise measurements required 
+are the relative path length measurements needed to 
+determine the angles between stars; these measurements 
+need picometer (one thousandth of a nanometer) precision. 
+Picometer level processing occurs only on the ground, and 
+so subtle faults at that level will only be detectable on the 
+ground. Examples include undetected environmental 
+changes (such as temperature) or slight degradation in 
+sensors. 
+This paper presents an overview of the mission and the fault 
+protection philosophy and architecture. It then discusses the 
+application of Probabilistic Risk Assessment and reliability 
+modeling to SIM, and concludes with key fault protection 
+requirements and design.   
+2. SIM OVERVIEW 
+The Space Interferometry Mission (SIM) is a space based 
+optical interferometer to be launched in 2010. Its purpose is 
+to make astrometric measurements with unprecedented 
+accuracy. By making repeated measurements of star 
+positions over the course of years, SIM will be able to 
+determine characteristics of orbiting planets. It is a deep 
+space mission (helio-centric orbit) with ground contact three 
+times per week.  The primary SIM mission is 5 years, 
+preceded by a 6 month In Orbit Checkout (IOC), and 
+followed by an additional 5 year extended mission if 
+possible. 
+The instrument consists of three simultaneously operated 
+Michelson stellar interferometers and an external metrology 
+truss that monitors the relative orientations of the three 
+baselines. At any time, one interferometer is dedicated to 
+taking science data while the other two act as guide 
+interferometers to determine the orientation of the baseline 
+of the science interferometer as it changes over time. Using 
+“bright” stars, these guide interferometers act as a high 
+precision star tracker for the science interferometer. A 
+fourth interferometer is provided as a redundant “spare” 
+interferometer. The interferometer baseline is 10 meters. 
+ 2
+Each interferometer is composed of elements from the four 
+instrument subsystems: Collector (COL), Combiner (CMB), 
+(external) Metrology (MET), and Real Time Control (RTC). 
+The RTC coordinates the activities of the other subsystems 
+and performs the data and command handling functions for 
+the instrument as a whole.  
+ 
+Additional information about SIM may be found at the SIM 
+website [1]. 
+3. SIM FAULT PROTECTION PHILOSOPHY  
+The primary goal of SIM Fault Protection (FP) is to 
+maintain the health and safety of the Flight Segment (the 
+spacecraft and the instrument) despite conditions induced 
+by hardware failures, environmental effects or ground 
+system errors (erroneous commanding). This goal is limited 
+by physical and programmatic constraints which limit the 
+design and implementation of the Flight Segment and the 
+fault protection system. As a result, mission critical single-
+point failures may exist in the Flight Segment, but are 
+identified and approved as accepted risk.  
+The health and safety of the Flight Segment takes priority 
+over any planned observations, and the fault protection 
+system will take autonomous action to cancel activities 
+which threaten the Flight Segment. 
+SIM has less fault protection autonomy than interplanetary 
+missions because it does not have an orbit insertion or other 
+rigorous time critical event, and the distance from earth is 
+limited. Flight Segment FP autonomy is limited to: what is 
+needed to protect the flight segment from damage, ensure 
+time-critical activities, and areas that could reduce life cycle 
+costs (such as RTC low level re-tries). SIM has more 
+instrument fault protection than most missions because it is 
+a single instrument mission, and so an instrument failure 
+equates to mission failure.  SIM has a high level of mission 
+system involvement in fault protection due to the unusually 
+high level of precision required for the instrument to 
+function and large amount of ground analysis.  
+In the interest of cost reduction, Flight Segment Fault 
+Protection will have considerable commonality and 
+inheritance from Northrop-Grumman Space Technology 
+(NGST) missions including the James Web Space 
+Telescope, Chandra X-Ray Observatory, and Earth 
+Observing Satellites. NGST is building the spacecraft bus, 
+while JPL is building the instrument. Chandra is in an 
+elliptical high earth orbit, and so the light time is less than 
+SIM.  Chandra is required to operate with 72 hour 
+transmission outages, and has uplink/downlink schedules 
+similar to SIM.  These similarities indicate that in general, 
+the fault protection legacy for Chandra spacecraft functions 
+will tend to be adequate for SIM. Chandra has 1 telescope 
+system that feeds 4 science instruments.  Because SIM has 
+only one instrument, the level of acceptable risk will tend to 
+be lower. This results in higher instrument FP autonomy 
+requirements for SIM. 
+4. SIM FAULT PROTECTION ARCHITECTURE 
+The Flight Segment Fault Protection functions reside 
+primarily in two different Flight Segment elements: the 
+spacecraft subsystem (containing command and data 
+handling, power, thermal, and attitude control functions) 
+and the Real Time Controller (RTC) Electronics which 
+control the science instrument functions.  A spacecraft 
+failure could result in loss-of-vehicle and therefore loss-of-
+mission.  An instrument failure could result in loss-of-
+mission because SIM is a single instrument mission.  The 
+over-riding FP responsibility resides in the spacecraft 
+subsystem where the Flight Segment health and safety is 
+ensured.  The spacecraft can safe (transition to a non-
+observing mode that reduces risk) both the spacecraft and 
+instrument.   
+An architectural view describes the entire system from a 
+single perspective. Several views are used to describe the 
+SIM FP architecture. In combination these views provide a 
+thorough description of the architecture.  
+The classification view classifies the SIM FP algorithms. 
+The view defines the proper sets and subsets of FP 
+algorithms and the terminology used to refer to each set. 
+This view shows the following decomposition: 
+Project Fault Protection 
+Flight Segment FP 
+Safing, undervoltage, data bus, etc. 
+Spacecraft FP 
+Attitude control 
+Communications (RF) 
+Data management 
+Payload interface 
+Power 
+Thermal 
+Instrument FP 
+CMB, COL, MET, RTC, interfaces 
+Mission System 
+Fault recovery, contingencies, flight rules 
+Science Operations System 
+Instrument engineering 
+Subtle fault detection 
+The dataflow view provides a two-fold purpose. First, it 
+defines the elements which make up the system. Second, it 
+defines the information transferred between the system 
+elements. This information is based upon the set of 
+scenarios which cover the range of desired post-fault 
+behavior. The fault protection dataflow is: 
+ 3
+CMB, COL, MET 
+Generate FP data 
+Send FP data to RTC 
+RTC 
+Generates FP data 
+Detects CMB, COL, MET, RTC faults 
+Detects loss of spacecraft communication 
+Sends FP data to spacecraft 
+Sends Fault Log to spacecraft 
+Sends mode and engineering data to spacecraft 
+Sends commands to CMB, COL, MET 
+Spacecraft 
+Detects attitude, comm, power, thermal faults 
+Detects RTC faults (especially interface) 
+Sends commands to RTC 
+Sends data and fault logs to ground 
+Behavioral views capture the desired system behavior in 
+state diagrams, also known as state charts. These state 
+diagrams are based on the desired behavior as captured in 
+the fault protection scenarios, and describe system states 
+and transitions. Behavioral view state charts are formatted 
+to be compliant with the statecharts defined in the Unified 
+Modeling Language (UML 2.0). For the SIM fault 
+protection architecture, separate statecharts are developed 
+for the instrument and the spacecraft (SCS) systems. The 
+instrument FP behavior is captured in Figure 1, Instrument 
+FP Statechart. The designators such as “IF/Ta” (which 
+stands for “interfering - target”) refer to the fault severity 
+levels described below in the design section of this paper. 
+ 
+5. RELIABILITY MODELING 
+Many of the observations that SIM makes must be repeated 
+to be scientifically useful, for example determining planet 
+masses and orbits from star wobble. Because of this, SIM 
+needs to be very reliable, for lost observations would 
+diminish the value of observations already made. A 2.5 year 
+SIM mission would have less than half the value of a 5 year 
+SIM mission.  
+The use of redundancy and Fault Containment Regions 
+(FCR) in the instrument will be important in making the 
+complex instrument with several dozen actuators reliable. 
+However, due to tight cost constraints, redundancy needs to 
+be applied judiciously. Probabilistic Risk Assessment 
+(PRA) is being used to determine areas that will benefit the 
+most from increased reliability or redundancy. However, 
+PRA tools have difficulty with some of the complex areas 
+of the instrument, and so instrument-specific reliability 
+modeling is also being performed in addition. 
+Probabilistic Risk Assessment was originally used by the 
+nuclear power industry; the first major result in the US was 
+a reactor safety study in 1975. The first use in a space 
+application was in 1987 for the space shuttle. However, 
+adaptation of the technique to robotic spacecraft was first 
+accomplished for the current Mars Exploration Rovers 
+On
+Off Normal
+Non-Observing
+Observing
+Safe
+Cmd
+Cmd or
+IF/Ti fault
+Cmd or
+IF/Inst, or
+IF/FS fault
+Cmd
+- waiting for cmds
+- all cmds accepted
+- executing tile obs
+- all cmds accepted
+- ‘safe’ all actuators
+- waiting for cmds
+- reject obs cmds
+Cmd,
+IF/Inst
+fault or
+IF/FS
+fault
+Cmd
+Cmd, NI fault
+or IF/Ta fault
+Figure 1 - Instrument FP Statechart 
+ 4
+(MER). The MER PRA effort uncovered several 
+unexpected risk areas and contributed significantly to the 
+success of the mission. The MER success provides 
+motivation for applying PRA to SIM. 
+The SIM PRA utilizes fault trees, event trees, and 
+component and assembly reliability statistics to compute 
+reliability at several levels. The event trees provide the 
+temporal framework for the analysis, tying in component 
+lifetimes and failure rates with the impact to the mission of 
+failures at different times. Fault trees provide coverage of 
+the failure modes and components. By varying the inputs to 
+the PRA tool (SAPHIRE), sensitivity analyses may be 
+performed [3]. The PRA can produce mission success 
+probability as well, but due to the great variability of the 
+inputs this typically is not accurate enough to be useful.  
+While SAPHIRE is a powerful computational tool, it lacks 
+the flexibility to model some of the more complex aspects 
+of the SIM instrument. Also, it can be unwieldy to operate, 
+and so sensitivity analysis can be tedious. For this reason, 
+additional reliability modeling is performed for parts of the 
+instrument. 
+In 2002 reliability modeling was performed for the previous 
+configuration of the SIM instrument [2]. This included both 
+a closed-form solution and Excel-based Monte Carlo 
+models. Because the SIM instrument design has changed 
+significantly, these models are no longer valid for SIM. The 
+main utility of the closed-form solution was to validate the 
+Excel-based model, and its maintenance is costly, and so it 
+will not be updated for the new SIM configuration. 
+However, the Excel-based model is more flexible and easy 
+to update, and so we are currently working to update it. 
+A key area to explore with the Excel model is the metrology 
+subsystem (MET). Although MET in not involved in the 
+starlight, it is a critical subsystem that provides solutions to 
+the distances between optical elements of the active 
+interferometers. It provides absolute distance between two 
+corner cube fiducials with an accuracy of a few microns, 
+and measures relative changes in path length with an 
+accuracy of approximately 20 picometers (which relates 
+directly to instrument accuracy). The metrology subsystem 
+consists of the metrology fiducials (optical corner cubes at 
+the ends of the interferometers), the beam launchers, and the 
+metrology sources. The fiducials serve as the endpoints of 
+the measurement system. The beam launchers inject laser 
+light to measure the distance between the fiducials. Finally, 
+the metrology source generates the optical signal and 
+frequency offsets necessary to derive the metrology phase 
+differences. The arrangement of the optical elements is 
+called the truss.  
+A MET gauge is comprised of the (shared) metrology laser 
+source, a fiber distribution network, a beam launcher 
+(heterodyne interferometer that performs the metrology 
+between the fiducial points), fiducials (cornercubes that 
+represent the baseline endpoints between which the 
+launchers measure distance), and electronics that sense and 
+measure the optical phase measured by each gauge. There 
+are 15 links between the 6 fiducials. There are 19 gauges, 
+providing full redundancy for the 4 most critical links. In 
+addition, an adequate truss solution may be formed when 
+one or more of the less critical links is performing below 
+required levels (for example when the electronic 
+components degrade and have an increased noise level). 
+However, the different gauges have different leverage on 
+the truss solution, and that leverage changes based on the 
+performance of the other gauges. Modeling the relationship 
+between component reliability and degradation and the 
+ability of MET to meet its performance requirements is a 
+difficult task that is in progress.  
+6. FAULT PROTECTION REQUIREMENTS 
+SIM FP requirements are intended to capture the high level 
+essence and critical details of the system without 
+constraining the design or implementation. In the grey areas 
+that lie between requirements and design, items are typically 
+moved to the design rather than requirements. This 
+approach is intended to reduce the effort needed to maintain 
+the requirements and to allow as much flexibility as possible 
+in achieving ambitious goals. 
+SIM fault protection requirements include many of the 
+generic requirements found on other deep space missions. 
+Recovery after any single fault is required, with a short list 
+of exemptions. Fault protection is always active, parameters 
+are modifiable, and telemetry and logs provide visibility 
+into detections and responses. Testbeds must include fault 
+injection capabilities. 
+Some SIM fault protection requirements are not particularly 
+unusual but do influence the design significantly. For 
+example, by requiring actuators to accept any value without 
+being damaged, instrument fault protection is simplified 
+significantly and the criticality of instrument control 
+software is reduced. The number of actuators and circuits is 
+about seven times that of other complex missions such as 
+the Mars Exploration Rovers, and so requirements are 
+levied that limit the frequency and impact of upsets (for 
+example due to environmental effects) that may occur.  
+The SIM instrument has an exceptional level of control of 
+the overall activities of the flight segment. RTC essentially 
+schedules when observations begin and end, and therefore 
+controls the timing of 90% of the mission. The main 
+spacecraft activities that need to be scheduled are 
+calibrations, reaction wheel unloading, and downlinks. 
+Because of this, traditional approaches to faults, in which 
+the spacecraft either ignores an instrument fault or goes to 
+safe mode are not ideal for SIM. On Spitzer Space 
+Telescope there is a mode called "standby mode" which is 
+ 5
+used for the case where there is a problem that is not health 
+threatening but does not allow further observations. In the 
+Spitzer architecture this results in killing the slave sequence 
+(science observations are run by the spacecraft to a great 
+extent), leaving the master (top level) sequence active (but 
+pretty much just clocking along), and the flight software 
+does some minimal telecom reconfiguration to sit and wait 
+for directions. However, the NGST architectures tend to be 
+quite different: they are much more sequence oriented than 
+Spitzer or Cassini (which tend to have more capability built 
+into the flight software). So our solution is to include the 
+equivalent of standby mode as part of Flight Segment 
+observation mode, under the presumption that the needed 
+hooks exist or will be created to allow minimal spacecraft 
+disruption (in particular, thermal stabilization can be a 
+lengthy process). It is likely that observation/standby mode 
+will allow an easier transition to a flood or diagnostic mode 
+or back to science observations.   
+Flood Mode 
+A unique element of SIM is the flood mode, in which raw 
+instrument data is captured at high rates. The command to 
+the instrument initiated from the ground, although a goal is 
+to have onboard triggers from RTC Fault Protection initiate 
+flood mode (this could be difficult due to the telemetry 
+architecture). Flood mode makes all raw instrument data 
+available to support ground analysis of the instrument 
+performance, and is used when regular telemetry or 
+telemetry with adjusted schedules is not adequate for 
+analyzing a problem. 
+Possible causes that would initiate flood mode include:  
+   Instrument fault detected 
+   Unexpected behavior 
+   Interferometer loses guide star fringe lock 
+Normal science observations do not occur while taking 
+flood mode data (it disrupts science) but engineering data 
+continues normally.  It would be desirable to have science 
+continue during flood mode, but processor throughput 
+limitations preclude this. 
+The flood mode data contents are fixed in RTC flight 
+software and include: 
+Raw instrument science data: full sample rate, not 
+averaged/reduced nor compressed 
+RTC intermediate variables 
+Instrument engineering telemetry 
+Instrument engineering data (such as encoders that 
+aren’t in telemetry) 
+SCS Engineering data  
+Flood mode has a selectable duration of up to 2 minutes, 
+which is limited by memory capacity and throughput of 
+processors and busses. The full raw data rate is about 7 
+Mbits/sec, so it requires about 0.85 Gbits of Solid State 
+Recorder (SSR) storage per 2 minute collection. Data is 
+stored in the SSR science partition. 
+RTC buffers the data in RAM and then sends it to SCS.  
+RTC intends to allocate over 100Mbytes of RAM (among 
+its several processors) for flood and diagnostic modes, 
+which should be barely adequate. 
+After flood mode is complete, science observations may 
+resume autonomously. 
+“Deluxe” Flood Mode is an extension to flood mode that 
+would have the capability to function exactly the same as 
+basic flood mode, but as a goal would have significant 
+enhancements. It is considered to be a goal, rather than a 
+requirement, because it may be too expensive to implement 
+by RTC (requiring too much memory and/or CPU, as well 
+as impacting the RTC software design). In addition to the 
+basic flood mode features, deluxe flood mode would look 
+forward and backward in time: 
+Allow the start time to precede the 
+trigger/command time by up to 1 minute.  This 
+would require continuous buffering of all raw 
+science data (which may not be feasible within cost 
+constraints). 
+Data collection would be for n seconds before the 
+command and m seconds after the command. 
+If implemented, deluxe flood mode would probably make 
+both basic flood mode and Ring Buffer Instrument 
+Diagnostic unnecessary. Additional goals include on-the-fly 
+data selection and onboard triggering. 
+Diagnostic Ring Buffer 
+It is expected that some instrument faults that result in 
+observation failures will be intermittent and difficult to 
+catch. A key tool used to gather data related to these faults 
+is the diagnostic ring buffer. This buffer runs continuously 
+capturing instrument data. Upon command from the ground 
+or onboard FP the contents of the ring buffer are captured 
+and sent to the ground for analysis. 
+The diagnostic data snapshot is sent to SSR when 
+commanded from the ground or onboard FP. Data flow into 
+the ring buffer will be interrupted during the snapshot data 
+transfer due to processing limitations. 
+Uses could include fault diagnosis as well as support for 
+trend analysis (periodic detailed data snapshots). It is non-
+disruptive to science observation in general, but might 
+interfere with science output for the current target. 
+ 6
+The detailed data contents are not yet determined, but will 
+be fixed in RTC software, and will include a mix of raw 
+data and selected processed data. Data items could be 
+placed in buffer at varying rates. Examples include: CCD 
+raw output, encoder values, and actuator commands. 
+The data quantity is about 10 Mbits, and the duration (oldest 
+data in buffer) is about 30 seconds (depending on data 
+chosen). 
+Ground Segment 
+Ground checks such as data quality, data consistency (i.e. 
+fitting residuals), data re-processing using different 
+combinations of external metrology gauges, measuring the 
+same star field at different orientations, and periodic star 
+observations are important parts of the fault detection 
+approach. Subtle faults, such as degrading components that 
+effect picometer level performance, can only be detected 
+during ground analysis. It will be critical for these checks to 
+be run in a timely manner to minimize the loss of data after 
+faults occur, and to prevent the use of invalid data.  
+7. FAULT PROTECTION DESIGN 
+Onboard fault monitors classify their detections according 
+to severity. The severity levels are defined around the 
+science structure of the mission, in which observatory time 
+is divided into tiles that last about an hour and include a 
+group of observations of targets in a particular part of the 
+sky that can be viewed without slewing the spacecraft. The 
+severity levels in increasing severity are: 
+non-interfering: unexpected behavior; doesn't affect current 
+observation or target; no health concern  
+interfering - target: interrupts/invalidates current target/data; 
+instrument goes to next target; no health concern  
+interfering - tile: interrupts/invalidates the current tile; 
+instrument goes to next tile; no health concern 
+interfering - instrument: prevents instrument operation; 
+instrument goes to faulted-idle mode, safe or off; no health 
+concern 
+interfering - safe: immediate danger to instrument or 
+spacecraft; instrument goes to safe or off 
+Responses to fault monitors are captured in a 
+monitor/response table. A sample entry follows: 
+Monitor Name: Inst_Damage 
+Monitor Description: Risk of immediate instrument damage 
+Response Name: Inst_Off + Inst_Safe (when detected by 
+RTC) 
+Response Severity: interfering - safe (severe)   
+Response Action: Power off instrument immediately 
+Example Fault: RTC Heartbeat loss, RTC/SCS interface 
+failure    
+Fault tree entries are cross referenced to fault monitors to 
+help ensure complete coverage. An example follows: 
+Fault Tree: RTC 
+Fault Description: Error in MET truss solution too 
+large 
+Detection Location: RTC 
+Monitor Name: Inst_Data_Bad_Obs 
+Response Name (duplicated here): Inst_Diag + 
+Inst_Abort_Obs 
+Multi-level redundancy is employed due to the exceptional 
+complexity of the instrument. For example, there are 
+redundant interferometers, and in each there are additional 
+redundant components such as piezo actuators. 
+8. CONCLUSIONS 
+The SIM fault protection approach is intended to be a cost 
+effective approach to providing high reliability for a very 
+complex space observatory. On-board autonomous fault 
+protection is used to reduce hardware damage resulting 
+from faults, while ground based detection is used for subtle 
+instrument faults. The use of multi-level redundancy in the 
+instrument will be important in making the complex 
+instrument with several dozen actuators reliable. Reliability 
+modeling, including Probabilistic Risk Assessment, is being 
+performed to study the most cost effective areas to make 
+redundant. Ground checks such as data consistency (i.e. 
+fitting residuals), data re-processing using different 
+combinations of external metrology gauges, and periodic 
+star observations are important parts of the fault detection 
+approach. Special approaches such as “flood mode” 
+(providing large amounts of raw data) and diagnostic data 
+dumps are also important. The combination of approaches 
+and techniques create a fairly complex SIM FP with the 
+goal of helping to enable a successful mission with 5 years 
+of observations. 
+9. ACKNOWLEDGEMENT 
+The research described in this paper was carried out at the 
+Jet Propulsion Laboratory, California Institute of 
+Technology, under a contract with the National Aeronautics 
+and Space Administration. 
+ 7
+REFERENCES  
+[1] SIM website: 
+http://planetquest.jpl.nasa.gov/SIM/sim_index.html . 
+[2] Aaron, Kim; Fox, George; Ebbeler, Donald; Walker, W. 
+John; “Reliability Modeling for the Space Interferometry 
+Mission” paper +019, IEEE Aerospace Conference, Big 
+Sky, 2002. 
+[3] SAPHIRE website: http://saphire.inel.gov/ 
+BIOGRAPHIES 
+Scott Peer is a systems and software engineer at JPL. He is 
+the Fault Protection Engineer 
+for the Space Interferometry 
+Mission. He is also on the 
+Cassini flight software team, 
+responsible for maintaining 
+the star tracker software he 
+developed. Earlier he led the 
+Spitzer Space Telescope 
+block development effort. He 
+has a BSEE from Cornell 
+University and a MS in 
+system science from UCLA. 
+ 
+ 
+ 

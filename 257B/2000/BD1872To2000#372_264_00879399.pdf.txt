@@ -1,0 +1,792 @@
+Mission Adaptable CCSDS 
+FormatterKommand Decoder 
+Michael E. Epperly, 
+Southwest Research Institute 
+6220 Culebra Road 
+San Antonio, TX 78238 
+Mepperly @ SwRI.edu 
+-’ x’ Paul McGaugh, BuddyJ. Walls 
+210-522-3477 
+Abstract-Southwest Research Institute (SwRI) has 
+developed a CCSDS formatteddecoder core that is now used 
+on three NASA missions and baselined on several others. 
+This unique formatter core provides a simple, fast and 
+flexible means of formatting data for a variety of missions. 
+The engine, though originally intended for CCSDS 
+formatting is capable of creating any downlink protocol. 
+The command-processing engine operates in a similar 
+fashion and can be adapted to meet a variety of uplink 
+protocols and all of the CCSDS uplink recommendations. 
+This paper describes SwRI’s novel approach to CCSDS 
+formatting in detail and presents applications where it has 
+proven its versatility. 
+TABLE OF CONTENTS 
+1. INTRODUCTION 
+3. SwRI FORMATTER ENGINE 
+4. SwFU TELECOMMAND PROCESSOR 
+5. SwRI HARDWARE XAMPLES 
+6.  CONCLUSIONS 
+7. REFERENCES 
+2. CCSDS OVERVIEW 
+1. INTRODUCTION 
+In the early 1980s the Consultative Committee for Space 
+Data Systems (CCSDS) was formed to standardize 
+spacecraft uplink and downlink protocols. The resulting 
+product from this multi-national committee was a detailed 
+open-systems concept for packetized telemetry that 
+standardized every aspect of spacecraft communication. 
+NASA and ESA are adopting these recommendations as a 
+standard for virtually every new mission. 
+SwFU responded to these standards with the 
+microprogrammed CCSDS Data formatter and uplink parser. 
+The formatter creates CCSDS source packets, transfer 
+packets, and Virtual channel Data Units (both coded and 
+non-coded). The uplink parser is an interface between the 
+transponder and spacecraft computer. This paper describes 
+SwRI’s novel approach to CCSDS formatting and presents 
+several applications where the CCSDS formatter proved its 
+versatility. 
+manipulate spacecraft downlink data. The machine is 
+essentially a special purpose processor with a limited 
+number of instructions, all created specifically for handling 
+data on a byte or bit boundary. These special instructions 
+allow the user to build powerful formatting algorithms with 
+a minimum number of instructions. A single state machine 
+reads data from a PROM, decodes the instruction and 
+controls the data routing and manipulation hardware. 
+Included in the instruction set is a conditional jump 
+instruction that enables the machine to react to outside 
+control or local data conditions. Special instructions allow 
+the machine to interface directly with a solid state recorder 
+both in record and playback modes. Provisions have been 
+made to provide ReedBolomon Encoding, CRC encoding 
+and randomization per CCSDS recommendations. The 
+machine was conceived to meet the requirements of CCSDS 
+type formatting, but due to its flexibility, can process 
+virtually any standard or proprietary data format. 
+The uplink command parser interfaces directly with the 
+transponder to accept command data, clocks and lock 
+signals. The parser synchronizes with a serial data stream 
+‘per CCSDS command protocols, acquires telecommand 
+packets, performs BCH error detection, and accepts or 
+rejects the embedded command. Accepted commands are 
+then executed locally or forwarded to a spacecraft computer. 
+The uplink parser also interfaces directly with the downlink 
+formatter to fill in the VCDU Command Link Control Word 
+(CLCW), for CCSDS COP-0 and COP-1 protocols. The 
+command parser is controlled by firmware and contains 
+sufficient intelligence to allow it to control spacecraft 
+operations in the absence of a spacecraft computer. 
+This configuration has proved its versatility in three separate 
+applications: the IMAGE SCU, QuikSCAT, and ICESat. In 
+all three applications, the basic formatter engine was 
+coupled with mission specific firmware to create a unique 
+downlink. The uplink parsers were implemented to support 
+COP-0, COP-1 and COP-2 recommendations. In one case, a 
+data-formatter/comd-parser design went from definition 
+to flight hardware delivery in less than seventeen weeks 
+proving the utility of this flexible and powerful approach to 
+data formatting. 
+The microprogrammed CCSDS Data Formatter is a novel 
+application of a microprogrammed state machine to 
+0-7803-5846-5/00/$10.000 IEEE 
+261 
+Application Process 
+Physical 
+PRIMARY HEADER 
+PACKET IDENTIFICATION PACKET SEQUENCE CONTROL PACKET 
+LENGTH 
+VER TYPE SEC APPLICATION SEGMENT SOURCE 
+# HDR PROCESSID FLAGS SEQUENCE 
+FLAG COUNT 
+3 1  1 1 2 14 16 
+Layer 
+DATA FIELD 
+SECONDARY HEADER SOURCE PACKET 
+MAY CONTAIN: DATA ERROR 
+CONTROL TIMECODES 
+ANCILLARY DATA UP TO 
+65536 
+VARIABLE OCTETS VARIABLE 
+I Source 4 
+Packet I 
+Segmentation 
+Layer 
+Source Packet 
+Layer 
+Layer 
+TLld Bit 
+Stream 
+Figure 1. CCSDS Telemetry Model 
+2. CCSDS OVERVIEW 
+The Consultative Committee for Space Data Systems 
+(CCSDS) has established a simple yet robust system of 
+layered encapsulation of data within headers and footers. 
+This open system architecture draws upon a well-defined set 
+of services provided by the lower layer and in turn provides 
+a well-defined set of services to the layer above. Internal 
+operations within each layer are transparent as long as the 
+service interfaces are preserved. 
+Data Encapsulation 
+Several layers encapsulate the data from the previous layer 
+within a strictly defined header and footer containing the 
+information needed by each particular layer to provide its 
+service while maintaining the: integrity of the data contained 
+between the headers. 
+Downlink Data and Uplink Commands 
+CCSDS has set forth recommendations for data 
+encapsulation services for both uplink commands (hereafter 
+referred to as telecommand) and downlink telemetry 
+(referred to as simply telemetry) that follow this open 
+architecture. Each layer adds protocol to the data received ,., 
+from the layer preceding it, which is removed by. an 
+equivalent layer at the user level. The following sections 
+will discuss the general protocol for telemetry and 
+telecommand 
+Downlink Telemetry 
+The CCSDS recommendations for telemetry define the 
+protocols for each of the layers. A typical “instrument to 
+spacecraft to physical downlink” will be used as an example 
+for the following discussion. 
+Raw application data from an instrument is typically 
+formatted per a user-defined proprietary protocol in the 
+application process layer and the system management layer 
+(see Figure 1) and are not under the recommendations of 
+CCSDS unless data is provided directly to the packetization 
+layer. CCSDS recommendations begin at the packetization 
+layer where a source packet is created from the input data. 
+Per CCSDS, data is processed in even numbers of octets. 
+To create a source packet, a source packet header is 
+appended to the beginning of the data and, if desired, EDAC 
+is added to the end of the packet. Data encapsulated within 
+the source packet is limited to 65536 octets (bytes). The 
+format for the version 1 CCSDS source packet is shown in 
+Figure 2. The packetization layer provides an internal 
+segmentation service that allows larger data sets to be 
+reliably reconstructed on the ground. The segmentation 
+flags and source sequence count fields within the source 
+packet header control reconstruction. 
+A separate segmentation service is also provided within the 
+CCSDS recommendations. This segmentation service is 
+provided by the spacecraft data handling subsystem in the 
+Segmentation Layer. The service breaks completely formed 
+long source packets into shorter version 1 source packets 
+with a S/C data system application ID. Flow control and 
+reconstruction are identical to the internal segmentation 
+described previously. 
+Source Packet data structures are unsuitable for direct 
+transmission. They must be embedded into a data transfer 
+I 
+262 
+I 1 
+32 
+11 SYNC I VCDU PRIMARY HEADER I 
+VCDU ID VCDU SIGNAL FIELD OPTlONA VCDU VCDU DATA OP. VCDU CVCDU 
+COUNT VCDU INSERT ZONE CONTROL ERROR WSCHECK 
+VER SIC VC REPLAY SPARE HEADER ZONE FIELD CONTROL SYMBOLS 
+# ID ID FLAG EDAC OPTIONA OPTIONAL OPTIONAL OPTIONAL 
+2 8 6 24 1 7 16 VARIABLE VARIABLE 32 . 16 VARIABLE 
+I VCDU TRAILER 
+structure that provides suitable data synchronization, error 
+detection and/or correction, and bit transition density. 
+CCSDS defines structures to providing this service. The 
+resulting structure is one of several different telemetry 
+transfer frame formats. The purpose of the Transfer layer is 
+to break the incoming data into fixed length, contiguous 
+packets with sufficient information to provide source 
+(spacecraft channel) information, synchronization, and 
+reconstruction information. The format for a Coded Virtual 
+Channel Data Unit (CVCDU) telemetry transfer frame is 
+provided in Figure 3. 
+The Coding layer provides services to enhance the physical 
+layer. CCSDS provides recommendations for Reed- 
+Solomon Encoding, CRC encoding, Rate % encoding, and 
+randomization at various service levels. The resulting 
+structure of a source packet embedded within a VCDU with 
+sync and coding is referred to as a Coded Virtual Channel 
+Data Unit or CVCDU. The result can be output in serial or 
+parallel and in NRZ-L or NRZ-M format. 
+In a fully CCSDS compliant uplink and downlink system, 
+the last two bytes of a Virtual Channel 0 CVCDU contains 
+bytes dedicated to closing the command uplink loop with the 
+ground. This telecommand loop will be discussed in greater 
+detail within the telecommand paragraphs. 
+From the coding layer the resulting data structure is 
+provided directly to the spacecraft RF modulator or to an 
+on-board storage device. Specific flags within the header 
+indicate whether the downlink data is real time or playback. 
+On the ground, the protocol provided by the various layers 
+allow the ground station to synchronize with the data, close 
+the telecommand loop and extract and route source packets 
+data to users. Each user can further extract the raw data 
+from the source packets. The extraction process mirrors the 
+formatting process. 
+Telecommand 
+A spacecraft telecommand (TC) system must convey 
+command information from the user to the spacecraft with 
+extremely high confidence. In the past, the resources for 
+commanding a spacecraft have been customized and 
+dedicated to the requirements of a specific mission. This 
+philosophy is inefficient in the current climate of shared 
+resources and diminishing budgets. 
+~~ 
+Layer 
+t 1 TC Application Data 
+Packetization 
+Layer 
+Packet 
+Segmentation 
+Layer 
+Frame ,+, 
+I Laver I 
+Physical 
+Layer 
+Figure 4. Telecommand Model 
+I 
+CCSDS protocols for uplink commanding provide a 
+comprehensive set of layered standardized command 
+services, which can meet virtually any mission requirement. 
+These services closely mirror those of the telemetry system. 
+Figure 4 is a graphical representation of the telecommand 
+service model. The services are broken into seven distinct 
+layers: 
+(1) TC Application Process Laver-translates user 
+requests into high-level command directives. 
+(2) TC System Management Laver-translates high- 
+level commands into process interpretable 
+application data. 
+(3) TC Packetization Laver-formats application data 
+into transportable units referred to as TC Packets 
+(4) TC Segmentation Layer-Optional layer that 
+provides for breaking TC packets into smaller 
+communications oriented units. 
+263 
+Sagmenlaeon SEG HDR SEGMENTED DATA SEG HDR SEGMENTED DATA 
+CLTU 1 CLTU 2 
+0 0 0 
+Figure 5. Telecommand Data Structures 
+-.- *. -. %. -. -. 
+. '.. 
+FRM HDR SEGMENT DATA 
+Frame 
+FRM HDR SEGMENT DATA 
+(5) TC Transfer Laver-Creates TC transfer frames to 
+reliably transport TC packets. 
+( 6 )  TC Coding Laver-provides protection against 
+errors introduced during transmission through the 
+RF channel. 
+(7) TC Physical Laver--RF transmission and reception 
+of TC data. 
+The ideal spacecraft architecture would follow the CCSDS 
+recommendations for each layer. However, due to the 
+nature and flexibility of the protocol, a user organization 
+could interface with any layer provided that all lower layers 
+are also used. Figure 5 shows the TC command structures 
+that are actually created at each service layer. 
+The TC transfer layer guarantees transfer of error free 
+commands and is the core of the CCSDS telecommand 
+concept. Under closed loop control, coded telecommand 
+transfer frames are received by the transfer layer, which uses 
+sequence numbers and data encoding to determine whether 
+or not the commands are valid. Telecommand frames 
+received in error are handled differently depending upon the 
+level of service, or Command Operation Procedure (COP), 
+implemented. 
+COP-&reception of an erroneous transfer frame 
+(failed BCH encoding) locks out the reception of 
+any subsequent commands. A counter in the 
+Virtual Channel 0 downlink (Command Link 
+Control Word or CLCW) informs the ground how 
+far to back up and restart command transmission. 
+Typically the link must be reset by dropping RF 
+modulation. Uplink sequence numbers are not 
+used. 
+COP-l-depends upon the frame sequence counter 
+to determine if conmands have been missed. The 
+CLCW informs the ground station how far to back 
+up to begin retransmission. Resetting the link only 
+requires that the proper frame sequence counter be 
+transmitted. 
+0 0 0 
+0 COP-2-frame sequence independent. Any 
+missing frames are reported to the ground via the 
+CLCW. It is not necessary to reset the uplink to 
+continue receiving commands. 
+FFAME 
+Code Block 
+3. SwRI TELEMETRY FORMATIER NGINE 
+Typical Formatter Implementation 
+BCHCODE FRAME BCH FRAME BCH 
+In the past, at least for the authors, data formatting has been 
+accomplished with a set of counters, massive shift registers 
+and multiplexers all set up to create the desire format. Every 
+new mission or application required redesigning the circuit 
+to meet the mission needs with very little commonality. In 
+some cases the shift registers alone would consume half of a 
+typical space application field programmable gate array (i.e. 
+Actel 1280). 
+CODE BLOCK I Contsrucbon 
+Formatter Engine Requirements 
+Because of the inefficiency and lack of flexibility inherent in 
+the traditional approach, the authors chose to analyze the 
+application and formulate a new approach. The approach 
+selected was the creation of a firmware based "micro- 
+programmed" formatter engine. We determined the 
+requirements for the formatter engine by first tabulating the 
+typical operations that a formatter must perform. These 
+operations, for almost any formatting task including CCSDS 
+are: 
+(1) Raw Data Collection-Raw data must be 
+accumulated until a full frame of data (regardless 
+of protocol) has been received. The frame size 
+can vary from application to application. 
+(2) Create Minor Frame Headers-Repetitive data that 
+is appended to every telemetry frame. 
+(3) Minor Frame Buffering-Formatted raw data is 
+often formatted into minor frames and must be 
+buffered until adequate data is present to create a 
+major frame 
+(4) Counters-Frame counters must be maintained and 
+inserted into the output data. Several minor 
+CB 2 CB n 
+264 
+Command Link 
+Transmission Unil 
+Constnrctlon 
+START TAIL IDLE START 0 0 0 IDLE 
+PATTERN SEQUENCE 'ODE BLOCKS SEQUENCE PATTERN SEQUENCE 
+, .  I 
+DATA *- 
+CLOCK4 S2P 
+SERIAL 
+SPACECRAFT DATA 
+I ,~ 
+/ I , I  
+z ,  
+I ,  
+PARALLEL 
+INSTRUMENT 1 DATA 
+- 
+-Ma 
+COYIlTELl 
+CLOCK ENABLE 
+ASYNCHRONOUS 
+lNSTRUMENT2 DATA 
+FORMAlTER ENGINE DATATO SSR 
+Figure 6. Typical Application of Formatter Engine 
+frames may be inserted into a major frame and 
+independent counters for each must be provided. 
+( 5 )  Clock-Real Time Clock data is often inserted into 
+downlink telemetry to provide ground truth and 
+data synchronization. 
+(6) Randomization-Downlink data is typically 
+randomized to insure sufficient bit transitions to 
+maintain a reliable link. 
+(7)Encoding-A variety of options exist to improve 
+the bit error rate of the link. These include 
+ReedSolomon, CRC and Viterbi. The engine 
+should be capable of performing or controlling 
+such encoding. 
+(8) Simple Logic Operations-The engine must be 
+capable of setting or clearing specific bits. 
+(9) Branching-The engine must be capable of making 
+decisions based on data pattern or input flags to 
+control the formatting operation. 
+1 
+Fonnatter Engine Architecture 
+0 0 0 0 0  Condition Jump delta JMP, Jump 
+2 0 0 1 0  Unused 
+3 0 0 1 1  Operand Immediate data Accumulator Operation 
+4 0 1 0 0  Source Byte countllmmediate Data OUTRN, out randomized 
+5 0 1 0 1  Source Byte counthmediate Data OUT, output serial data 
+0 0 0 1 o l o l o l o l  Immediate data MOVI, Move to DZ FIFO 
+SM, Enable Hardware 
+The architecture and components selected to implement the 
+formatter engine were chosen from space-proven, readily 
+available radiation hardenedtolerant components. A single 
+Actel A1280A-1 gate array was chosen as the main 
+component and limited the overall complexity of the 
+formatter engine. This was not a hindrance, however, since 
+the intention of the architecture was to keep the design as 
+simple and flexible as possible. Firmware to run the 
+formatter engine is contained in a single ROM or a pair of 
+ROM’s depending upon implementation. A single ROM 
+saves space and cost but limits throughput. ReedSolomon 
+encoding is provided by one of several available devices and 
+data is buffered in radiation hardened FIFOs. Each data 
+source has a dedicated FIFO and an up/down counter within 
+the FPGA to keep track of data size. If the engine is 
+creating Source packets as well as transfer packets (or 
+VCDUs) then an additional FIFO iH used to store the 
+intermediate product before they are incorporated. Using 
+these components, the engine has been implemented to 
+support output data rates of greater than 8 Mbps and could 
+6 
+Table 1.Sample of Formatter Engine Instruction Set 
+1 1 1 1 5  14 13 1 2 1 1 1  10 9 8 1 7  6 5 4 1 3  2 1 0 I Description 
+0 1 1 0 In I B Y I  Unused RSC, WS chip control 
+7 0 1 1 1  Source Unused Destination MOV, Move 1 data byte 
+8 1 0 0 0 F  Byte Count MOVM, Move Multiple 
+9 1 0 0 1  Not defined 
+A 1 0 1 0 0 S G C  Unused INC, Increment counters 
+~ i n i i  I I I I I I I Nnt defined - . - .  . . -. - - . . . .-- , 
+C l l O O  Not defined 
+D l l O l  Not defined 
+E l l 1 0  Not defined 
+F l l l l  Unused JZ, Jump to zero 
+I 
+265 
+; . E  Build Header 
+Enable 
+Hardware 
+N 
+Build Header 
+with no new 
+pointer 
+D 
+A bytes from DZ and IUS code 
+move DATA1 
+A _ _  I BuildS.Pand I I 
+&N Ready? 
+with no new 
+pointer 
+Figure 7. Formatting Example 
+support rates up to 16 Mbps. 
+handle output data rates greater than 50 Mbps. 
+An ASIC solution could 
+A block diagram of the formatter engine in a typical 
+application is shown in Figure 6.  The basic instruction set 
+of the formatter engine is shown in Table 1. Some 
+instructions are not shown. This minimal data set allows the 
+formatter engine to create virtually any data format be it 
+CCSDS or proprietary. 
+Formatting Example 
+A flowchart for a typical firmware example is provided in 
+Figure 7. Figure 13, at the end of this paper is the source 
+listing of the formatting example. In this particular 
+application there are three sources of data: a science 
+instrument providing data already formatted as version 1 
+source packets into one FIFO; a spacecraft computer 
+providing raw data in fixed blocks denoted by an enable 
+266 
+signal; and a third instrument providing free-running data. 
+An enable signal indicates the start and end of Source 
+packets from the first instrument. Data from the spacecraft 
+computer is to be formatted first into Version I source 
+packets then inserted into Channel Access Data Units 
+(CADU). Finally, a fixed block of the second instruments 
+data is to be encapsulated into source packets and inserted 
+into the CADU when enough data is present. Formatted 
+data is to be stored into a solid-state recorder for later 
+playback. 
+If you follow the flow chart in Figure 7, you will see that 
+upon initialization the formatter engine immediately outputs 
+a CADU header to the solid-state recorder. To output the 
+header the machine first turns off the R/S encoder, and 
+immediately outputs an un-randomized sync pattern. Then 
+the firmware enables the IUS encoder and outputs a 
+randomized version number, spacecraft ID, the CADU 
+- m- 
+Figure 8. Telecommand Block Diagram 
+sequence counter, signaling field and pointer to the next 
+source packet header within the CADU. 
+Once the header has been created the formatter engine waits 
+for enough data to be accepted to create a full CADU. 
+Hardware counts the number of bytes that come in from 
+instrument #I,  the spacecraft computer and instrument #2. If 
+sufficient bytes arrive from Instrument #1, data is pulled 
+from the FIFO, run through the engine, randomized and a 
+ReedSolomon Header is appended to the end of the CADU. 
+This process continues until the Data Zone FIFO contains 
+less than the predetermined CADU insertion zone size. 
+When a sufficient amount of data has been received from the 
+spacecraft computer or instrument #2, the engine creates a 
+source packet header, places it into the data zone FIFO and 
+pulls the data from the instrument #2 or spacecraft computer 
+FIFO. The engine continues to pull data until a complete 
+source packet has been formed. The Data Zone FIFO now 
+contains left over data from the previous CADU operation 
+and a newly created source packet. Once again, the engine 
+pulls the data from the Data Zone FIFO, creating CADUs 
+until the FIFO contains less data than that required to build a 
+full CADU. 
+' 
+In a system where data must be transmitted constantly (Real 
+Time Data), the engine firmware is modified to create filler 
+CADUs until the data zone FIFO has sufficient data present. 
+4. SWRI TELECOMMAND PROCESSOR 
+Telecommand Approach 
+Our flexible downlink telemetry formatter required an 
+equally elegant uplink command processor to fulfil the 
+CCSDS requirements of our target missions. The initial 
+approach was to build a telecommand engine with the same 
+application specific instruction set and firmware. During 
+our trade studies however, we felt that the potential Single 
+Event Effects (SEE) susceptibility of the Actel FPGA (LET 
+of 8 to 12 MeV) might compromise the performance of the 
+uplink. 
+Our solution was to use a micro-controller from Sandia 
+National Laboratories, the SA3865. This provided us a very 
+low power, highly SEE tolerant (LET greater than 85 MeV 
+(equivalent to our formatter engine albeit with a much more 
+powerful instruction set. 
+The first application of the telecommand processor 
+performed the following COP-0 operations (in order): 
+(1) Detect receiver lock from transponder 
+( 2 )  Detect valid idle pattern 
+(3) Detect valid sync pattern 
+(4) Accept telecommand packet (40 bits) 
+(5) Calculate valid BCH code 
+(6) If valid command, queue up command for system 
+computer. 
+(7) If invalid command, check for idle pattern or sync 
+pattern. 
+(8)If no idle or sync pattern, lock out further 
+commands until receiver lock from transponder is 
+dropped. 
+The second application performed basically the same 
+operation but forwarded the commands to the spacecraft 
+computer via a serial interface. This application also used a 
+COP-2 protocol and did wait for the link to drop if a BCH 
+error was detected (COP-0). A block diagram of this 
+application is shown in Figure 8. 
+The firmware to perform the telecommand function is very 
+simple. Modulation Lock and Bit lock outputs from the 
+transponder are direct inputs to the SA3865 A shift register 
+accepts data from the transponder, clocked in by the 
+transponder clock output. Each clock edge interrupts the 
+SA3865 causing it to check for particular patterns in the 
+shift register. When a valid idle pattern is detected, the 
+machine then waits for a valid sync pattern, and then begins 
+to do telecommand processing. 
+5. SwRI HARDWARE EXAMPLES 
+IMAGE Command and Telemetry Module 
+The IMAGE Command and Telemetry Module (CTM) was 
+the first application of the Formatter Engine and 
+Telecommand processor concepts. In this application, the 
+formatter engine accepts data from four separate sources and 
+creates a continuous downlink data stream. Data is accepted 
+from the following sources and assigned the indicated virtual 
+channel: 
+VC 0 
+VC 1 
+VC 3 Playback Spacecraft Telemetry 
+VC 4 Playback Science Data 
+Real Time Spacecraft Telemetry 
+Real Time Science Data 
+Since the data stream is continuous, the CTM formatter 
+engine firmware was implemented to create fill frames when 
+there was no playback data or real time data to transmit. 
+267 
+TRANSPONDER KIT 
+I 
+TRANSPONDER 
+SUBCARRIER 
+PATTERN 
+DETECTOR DETECTOR DECODER 
+STATUS & 
+INTERRUPTS 
+TX F l  
+REED/ 
+SOLOMON 
+FILL FRAME 
+MET CLOCK 
+VClD 0 
+REAL TIME DATA 
+MMM 
+'PULL" + 
+LOGIC 3: 
+4 PLAYBACK DATA 
+-
+SYNC WORD 
+Figure 9. CTM Block Diagram 
+V 
+M 
+E 
+- 
+M 
+M 
+M 
+I 
+F 
+Figure 10. IMAGE Engineering CTM 
+The CTM was implemented in a 6U extended VME board 
+with radiation-hardened components (up to 60 Krad TID, 
+depending on orbit). It was implemented with two 
+independent formatter channels to meet the needs of future 
+missions. Other features implemented but not used on 
+IMAGE include the ability to directly control 32 high level 
+(28V) discrete outputs via a dedicated telecommand packet. 
+This feature was included to allow level 0 controlling of 
+spacecraft relays. Also included in the telecommand 
+processor was the ability to process level 0 commands 
+directly and via these commands, perform U 0  operations on 
+the VME backplane. Lastly, the CTM includes circuitry to 
+allow the telecommand processor to fill the Command Link 
+Control Word fields of Virtual Channel-0 packets to close 
+the telecommand Command Operating Procedure (COP) 
+loop for COP-0 and COP-1. A block 'diagram of the entire 
+CTM is shown in Figure 9. A picture of the CTM is shown 
+in Figure 10. 
+The flexibility of the formatter engine proved itself several 
+times during integration and test of the IMAGE CTM. 
+Systems engineering called for several formatting changes 
+and the firmware approach meant that the changes could be 
+accommodated with minimal impact. In fact, because the 
+engineering unit has socketed PROMS, the modifications 
+were performed and tested in hours rather than the several 
+days it would have taken with the traditional approach. 
+CDWCommand Inte~ace Electronics Module 
+Following on the success of the engineering model CTM, a 
+customer approached SwRI requesting an adaptation of the 
+CTM to meet their program needs. This customer needed 
+flight hardware in less than 20 weeks to meet a very 
+ambitions deliver schedule. Their requirements were for a 
+data formatter and a telecommand processor - nearly 
+identical to the CTM functionality called the 
+CDS/Command Interface Electronics Module or CCIEM. 
+268 
+We were able to apply both the telecommand processor the 
+and formatter engine directly in this application and 
+delivered engineering evaluation hardware in 12 weeks after 
+receipt of order and flight hardware at 17 weeks. Without 
+the flexibility of the micro-programmed approach, the 
+typical design cycle alone would have exceeded the program 
+schedule. By ,using this approach, the design effort was 
+mainly matching the new interfaces to the engine and 
+relaying out the board to meet the customer’s form factor. A 
+picture of the CCIEM is provided in Figure 12. A pair of 
+the flight CCIEM assemblies is currently on orbit. 
+Figure 12. Flight CCIEM 
+Figure 11. Engineering Model CTBA 
+Command and Telemetry Buffer Assembly 
+SwRI has just completed development of the Command and 
+Telemetry Buffer Assembly (CTBA) for a satellite vendor. 
+The CTBA is similar to the CCIEM in form factor and 
+performs many of the same functions. The CTBA has two 
+separate data formatter sections. One section collects data 
+from three sources and, creates source packets from two of 
+the sources and interleaves all of the data into a single 
+virtual channel for storage on a solid-state recorder. The 
+second formatter collects raw data from a fourth source and 
+creates a real time data stream for immediate downlink. 
+When SwFU was approached for the CTBA design, the 
+customer had assumed that the design would require three to 
+four separate board assemblies to meet all of the mission 
+needs. Because of the compact and efficient design, all 
+mission requirements were met by two identical boards 
+(redundant system). 
+The CTBA uses the same telecommand processor as the 
+CCIEM to extract commands from telecommand packets 
+and forward them to the spacecraft computer for execution. 
+The development cycle of the CTBA closely followed the 
+development of the CCIEM. Once mission unique 
+interfaces were defined, integrating them with the formatter 
+engine was easily accomplished and the remaining effort 
+was mostly a layout and packaging task. The engineering 
+board for this project was delivered two weeks ahead of 
+schedule with two requirements modifications initiated by 
+the customer late in the design cycle. A photo of the CTBA 
+is provided in Figure 1 1. 
+6.0 CONCLUSIONS 
+The microprogrammed formatter engine and telecommand 
+processor combination has proven itself to be a flexible and 
+highly adaptable approach for meeting spacecraft command 
+and handling requirements. 
+When compared to the traditional approach of building a 
+formatter out of shift registers and counters the formatter 
+engine is more efficient, more compact, requires fewer 
+resources and support circuitry, and provides a considerably 
+reduced design cycle. 
+It is important to note that the architecture of the formatter 
+engine allows virtually any of the CCSDS recommended 
+formats to be created such as: 
+Transfer Frames 
+Encapsulation Protocol Data Units 
+Multiplexing Protocol Data Units 
+0 Virtual Channel Data Units 
+Source Packets 
+In addition to performing these CCSDS formatting 
+functions, it should be clear that any proprietary formatting 
+process could also easily be performed without modification 
+to the engine. The exception, of course would be non- 
+CCSDS recommended CRC and Randomization functions, 
+which would require modifications to the internal CRC and 
+Randomization circuitry to implement. 
+269 
+The telecommand processor is a simple and effective means 
+of performing the tasks of the CCSDS Telecommand 
+transfer layer and firmware modifications can allow it to 
+perform all of the functions from the Transfer Layer to the 
+Application Process Layer. By itself, a single CTM with a 
+transponder could .perform all of the tasks of a Level-0 
+command processor, controlling a spacecraft in safehold 
+mode or an early orbit situation. It could, theoretically, 
+perform all of the command and data handling functions of a 
+simple spacecraft, but this was not the primary intention. 
+SwRI has developed a companion board to the CTM called 
+the Telemetry Collection Module or TCM which, when 
+coupled with the CTM and a power supply provides all of 
+the resources necessary to collect house-keeping telemetry, 
+control a MIL-STD-1553 bus and control basic spacecraft 
+functions. The TCWCTM pair can meet the needs for 
+level-0 processing and telemetry collection on a large 
+spacecraft, and all of the command and data handling needs 
+of a small satellite. 
+7. REFERENCES 
+[l] Consultative Committee for Space Data Systems, 
+Telemetry, Summary of Concept and Rationale, Green 
+Book, CCSDS 100.0-G-1, December 1987. 
+[2] Consultative Committee for Space Data Systems, 
+Telecommand, Summary of Concept and Rationale, Green 
+Book, CCSDS 200.0-G-6, January 1987. 
+[3] Consultative Committee for Space Data Systems, 
+Advanced Orbiting Systems, Networks and Data Links: 
+Architectural Specification, Blue Book, CCSDS 701.0-B-2, 
+November 1992. 
+Michael Epperly is a senior research engineer with 
+Southwest Research Institute. Prior to joining Southwest 
+Research, Mr. Epperly spent I 3  years at Westinghouse 
+Electric Space Division, as a lead digital designer on the 
+Defense Meteorological Satellite Program. Since coming to 
+SwRI, Mr. Epperly has managed the Central Instrument 
+Data Processor for  the IMAGE satellite program, the New 
+Millennium Intelligent I553 Controller for the DS-1 
+satellite program, the ESMROSETTA ROSINA Waveform 
+Capture System (WCS), as well as programs producing 
+CCSDS command decoderddata formatters for  QuikSCAT 
+and ICESat. Mr. Epperly received his bachelors in 
+electrical engineering from the University of Texas, and 
+masters degrees in electrical engineering, computer science, 
+and systems engineering from The Johns Hopkins 
+University. 
+Bua'dy Walls is a research engineer with Southwest 
+Research Institute. Prior to joining SwRI, Mr Walls worked 
+on low bit rate speech coding as part of the Department of 
+Defense Digital Voice Processing Consortium study. Since 
+joining SwRI, he has developed custom hardware fo r  the 
+IMAGE, QuikSCAT, Coriolis and ROSETTA satellite 
+missions, as well as the CAPER sounding rocket program. 
+In addition to his hardware design, Mr. Walls has produced 
+embedded software for  the SwRI integrated GPS control 
+computer, and the ROSINA WCS. Mr. Walls is currently 
+serving as deputy program manager fo r  the ROSINA WCS 
+program. Mr. Walls has a bachelors and a masters degree 
+in electrical engineering from Oklahoma State University 
+Paul McGaugh is a senior research engineer with 
+Southwest Research Institute. Mr. McGaugh has extensive 
+background in FPGA's, ASIC's, board level design, as well 
+as CCSDS based telemetr?, systems. He has produced 
+custom CCSDS hardware for  the IMAGE and ICESat 
+programs, as well as a reusable VME core and mass 
+memory module.for the IMAGE program. Additionally, Mr. 
+McGaugh is responsible for  designing the latest generation 
+of SwRI's spacecraft computers, the SC603e, as well as 
+being a co-designer of the SCI96. Prior to joining SwRI, 
+Mr. McGaugh was a digital designer for  Honeywell 
+Industrial Automation and Control, with extensive 
+experience with the Motorola 68000 series. Mr. McGaugh 
+received his bachelors in electrical engineering from Lamar 
+University. 
+- -  
+270 

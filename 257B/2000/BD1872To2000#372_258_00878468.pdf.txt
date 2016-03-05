@@ -1,0 +1,683 @@
+SRTM Mission: Results of a Real Time One-bit Processor1 
+Giorgio Franceschettil.3, Fabrizio Impagnatiello?, Franco Rubertone', Manlio Tesaurol, Stephen D. Wall3 
+IUniversith di Napoli Federico ZZ 
+Dipartiinento di  Ingegneria Elettronica e delle Telecomunicacioni 
+2 1 via Claudio 
+80125 Napoli, Italy 
+ni;mlio@'it.ecr: 1 .irecc.na.cnr.it 
+'Alenia Aerospazio 
+24 via Saccomuro 
+00131 Roma, Italy 
+irnpaqnat @ alespazio.ini.it 
+'Jet Propulsion Laboratory, JPL 
+4800 Oak Grove Drive 
+Pasadena, CA 91 109 
+stephen.d.wal1 Q ipl.nasa.eox 
++(39)-8 1-7683 104 
++(39)-06-41.511111 
++(1)-818-3540023 
+Abstract- An experimental real time one-bit (hardware) 
+processor has been realized and is planned to operate in 
+connection and during the Space Radar Topography Mission 
+(SRTM). This is the first single pass interferometric 
+Synthetic Aperture radar (SAR) in the space mounting on- 
+board two radar receivers. During the mission, part of the X- 
+S A R  raw data will be down-linked, re-coded at one bit and 
+convolved (in time domain) with a one-bit coded filter 
+function, to generate real-time images and associate 
+interferometric fringes. 
+The experiment is expected to be relevant to the emerging 
+area of on-board real time processing (reduced weight and 
+power consumption) and deep space microwave imaging 
+(bandwidth saving). 
+Results of the experiment are presented. The processor 
+performance and (geometric and radiometric) image quality 
+are discussed. 
+TABLE OF CONTENTS 
+1. INTRODUCTION 
+2. PROCESSING CHAIN ARCIUTECTURE 
+4. SIGNUM-CODED SAR PROCESSOR 
+6. CONCLUSION 
+3. SIGNUM-CODED S A R  ALGORlTHM 
+5 .  IMAGE AND INTERFEROGRAM TESTS 
+1. INTRODUCTION 
+Active microwave systems are powerful tools for observing 
+Earth and other planetary surfaces. Among them the 
+Synthetic Aperture Radar (SAR), a high-resolution active 
+microwave system, has demonstrated its ability to detect and 
+provide significant information about important natural 
+features [1,2]. Interferometric S A R s  add the capability to 
+remotely sense elevation or topographic information, usually 
+displayed in the form of a digital elevation map (DEM). 
+Results from analysis of DEMs have shown its growing 
+importance to detection and analysis of land deformation 
+and natural hazards [1,3,4]. 
+In many civilian (disaster management's) and military 
+(battlefield recognition) an important requirement may be 
+real time elaboration. 
+Processing of S A R  data requires convolution of a sequence 
+of echo data with a reference function that takes into account 
+signal bandwidth and acquisition geometry. Due to the 
+substantial computational and memory requirements 
+associated with time-domain elaboration, most proposed 
+S A R  real, or quasi-real processors operate in frequency 
+domain, using efficient FFT codes. Serious problems are 
+encountered if the depth of focus is small compared to the 
+pulse length and if range dependent motion compensation is 
+needed. 
+In time-domain S A R  processing, the above mentioned 
+problems are not present, because depth of focus, range 
+migration, motion compensation, parameter space-variance 
+' 0-7803-5846-5/00/$10.00 0 2000 IEEE 
+13 
+are immediately and easily taken into account by two- 
+dimensional (2-D) time domain convolution. For real-time 
+implementation in time-domain with today's technology it is 
+mandatory to use only the signum of the SAR raw data (one- 
+bit code). In this case multiplication operations are replaced 
+by sums; in addition, if we also signum-code the reference 
+function, the above mentioned operations can be performed 
+by XNOR gates [5-81. 
+A final result is a handily real time processor. This is a first 
+reason that suggests exploration of one-bit coded SAR 
+systems. 
+In Space missions that travel outside the near-Earth 
+environment (deep space missions) a first requirement is 
+down-link rate reduction. 
+A typical S A R  system on a spacebome platform transmits 
+(chirped) pulses and receives echoes from the ground. The 
+received (analog) signal is heterodyned to an intermediate 
+frequency, demodulated to baseband I and Q channels and 
+digitized with 4 - 8 bit code, as digital transmission provides 
+immunity to noise greater than analog [9]. Typically, this 
+digital data stream is stored onboard the platform until the 
+next opportunity to down-link it to Earth. 
+Unfortunately, SAR systems require spacecraft, telemetry 
+and ground systems to handle a very large amount of data, 
+and interferometric systems require even larger amounts. In 
+fact, geometric resolution is proportional to signal 
+bandwidths in both range and azimuth direction, which in 
+turn state a lower bound to the sampling rate and the pulse 
+repetition frequency (PRF). These parameters and the 
+number of quantization bits for each sample, together with 
+storage capability and down-link strategy, set the down-link 
+data rate. In all space missions this rate is an important 
+resource, since it determines the required telemetry system, 
+antenna size, ground system complexity, and other cost- 
+related parameters. Deep space missions require much more 
+complex telemetry systems, and down-link rate is therefore a 
+much more powerful driving factor in their overall cost 
+compared to terrestrial orbiters. Accordingly, down-link 
+rates for deep-space missions may be limited to tens or 
+hundreds of kilobitsh as compared to many hundreds of 
+megabitds for their terrestrial analogues. 
+A first way to lower data rate is to reduce the number of bits 
+assigned to each sample without impairing geometric or 
+radiometric resolution by data compression or data coding. 
+Several schemes exist that accomplish this reduction specific 
+to S A R  data and have been employed in both mission types. 
+Further reduction in rates may involve loss in resolution or 
+other data degradation, resulting in a cost/performance 
+tradeoff. Other parts of the cost equation include any 
+additional onboard mass or power requirements of the 
+scheme and any additions to ground processing equipment 
+or time. Thus the question of whether or not to code SAR or 
+interferometric SAR data addresses many parts of the entire 
+mission system and is properly a first-order system design 
+issue. This paper presents a simple solution to bit rate 
+reduction that is convenient to hardware implementation, 
+and minimizes additional onboard complexity: only the sign 
+of the sample is preserved (one-bit coding) [5-81. 
+An additional advantage of one-bit coding is its greater 
+immunity to noise: a larger number of quantization bits 
+generally requires a greater signal-to-noise ratio (SNR) as 
+stated in communication theory. In other words, with a 
+single bit a lower SNR is allowed without adjoin significant 
+image degradations. This attractive issue allows transmitted 
+SAR power or device noise figure reduction with only a 
+minor disadvantage with respect to a larger' bit quantized 
+system. 
+A third important reason why this technique is worth 
+extensive exploration and experimentation: provided that all 
+the processing is performed at one-bit, a robust and 
+inexpensive lightweight hardware processor of limited 
+power consumption can be designed. This is a first step in 
+the direction of on-board processing. On board image 
+production is a key issue for quick exploration of the 
+environment. For instance, if we are not interested to speckle 
+information, multi-look image is generally redundant and a 
+lot of data image compression can be applied to reduce the 
+number of bits associated to the image. For topography 
+mapping, on board interferogram generation requires only 
+down-link the fringe product. This is more 'concise' 
+information because speckle is not present in high coherence 
+areas. 
+What is the cost of these facilities? It is anticipated that one- 
+bit coding generates radiometric images of degraded quality 
+compared to those obtained by using the conventional 4 - 8 
+bits. Accordingly, a trade-off between image quality and 
+complexity of data compression algorithm is an important 
+point in S A R  system design. 
+We address the cost of this solution relative to no coding 
+(conventional) or other compression schemes currently in 
+use. Here are the basic elements involved in this trade off: 
+1. on board equipment, 
+1.1 on board equipment related to compression 
+processing; 
+1.2 on board equipment related to radiometric 
+processing (LNAs, analog amplifiers, A/D 
+converters); 
+2. 
+3. 
+4. 
+number of bits to be down-linked; 
+ground segments equipment related to decompression 
+processing; 
+level of inaccuracy due to compression; 
+4.1 level of DEM inaccuracy due to compression; 
+4.2 level of radiometric inaccuracy due to compression. 
+The first three issues are related to the financial cost, while 
+the fourth is a performance cost, because it degrades the 
+product and is undesiderable. An overall cost function can 
+be generated to compare various methods of signal 
+14 
+compression. Note that cost elements must be generated 
+weighted properly. For example, down-link cost is much 
+higher if the sensor close to Saturn rather than to the Earth. 
+Baseline length rm1 
+Baseline orientation [degree] 
+Plaqorm height [ h l  
+Orbital orientation [degree] 
+Look angle [degree] 
+Carrier, frequency [GHzl 
+Polarisation 
+Summarizing, one bit coding allows both real time 
+processing and bit rate reduction preserving only the zero- 
+crossing information; most of image (lost) features are 
+restored in the processing operations. 
+62 
+45 
+225 
+51 
+45 
+9.61 
+vv 
+Interferometric products are shown in Section 5 with some 
+quantitative comparisons. The mission, planed in September 
+99, has been delayed to January 2000 and real experiment 
+with SRTM data cannot be referred to. However, we present 
+the tests of the chain by using raw data acquired during the 
+94 mission (SRL-1 and SRL-2) on the Etna site by SIR-C/X- 
+SAR. 
+Primary antenna azimuth dimension [m] 
+Primary antenna range dimension [m] 
+Secondary antenna azimuth dimension[m] 
+Secondary antenna range dimension [m] 
+Chim bandwidth rMHzl 
+Pulse repetition frequency (PRF) [Hz] 
+To validate these concepts we realized a Signum-Coded 
+SAR Processor (SCSP) to be used during the Space Radar 
+Topography Mission (SRTM) [lo]. This is a dual frequency 
+(C band and X band) system each one equipped with two 
+antennas: a transmitting-receiving antenna, mounted in the 
+Shuttle cargo bay, and a receiving-only, mounted on a 60 m 
+long deployable boom structure (baseline), see fig.1. Most 
+relevant mission parameters related to the X-band S A R  are 
+listed in Table 1. 
+12 
+0.4 
+6 
+0.4 
+1240-1860 
+io* - 19"" 
+In this paper we present the implementation and first results 
+of SCSP which shall be part of the X-SAR SRTM 
+Processing Chain. In the first Section we present the 
+reference architecture of the overall X-SAR/SRTM 
+Processing chain in which the SCSP is included. The basic 
+SC arithmetic operations and the focusing algorithm are 
+described in Section 3 and 4, respectively. Image and 
+Chirp duration [ P I  
+Sampling frequency [MHzI 
+Quantization (un ijorm) [bit] 
+Transmitted power [WI 
+Data rate [Mb/s] 
+Signal to noise ratio (SNR) [dBl 
+Figure 1 SRTM configuration with the boom structure. 
+40 
+11.25" - 22.50"" 
+6 
+1440 
+45 
+14 
+Table 1: Main SRTWSAR svstem Darameters 
+15 
+2. PROCESSING CHAIN ARCHITECTURE 
+Within the overall X-SAR Processing Chain three systems 
+have been identified, each of one distinguished from the 
+others both from a functional and hardware point of view. 
+They are: 
+1. the Data Recorder Manager & Preparation to 
+2. 
+3. 
+Processing systems (DRM-PP); 
+the Signum-Coded S A R  Processor (SCSP); 
+the topographic Post Processing Unit (TPPU). 
+The DRM-PP has the double role to manage and control the 
+whole X-SAR processing and pre-processing Chain of the 
+raw data. These capabilities are the following: 
+1. Acquisition and storage of raw data from the JPL 
+ingestion site. 
+2. Real time deformatting of raw data. 
+3. Storing of the deformatted data. 
+4. Real time availability of the deformatted data to the 
+SCSP. 
+5. Storing of the SLC SAR images received from SCSP. 
+6.  Availability of the deformatted data and of the SLC 
+S A R  images to TPPU. 
+The SCSP is in charge of real time processing of X-SAR 
+raw data for generation of Single Look Complex (SLC) SAR 
+images. The SCSP generates a quick look image product 
+starting from the SLC image and it is represented on a 
+screen as amplitude image (QLI). The SCSP processing 
+modes are the following: 
+1. 
+2. 
+3. 
+4. 
+5. 
+Survey Mode. The full resolution image product is 
+displayed in real time only. 
+Survey-rec Mode. The full resolution image product is 
+displayed in real time and a video recording is enabled 
+in standard PAL or S-VHS mode. 
+Full Mode. The full resolution image product is 
+displayed in real time, a video recording is enabled in 
+standard PAL or S-VHS mode, and the SLC is stored in 
+the DRM-PP. This is the nominal processing with SLC 
+storage for non interferometric mode. 
+IFSAR Full Mode. The full resolution image product is 
+displayed in real time, a video recording is enabled in 
+standard PAL or S-VHS mode, and the SLC is stored in 
+the DRM-PP. The reference filter has the same value 
+used for the first interferometric channel. This is the 
+nominal processing with SLC storage for secondary 
+interferometric channel. 
+The TPPU is in charge of the off line generation of 3D S A R  
+image from SLC interferometric couples. Its main task is 
+image registration and phase unwrapping of the 
+interferogram by using a least square algorithm [ l l ] .  The 
+TPPU is required to be capable of generating topographic 
+products by using 
+1. phase preserving single look complex images (SLC) 
+produced by SCSP. 
+2.  re-formatted raw data produced by DRM-PP limited to 
+the X-band only in all the 64 instruments parameters 
+modes. 
+The Processing Chain has a unique extemal interface for the 
+acquisition and storing of the raw data sets from the JPL 
+ingestion site. 
+3. SIGNUM-CODED SAR ALGORITHM 
+The signum code S A R  algorithm (SCA) makes use of a 
+processing based on binary algebra, and can be implemented 
+with very high scale integrate circuits. 
+SCA is implemented by signum coding and then convolving 
+two coded signals: the received signal u(x',r') and the 
+system unit response g(x ' , r ' , x , r )  where (x',r') are on 
+board azimuth and range coordinatek. As gk) depends also 
+directly on range and azimuth coordinates r and x, high 
+precision S A R  processing requires a reference function 
+adjustment during the fight path and during the vertical 
+mutual shift between ground and platform. For the time 
+being, let us neglect the direct dependence of gk) on r and 
+x variables 
+This assumption reduces the SAR processing to a simple 2D 
+convolution between the signum coded signals 
+The complex image signal can be expressed by the 
+following 2D discrete convolutions: 
+-it g;c 6, s b i c ( m +  P - P, n+--q 2 
+p=l q=l Q ,  
++ 
+The dimension of the discrete 2D sequences are 
+P=int(T,,PRF/2)*2 9 (5 )  
+(6) 
+~ = i n t ( ~ , / 2 ) * 2  
+16 
+for g, and 
+M = int [T . PRF] (7 1 
+for U ,  along the azimuth and the slant range directions, 
+respectively. In eqs. (5-8) W and X are the footprint antenna 
+dimensions along the slant range and azimuth directions, 
+respectively, PRF and f ,  are pulse repetition and sampling 
+frequency, z is the transmitted pulse length, T the data take 
+duration, 1’ and c are platform and light velocity, 6 the look 
+angle. 
+As both reference function and data values are signum- 
+coded, each sample can assume only two different values 
+(-1, +1), and the same happens for their product. If we use 
+the following coding: -1 + logical 0 and +1 logical 1, then 
+each product g,, (h, kk , ,  (r ,  s )  reduces to a simple XNOR 
+operation between the reference function and the data bit 
+G, (h, k ) 8  U,, ( r ,  s) as shown in Tables 2. 
+Tables 2: Boolean operations 
+ll 1 II: 10 l o  I ;1 
+Real correlation. 
+Let us consider the problem of summing the Y = P x Q  
+products of eq. (4). If X products are equal to +1, there are 
+Y - X products equal to -1, and then the total sum is 
+(9) s = (+1)X +(-1)(Y -x)= 2 x  -Y 
+As a consequence the sum can be achieved by counting the 
+number of products having logical 1 value, multiplying the 
+result by 2 and subtracting a fixed offset. Thus the main 
+problem in performing the binary convolution cam be stated 
+as follows 
+Complex correlation. 
+The complex convolution can be achieved (but an 
+inessential multiplicative factor) as follows 
+1. 
+2. 
+For the real channel, by subtracting the results of the 
+binary convolutions (Xzi - XQQ ) without the offset. 
+For the imaginary channel, by adding the results of the 
+binary convolutions ( X ~ Q  + X Q ~  ) with the offset 
+Y = P x Q .  
+4. SIGNUM-CODED SAR PROCESSOR 
+The SAR focus capability are guaranteed in connection with 
+all the 64 instrument modes (16 PRF values and 2 samples 
+coding) together with the instrument resolutions (fine and 
+coarse). 
+The proposed 2-D time-domain algorithms splits the 
+complex convolution in four real ones, each one operating 
+on binary sequences (see fig.2). 
+Each 1-D real convolutor is assembled by means of parallel 
+connection of 2-D real elementary convolutors. These 
+operate with a columns of one-bit coded filter and raw data, 
+and comprise a data formatter and a processing chip. The 
+former reads serial data and addresses them to the 
+processing chip in a column cluster. The latter is the main 
+processing unit and provides the 1-D elementary one-bit 
+convolution between filter and raw data. 
+The reference function to be used in the complex correlator 
+accounts for three phase terms: 
+1. the range quadratic phase 
+with b = &2/2 (I3 and z being the c h q  bandwidth and 
+duration, respectively); 
+2. the azimuth quadratic phase 
+with a=2nX’/lA0 (X being the antenna beam 
+footprint, R, the center scene distance and d the 
+wavelength); 
+3. the azimuth linear phase 
+1. 
+2. 
+calculate the elementary products; and 
+counting the number of elementary products equal to 1. 
+17 
+wherein f D, is the doppler centroid. 
+I b 
++ 
+R E A L  C O R R E L  AT10 N 
+S U B  BLOCK 
+U 'SC 
+' D R M - P P  
+single bit 
+raw data 
+I U i c  
+- 
+-- 
+I 
+g sc 
+- 
+- 
+- 
+R E A L  CORRELATION 
+S U B  BLOCK 
+16-bi t  da t a  
+S L C  & Q L I  
+R E A  L C 0 RREL AT IO N 
+S U B  B L O C K  3 
+R E A L  CORRELATION 
+S U B  BLOCK 
+I 
+g sc 
+Correlation single 
+Figure 2 The SCSP. 
+In the sampled domain we have 
+q = I,..., Q, 
+.$Aq(P)'-m,PRF' 2nv2 [ p - y ) ,  p = l ,  ..., P, (13) 
+*%, 1-P p = 1, ..., P, 
+The signum coded reference function can be generated 
+without computing the transcendental functions: it is 
+possible to generate the signum cosine and the sine by using 
+the simple verification rule based on phase normalization. A 
+normalized phase I,U is associated to the true phase by 
+means of 
+I,U = mod[: ,4] 
+that furnishes w in the range (0,4). Then gic  and g& in 
+eq. (4) are immediately obtained by looking for the integer . 
+value of w achieving 
+gkc =-I ggc = + 1  if z = 1  
+gsc =-I g& =-1  if z = 2  (17) 
+In (13) we have some parameters that shall be estimated 
+from the raw data and evaluated from state and attitude 
+vectors. 
+The doppler centroid estimator is developed in two steps: 
+1. computation of the dopper centroid argument: its phase 
+is representative of the ambiguous doppler centroid 
+frequency; 
+calculation of the unambiguous frequency. 2. 
+18 
+The SCSP design includes diagnostic functions that allow: 
+The former step is stated (in terms of the SC algebra) as 
+follows: 
+p=2 (]=I 
+p=l q=l 
+p=l q=l 
+p=l q=l 
+wherein NR and NA are range and azimuth block dimension, 
+respectively. Note the similarity between eq. (4) and eq. (1 8) 
+and the possibility to implement with the same architecture. 
+The second step makes usage of regular floating point 
+algebra and it is composed of the following parts: 
+1. an ambiguous value is computed starting from doppler 
+centroid argument as follows 
+amb f D c  = P R F -  
+27t 
+2. the ambiguity in terms of PRF multiplies is retrieved 
+from external setting under continuity constrain, i.e., by 
+enforcing that the time history of 
+is essentially continuous. In eq. (20) n t m b  is the initial 
+doppler ambiguity factor, (externally set at the start of 
+operations) and Anamb is a correction term whose initial 
+setting is 0 and which is changed in such a way to 
+enforce the above mentioned time continuity. 
+The velocity is computed by using the state vectors, 
+spacecraft position available from X-SAR instrument data 
+stream. These are obtained from Shuttle Attitude & Orbit 
+determination Avionics (AODA) and are inserted and 
+formatted by X - S A R  on-board digital central electronics. 
+The filter is upgraded every second. 
+The SCSP is designed according a modular strategy that 
+could allow the expansion of computational sections of the 
+subsystem for future application. Whenever possible, it 
+employs on-the-shelf commercial solutions both on 
+hardware and software issues. 
+1. full or reduced self-test of all unit at the SCSP start-up; 
+2. interface test and nominal connections establishment 
+with the DRM-PP 
+3.  a fast module-level failure identification within the 
+correlation section both in run mode and during start up. 
+The SCSP is equipped with a man machine interface that 
+allows full operation and monitor by a single user. 
+From a technological point of view, SCSP is implemented 
+by using Field Programmable Array (FPGA) to have a very 
+high flexibility allowing design refinements. 
+5 .  IMAGE AND INTERFEROGRAM TESTS 
+The test campaign has been performed at system level, 
+showing that the X - S A R  processing chain is stable with 
+compliant performance versus real raw data sets. Available 
+from SRL-1 and SRL-2 missions (held in 1994). We show in 
+figure 3 the real time (top) and conventional (bottom) 
+processed images. 
+Raw data are the (one-bit recorded) Mt. Etna DT.125.1 data 
+set (only the central section of the frame), PRF 1734, echo 
+size 2138. From a visual inspection the product quality is 
+excellent and the impact, when looking at the QLI monitor is 
+quite impressive. 
+A qualitative parameter is the normalized mean square error 
+defined as 
+where s and s' are the test and the reference (6-bits) image, 
+respectively. It is easy to realize that this index decreases as 
+the similarity between the two images increases. It should be 
+noted that s and s' may exhibit a different amplitude scaling. 
+This scaling effect is not related to the image quality, and 
+should be compensated. Accordingly, s ' must be multiplied 
+by a scaling coefficient such that the mean square error is 
+minimized. It is possible to calculate a scaling coefficient 
+separately for the I and Q channels of the image, i.e., to find 
+coefficients a and b that minimize 
+It can be surmised that the two channels of the signal show 
+similar statistics. Moreover, it can be supposed that statistics 
+slightly change over different portions of the image, thus 
+inducing a slight variation of the coefficients a and b. 
+19 
+Following the definition of eq. (21) the mean square error 
+between the test and the reference (6-bits) image is 0.38 
+(almost - 4.2 dB is the radiometric resolution). 
+Figure 3 Real time (top) and conventional (bottom) processed images. 
+When we zoom the crater area on the (module) single look differences. However, geometric resolutions are not 
+images, see fig. 4 we can appreciated some radiometric impaired. 
+20 
+We evaluated the histograms of the gray levels for this area 
+and for an uniform one along the steep of the volcano, (see 
+fig. 5). In the first case we note the highlighted differences 
+in the second thev are almost not evidence. 
+Figure 4 Real time (top) and conventional (bottom) processed images 
+Figure 5 Histograms of the gray levels for the crater area (left) and for an uniform one (right). 
+Continuos line real time, dashed line conventional processing 
+21 
+The interferograms are presented in fig. 6 for one-bit (top) 
+and conventional processing (bottom). In this case the gap 
+between the products is more evident; from a quantitative 
+point of view the median value of the coherence is 0.31 and 
+0.50 for one-bit and conventional processing, respectively. 
+However both the inteferograms can be unwrapped correctly 
+in spite to the increased noise level Being the phase 
+unwrapping operation a hard non linear process, it exhibits a 
+threshold: topographic information is totally lost for a 
+coherence values smaller than 0.2. Above this threshold 
+value, the height is recovered with a precision governed by 
+the baseline value. 
+22 
+Figure 6 One-bit coded (top) and conventional (bottom) processed interferograms 
+23 
+Figure 8 Top one-bit and bottom conventional processed 
+unwrapped phase cut along the range. 
+The unwrapped phase is shown in fig. 7 top for one-bit and 
+bottom conventional processing, respectively and a cut 
+along the range direction is presented in fig. 8. In both 
+figures the unwrapped phase is smoothed by a moving 
+average filter. Again the results are impressive. 
+24 
+6 .  CONCLUSION 
+In this paper we present an experimental real time one-bit 
+hardware processor. Although it has been designed to 
+operate during the SRTM mission, the underlying coding 
+and processing idea finds a lot of applications from deep 
+space to risk management. In both cases it should be 
+checked at what extent the “valuable” information is 
+preserved (“valuable” should be properly defined). 
+Generated products during the campaign test, and presented 
+in the paper are excellent and suggest further exploitations. 
+Note also that the realized SCSP is truly innovative from a 
+technological point of view. It is today the fastest customer 
+computer in the world in terms (of course) of elementary 
+operations per second. In fact, SCSP is capable of about 
+8000 billions of operation per second. These are executed 
+within the machine, sharing among one-bit multiplicators, 
+one-bit counters and twenty bit adders and combines. 
+REFERENCES 
+[l]  Stofan, E., Evans, D., Schmullius, C., Holt, B., Plaut, J., 
+van Zyl, J., Wall, S., and Way, J. “Overview of Results of 
+Spacebome Imaging Radar-C, X-Band Synthetic Aperture 
+Radar (SIR-C/X-SAR) ”. IEEE Trans. Geosci. Remote 
+Sensing 33,4, July 1995, 817 - 824. 
+[2] Saunders, R., et al., “The Magellan mission summary”, 
+J. Geophys. Res. 97,13067-13090. 
+[3] Massonnet, D., Rossi, M., Carmona, C., Adragna, F., 
+Peltzer, G., et al., “The displacement field of the Landers 
+eqrthquake mapped by radar interferometry”, Nature 364, 
+1993, 138-142. 
+[4] Moreira, J., M.Schwabish, G.Fomaro, R.Lanari, 
+R.Bamler, D.Just, U.Steinberger, H.Breit, M.Eineder, 
+G.Franceschetti, D.Geudtner, H.Rinkel., “X-SAR 
+interferometry: first results”, IEEE Trans. Geosci. Remote 
+Sensing, 33,4, July 1995, 950-956. 
+[SI B. S. Steinberg, “Hard Limiting in Synthetic Aperture 
+Radar Processing”, IEEE Trans. Aerospace Electron. Syst., 
+AES-11,556-561, 1975. 
+[6] G. Alberti, G. Franceschetti, V. Pascazio, G. Schirinzi, 
+“Time-domine convolution of one-bit coded radar signals”, 
+Proc. IEE, 138-F, 438-444,1991. 
+[7] G. Franceschetti, V. Pascazio, G. Schirinzi, “Processing 
+of Signum Coded S A R  Signal: Theory and Experiments”, 
+Proc. IEE, 138-F, 192-198, 1991. 
+[8] G Franceschetti,, S. Merolla, M. Tesauro, 1999, 
+“Processing of Phase Quantized S A R  signal: Theory and 
+Experiments“, IEEE Transactions on Aerospace and 
+Electronic Systems, vol. 30, no.l, 201-214. 
+[9] J. C. Curlander, R. N. McDonough Synthetic Aperture 
+Radar: Systems arid Signal Processing, New York, John 
+Wiley, 1991. 
+[lo] R. L .Jordan, E. R. Caro, Y. Kim, M. Kobrick, Y. Shen, 
+F. V. Stub, M. U. Wemer, 1996, “Shuttle Radar 
+Topograhpy Mapper (SRTM)”, Proceedings of 
+EUROPTO ’96, 2958, Taormina, Italy, 412-422. 
+[l I]  G .  Fomaro, G. Franceschetti and R. Lanari, D. Rossi, 
+M. Tesauro, “Interferometric S A R  Phase Unwrapping via 
+the Finite Element Method“, Proc. IEE, 44, 266-274, 
+October 1997. 
+25 
+Giorgio Franceschetti was bonz and 
+educated in Italy. Winner of a nationwide 
+competition, he was appointed professor of 
+electromagnetic theory at the University of 
+Napoli, Italy in 1969, position that he 
+holds since then. He has been Fulbright 
+Scholar and Research Associate at 
+Caltech, Visiting Professor at the 
+University of Illinois, at UCLA, at the Somali University 
+(Somalia) and at the University of Santiago de Compostela 
+(Spain). Author of over 130 (refereed) papers and five 
+books, he is active in research in Electromagnetic theory 
+and applications, Signal processing and Synthetic Aperture 
+Radar imaging. He is IEEE Fellow and Member of the 
+Electromagnetic Academy. 
+Fabrizio Impagnatiello Biography and foto not available 
+Franco Rubertone Biography and foto not available 
+Manlio Tesauro was bom in Napoli in 
+1966. He received the laurea (summa cum 
+laude) in electronic engineering and the 
+Ph.D. degree in electronic engineering and 
+computer science from the University of 
+Napoli, Federico U, Italy in I992 and 
+1998, respectively. 
+Since 1997 he is with the IRECE (Istituto di Ricerca per 
+1'Elettromagnetismo e i Componenti Elettronici), Napoli, an 
+Institute of the Italian National Council of Research, with a 
+grant of Telespazio. His main research activities are in the 
+SAR and IFSAR real time processing and phase 
+unwrapping. 
+Stephen D. Wall leads the Center for Space 
+Mission Architecture and Design at the Jet 
+Propulsion Laboratory and is a former 
+leader of the Advanced Projects Design 
+Team (Team X) .  He holds a masters degree 
+in Optical Engineering fvom the University 
+of Rochester (1972) and is a veteran of six 
+planetary and earth sciences remote sensing missions 
+including Viking (1976), Magellan (I988), Cassini (1997) 
+and the Spacebome Radar Laboratory (I981 - 1996). For 
+his past work Steve was awarded the NASA Exceptional 
+Service and Exceptional Achievement Medals and eight 
+NASA Group Achievement Awards. 
+26 

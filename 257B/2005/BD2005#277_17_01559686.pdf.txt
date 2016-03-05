@@ -1,0 +1,644 @@
+ 1
+Algorithm Development to Ascertain the True 
+Characteristic Impedance of a Wire for Wire Diagnostics 
+ 
+Dr. Eric Bechhoefer 
+Goodrich Fuels and Utility Systems 
+Vergennes, VT 05491 
+802-877-4875 
+Eric.Bechhoefer@Goodrich.com 
+ 
+Dr. Jun Yu 
+Department of Mathematics and Statistics, University of Vermont 
+Burlington, VT 05401 
+(802) 656-8539 
+Jun.Yu@uvm.edu 
+ 
+Abstract—Electronic1,2 wiring interconnect system (EWIS) 
+traditionally have been treated as a commodity as apposed 
+to a system. The EWIS, being responsible for the transfer of 
+power and information of aircraft systems, represents a 
+point of failure that is usually considered as a Maintainer’s 
+last resort. We attempt to develop a diagnostic capability for 
+the detection and progression of EWIS damage of data 
+using Time Domain Reflectometry (TDR). TDR measures 
+changes in EWIS characteristic impedance.   Damage, such 
+as chafe, nicks and corrosion, change the characteristic 
+impedance of the EWIS, suggesting that detection is 
+dependent upon as true representation of impedance as 
+possible.  Wire characteristic impedance is corrupted by: 
+multiple reflections (an artifact resulting from the 
+interaction of the TDR waveform and changes in impedance 
+on the EWIS), and attenuation in the high frequency 
+component of the TDR signal. 
+  
+A transmission line problem was developed using RLC 
+circuit model. We present systems of differential equations 
+to solve for the wire characteristic impedance. This led to a 
+system of wave equations in terms of line voltage and 
+current, which we solve by the method of characteristics. 
+The inverse scattering method was then successfully 
+implemented to remove multiple reflections.  We then 
+control environmental effects including skin effect, 
+capacitance and wire resistance to account for attenuation in 
+the TDR signal. Formulas based on hypothesis as well as 
+derived from the electromagnetic field theory for the 
+capacitance as a function of the distance of the wires were 
+developed and tested. These solutions were then 
+implemented in a hand held device for the prognostics of 
+EWIS. 
+ 
+                                                          
+1 0-7803-8870-4/05/$20.00© 2005 IEEE 
+2 IEEEAC paper #1104, Revision 2, updated January 4, 2005 
+TABLE OF CONTENTS 
+1.INTRODUCTION.......................................................1 
+2.THE RLC CIRCUIT.................................................2 
+3.CALCULATING CHARACTERISTIC IMPEDANCE.....2 
+4.CONTROLLING SIGNAL ATTENUATION .................4 
+5. EXAMPLES .............................................................4 
+6. DISCUSSION ...........................................................6 
+REFERENCES .............................................................6 
+BIOGRAPHY ...............................................................6 
+ 
+1. INTRODUCTION 
+ 
+The study of the transmission line problem, especially 
+involving multiple scattering, is important to many 
+applications. Inverse scattering method provides a powerful 
+tool to analyze multiple reflections of the waves in the 
+transmission line. This type of the problem has been applied 
+to discrete transmission line models [1] and [2], elastic 
+waves in layered media [3], and electromagnetic scattering 
+[4]. While [1], [3] and [4] dealt with lossless inverse 
+scattering problems; [2] studied the problems in lossy and 
+absorbing media. In our present paper, we focus on 
+developing a diagnostic procedure for analyzing changes in 
+EWIS characteristic impedance and for detecting wire 
+damages. This procedure incorporates inverse scattering 
+algorithm with formulas derived from data-analysis 
+modeling and electromagnetic field theory to account for 
+various environmental effects.    
+ 
+We start, in Section 2, with a general problem formulation 
+for the wire response, based on Maxwell’s equations. 
+Representing a transmission line by the distributed 
+parameter equivalent circuit, we study wave propagation on 
+the line in terms of voltage and current. For a more detailed 
+derivation, see Chapter 7 of [5], for example. In Section 3, 
+we describe the implementation of the inverse scattering 
+algorithm for calculating characteristic impedance in 
+Goupillaud medium. The center piece of the algorithm is the 
+so called “layer peeling” method described, for example, in 
+ 2
+[6]. In Section 4, we show that the theory can be used to 
+derive a correction for multiple reflections and the effect of 
+capacitive and resistance in a transmission line. Examples 
+are then presented in Section 5 and finally, we do discussion 
+in Section 6. 
+ 
+2. THE RLC CIRCUIT 
+ 
+When a fast rise time pulse sent down a wire, the measured 
+voltage response is depended on a number of physical 
+phenomena.  These phenomena can be modeled as a series 
+RLC circuit. 
+ 
+In the series RLC circuit, the inductor and capacitor are 
+connected in series.  The source-resistor circuit can be 
+written as a Thevenin equivalent, which reduces to a circuit 
+that has a voltage source, resistor, inductor, and capacitor 
+connected in series. 
+The governing equation for the capacitor voltage vC(t), is 
+given by:  
+LC(d2vC)/dt2 + RC(dvC)/dt + vC = vT,           (1) 
+ 
+where L, C and R are constants. The Thevenin voltage vT is 
+always a known driving force, where the initial conditions 
+are: 
+vC(0) = Va, (dvC(0))/dt = I0/C                   (2) 
+The second-order differential equation characterizes the 
+response of the series RLC circuit in terms of the capacitor 
+voltage.  Once the solution of the capacitor voltage is found, 
+it is possible to solve for every other voltage or current, 
+including the inductor current, using the element and 
+connection constraints.  This is the solution strategy used to 
+solve a model of a transmission line.  
+ 
+We consider a lossless transmission line that is switched to 
+a direct current (DC) source.  The model is described by a 
+distributed inductance and capacitance, with inductance and 
+capacitance per unit length designated as Ld and Cd, 
+respectively. The conditions on the line at a time dt after the 
+connection of the source, when the source voltage has 
+penetrated a distance dx into the line can now be described. 
+ The capacitance of the energized segment of the line Cd dx 
+has charged to a voltage of VA, hence a charge of dQ = Cd 
+dx VA has been transferred. 
+DC
+ 
+Figure 1  Lumped RC Circuit 
+The current flowing into the line is:  
+i = dQ/dt = Cd(dx/dt)Va = CdVau,              (3) 
+where u is the velocity of propagation along the line of the 
+disturbance caused by being switched to the source.  The 
+flow of the current establishes a magnetic flux φ, which is 
+associated with the line inductance: d φ=Ld dxi,. i = VA/Z0. 
+Faraday’s Law states that the rate of change of the flux must 
+equal the line voltage, e.g.: VA = (dφ)/dt = LdCdVAu2.  
+From this, the velocity of propagation on the line is simply: 
+u = (Ld Cd)-.5.                                  (4) 
+Substituting the velocity of propagation back into the 
+equation for current on the line gives: 
+i = Va(Cd/Ld) .5.                               ( 5) 
+Note that this is the same relationship for resistance, 
+namely: i=Va/R. The characteristic impedance of the line is: 
+Z0 = (Ld/Cd) .5, with units of Ohms (Ω).  When a driving 
+voltage propagates along a line, there is an associated 
+current pulse, namely, i = Va/Z0.  Given this, until a 
+condition on the line affects the characteristic impedance, 
+(discontinuities such as a termination), the input impedance 
+of the line is Z0.   
+The Inverse Scattering Problem—The process 
+of determining the true transmission line impedance from 
+the measured waveform is the inverse scattering problem.  It 
+is an extraordinarily difficult problem to solve found in 
+many fields that studies waves.  Some examples include the 
+study of elastic pressure waves (geology, seismology), 
+sound waves (acoustics), transmission lines (electrical 
+engineer), and the wave behavior of matter (quantum 
+mechanics). 
+  
+Fortunately, the inverse scattering problem for simpler, one-
+dimensional system of layered media (as is the case of 
+lossless transmission lines) is relatively easy to solve.  In 
+this case, there is a pair of coupled first-order partial 
+differential equations that govern two-state variables, 
+current i(x,t) and voltage v(x,t): 
+∂ v(x,t)/ ∂ x = -Z ∂ i(x,t)/ ∂ t.                    (6) 
+∂ i(x,t)/ ∂ x = -Z-1 ∂ v(x,t)/ ∂ t 
+ 
+where Z is the local impedance at the point x. 
+ 
+It can be shown that when there is a mismatch in 
+characteristic impedance, some small amount of energy is 
+reflected from the discontinuity.  Where there are a number 
+of these mismatches close to each other on the transmission 
+path, their reflections interact and generate a number of 
+reflection artifacts.  These artifacts corrupt the measured 
+waveform via superposition and make analysis of the true 
+impedance of the transmission path difficult. 
+ 
+ 3. CALCULATING CHARACTERISTIC IMPEDANCE  
+ 
+Further analysis of the transmission line requires the 
+establishment of a voltage and current convention.  The 
+velocity of propagation u will be taken at going to the right, 
+with voltage and current being positive: 
+ 3
+X
+Va
+I = Va/Zo Current
+Voltage
+U
+ 
+Figure 2 Voltage and Curent Propagation 
+ 
+Consider the moment when the voltage and current pulses 
+travel the length of the line and encounter an open-circuit 
+termination.  The current at the open-circuit must be zero.  
+This means that a current pulse must be initiated at the 
+termination, traveling toward the source with a magnitude 
+of -Va/Z0 so that the line current is progressively forced to 
+zero.  When the pulses reflected from the open circuit 
+termination arrive at the source end, the voltage along the 
+entire length of the line is V’ + Va, and the current is zero. 
+This occurs at a time 2τ following the switching of the 
+source, where τ is the travel time of the pulses from the 
+source to the termination and is equal to the length divided 
+by the velocity of propagation. 
+ 
+The equations governing plane waves in various mediums 
+are all described by similar second-order differential 
+equations.  The solutions to the governing equations given 
+in equation (6) involve waves travel with some speed c.  
+The square of the wave speed is 1/(LC). At any position x 
+on the transmission line, there will be a local value of the 
+wave speed, c(x).  When the wave moves from x to x + dx, 
+the time taken is; 
+dς  = dx/c(x).                               (7) 
+This ensures that the time taken to move from 0 to x is: 
+( )∫= x ucdu0 /ς .                            (8) 
+This time ς will be defined as the travel time.   
+ 
+The concept of travel time ς as a measure of distance, 
+allowed the equations governing waves to be reduced to 
+standard form.  In this standard form, the medium in which 
+the wave propagates is specified by a single parameter, the 
+characteristic impedance Z, as a function of travel time, 
+Z(ς). Additionally, an alternative formulation was provided 
+in terms of down and up moving waves. Using these 
+formulations, an analysis of the reflection and transmission 
+wave in a medium will be developed. 
+ 
+Consider a medium in which Z(ς) is piece-wise constant 
+with discontinuities only at some dx, 2dx .... positions.  This 
+implies that the travel time between each layer in the media 
+is constant.  This type of medium is called a Goupillaud 
+medium. See [6] for a detailed account of the Goupillaud 
+medium. The analysis of the wave’s medium requires two 
+situations: as the waves travel along a part where Z is 
+constant, and as the wave crosses a discontinuity.  Over the 
+distance traveled ς, which is a member set of  [(i-1)d, id] 
+where Z is constant, the waves are separated into a 
+downward moving wave and an upward moving wave: 
+D(ς ,t) = f(ς -t),I                              (9) 
+ U(ς ,t) = f(ς+τ). 
+ 
+Where D= (v+Zi)/(2Z .5) and U=(v-Zi)/(2Z .5).  The 
+downward moving wave is just above the discontinuity at id 
+at any given time t must have departed from (i-1)d at the 
+instant t - d.  The wave has traveled without any change in 
+shape, such that; 
+D(id-,t) = D[(i-1)d+,t-d].                      (10) 
+ 
+The value of D[(i-1)d+,t-d] at the instant prior to t-d, is 
+obtained from D[(i-1)d+,t], by executing the delay operator 
+d.  The delay operator has the defining property of changing 
+any function of time, f(t), into its value at the instant t-d.  
+Therefore, df(t) = f(t-d), such that D(id-,t) = D[(i-1)d+,t-d], 
+and can be written as:  
+ 
+D(id-,t) = dD[(i-1)d+,t].                       (11) 
+ 
+The same argument applies to the upward moving wave 
+such that U[(i-1)d+,t] = U(id-,t-d) = dU(id-,t). This can be 
+inverted to give: 
+U(id-,t) = d-1U[(i-1)d+,t].                      (12) 
+ 
+The equation establish a non-causal relationship between 
+U(id-,t) and U[(i-1)d+,t+d].  The downward and upward 
+wave equations can now be combined into the matrix 
+equations: 
+⎥⎦
+⎤⎢⎣
+⎡
++−
++−
+⎥⎦
+⎤⎢⎣
+⎡
+=⎥⎦
+⎤⎢⎣
+⎡
+−
+−
+− ],)1[(
+],)1[(
+),(
+),(
+1 tdiU
+tdiD
+d
+d
+tidU
+tidD               (13) 
+ 
+This is the first of two equations that describes the evolution 
+of the waves.  It shows that the D,U waves travel without 
+change of shape when the characteristic impedance, Z, does 
+not change. 
+ 
+Using the fact that v and i are continuous across a 
+discontinuity in Z, the downward and upward interaction 
+equations can now be combined into a casual evolution 
+equation: 
+⎥⎦
+⎤⎢⎣
+⎡
++
++−
+⎥⎦
+⎤⎢⎣
+⎡Σ⎥⎦
+⎤⎢⎣
+⎡
+=⎥⎦
+⎤⎢⎣
+⎡
++−
++
+),(
+],)1[(
+1
+1
+],)1[(
+),(
+tidU
+tdiDd
+dtdiU
+tidD
+i
+  (14) 
+ 
+Where 
+⎥⎦
+⎤⎢⎣
+⎡
+−
+−
+=Σ=Σ
+ii
+ii
+i στ
+τσ ,                             (15) 
+ 
+and σi,  τi depend on the values of iZ s.  
+ 
+The derived evolution equations for waves in a Goupillaud 
+medium allow for the derived difference equations.  This 
+will be the basis for algorithms constructing waves in a 
+ 4
+medium from a given initial and boundary data.  The 
+essential characteristic of wave phenomena in a Goupillaud 
+medium is that a response at any discontinuity point ς = id 
+at any time t depends only on the input at the times t, t-d, t-
+2d, etc. 
+ 
+ 4. CONTROLLING SIGNAL ATTENUATION  
+ 
+The TDR signal is a step-pulse with a short rise-time. This 
+equates to a high frequency component within the TDR 
+signal, which due to the properties of the transmission line, 
+is attenuated and dispersed in time.  In order to correct for 
+this behavior, an inverse filter is required that is matched to 
+the transmission line transfer function for a given frequency 
+and length. 
+ 
+Attenuation for shorter transmission lines (3 meter or less) 
+are governed by skin effect. Maxwell’s equation shows that 
+very high frequency attenuation is an exponential function 
+of wire core diameter, frequency, characteristic impedances, 
+and length (see for example, [7]): 
+)( .
+),,(
+5
+ofdZ
+LengthK
+o eLZfA
+−
+= ,            (16) 
+where: Length is distance, K is the conductivity, Z is the 
+characteristic impedance, and f is the frequency.  For longer 
+transmission lines, the attenuation is predominately a 
+function of transmission line resistance and capacitance.  
+This allows the loss to be modeled as a RC circuit, a 
+function of the capacitance and resistance of the wire itself. 
+  
+ 
+The resistance of the wire is a function of wire segment,  
+ 
+R = dLength2/(2r2K),                          (17) 
+ 
+where r is wire radius.  The capacitance is a function of the 
+measured characteristic impedance z:  
+ 
+C= 1./(c*vop*z),                              (18) 
+ 
+ c is the speed of light and vop is the velocity of 
+propagation, taken as 1/sqrt(dielectric).  Note that this is the 
+capacitance per unit meter.   
+ 
+What remains is to model the frequency response for each 
+transmission line segment.  The frequency loss is a function 
+of cumulative resistance and capacitance.  Thus, attenuation 
+at the end of the transmission line is significantly greater 
+effect than the beginning of the transmission line. The 
+frequency response for transmission line segment i, Hi, 
+described entirely by the Fourier transform of RC impulse 
+response: 
+⎟⎠
+⎞⎜⎝
+⎛ℑ= − iiCRt
+ii
+i eCR
+1H                         (19) 
+where RiCi is twice the cumulative wire resistance and 
+capacitance of the transmission line segment i.  The 
+frequency, Hi, is used to generate filter coefficients, bi, 
+which normalize for the frequency attenuation for each 
+segment of the transmission line. 
+ ⎟⎠
+⎞⎜⎝
+⎛ℑ= −
+i
+1
+i H
+1b                                 (20) 
+Filtering is an operation of convolving the filter coefficient 
+bi with the signal (e.g. measured waveform).  This can be 
+represented as a matrix-vector product involving the 
+circulant matrix, which is a special case of a Toeplitz 
+matrix. Interpretation of the convolution sum in this way 
+generates a convolution matrix, which is a rectangular (N x 
+p) Toeplitz matrix whose first row is all zeros except for the 
+first element of b1, and whose first column has zeros in the 
+last p-1 elements.  This allows the generation of a length 
+varying filter. 
+dt
+dZ
+b00
+b
+b0
+00b
+dt
+dZ Meas
+n
+1n
+2
+1
+norm •
+⎥⎥
+⎥⎥
+⎥⎥
+⎦
+⎤
+⎢⎢
+⎢⎢
+⎢⎢
+⎣
+⎡
+=
+−
+            (21) 
+Note: the transfer function is dependent on the impulse 
+response of the system.  The actually TDR signal is a step 
+response, which requires differencing prior convolution.  
+The resulting, filtered waveform is then integrated to 
+recover the normalized, step response. 
+∫= t0 normnorm dtdZZ                         (22) 
+This gives best estimate of the actual transmission line 
+impedance. 
+ 
+ 5. EXAMPLES 
+ 
+We demonstrate the use of the evolution equations for 
+waves in a Goupillaud medium for a real world test 
+harnesses. We use the analysis developed in equations (14) 
+and (15) to show that the first order approximations to the 
+equations governing the medium are exactly the same as 
+those relating to a Goupillaud medium, provided Zi is 
+interpreted as Zi =Z[(τ+1/2) d].  These system of equations 
+were then used to develop the inverse scatting algorithm.  
+The diagnostic application first calls the inverse scattering 
+algorithm, then the normalization algorithm.  While 
+attempts were made to integrate the effect of attenuation 
+into the inverse scatting algorithm itself, it was not 
+successful. However, sequential processing the two 
+algorithms gives an impedance characterization which can 
+be used in an event detection/classification algorithm for 
+machine recognition. 
+The first example is an artificial a test harness using a 50 
+Ohm coaxial cable interspersed with two length of 75 Ohm 
+coaxial cable and is not atypical of an aircraft harness.  
+However, it is a good test of the inverse scattering 
+ 5
+algorithm.  This TDR equipment uses a 37 ps rise time step 
+function, sampled at 200 ps.  It is apparent in Figure 3 that 
+the inverse scattering algorithm successfully removes the 
+superposition of voltages due to multiple reflections.  Note 
+that at the end of the cable, the characteristic impedance is 
+effectively infinite, with a reflection coefficient of 1.  The 
+measured voltage is the sum of the incident voltage (0.25 V) 
+with the reflected voltage.  This shows that the cable is 19 ft 
+long (voltage is 0.25 V + 0.25 V =  0.5 V).   
+ 
+Figure 3 Example of 50 ->75->50->75->50 Ohm Coax 
+ 
+Coaxial cable typically has little frequency attenuation.  
+However, it can be noted from the step function, even in 
+this coaxial cable, is stretched in time (i.e. the rise time of 
+the step function increases with length), indicating a loss in 
+frequency content.  The normalization algorithm 
+compresses the step function, recovered that lost frequency 
+content (Figure 4). 
+ 
+Figure 4 Detail of Improved Waveform Representation 
+ 
+The next example is a 22 gauge single wire, which is typical 
+of most aircraft harnesses.  The characteristic impedance of 
+single wire is dependent on the distance to the return path 
+and is largely uncontrolled.  This results in characteristic 
+impedances of 120 to 160 Ohms.  The incident voltage is 
+0.25 volts at 50 Ohms, the measured voltage of the wire 
+under test is approximately 0.38 volts, resulting is 
+significant voltage superposition as seen in Figure 5. 
+Additionally, the small diameter of AWG 22 wire results in 
+significant wire resistance and a corresponding large 
+frequency attenuation per unit length.  The combination of 
+these environmental effects makes it difficult for machine 
+recognition to even identify the end of the wire. 
+ 
+Figure 5 Raw and Processed Single Wire Example 
+ 
+Fuel quantity systems or other devices that require high 
+integrity measurements may have harnesses with twisted 
+shielded pair or twisted triple shielded (TTS) wires, such as 
+seen in Figure 6.  The shielding and identifiable return path 
+gives the wire controlled impedances similar to coaxial 
+cable. The result is much improved detection of wire events 
+and/or features.  
+ 
+Figure 6 Raw and Process Damaged Triple Twisted Shield 
+ 
+Figure 7 is a magnified view of the features in the TTS 
+waveform, which shows a 1 cm chafe (exposed shielding) 
+in the TTS and two connectors.  Normalization compresses 
+the step function, giving a more idealized representation of 
+the features, which would improve probability of machine 
+feature recognition 
+ 
+Figure 7 Detail of Damage 
+ 6
+ 6. DISCUSSION 
+ 
+We have gained a better understanding of wire response by 
+solving a system of differential equations for the wire 
+characteristic impedance. The inverse scattering algorithm 
+and normalization for frequency attenuation has been 
+successfully implemented in a hand held diagnostic tool, 
+which allows for an improved characterization of a EWIS.  
+While not all fault features (such as a chafe of a single wire) 
+can be identified, we believe that we have the best 
+representation of wire characteristic impedance possible.   
+ 
+Identification of wire features, such as chafes and nicks, is 
+important when trouble shooting and diagnosing EWIS 
+damage and failure.  We feel that moving to a condition 
+based management (CDB) paradigm (i.e. tracking changes 
+in EWIS characteristic impedance mean and variance, etc) 
+will allow for identification of gross system degradation that 
+is not identifiable via machine recognition. Finally, we 
+realized that this is a complicated problem due to the 
+geometry of the wire configuration and additional work in 
+detection algorithms is needed in order to find certain “soft 
+faults”, such as chafe in single wire.  We have identified a 
+number of directions along which we would like to explore 
+further, such as the effect of inductive cross coupling due to 
+the numerous wires in close proximity within a harness. 
+ 
+ REFERENCES  
+[1] A.M. Bruckstein and T. Kailath, “Inverse Scattering for 
+Discrete Transmission-Line Models,” SIAM Review, Vol. 
+29, No. 3,  pp. 359-389,  1987. 
+ 
+[2] J. Frolik,  “Forward and Inverse Scattering for Discrete 
+One-Dimensional Lossy and Discretized Two-Dimensional 
+Lossless Media,” Ph. D. Thesis, University of Michigan, 
+Ann Arbor, MI, 1995. 
+ 
+[3] J. Berryman and R. Greene, “Discrete Inverse Methods 
+for Elastic Waves in Layered Media,” Geophysics, Vol. 45, 
+No. 2,  pp. 213-33,  1980. 
+ 
+[4] P. Smith, “Digital Realization of Forward and Inverse 
+Models of Electromagnetic Scattering,” Electronics Letters, 
+Vol. 25,  pp. 816-7,  1989. 
+ 
+[5] N.N. Rao, Elements of Engineering Electromagnetics. 
+Englewood Cliffs, Prentice Hall, 1991. 
+ 
+[6] G.M.L Gladwell, Inverse Problems in Scattering, An 
+Introduction. Dordrecht, Kluwer Academic Publishers, 
+1993. 
+ 
+[7] M.A. Heald, and J.B. Marion, Classical Electromagnetic 
+Radiation. Fort Worth, Harcourt Brace College Publishers, 
+1995. 
+ 
+BIOGRAPHY 
+Dr. Bechhoefer is retired Naval 
+aviator with a M.S. in Operation 
+Research and a Ph.D. in General 
+Engineering, with a focus on 
+Statistics and Optimization.  Dr. 
+Bechhoefer has worked at Goodrich 
+Aerospace since 2000 as a 
+Diagnostics Technical Lead.  He has 
+previously worked at The MITRE 
+Corporation in the Signal Processing 
+Center. 
+ 
+Dr. Yu is a Professor and 
+Associate Chair in the Dept. of 
+Mathematics and Statistics at the 
+University of Vermont with a Ph.D. in 
+Applied Mathematics from University 
+of Washington in Seattle (1988), 
+focusing on Theory of Partial 
+Differential Equations and Nonlinear 
+Waves. 
+ 
+ 
+ 
+ 

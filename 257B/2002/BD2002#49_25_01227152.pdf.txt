@@ -1,0 +1,487 @@
+Controller Estimation for FPGA Target Arch~lLe~ture~ 
+During High-Level Synthesis* 
+Carsten Menn Oliver Bringmann Wolfgang Rosenstiel 
+FZI Forschungszentrum informatik FZI Forschungszentrum Informatik Universitat Tubingen 
+Haid-und-Neu-Str. 10-14 Haid-und-Neu-Str. 10-1 4 Sand 1 3  
+76131 Karlsruhe, Germany 76131 Karlsruhe, Germany 72076 Tubingen, Germany 
++ 49-721-9654-414 + 49-721 -9654-455 + 49 - 7071 - 29 - 75482 
+menn@fzi.de bringman t2fzi.de rosen t2 informatik.uni-tuebingen.de 
+ABSTRACT 
+In existing synthesis systems, the influence of the area and delay 
+of the controller is not or not sufficiently taken into account. But 
+the controller can have a big influence, especially, if a certain 
+data-path realization requires a huge number of states and/or 
+control signals. This paper presents a new approach on controller 
+estimation during high-level synthesis for FPGA-based target 
+architectures. The estimator, presented in this paper can be 
+invoked after or during every synthesis-step, i.e. allocation, 
+scheduling and binding, respectively. By considering the control- 
+ler influence on the overall area of a design, design space explo- 
+ration can he made more accurate and less error prone. We 
+present an approach for estimating area of the controller based on 
+information which are easily accessible during each step of high- 
+level synthesis, so no explicit description of the contmller, which 
+usually will he generated after the binding, is necessary. This is 
+particularly valuable in the allocation phase, where intensive 
+design space explorations have to be done, based on fast and 
+accurate estimates. 
+Categories and Subject Descriptors 
+General Terms 
+Keywords 
+1 INTRODUCTION 
+High-level synthesis consists of several steps and during most 
+steps some parameter, that have influence on various properties 
+of the resulting hardware, need to be adjusted. The properties, 
+that are important are the delay of the longest combinational crit- 
+ical paths, the latency and the area that it will occupy on the tar- 
+1.6 [Computer-Aided Engineering1:compurer-nided design (CAD) 
+Design. 
+Area Estimation, Controller, FPGA, High-Level Synthesis. 
+Permission to make digital or hard copies of all or paa of this work for 
+p e r s ~ ~ a l  or classroom use is granted without fee provided that copies are 
+not made or distributed for profit or commercial advantage and that copies 
+bear this notice and the full citation on the first page. To copy otherwise, 
+or republish, to post on servers or to redistribute to lists, requires prior spe- 
+cific Drmission and/or a fee. 
+ISSS'02, October 2.4.2002, Kyoto, Japan. 
+Copyright 2002 ACM 1-581 13-576-9/02/00lO ... $5.00. 
+get architecture. High-level synthesis is very expensive in terms 
+of the number of calculations that have to be made. Furthermore, 
+area and delay constraints can he checked not before all synthesis 
+steps have been performed. For this reason it is necessary to have 
+estimation methods to he able to predict those properties without 
+actually performing the synthesis steps. Fast and accurate esti- 
+mates are especially needed during the allocation phase, where 
+the examination and evaluation of a huge number of possible 
+candidates has to be performed. 
+Our estimator predicts the expected data-path, based on the avail- 
+able information of the (panially-) synthesized design. Instead of 
+building a real data-path, for estimation it is sufficient to have a 
+model of the RT-structure which preserves the relevant data. The 
+.creation of this model is based on a heuristic function, which pre- 
+dicts the expected schedule and binding, if one or both are not 
+already performed. Additionally, the area of the expected con- 
+troller is estimated (which will be the content of this paper). The 
+RT-model includes all kinds of multiplexors, i.e. those needed for 
+resource sharing and those resulting from the control-structure. 
+Information about the number and location of registers in the 
+data-pdth is also included. Figure 1 depicts the design-flow from 
+Estimated 
+AreaIDelay 
+Behavioral Description 
+High-Level 
+Synthesis 
+Figure 1. Estimation during high-level synthesis 
+* This work was partially funded by BMBF Speak-Project (Medea 
+A508) and DFG-Riority-Program Rapid Prototyping RO1030/4-3 
+56 
+behavioral to RTL description together with an estimator which 
+can be called after each step of high-level synthesis. 
+Many estimation techniques have been proposed so far and some 
+considering the controller, but nearly all of them need at least a 
+behavioral description of the controller. Because it is necessary 
+to have accurate estimations even before scheduling and binding, 
+where no such description is available, we propose an approach 
+which is able to predict the area of a controller, based on infor- 
+mation, which are available before the controller acrually is gen- 
+erated. 
+After a brief overview of existing estimation approaches in Sec- 
+tion 1.1, and the target architecture in Section 2, we will present 
+our approach, where we first show, why a purely analytical 
+approach can not sufficiently solve the problem and therefore, 
+why we have to use experimental examination (Section 3). After- 
+wards we describe which parameters are available, or can easily 
+be estimated during high-level synthesis and which of them are 
+appropriate candidates to estimate the area of a controller (Sec- 
+tion 4). In Section 5 we examine the dependencies between these 
+parameters and the area and how to estimate the area of the con- 
+troller. The results, which we have obtained are presented in Sec- 
+tion 6.  We will finish this paper with a summary and an outlook 
+in Section 7. 
+1.1 Related Work 
+Several estimation approaches have been proposed in the past. 
+Some focus on ASICs, some on FPGAs as target architechue, but 
+only a few among all of them take the influence of the controller 
+on the overall area of a design into account. 
+Nedjah and de Macedo Mourelle propose in [4] an approach to 
+predict the number of CLBs required to implement the data-path 
+and the controllcr, as well. Unfortunately their data-path is 
+restricted to have exactly one general purpose functional unit. 
+The number of CLBs required to implement the controller equals 
+the number of flip-flops needed for the states, where they assume 
+a maximum of 10 flip-flops will he sufficient and so they fix the 
+size of the controller to be equivalent to a mean value of 6 flip- 
+Xu and Kurdahi focus likewise on FPGAs as target architecture 
+in [6], which is based on the previous work of Ramachandran 
+and Kurdahi [SI. Their approach requires an already scheduled 
+behavioral specification. Aftcr they have finished the binding, a 
+gate level netlist is constructed, which is used to estimate the 
+controller. 
+Quite impressive results on area estimation were presented by 
+Mitra and Panda [3], but their work was restricted to standard cell 
+target architectures. A PLA-based implementation of the control- 
+ler is assumed by Katkoori and Vemuri in [I]. By our knowledge, 
+their approach is the only one which does not require a descrip- 
+tion of the controller. Unfortunately the presented results are not 
+convincing, because of large estimation errors. 
+None of the published approaches has ever estimated the area of 
+a controller, implemented on a FPGA target architecture, without 
+having at least a behavioral description of the controller. 
+flops. 
+2 TARGET ARCHITECTURE: FPGA 
+FPGAs (Field Programmable Gate Arrays) are digital circuits, 
+which can be programmed by the user. They consist of a regular, 
+symmetrical structure of single interconnected functional blocks. 
+We used in our work FPGAs of the XC4000-series, manufac- 
+tured by Xilinx Inc., but we are convinced of the usability of our 
+estimation for other types of F'PGAs as well (please see Section 
+7, where some examinations with the Virtex-series are 
+described). 
+The functional blocks in the XC4000 series are named CLBs 
+(Configurable Logic Block). In Figure 2 the general structure of 
+one CLB is depicted.. 
+Figure 2. CLB of a XC4000 FF'GA 
+Each CLB consists of three look-up tables (LUTs), where two of 
+them (namely G and F) have four and the third (H) has three 
+inputs. Each k-input-LUT is able to realize every arbitrary hool- 
+ean function with k variables. Additionally, each CLB has two 
+flip-flops, which enables the implementation of buffered outputs. 
+Although each CLB has nine inputs, it is not possible to realize 
+every arbitrary boolean function with nine variables, but only a 
+few of them. However, all boolean functions with a maximum of 
+five inputs can be realized. 
+3 ANALYTICAL vs. EXPERIMENTAL 
+APPROACH 
+A controller can be fully described by the following 6-tuple: 
+FSM = (I,O, S,6 ,  h,So) ,  where I is a finite set of inputs, 0 a 
+finite set of outputs and S a finite set of states. 6 describes the 
+state transition function, while h describes the output function. 
+The dedicated initial state is defined by So.  Inputs, outputs and 
+states, as well as the initial state are known or can easily be esti- 
+mated, even during the allocation phase of high-level synthesis, 
+whereas 6 and h are first available after the binding has heen 
+finished. However, we know that N f =  rld(lSI)l+ 101 functions 
+have to be implemented overall, which are depending on a maxi- 
+mum of rld(lSI)1+1Il variables. 
+The number of needed CLBs to implement all functions can now 
+be calculated by: NCLB = NfxK,  where the cost factor R 
+describes the cost for one funcuon and depends on the number of 
+dependent variables and the type of available LUTs. If the num- 
+ber of dependent variables exceeds the number of inputs of a 
+LUT, K can not he determined, because not all boolean functions 
+with more than five variables can be realized. To calculate K for 
+those cases, it would be necessary to have exact knowledge about 
+the boolean function to be realized, to determine whether one 
+CLB is sufficient or not. 
+57 
+Leg1 et al. proposed in [2] to solve this problem by using the fol- 
+lowing formula: 
+NLUT = { n - k + l , n > k '  
+where n is the number of depending variables, k the number of 
+inputs of one LUT and NLUT the resulting number of needed 
+LUTs. We know the maximum number of dependent variables, 
+but not the exact number, required for each function. The LUTs 
+used in XC4000 series have different number of inputs, therefore 
+this approach does not solve our problem. 
+Another problem is the fact, that with the increasing complexity 
+of a controller, the complexity of the interconnect is growing as 
+well. Therefore some CLBs can not be used optimally. In some 
+cases additional CLBs are needed, only to feed signals. 
+In summary one can say: An analytical approach is not possible 
+if we assume that no explicit description of the controller is avail- 
+able. So we decided to solve the problem by using experimental 
+examinations. 
+1 , n 5 k  
+number of states of the controller. We are only interested on the 
+number of additional transitions, so the parameter c is defined as: 
+c = max{O,NT-IS1}. 
+N, is calculated in advance hy our data-path estimator. 
+4.4 Number of Unused States(d) 
+With parameter a, we know the number of flip-flops, required to 
+code 2=-'+ 1 till 2= states. If the number of states is within 
+these margins hut less than 2 = ,  2= -IS1 states are not used. The 
+more flip-flops are available, the higher is the number of possible 
+unused states. To be independent from the number of flip-flops, 
+we define the next parameter d as: 
+d = rld(lSI)l-ld(lSI)l 
+where d s  [O;l) . A value of d = 0 means, that there are no 
+unused states in the controller. A value of d = 1 is not possible, 
+because this would imply, that the number of flip-flops is not 
+minimal. 
+4.5 '0'1'1' Ratio in Output Signals(e) - - 
+Precise informations about the output-signals are not available 
+before the binding step has been executed. The density of the '1's OF . .  
+PARAMETERS in each output can be calculated by determining the probability, 
+As stated before, we assume, that no explicit controller descrip- 
+tion is available, as it applies to all phases in high-level synthesis 
+(except the controller generation phase). The first question to be 
+answered is: Which parameters supply sufficient information to 
+get accurate estimations on the area of a controller? We have 
+examined several different parameters and evaluated their appli- 
+cability. In the following sections we will describe which on the 
+one hand are easy to determine or to calculate and on the other 
+hand lead to accurate estimates. Our goal is to determine a single 
+formula, which can be calculated very fast and provide the 
+desired accurate results. 
+Dependent on the synthesis steps, which have already been exe- 
+cuted, our data-path estimator will be used to build a model of 
+the RT-structure. i.e. the missine results will be estimated. 
+how often a component will be selected. The signal on the output 
+in these states is inverted in all other states, where the component 
+is not selected. We will explain this by an example. 
+We assume an estimated scheduling and one arithmetic compo- 
+nent which is able to execute additions and subtractions. We are 
+interested in the '1' distribution probability of the ,select" input 
+of this component. On the left side of Figure 3, a part of the data- 
+flow graph is depicted. The marked area includes those opera- 
+tions which are estimated to be executed by the arithmetic com- 
+ponent. In the middle of Figure 3, a part of the state-diagram is 
+shown, which is the result of the estimated scheduling. It should 
+be noted, that the number of states is hown, but not the concrete 
+mapping of operations to these states. Actually, this is not a prob- 
+lem, because the ratio between 'Os and 'l's is independent from 
+I 
+this fact. According to the here used model, the number of exe- 
+cuted operations on this component is invariant. 4.1 Number of Flip-Flops(a) 
+The number of flip-flops plays a dominating role for the area of a - 
+I .  
+. . . .
+controller. Assuming, the states of the controller are binary 
+encoded, the number of needed flip-flops can be easily deter- 
+mined by: 
+a = rld(ISI)l . 
+4.2 Number of Outputs(b) 
+After the allocation of functional units, the number of control- 
+inputs and outputs is hown for those units. Additional outputs 
+are needed for the required multiplexors, either induced by the 
+control structure (case, loop, etc.) or by resource sharing, and for 
+registers. The set of outputs is defined as 0 = (01, 0,, .. ., Old , 
+where Vi s  { 5 ..., lOD : Oi= (oi1,0i2, .. .,oilsl). We define the next 
+parameter bas: 
+h = 101 data-flow states 
+. . .  , , .  . . .  
+i o 1  
+0 1  I 
+1 1 1  
+1 0 0  
+0 1 0  
+I ! .  
+. . .  . . .  
+possible outputs 
+- ,.,~ 
+Figure 3. Determination of the '0'1'1' ratio 
+On the right of Figure 3, three possible bindings with the corre- 
+spondiig output are show& where the k t io  between '0's and '1's 
+is always the same. 
+4.3 Number of Transitions(c) 
+The minimum number of transitions ( N T )  of a controller is 
+IS1 - 1 . If the schedule requires a repetitive execution, than the 
+minimum number of transitions is IS1 . As soon as the controller 
+has at least one input, the number of transitions will exceed the 
+58 
+For the parameter e, we have to distinguish between Mealy- and 
+Moore type controllers. This is necessary because the maximum 
+number of bits in an output signal depends on the type of fhe con- 
+troller. For a Mealy type controller, we define for each output Oi 
+the parameter ei,mealy as follows: 
+NT 
+, = I  
+1 
+ei,mealy = N,' Coijloji= 1
+For a Moore type controller the parameter ei,moore is defined 
+similarly for each Oi : 
+1m 
+2 1 . 9 ~  10 ( 6 .  I m  
+M~ 
+M 
+,=, 
+Now we can define the last parameter e, which describes the ratio 
+between 'Os and '1's for all outputs 
+oie0: 
+// 32 states 
+10 m *I m 
+I N  ,if X = mealy 
+,if X = moore 
+e = E c e i , ,  where N= 
+i = i  
+5 AREA ESTIMATION 
+To extract significant results out of the experimental examina- 
+tions, it is necessary to have as much data available as possible. 
+Therefore, we have developed a controller generator, which is 
+able to build arbitrary behavioral descriptions of controllers, 
+based on the parameters a, b, c, d and e. For each given set of 
+these parameters, a huge number of possible controllers exists. 
+We examined the common features among those controller, 
+which are generated out of the same parameters. Additionally, 
+we concentrate on the dependencies between each parameter and 
+the number of required CLBs. This is done by setting all parame- 
+ters, except the one under consideration, to a fixed value, whereas 
+the value of the interesting one changes. 
+In the following we will show some of our examination results, 
+regarding these dependencies. Because of marginal differences 
+and for the sake of clarity, each curve in the following figures 
+stays as a representative for a multitude of generated controllers 
+with the same parameter set. 
+Figure 4. Dependency behveen area and parameter a 
+In Figure 4, we show the dependency between the number of 
+flip-flops (parameter a) and the number of required CLBs for a 
+controller. It can be seen by the shape of @e curve, @at it can be 
+approximated by an exponential function. 
+4 
+Figure 6. Dependency between area and parameter c 
+In Figure 6 the dependency between the number of CLBs and the 
+number of transitions (parameter c) is depicted. (In the upper half 
+for controller-types with 32, @,@e lower half with 64 states). As 
+59 
+in the case of parameter b, this curve can also he approximated 
+by a root function. 
+64 states 
+I 
+0 0 ,  0 2  Y I  e 1  0 5  0 8  0 7  0 -  Q P  1 10 
+Figure 7. Dependency between area and parameter d 
+Nearly linear is the dependency between the number of CLBs 
+and the number of unused states (parameter d). This is shown in 
+Figure 7, again for controller-types with 32 and 64 states, respec- 
+tively. 
+\ I  * 0 1  DI 0 3  0 1  o s  o e  0 7  0 8  O D  1 201 1 , 
+Figure S. Dependency between ama and parameter e 
+The dependency between the 'O'/'l'- ratio (parameter e) and the 
+resulting area is shown in Figure 8. In this case an approximation 
+can he done by a parabola. 
+Because of the different shapes of the curves, describing the 
+dependencies for each parameter alone, it is not possible to 
+derive directly a formula like: 
+NcLB = k,. a €3 kh. b@ . . . €3 k; e 
+to combine the dependencies for all parameter. Instead of this, 
+first we put parameter b and c together by applying multiple lin- 
+ear regression. Then the result is combined together with param- 
+eter a, which leads to the following intermediate function: 
+NC-B = fl(a)+f2(a)&+f3(aJ&+f4(ajh+f5(a)c+f6(aj& 
+where the f i  are defined as follows: 
+8 
+fi(a) = C k i j - a j - '  
+j - 1  
+The kj are the results from the linear regression and are not 
+depicted here, due to space limitations. 
+In the following step the influence of the parameter d and e have 
+to be integrated. We dp this, by applying two correction functions 
+Kd(d) and K,(ej to NCLB, which are defined as: 
+Kd(d) = I -0,5d 
+K,(e) = 3,9426e3 -6,3106e2 + 3,8367e+0,1720 
+The number of CLBs, required to implement a controller with the 
+given parameter a to e can now be calculated as: 
+NCLB = fjcmXKdxK, 
+6 RESULTS 
+We tested the quality of our controller-estimation on seven algo- 
+rithmic descriptions of different designs, where dzffeeq is a differ- 
+ential equation solver, maha, ar, end ellip are different kinds of 
+filters. In addition to the last mentioned typical benchmark 
+designs, we usedlpeg, which is thc compression algorithm of the 
+jpeg-coding, as well as subband and hybrid, which are both pro- 
+cesses of the MP3-coding algorithm. 
+To compare our results we synthesized the designs with two dif- 
+ferent HLS-systems. RT-synthesis was done by a widely used 
+commercial synthesis tool, while the mapping to the FPGA was 
+done by xacf from Xilinx Inc. Table 1 shows the result we 
+obtained for area estimation 
+In F 
+ity. ' 
+Table 1. Results of area estimation 
+ellip 
+jpeg 
+uhband 2 
+hyhtid 
+- 
+TCLB - 
+10 
+11 
+I5 
+55 
+17 
+30 
+33 
+36 
+202 
+I137 - 
+- 
+imatet 
+LO 
+12 
+I5 
+63 
+20 
+32 
+29 
+28 
+226 
+1245 
+- 
+- 
+ror labs) e m r  (re1 
+18  114.59. 
++3 +17.6% 
+1 2  16.7% 
+-4 -12.1% 
+-8 -22.2% 
+124 +11.9% I  +I08 +9.5% 
+e 9 these results are depicted graphically, for sake of clar- 
+grey bars show the real, while the black bars show the - .  
+estimated number of CLBs. The numbers in parentheses indicate, 
+which HLS-system was used. 
+It is important to note, that the linear regression, performed as 
+one part of our estimation approach, is only based on the auto- 
+matically generated synthetic controllers. Whereas the controller 
+of the benchmark and the real applications have not been incor- 
+porated into the linear regression step. Since the obtained results 
+60 
+are very promising, our approach Seems to he very effective in 
+general. 
+Figure 9. Estimated vs. real area 
+7 SUMMARY AND OUTLOOK 
+We presented a new approach on estimating the area of a control- 
+ler during high-level synthesis, when FF'GAs are used as target- 
+architecture. This estimation can be done even during the alloca- 
+tion phase, because it depends on easy accessible data. It can be 
+calculated very fast and is independent from the complexity of 
+the controller. 
+We have made additional efforts to estimate the delay of a con- 
+troller, based on the same parameters as used for area estimation. 
+Till now it is possible to estimate the number of CLBs on the dif- 
+ferent paths through the controller. These estimates are quite 
+accurate, but to know the number of CLBs on a path is not only 
+sufficient to infer the delay from it.. To get more accurate predic- 
+tions, additional information about the number of switch-matri- 
+ces, the type of wire (single., double- or longline) and the 
+distance between the CLBs have to he taken into account. 
+One obvious issue, that has to be worked on in the future is the 
+examination of different types of FPGAs. Achlally we start such 
+examinations for the Virtex series from Xilinx Inc. The results 
+obtained so far, show, that all dependencies between the parame- 
+ter a to e,  are the same in terms of the trend of the cwes .  Only 
+the constants have to he adjusted, i.e. recalculating the kij and 
+the correction functions Kd(d) and KJe) . 
+Another issue to be examined in the future will be, to remove the 
+restriction to binary-coded states, Especially the one-hot coding 
+will be of interest, because their application reduces the com- 
+plexity of the next-state logic, drastically. 
+8 REFERENCES 
+[IIS. Katkoori, R. Vemuri: Accurate Resource Estimation Algo- 
+rithms for  Behavioral Synthesis, 9th Great Lake Symposium on 
+VLSI, pp. 338 - 339, 1999 
+[Z]. Legl, C. Wurth, K. Eckl: A Boolean Approach ro Perfor- 
+mance-Directed Technology Mapping for  LUT-Based FPGA 
+Designs, Design Automation Conference 1996. 
+[3]. Mitra, P. R. Panda: Estimating Complexity of Synthesized 
+Desivns f "  FSM Soecificatiom. IEEE Desien & Test of Com- 
+pute&, pp. 30 - 35, Marc"h 1993. 
+[4]N. Nedjah, L. de Macedo Monrelle: How many CLBs does 
+your circuit need to be implemented? 12th International Work- 
+shop on Rapid System Prototyping, pp. 174 - 179,2001.' 
+[5 ] .  Ramachandran, E J. Kurdahi: Incorporating the Controller 
+Effects During Register Transfer Level Synrhesis, European 
+Design and Test Conference 1994. 
+[6]M. Xu, E J. Kurdahi: RTL Synthesis with Physical and Con- 
+troller Information, European Design and Test Conference 1997, 
+pp. 299 - 303,1997. 
+L 
+61 

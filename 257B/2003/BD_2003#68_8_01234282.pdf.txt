@@ -1,0 +1,442 @@
+ISSCC 2003 / SESSION 13 / 40Gb/s COMMUNICATION ICS / PAPER 13.4
+13.4  A 40/43Gb/s SONET OC-768 SiGe 4:1 MUX/CMU
+Derek K. Shaeffer, Hai Tao, Qinghung Lee, Adrian Ong, 
+Vincent Condito, Saied Benyamin, Wayne Wong, Xiaomin Si,
+Steffen Kudszus, Maurice Tarsia
+Big Bear Networks, Milpitas, CA
+Electrical components for 40Gb/s SONET OC-768 transmission
+are of significant commercial interest in the optical networking
+industry.  Recent work establishes the viability of advanced SiGe
+technologies for use in OC-768 applications [1][2].  In this paper,
+we present a 40/43Gb/s 4-to-1 MUX / CMU in a 120GHz fT SiGe
+BiCMOS technology [3] that meets SONET OC-768 specifica-
+tions.  The chip is co-packaged with a companion 16-to-4  MUX
+(reported elsewhere), providing a complete OC-768 serializer and
+CMU.
+A block diagram of the chip appears in Fig. 13.4.1.  The chip inte-
+grates three principle subsystems: a 40/43Gb/s 4-to-1 multiplex-
+er, a 10Gb/s delay-locked loop (DLL), and a 20GHz half-rate
+CMU.  The chip also includes a microprocessor serial interface,
+transmit PLL lock monitoring, and a bandgap reference.
+The multiplexer accepts four differential 10Gb/s current-mode
+logic (CML) inputs.  Input data timing alignment is achieved
+with a delay-locked loop (DLL) with on-chip loop filter providing
+a 5GHz half-rate or 10GHz full-rate clock to the preceding 16-to-
+4 multiplexer.  The DLL adjusts this clock to align the received
+data to a local 10GHz clock. 
+The incoming data is retimed and multiplexed up to 40Gb/s
+using local clocks fed from the CMU.  An extra retiming latch is
+used on alternating selector inputs to properly align clock and
+data.  Clock delay-compensation buffers on the 20GHz clocks cor-
+rect for propagation delay through the 10Gb/s latches and sub-
+sequent selectors to improve setup-and-hold margins for the
+20Gb/s data latches.  The final stage of the multiplexer uses a
+half-rate architecture with no retiming latch after the selector. A
+traveling-wave amplifier with on-chip 50Ω terminations drives
+the 40Gb/s output with a 1Vp-p differential CML signal.  
+A significant design challenge is to secure stable timing margins
+over process, temperature and supply-voltage variations when
+propagation delays are a significant fraction of the 25ps bit peri-
+od.  The demands on timing accuracy are particularly acute in
+the 20Gb/s latches and final selector stage where small timing
+deviations contribute to eye closure and degradation in bit error
+ratio (BER) performance.  
+Figure 13.4.2 shows a circuit diagram of a 20Gb/s latch and illus-
+trates the clocking architecture used in the 20Gb/s section of the
+multiplexer to ensure timing stability.  In this architecture, an in-
+phase clock retimes the selector input, while a quadrature clock
+operates the selector itself.  If the propagation delays of the active
+circuitry were zero, the quadrature clock would have high and low
+levels precisely centered in the 20Gb/s data eyes.  This condition
+maximizes the selector timing margin.  In reality, the re-timed
+data is delayed significantly due to the latch clock-to-Q delay and
+clock propagation delay.  To restore and stabilize the desired tim-
+ing relationship between the selector clock and retimed data, a
+replica delay-compensation buffer provides a matched delay for
+the quadrature clock signal.  The resulting timing relationships
+are illustrated in the timing diagram of Fig. 13.4.2.  Note that the
+selector clock is positioned in the middle of the 20Gb/s data eye,
+maximizing the timing margin and stabilizing performance
+against process, voltage and temperature variations.
+The 20GHz CMU provides in-phase and quadrature clocks to the
+multiplexer.  The CMU uses an on-chip voltage-controlled oscil-
+lator (VCO) with coarse and fine tuning control [4].  An analog
+PLL with on-chip loop filter sets the fine control voltage, while
+the coarse control is set digitally.  This technique permits a
+smaller VCO gain slope for the analog loop and reduces the sen-
+sitivity to supply noise injection.  The PLL sets the VCO fre-
+quency to track an external 625MHz or 2.5GHz reference clock
+over about 40MHz bandwidth.  Upon reset, an on-chip calibra-
+tion loop automatically sets the coarse frequency control accord-
+ing to the reference frequency supplied.  
+A die photo of the MUX/CMU is shown in Fig. 13.4.3. The die
+area is 8.25mm2.  The high operating frequency calls for meticu-
+lous attention to detail in the layout, particularly in the 20GHz
+clock distribution network, where in-phase and quadrature clock
+delay matching is critical.  The layout makes extensive use of on-
+chip transmission lines, which were carefully modeled in design
+simulations.    
+The die is co-packaged with a companion 16:4 MUX chip in a cus-
+tom ceramic package.  The measurement data presented here
+are taken in this configuration with a 2.5GHz reference clock.
+Figure 13.4.4  shows the 40Gb/s data eye with 231-1 PRBS input
+data as measured with a digital communications analyzer (DCA)
+having about 150fs rms intrinsic jitter.  The DCA was triggered
+at 10GHz for this measurement.  The eyes are clearly open,
+entirely free of sparkle, and exhibit excellent symmetry between
+adjacent eyes.  The corresponding 20GHz clock duty cycle is esti-
+mated to be better than 51%.  The measured data jitter is 880fs
+rms and 5.1ps peak-to-peak.  A 1010 input pattern was also used
+to determine the CMU random jitter generation.  This jitter was
+about 250fs rms on the DCA, including timebase jitter.  The
+phase noise of the 1010 pattern was also measured on a spec-
+trum analyzer.  The results, shown in Fig. 13.4.5, are used to
+estimate the high-band jitter to check compliance with ITU
+G.8251 jitter generation limits.  The phase noise at offsets below
+1MHz is determined by the reference oscillator, provided by an
+external cleanup PLL.  The high-band jitter is 116fs rms (about
+1.6 ps, peak-to-peak), including the reference, which exceeds ITU
+G.8251 specifications by about 4dB. To the authors’ knowledge,
+this is the first OC-768 MUX/CMU to meet G.8251 specifica-
+tions.  The total random jitter generation (excluding the refer-
+ence oscillator) is estimated at 175fs rms, which is consistent
+with DCA measurements.  The packaged multiplexer achieved
+error-free operation with 231-1 PRBS input data for 12 hours, at
+which point the test was terminated.  This result implies a BER
+of less than 4 x 10-16 with 50% confidence. The total power con-
+sumption is 4.9 W.  The measurement results are summarized in
+Fig. 13.4.6. 
+Acknowledgments
+The authors would like to acknowledge Ken Yee, David Pritzkau and J.P.
+Mattia for their invaluable assistance gathering measurement data.
+References
+[1] Greg Freeman, et al., “40Gb/s Circuits Built From a 120GHz fT SiGe
+Technology,” IEEE Journal of Solid-State Circuits, vol. 34, no. 9, pp. 1106-
+1114, Sept. 2002.
+[2] Toru Masuda, et. al, “40 Gb/s 4:1 Multiplexer and 1:4 Demultiplexer IC
+Module using SiGe HBTs,” IEEE 2001 International Microwave
+Symposium Digest, pp.1697-1700, May 2001.
+[3] A. Joseph, et. al, “A 0.18-um BiCMOS Technology Featuring 120/100
+GHz (fT/fMAX) HBT and ASIC-CompatibleCMOS Using Copper
+Interconnect,” Proc. IEEE Bipolar/BiCMOS Circuits and Technology
+Meeting, pp. 143-146. 2001
+[4] Derek K. Shaeffer, “Microstrip Coupled VCOs for 40GHz and 43GHz
+OC-768 Optical Transmission,” ESSCIRC Digest of Technical Papers,
+September 2002.
+•  2003 IEEE International Solid-State Circuits Conference 0-7803-7707-9/03/$17.00                     ©2003 IEEE
+ISSCC 2003 / February 11, 2003 / Salon 7 / 3:15 PM
+13
+Figure 13.4.1: Block diagram of the 40Gb/s 4:1 MUX/CMU. Figure 13.4.2: MUX quadrature clocking circuitry.
+Figure 13.4.3: Die micrograph.
+Figure 13.4.5: Measured 20GHz CMU phase noise performance. Figure 13.4.6: Performance summary.
+Figure 13.4.4: 40Gb/s eye diagram with 231-1 PRBS data.
+
+ 
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+µ
+
+
+ 
+
+
+ 
+
+!
+"
+
+
+ 
+
+#
+$%
+&
+
+#
+$%
+'
+
+(
+
+$%
+&
+
+(
+
+$%
+'
+$
+!
+
+%
+)
+$!
+*
++
+$
+!
+*
++
+
+ 
+
+$%
+)
++
+*
+*
++
+*
+*
+(
+,
+-
+-
+.
+ /
+$0 &
+$0 '
+!1&
+!1'
+-2
+ /
+
+ /
+ /
+ /
+
+ /
+ /
+ /
+ / /
+
++**	&
++**	'
++**3'
++**3&
++**&
++**'
++**'
++**&
+
+
+!*(
+1'4' 
+!'!$ 
+5/
+	
+
+3
+
+5/
+ 	  	 	
+
+5
+4"4' 4* *"
+ /
+6
+ /
+6
+ /
+
+*7
+
+
+
+,
+	
+
+3
+
+5
+$*8
+!"&'(*4!'
+
+5/
+
+5/
+
+5
+
+5
+5
+5
+/5
+/5
+.
+•  2003 IEEE International Solid-State Circuits Conference 0-7803-7707-9/03/$17.00                     ©2003 IEEE
+•  2003 IEEE International Solid-State Circuits Conference 0-7803-7707-9/03/$17.00                     ©2003 IEEE
+Figure 13.4.1: Block diagram of the 40Gb/s 4:1 MUX/CMU.
+
+ 
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+µ
+
+
+ 
+
+
+ 
+
+!
+"
+
+
+ 
+
+#
+$%
+&
+
+#
+$%
+'
+
+(
+
+$%
+&
+
+(
+
+$%
+'
+$
+!
+
+%
+)
+$!
+*
++
+$
+!
+*
++
+
+ 
+
+$%
+)
++
+*
+*
++
+*
+*
+(
+,
+-
+-
+.
+ /
+$0 &
+$0 '
+!1&
+!1'
+-2
+ /
+
+ /
+ /
+ /
+
+ /
+ /
+ /
+ / /
+
++**	&
++**	'
++**3'
++**3&
++**&
++**'
++**'
++**&
+
+
+!*(
+1'4' 
+!'!$
+•  2003 IEEE International Solid-State Circuits Conference 0-7803-7707-9/03/$17.00                     ©2003 IEEE
+
+5/
+	
+
+3
+
+5/
+ 	  	 	
+
+5
+4"4' 4* *"
+ /
+6
+ /
+6
+ /
+
+*7
+
+
+
+,
+	
+
+3
+
+5
+$*8
+!"&'(*4!'
+
+5/
+
+5/
+
+5
+
+5
+5
+5
+/5
+/5
+.
+Figure 13.4.2: MUX quadrature clocking circuitry.
+•  2003 IEEE International Solid-State Circuits Conference 0-7803-7707-9/03/$17.00                     ©2003 IEEE
+Figure 13.4.3: Die micrograph.
+•  2003 IEEE International Solid-State Circuits Conference 0-7803-7707-9/03/$17.00                     ©2003 IEEE
+Figure 13.4.4: 40Gb/s eye diagram with 231-1 PRBS data.
+•  2003 IEEE International Solid-State Circuits Conference 0-7803-7707-9/03/$17.00                     ©2003 IEEE
+Figure 13.4.5: Measured 20GHz CMU phase noise performance.
+•  2003 IEEE International Solid-State Circuits Conference 0-7803-7707-9/03/$17.00                     ©2003 IEEE
+Figure 13.4.6: Performance summary.
