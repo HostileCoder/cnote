@@ -1,0 +1,1132 @@
+   978-1-4673-1813-6/13/$31.00 ©2013 IEEE 
+ 1 
+Direct-to-Earth Communications with Mars Science 
+Laboratory during Entry, Descent, and Landing 
+ Melissa Soriano, Susan Finley, David Fort, Brian Schratz, Peter Ilott, 
+Ryan Mukai, Polly Estabrook, Kamal Oudrhiri, Daniel Kahan, Edgar Satorius 
+Jet Propulsion Laboratory 
+California Institute of Technology 
+Pasadena, CA 91109 
+818-393-7632 
+Melissa.A.Soriano@jpl.nasa.gov 
+ 
+ 
+Abstract—	   Mars Science Laboratory (MSL) undergoes 
+extreme heating and acceleration during Entry, Descent, and 
+Landing (EDL) on Mars.  Unknown dynamics lead to large 
+Doppler shifts, making communication challenging.  During 
+EDL, a special form of Multiple Frequency Shift Keying 
+(MFSK) communication is used for Direct-To-Earth (DTE) 
+communication.  The X-band signal is received by the Deep 
+Space Network (DSN) at the Canberra Deep Space 
+Communication complex, then down-converted, digitized, and 
+recorded by open-loop Radio Science Receivers (RSR), and 
+decoded in real-time by the EDL Data Analysis (EDA) 
+System.  The EDA uses lock states with configurable Fast 
+Fourier Transforms to acquire and track the signal.  RSR 
+configuration and channel allocation is shown.  Testing prior 
+to EDL is discussed including software simulations, test bed 
+runs with MSL flight hardware, and the in-flight end-to-end 
+test.  EDA configuration parameters and signal dynamics 
+during pre-entry, entry, and parachute deployment are 
+analyzed.  RSR and EDA performance during MSL EDL is 
+evaluated, including performance using a single 70-meter DSN 
+antenna and an array of two 34-meter DSN antennas as a back 
+up to the 70-meter antenna. 
+TABLE OF CONTENTS 
+1. INTRODUCTION ................................................. 1	  
+ 2. APPROACH ........................................................ 2	  
+ 3. DETAILED ANALYSIS ........................................ 3	  
+ 4. RESULTS ............................................................ 9	  
+ 5. CONCLUSION ................................................... 11	  
+ 6. ACKNOWLEDGEMENTS ................................... 11	  
+ REFERENCES ....................................................... 12	  
+  
+1. INTRODUCTION 
+During Mars Science Laboratory (MSL)’s Entry, Descent, 
+and Landing (EDL), there were two forms of real-time 
+communication: Direct-to-Earth (DTE) and relay through 
+Mars Odyssey orbiter. DTE communication was transmitted 
+by MSL’s Small Deep Space Transponder (SDST) at X-
+ band frequencies and received at the Canberra Deep Space 
+Communications Complex (CDSCC) in Australia. 
+ 
+ 
+Figure 1- MSL EDL Direct-To-Earth Communications 
+system diagram 
+ 
+A DTE Communications system diagram is shown in Figure 
+1.  Three antennas at CDSCC received the DTE signal: 
+DSS-43 (70-m), DSS-34 (34-m), and DSS-45 (34-m), with 
+DSS-43 being prime.  Both Right Circular Polarization 
+(RCP) and Left Circular Polarization (LCP) signals were 
+received and down-converted to Intermediate Frequency 
+(IF) and recorded from DSS-43, as well as RCP signals 
+from DSS-34 and DSS-45.  MSL’s transmitted signal was 
+RCP.  The signals from DSS-34 and DSS-45 were also 
+correlated and combined by the Full Spectrum Processor 
+Array (FSPA) and recorded as a back up to DSS-43. 
+ 
+Analog data from the antennas were distributed to closed-
+ loop Downlink Telemetry, and Tracking (DTT) receivers, 
+the FSPA, and open-loop Radio Science Receivers (RSR).  
+During EDL, traditional phase modulated low rate telemetry 
+is not possible due to high dynamics and low signal-to-noise 
+ratio.  The closed-loop DTT receivers received the signal on 
+a best-efforts basis but as expected, did not stay locked 
+through banking and parachute deployment.  The open-loop 
+RSRs were prime for EDL.  The RSRs digitized, filtered, 
+and down-converted the signal, using a 100 kHz 8-bit 
+complex channel.  This data was relayed to the Wideband 
+VLBI Science Receiver (WVSR) and transferred across the 
+flight operations network from CDSCC in Australia to the 
+EDL Data Analysis (EDA) assemblies at JPL’s Deep Space 
+Operations Complex (DSOC). 
+ 
+ 
+ 2 
+The EDAs processed the 70-m data using Fast Fourier 
+Transform (FFT) based algorithms in real-time using 
+acquisition and tracking lock states [4].  Each lock state may 
+have different FFT parameters such as length of integration.  
+Up to three threads and twelve processors work in parallel.  
+The signal has a carrier and a subcarrier (or tone).  The 
+received EDL signal, s(t), is shown in the equation below, 
+where fc is the transmitted carrier frequency, fd is the data 
+tone frequency, ∆ is the modulation index, and Pt is the total 
+received power. 
+ 
+! ! =    2!! cos 2! !" ? !! ! + ∆ ? !"# 2! !" ?
+ !
+ !!
+ !
+ !!
+                                                                                                 !!(!) +   !(!)                                                                      (1)  
+        
+where !"# !  is the hard-limited sine function: 
+ 
+                                                    !"# ! =   
+ 1,        0 < ! ≤ !
+ ?1,        ! < ! ≤ 2!                              (2) 
+ 
+The subcarrier’s offset from the carrier varies and this 
+difference conveys a meaning.  An example FFT spectrum 
+for s(t) with ∆ = 43° is shown in Figure 2.  The EDA 
+searches for the carrier and data tone using peak power 
+detection and then measures the difference between the 
+carrier and subcarrier, which is converted to a tone 
+mnemonic.  During MSL EDL, tone mnemonics as well as 
+plots of residual frequency and signal-to-power ratio were 
+provided in real-time to the Mission Support Area.  
+ 
+ 
+Figure 2- FFT of MSL EDL signal 
+For MER and Juno, ∆ = 48°.  The received carrier and data 
+powers are functions of Pt and ∆.  As shown by the below 
+equations, the choice of modulation index is a tradeoff 
+between power in the carrier, Pc, for acquisition/tracking 
+and power in the data, Pd, for tone detection.  Note that Pd 
+includes the power in the first tone harmonic, denoted by 
+Ptone, and also the power in the other harmonics.  The ratio 
+of Pd to Ptone is 1.2337 [1].  MSL’s selection of ∆ = 48° vs ∆ 
+= 43° for MER and Juno puts less of the total transmitted 
+power in the carrier. 
+ 
+                                                                                    !! =   !! ? !"#
+ !∆                            (3) 
+                                                                                    !! =   !! ? !"#
+ !∆                            (4) 
+                                                                                    !!"#$ =   
+ !!?!"#
+ !∆
+ !.!""#
+                             (5) 
+ 
+ 
+2. APPROACH 
+The DTE Communications system was tested in an in-flight 
+test, with a Portable Radio Science Receiver (PRSR) and the 
+MSL test bed, and using software simulations of expected 
+Doppler dynamics. 
+ 
+In-Flight Test 
+An in-flight test of the DTE communications system 
+planned for MSL EDL took place on DOY 179, 2012.  This 
+test included two main parts: a. All 256 tones were tested 
+with 10-second durations, ramping up from tone 1 to tone 
+256 and then ramping back down to tone 1.  Tone number 
+vs time (in seconds) for this part of the test is shown in 
+Figure 3.  b. An abbreviated version of the nominal EDL 
+sequence was also tested.  Tone number vs time for this part 
+of the test is shown in Figure 4.  Note the heartbeat tones 
+(which are played if there is no other event taking place) at 
+tone numbers 233 and 239.  The in-flight test was successful 
+and all radiated tones were correctly detected. 
+ 
+Figure 3- Tone number vs Time (seconds) for in-flight test, 
+tones ramp 
+ 
+Figure 4- Tone number vs Time (seconds) for in-flight test, 
+nominal EDL 
+ 
+ 
+ 3 
+Software simulations 
+Simulated signals were generated in the standard Radio 
+Science Receiver (RSR) file format and processed by the 
+Entry, Decent, and Landing (EDL) Data Analysis (EDA) 
+system.  These data files were generated using eda/gen, 
+which is part of the EDA software package.  The eda/gen 
+software accepts as input a file in standard downlink 
+frequency predicts format.  Residual frequency is computed 
+by differencing the measured signal frequency and the 
+predicted frequency.   
+                                         !!"#$%&’( =   !!"#$%&"’ ?   !!"#$%&’(                                             (6) 
+For the spacecraft predicts, a downlink frequency predicts 
+file was provided by Dan Burkhart of MSL Navigation. In 
+this file, parachute deployment and powered descent do not 
+occur; the spacecraft impacts at around E+300 s.   A 
+discontinuity occurs at this point, as seen in Figure 5.  The 
+lack of parachute deployment in the predicts file is 
+deliberate and desirable because the exact time of parachute 
+deployment is unknown.  If parachute deployment were 
+included, residual frequency would spike twice, at the 
+predicted time and actual time.  With parachute deployment 
+removed from the predicts, the spike in residual frequency 
+occurs only at the actual time and is more easily detected in 
+real-time.  The spacecraft predicts file has an entry time at 
+MSL of 06-AUG-2012 05:10:43.8725 UTC.  Distance from 
+MSL to CDSCC at this entry time resulted in a one-way 
+light time (OWLT) of 827.226 seconds.  Entry time at Earth 
+is, therefore, 06-AUG-2012 05:24:31.9465 UTC. 
+ 
+Figure 5- 6DOF late chute signal and Navigation no-chute 
+predicts 
+For the measured signal, data from the 6 Degrees of 
+Freedom (6DOF) model provided by Jeremy Schidner of 
+NASA Langley were used.  Data for the latest, earliest, and 
+nominal times of parachute deployment were obtained and 
+this data is shown in Figure 6.  We will call this data “late,” 
+“early,” and “nominal” respectively.  The 6DOF late chute 
+signal and navigation predicts are shown in Figure 5. 
+ 
+Figure 6- Overview of 6DOF parachute cases 
+Residual frequency was computed by differencing these 
+early and late bounding cases for the spacecraft signal and 
+the downlink frequency predicts provided by MSL 
+navigation. Software simulations were generated using these 
+frequency residuals and used to test the EDA parameters 
+[6].  Similar work was done prior to MSL’s launch in which 
+simulated signals were also generated in RSR file format 
+and processed by the operational EDA software for Mars 
+Science Laboratory.  This work demonstrated 97% correct 
+tones detection at total received signal power (carrier plus 
+data)-to-noise density ratio (Pt/No) of 20 dB-Hz, 79-81% 
+detection at 18 dB-Hz, and 16% detection at 16 dB-Hz [2]. 
+ 
+MSL Test Bed 
+In addition to simulations, the EDA was tested in over 25 
+runs with MSL test bed.  In preparation for EDL, the 
+engineering model of the flight hardware and software was 
+tested numerous times, including the Telecom system.  The 
+Intermediate Frequency (IF) signal was converted from 
+analog to fiber optic, travelled across the lab via a fiber-
+ optic link, was then converted back to analog, and fed as 
+input to a PRSR.  The PRSR digitized, down-converted, 
+filtered, and recorded the signal.  The data was then 
+streamed in real-time to the EDA.  However, the standard 
+test bed runs did not include Doppler dynamics.  Robustness 
+tests combined the signal from MSL test bed with new 
+navigation predicts that included Doppler dynamics from 
+the 6DOF data.   
+3. DETAILED ANALYSIS  
+Theoretical Probability of Detection 
+Searching for the signal amid frequency and frequency rate 
+bins entails finding the bin with the largest squared value.  
+Assuming the noise to be zero-mean Gaussian, each bin will 
+have a chi-squared distribution.  The bin containing the 
+signal will have a non-central chi-squared distribution [1]. 
+Let the probability density function (PDF) of the signal be 
+denoted by !! ! , and let the cumulative distribution 
+function (CDF) of the noise bins be denoted by !! ! .  Let 
+ 
+ 4 
+Nf be the total number of bins to be searched.  The 
+probability of correct detection is given by: 
+                            !! ! !! !
+ !!!!!"
+ !!!!
+ !!!
+                     (7) 
+       
+The expression above is the probability that each noise bin 
+has a value lower than that of the signal bin.  We provide 
+both the PDF of the signal bin and the CDF of the noise bins 
+next.  These are defined in terms of several other terms 
+listed below: 
+ 
+1. !!!": Number of points per FFT.  This is the 
+number of frequency bins over which we must 
+search for the residual carrier. 
+2. ∆!: Frequency resolution.  This is the sampling 
+rate (100 kHz in this case) divided by !!!".  The 
+result is the frequency resolution of the FFT. 
+3. !: The  time  of  incoherent  integration. 
+4. !"#   !"   !!
+ !!
+ : This is the carrier power to noise 
+spectral density ratio for the residual carrier. 
+5. !!"#$
+ !!
+ : This is the tone power (first harmonic only) 
+to noise spectral density ratio. 
+6. !!
+ !!
+ : This is the total signal power to noise spectral 
+density ratio. 
+For carrier detection, define: 
+! = !∆! 
+!! ! = !!!! 4 ? ! ? ! ? !"# !
+ ! !!!?!"# !
+ !?!"#
+         
+ !!!
+ !         (8)                     
+                                                                            !! ! = 1 ?
+ ! !,!
+ ! !
+                             (9) 
+Here, ? ! is the Euler gamma function and ? !, !  is the 
+incomplete gamma function [1].  Hence, the probability of 
+correct detection for the residual carrier, which is one minus 
+the probability of error is: 
+! =
+ !!!! 4 ? ! ? ! ? !"# !! !!!?!"#
+ !
+ !?!"#
+ !!!
+ !
+ 1 ?
+ ! !,!
+ ! !
+ !!!!
+ !"
+ !!!!
+ !!!               (10) 
+ 
+The key input parameters are T, ∆!, !!, and CNR. 
+For the probability of correct detection in resolving tones, 
+assuming we have already correctly detected the carrier: 
+1. !!: This is now the number of tones and not the 
+number of frequency and frequency rate bins as it 
+had been in the residual carrier case. 
+2. Replace CNR by !!"#$
+ !!
+  
+3. Define ! = 2!∆!. 
+The resulting expression for the probability of correct tone 
+detection is: 
+! =
+ !!!! 4 ? ! ? ! ?
+ !!"#$
+ !!
+ !
+ ! !!!?
+ !!"#$
+ !!
+ !
+ !?
+ !!"#$
+ !!
+ !!!
+ !
+ 1 ?
+ ! !,!
+ ! !
+ !!!!
+ !"
+ !!!!
+ !!! (11) 
+ 
+MSL EDL 
+Significant events for the nominal parachute deploy case are 
+shown in Table 1.  The 6DOF data was converted from 
+Doppler frequency to sky frequency by adding MSL’s 
+downlink transmitted frequency (TFREQ) of 
+8,401,420,188.00 Hz and then a frequency offset of 9 KHz.  
+The 6DOF data was originally in Spacecraft time (SCET), 
+so one-way light time (OWLT) was added to obtain Earth 
+Received Time (ERT). 
+Table 1- MSL EDL Critical Events 6DOF nominal 
+parachute chute deploy case 
+ 
+Residual frequency, frequency rate, and frequency 
+acceleration were computed and the late chute case is shown 
+in Figure 7, Figure 8, and Figure 9 respectively.  Residual 
+frequency changes slowly until Entry.  As the spacecraft 
+accelerates towards Mars, it banks three times.  During 
+banking, residual frequency rates reach +/- 300 Hz/s and 
+residual frequency accelerations exceed +/- 100 Hz/s2.  
+After banking is complete, residual frequency changes 
+ 
+ 5 
+slowly until parachute deployment at E+255 seconds.  As 
+the time of parachute deployment is unknown, the 
+navigation predicts do not contain this event, causing a large 
+jump in residual frequency, rate, and acceleration.   
+ 
+ 
+Figure 7- Residual Frequency for late chute case 
+ 
+Figure 8- Residual Frequency Rate for late chute case 
+ 
+Figure 9- Residual Frequency Acceleration for late chute 
+case 
+Total received signal power (carrier plus data)-to-noise 
+spectral density ratio (Pt/No) was predicted to be greater 
+than 20 dB-Hz from when the spacecraft started transmitting 
+tones at E-677 seconds until loss of direct to Earth 
+communications at E+313 seconds (due to the loss of a line 
+of sight from Mars to Earth).  This loss was a consequence 
+of the geometry of the landing site and spacecraft trajectory.  
+Predicted total received signal power to noise spectral ratio 
+is shown in blue in Figure 10.  In this the late chute case, 
+minimum Pt/No until loss of DTE communications at E+313 
+seconds is 28 dB-Hz.  The off bore-sight/cone (theta) and 
+clock (phi) angles of MSL’s low gain antennas are plotted in 
+green and red respectively. 
+ 
+ 
+Figure 10- Predicted Pt/No for 6DOF late chute case 
+These signal characteristics were used to partition MSL 
+EDL into three segments for processing by the EDA: Pre-
+ Entry, Entry, and Parachute.  Each segment used different 
+configuration parameters. 
+ 
+Simulation Parameters 
+EDA software simulations utilized various parameters 
+shown in Table 2.  These parameters describe properties of 
+the MSL EDL tones design and were fixed for all 
+simulations.  A modulation index of 43° was chosen based 
+on the need to maximize the probability of tracking the 
+carrier and subcarrier [1].  Tones ranged in subcarrier 
+frequency from 2 kHz to 20 kHz from the carrier.  This 
+design choice balanced the conflicting desires for smaller 
+spacing between tones (and a smaller channel with less 
+bandwidth streamed in real-time) and larger spacing 
+between tones (increasing the probability of adjacent tones 
+being correctly detected).  Tone duration was 10 seconds.  
+Simulations of detection probabilities performed for Mars 
+Exploration Rover (MER) demonstrated that 10-second 
+tones with Pt/No > 20 dB-Hz could be correctly detected 
+>99% of the time [3].  Mars Science Laboratory 
+requirements were for 90% correct detection. 
+A 100 kHz channel was used for recording.  This channel’s 
+bandwidth of +/- 50 kHz is large enough to contain the 
+complete range of tones (+/- 20 kHz), as well as expected 
+changes in residual Doppler frequency due to uncertainties 
+in predicts (+/- 8 kHz) and auxiliary oscillator drift with 
+temperature (+/- 20 kHz).  Maximum Doppler residual 
+frequency change due to predicts was determined by 
+differencing the bounding chute cases with the predicts.  
+The auxiliary oscillator was expected to increase from -3°C 
+to 11°C in the worst case.  This temperature change causes 
+frequency drift.  To estimate this drift, models based on 
+SDST laboratory test results were used. 
+ 
+ 6 
+Table 2- Key EDA simulation parameters 
+Parameter 
+Definition 
+Parameter Name Value 
+Length of 
+simulation 
+LENGTH 15 minutes, 5 
+seconds 
+Sampling rate SAMPLE_RATE 100 kHz 
+Modulation index 
+(∆) 
+MOD_INDEX 43° 
+Number of tones TON_NUMBER 256 
+Frequency offset 
+where tones begin 
+TON_OFFSET 2000 Hz 
+Frequency delta 
+between tones 
+TON_DELTA 70.5883 Hz 
+Tone duration TONE_DWELL 10 seconds 
+ 
+For the EDA software simulations, Radio Science Receiver 
+data files were generated including a signal with the 
+parameters specified in Table 2.  The simulation time 
+ranged from E-540 seconds (when the 6DOF data started) to 
+E+365 seconds (52 seconds after expected occultation).  
+The frequency residual data from the 6DOF late chute data 
+shown in Figure 7 was used.  10-second duration tones were 
+also added.  The EDA software calculates the subcarrier 
+frequency of tone number n as shown below in Equation 1.  
+For MSL, the EDA software calculates the subcarrier 
+frequency of tone number n using a spacing of 70.5883 Hz 
+between tones as shown in Equation 2.  However, the MSL 
+SDST uses Data Numbers (DNs) that must be integer 
+numbers to specify sub-carrier frequency values. The actual 
+tone spacing implemented by MSL varied between 66 DN = 
+70.81 Hz and 65 DN = 69.74 Hz.  Actual tone spacing 
+varied less than 1 Hz from the tone spacing used by the 
+EDA software.  The EDA was configured to allow for this 
+difference. 
+ 
+            ftone =  TON_OFFSET + n*TON_DELTA       (12) 
+ 
+                       ftone = 2000 + n*70.5883 Hz                  (13) 
+ 
+Total power to noise ratio (Pt/No) is a configurable 
+parameter and was varied from 30 dB-Hz down to 20 dB-Hz 
+for different test runs. 
+ 
+EDA Configuration 
+The EDA utilizes a configuration file that specifies 
+parameters to use for processing.  An activity such as MSL 
+EDL can be broken up into different configuration segments 
+with start/stop times.  Each configuration segment may 
+utilize different signal processing parameters.  The 
+configuration segments used in MSL EDL are shown in 
+Table 3.  In 6DOF simulations, the earliest time that 
+parachute deployment occurred was at E+231 seconds; the 
+parachute configuration segment started 10 seconds before 
+this time for additional margin. 
+Table 3- MSL EDA Configuration Segments 
+Segment Start time End time 
+Pre-Entry E-540 E-100 
+Entry E-99 E+220 
+Parachute E+221 E+365 
+ 
+Let !!"#   be the maximum residual frequency rate and 
+!!"#   be the maximum residual frequency acceleration. 
+A rule of thumb for FFT resolution is that the maximum 
+frequency change during the interval in which the FFT is 
+computed < ?f/4 [3].  
+                                                                                    ?! >    4  !!"#                            (14) 
+Using !!"# of 400 Hz/s from Figure 8 yields ?f > 40 Hz.  
+Based on this calculation, an FFT resolution of 40 Hz was 
+chosen for the parachute configuration segment. 
+A rule of thumb for time of incoherent integration is that it 
+be sufficiently short that the maximum deviation of the 
+received carrier frequency from a linear trajectory over the 
+T-length segment is < ?f/4 [3]. 
+                                                                                        ! <    2  
+ !!
+ !!"#
+                              (15) 
+Using ?f = 40 Hz and !!"#   !" 150 Hz/s/s from Figure 9 
+yields T < 0.73 seconds.  The minimum time of incoherent 
+integration for the EDA is 1 second, so the system was 
+configured with a value of T = 1 second.  This decision 
+implied that some tones would be missed during periods of 
+very high dynamics, such parachute deployment. 
+Key EDA configuration parameters for the pre-entry, entry, 
+and parachute EDA configuration segments are shown in 
+Table 4, Table 5, and Table 6 respectively. 
+ 
+ 7 
+Table 4- Key EDA configuration parameters for Pre-Entry 
+segment 
+Parameter Acquisition 
+State 
+Tracking State 
+FFT resolution 
+(?f) 
+2 Hz 2 Hz 
+Number of 
+samples/FFT 
+(NFFT) 
+50,000 50,000 
+Time of coherent 
+integration (?) 
+0.5 seconds 0.5 seconds 
+Time of 
+incoherent 
+integration (T) 
+1 second 1 second 
+Number of 
+averaged FFTs 
+(M) 
+2 2 
+Carrier 
+frequencies to 
+search 
+Entire 100 kHz 
+channel 
++/- 100 Hz 
+Subcarrier 
+frequencies to 
+search 
++/- 2 Hz +/- 2 Hz 
+Pre-FFT 
+frequency rate 
+search 
++/- 35 Hz/s +/-14 Hz/s 
+Number of Pre-
+ FFT frequency 
+rate bins (Nr) 
+15 15 
+Post-FFT 
+frequency rate 
+search 
++/- 2 Hz/s +/- 1 Hz/s 
+Threshold SNR 15.5 dB 14.5 dB 
+Search space (Nf) 750,000 750,000 
+ 
+Table 5- Key EDA configuration parameters for Entry 
+segment 
+Parameter Acquisition 
+State 
+Tracking 
+State 1 
+Tracking 
+State 2 
+FFT 
+resolution 
+(?f) 
+10 Hz 5 Hz 5 Hz 
+Number of 
+samples/FFT 
+(NFFT) 
+10,000 20,000 20,000 
+Time of 
+coherent 
+integration 
+(?) 
+0.1 seconds 0.2 seconds 0.2 seconds 
+Time of 
+incoherent 
+integration 
+(T) 
+1 second 1 second 1 second 
+Number of 
+averaged 
+FFTs (M) 
+10 5 5 
+Carrier 
+frequencies 
+to search 
+Entire 100 
+kHz 
+channel 
++/- 200 Hz +/- 200 Hz 
+Subcarrier 
+frequencies 
+to search 
++/- 10 Hz +/- 5 Hz +/- 5 Hz 
+Pre-FFT 
+frequency 
+rate search 
++/- 1400 
+Hz/s 
++/-35 Hz/s +/- 21 Hz/s 
+Number of 
+Pre-FFT 
+frequency 
+rate bins (Nr) 
+15 15 15 
+Post-FFT 
+frequency 
+rate search 
++/- 100 
+Hz/s 
++/- 4 Hz/s +/- 2 Hz/s 
+Threshold 
+SNR 
+14.0 dB 13.5 dB 12.5 dB 
+Measure and 
+feedback 
+accelerations 
+to tracking 
+loop 
+off off on 
+Search space 
+(Nf) 
+150,000 300,000 300,000 
+ 
+ 8 
+Table 6- Key EDA configuration parameters for Parachute 
+segment 
+Parameter Acquisition State Tracking State 
+FFT resolution 
+(?f) 
+40 Hz 40 Hz 
+Number of 
+samples/FFT 
+(NFFT) 
+2,500 2,500 
+Time of coherent 
+integration (?) 
+0.025 seconds 0.025 seconds 
+Time of 
+incoherent 
+integration (T) 
+1 second 1 second 
+Number of 
+averaged FFTs 
+(M) 
+40 40 
+Carrier 
+frequencies to 
+search 
+Entire 100 kHz 
+channel 
++/- 600 Hz 
+Subcarrier 
+frequencies to 
+search 
++/- 10 Hz +/- 5 Hz 
+Pre-FFT 
+frequency rate 
+search 
++/- 500 Hz/s +/-350 Hz/s 
+Number of Pre-
+ FFT frequency 
+rate bins (Nr) 
+21 15 
+Post-FFT 
+frequency rate 
+search 
++/- 140 Hz/s +/- 125 Hz/s 
+Threshold SNR 10.0 dB 7.0 dB 
+Search space (Nf) 52,500 37,500 
+ 
+Theoretical probabilities of carrier and tone detection, P, 
+were computed based on similar work for MER [7] and 
+using the equations described in [1].  The parameters shown 
+in Table 4, Table 5, and Table 6 were used. The probability 
+of missed carrier acquisition (1-Paq) vs Pt/No is shown for 
+the parachute segment tracking state in Figure 11.  For a 
+desired probability of carrier acquisition of 99.9%, the 
+threshold Pt/No is about 23 dB-Hz.  The probability of 
+missed tone acquisition (1-Paq) vs Pt/No is shown for the 
+parachute segment tracking state in Figure 11.  For a desired 
+probability of carrier acquisition of 99.9%, the threshold 
+Pt/No is about 21 dB-Hz. 
+ 
+Figure 11- Probability of missed carrier acquisition for 
+parachute segment acquisition state 
+ 
+Figure 12- Probability of missed tone detection for 
+parachute segment state 
+Using the configuration parameters specified in Table 6 for 
+the parachute segment state, tone detection is harder than 
+carrier detection.  Predicted minimum Pt/No was 28 dB-Hz 
+(as shown in Figure 10), so there were several dB of margin 
+for both carrier acquisition/tracking and tone detection.  The 
+parachute segment was the most challenging, due to two 
+factors: a) higher dynamics, including a discontinuity in 
+residual frequency during parachute deployment and b) 
+lower predicted Pt/No due to swinging on the bridle and 
+associated TLGA angles. 
+ 
+ 
+ 9 
+4. RESULTS  
+DSS-43 70-m Data 
+MSL Entry, Descent, and landing took place on August 5, 
+2012 UTC.  Key tones are shown in Table 7, along with the 
+expected and actual times of receipt on Earth.  Expected 
+times are from the nominal chute case.  The bank 1 tone 
+occurred about 2 seconds later than the nominal 6DOF run 
+and the bank angle was between 45° and 90° as expected.  
+The bank 2 tone occurred about 6 seconds later than the 
+nominal time and the bank angle was between -90° and -45° 
+as expected.  The bank 3 tone occurred about 2 seconds 
+earlier than the nominal time and the bank angle was 
+between 45° and 90° as expected.  The maximum 
+deceleration tone was received about 9 seconds later than 
+the nominal time and maximum deceleration was between 
+11 and 12 Gs. 
+Table 7- Key MSL EDL Tones 
+Event Expected Time 
+from Entry 
+(seconds) 
+Actual 
+Received 
+Time from 
+Entry 
+(seconds) 
+Tone start E-677 E-658 
+Cruise stage 
+separation 
+E-600 E-600 
+Switch from PLGA 
+to TLGA 
+E-20 E-20 
+Entry 0 0 
+Start of bank 1 E+72.26 E+74 
+End of bank 1 E+83.88 E+85 
+Maximum 
+deceleration 
+E+79.30 E+88 
+Start of bank 2 E+93.26 E+99 
+End of bank 2 E+103.51 E+110 
+Start of bank 3 E+123.13 E+121 
+End of bank 3 E+133.01 E+132 
+Stand-Up-Fly-Right E+239 E+240 
+Parachute Deploy E+255.77 E+260 
+Heat shield Deploy E+274.89 E+283 
+Loss of DTE 
+communication 
+E+313 E+299 
+  
+ 
+Figure 13- MSL EDL Pc/No, Ptone/No, and Residual 
+Frequency with DSS-43 
+Direct-to-Earth data received at DSS-43 during MSL EDL 
+is shown in Figure 13.  Carrier-to-noise power (Pc/No) 
+(plotted in light blue) measured by the EDA matched 
+closely with Pc/No measured by the closed-loop receiver 
+(dark blue).  Average Pc/No measured by the EDA using 
+DSS-43 during EDL was 27.8 dB-Hz, consistent with 
+predictions made by the MSL Telecommunications team 
+[5].  Average tone power to noise spectral density ratio 
+(Ptone/No) (plotted in purple) was 26.4 dB-Hz. Cruise stage 
+separation (CSS) caused a 7 second signal outage as the 
+Parachute Low Gain Antenna (PLGA) was briefly 
+obstructed.  The antenna swap from PLGA to Tilted Low 
+Gain Antenna (TLGA) resulted in a 4 second signal outage.   
+Residual frequency as measured by the EDA (plotted in 
+light red) and the closed loop receiver (dark red) matched 
+closely as shown in Figure 13.  The closed-loop receiver lost 
+lock at the following times: Cruise Stage Separation, 
+PLGA-to-TLGA swap, banking, and parachute deployment.  
+The changes in frequency observed during EDL can be 
+attributed to two factors: 1. Doppler induced by events 
+during EDL such as atmospheric entry, cruise stage 
+separation, and parachute deployment; and 2. Changes in 
+the output frequency of the auxiliary oscillator (AUX OSC) 
+in the Small Deep Space Transponder (SDST), which are 
+chiefly due to changes in temperature. 
+Entry was predicted for 5:24:33 UTC in the navigation 
+predicts file and actually occurred 1 second later, at 5:24:34 
+UTC.  This difference between predicted and actual entry 
+time and banking times resulted in the Doppler shift of 
+about 4 kHz between E+50 seconds and E+150 seconds.  
+The navigation predicts file also did not include parachute 
+deployment, resulting in a large jump in residual frequency 
+at around E+260 seconds. 
+Figure 14 illustrates frequency as a function of AUX OSC 
+and Baseplate temperature.  Cubic polynomials provide a 
+good approximation to the frequency versus temperature 
+behavior of the SDST AUX OSC crystal, particularly in this 
+temperature region.  The R2 value for the AUX OSC 
+ 
+ 10 
+temperature sensor polynomial is 0.9977, while the R2 value 
+for the baseplate temperature sensor polynomial is 0.9984.  
+Table 8 presents the polynomial coefficients. 
+ 
+ 
+Figure 14- Frequency (Hz) vs Temperature (degrees 
+Celsius) for Auxiliary Oscillator and Baseplate  
+Table 8- Coefficients for Frequency vs Temperature 
+Polynomials 
+ 
+ 
+Although the high R2 values seem to provide reason for 
+confidence in these temperature predictions, the EDL 
+thermal environment differs notably from that in cruise.  
+Steady temperatures and thermal equilibrium characterize 
+the cruise thermal environment.  The EDL thermal 
+environment is characterized by rapid heating.  As a result, 
+the SDST and its internal components were not in thermal 
+equilibrium during EDL.  In thermal equilibrium, as shown 
+in Figure 15 below, the AUX OSC is normally somewhat 
+warmer than the baseplate.  However, as Figure 15 also 
+shows, during EDL, the baseplate temperature rose 
+relatively quickly and rapidly overshot the AUX OSC 
+temperature.  Although AUX OSC temperature rose slowly 
+to “catch up” with baseplate temperature, the SDST was not 
+in thermal equilibrium during EDL.  This impacts the 
+accuracy of any frequency predictions based on baseplate 
+temperature. 
+ 
+Figure 15- MSL EDL SDST Temperatures 
+DSS-34/DSS-45 34-m Array Data 
+As a backup to the prime 70-m antenna (DSS-43), the 
+signals from a beam waveguide 34-m antennas (DSS-34) 
+and a high efficiency 34-m antenna (DSS-45) were 
+combined and recorded.  This back-up data was not needed 
+in real-time and was analyzed in post-processing. 
+Direct-to-Earth data received by the DSS-34/DSS-45 array 
+during MSL EDL is shown in Figure 16.  Average carrier-
+ to-noise power (Pc/No) (plotted in light blue) measured by 
+the EDA using the DSS-34/DSS-45 array during EDL was 
+23.5 dB-Hz.  
+ 
+Figure 16- MSL EDL Pc/No, Ptone/No, and Residual 
+Frequency with DSS-34/DSS-45 Array 
+Antenna sensitivity is measured by G/T, where G is the 
+antenna gain, and T is the system noise temperature.  G is a 
+function of wavelength, ?, physical aperture area, Ap, and 
+aperture efficiency, ?, as shown below.  
+ 
+                                       ! =   
+ !!
+ !!
+ !!!                               (16) 
+ 
+Based solely on physical aperture area, Ap, the G/T of a 34-
+ m antenna is about (17.0*17.0)/(35.0*35.0) = 23.6% the 
+G/T of a 70-m antenna.  However, the DSN 70-m antenna 
+also has better aperture efficiency, ?, and a lower system 
+noise temperature, T, than the DSN 34-m antennas.  With 
+these factors considered, the G/T of a DSN 34-m antenna is 
+about 18% the G/T of a DSN 70-m antenna [8].  The 
+predicted difference in array gain between the 70-m antenna 
+and two arrayed 34-m antennas is 10*log10 (1.0/(.18+.18)) = 
+4.44 dB, assuming no combining loss. Pc/No is proportional 
+to G/T.  The measured difference in Pc/No during EDL 
+between DSS-43 and DSS-34/DSS-45 is shown Figure 17.  
+The mean measured difference from E-645 seconds to 
+E+299 seconds was 4.26 dB.  Therefore mean combining 
+loss during this time was about 0.18 dB. 
+ 
+Coeff x3 x2 x1 1
+ AUX	  OSC	  Sensor 0.782246404 -??72.49066315 1489.915415 8401410276
+ Baseplate	  Sensor 0.824981981 -??66.82276803 1134.968993 8401413648
+ 
+ 11 
+ 
+Figure 17- Difference in DSS-43 and DSS-34/DSS-45 Pc/No 
+ 
+After EDL, Event Records (EVRs) that logged each tone 
+issued during EDL were obtained from MSL.  These logs 
+were compared with the real-time results provided by the 
+EDA to determine performance.  The DTE communications 
+system received and correctly identified 100% of radiated 
+tones in real-time during MSL EDL.  These results are 
+consistent with the theoretical probabilities of carrier 
+acquisition/tracking and data tone detection computed in 
+Section 3. 
+5. CONCLUSION  
+The Direct-to-Earth X-band communications system utilized 
+during MSL EDL successfully detected all radiated tones, 
+despite challenging signal dynamics with large unknown 
+changes in Doppler frequency, rate, and acceleration.  
+Future missions with periods of rapid and unknown signal 
+dynamics such as Mars or icy moon landers can leverage 
+from the MSL design for DTE communications.  
+6. ACKNOWLEDGEMENTS  
+The authors would like to acknowledge the contributions of 
+Jan Tarsala in the testing of the EDA prior to MSL EDL 
+using a PRSR and MSL testbed.   The authors would like to 
+thank Jeremy Shidner for providing 6DOF simulation data 
+that was valuable in configuring the EDA.  The authors 
+would also like to thank the CDSCC station personnel for 
+their excellent support and operations of the DSN 
+equipment and the Full Spectrum Processor Array in 
+particular. 
+This research was carried out at the Jet Propulsion 
+Laboratory, California Institute of Technology.  Copyright 
+2012 California Institute of Technology.  Government 
+sponsorship acknowledged. 
+  
+ 
+ 12 
+REFERENCES  
+[1] E. Satorius, P. Estabrook, J. Wilson, D. Fort. "Direct-to- 
+Earth communications and signal processing for Mars 
+exploration rover entry, descent and landing," The 
+Interplanetary Network Progress Report, IPN Progress 
+Report 42-153, May 2003. 
+[2] Andre Jongeling and Susan Finley.  “Mars Science 
+Laboratory Telecom System Engineering Pre-CDR Peer 
+Review: EDL Data Analysis Simulations Results.”  April 
+24, 2007.  
+[3] W. J. Hurd, P. Estabrook, C. S. Racho, and E. Satorius. 
+"Critical spacecraft-to-earth communications for Mars 
+exploration rover (MER) entry, descent and landing," 
+Proc. IEEE Aerospace Conference, vol.3, pp. 1283-1292, 
+MT, March 2002.  
+[4] M. Soriano, S. Finley, A. Jongeling, D. Fort, C. Goodhart, 
+D. Rogstad, R. Navarro, “Spacecraft-to-Earth 
+Communications for Juno and Mars Science Laboratory 
+Critical Events,” Proc. IEEE Aerospace Conference, MT, 
+March 2012. 
+[5] A. Makovsky, P. Illott, J. Taylor.  “Mars Science 
+Laboratory Telecommunications System Design,” Deep 
+Space Communications and Navigation Systems Center 
+of Excellence Design and Performance Summary Series, 
+November 2009. 
+[6] M. Soriano and P. Estabrook, “MSL EDL Simulations” 
+(internal document), Jet Propulsion Laboratory, Pasadena, 
+CA, May 7, 2012. 
+[7] E. Satorius, “Revised Thresholds for EDL” (internal 
+document), Jet Propulsion Laboratory, Pasadena, CA, 
+January 14, 2003. 
+[8] A. Kwok.  “Module 206, Telemetry General 
+Information.” in DSN Telecommunications Link Design 
+Handbook.  Rev. B.  DSN No. 810-005.  Pasadena 
+California: JPL, October 31, 2009.  
+http://eis.jpl.nasa.gov/deepspace/dsndocs/810-005/ 
+ 
+  
+ 
+ 13 
+Melissa Soriano is a staff 
+software engineer in the Tracking 
+Systems and Applications Section 
+at the Jet Propulsion Laboratory.  
+She has developed real-time 
+software for Direct-To-Earth 
+communications with Mars 
+Science Laboratory during Entry, 
+Descent, and Landing, the Long Wavelength Array, NASA’s 
+Breadboard Array, and the Wideband VLBI Science 
+Receiver used in the Deep Space Network.  Melissa is also 
+currently the software cognizant engineer for the DSCC 
+Downlink Array.  She has a B.S. from Caltech, double major 
+in Electrical and Computer Engineering and Business 
+Economics and Management.  She also has an M.S. in 
+Computer Science from George Mason University. 
+Susan Finley is a key staff 
+member in the Processor Systems 
+Development Group at JPL.  She 
+is the subsystem engineer for the 
+Full Spectrum Processor 
+subsystem deployed in NASA's 
+Deep Space Network.  Her 
+experience includes the operation 
+of the EDA for both of the MER landings on Mars as well as 
+the operation of the Radio Science Receiver for the landing of 
+the Huygens Probe on Titan and for the Phoenix landing on 
+Mars. 
+ 
+David Fort received a B.A.Sc.in 
+Engineering Physics and M.Sc.in 
+Astronomy from the University of 
+Toronto and an M.Sc. and Ph.D. in 
+Radio Astronomy from the University 
+of Manchester.  He joined NRC 
+(Canada) in 1972 and worked on all 
+aspects of VLBI until 1987.  He 
+subsequently joined JPL in section 335 and worked on a 
+number of hardware and software projects for the DSN and 
+became supervisor of the Processor Systems development 
+Group for the two years prior to returning to NRC in 2002. 
+Until his retirement in 2010 he worked on the EVLA 
+Correlator Project.  Now a "Guest Worker", he helps out 
+with the EVLA as it becomes fully operational and with 
+occasional questions from JPL. 
+ 
+Brian Schratz is the lead engineer for 
+the EDL telecommunications on the 
+Mars Science Laboratory mission and 
+a member of JPL's Communications 
+Systems and Operations group.    He 
+joined JPL three years ago with a 
+B.S.E.E. and M.S.E.E. from The 
+Pennsylvania State University. 
+ 
+Peter Ilott is the telecommunications 
+system lead for the MSL mission. He 
+has worked on spacecraft 
+telecommunications system design 
+for 25 years, 11 years on commercial 
+spacecraft, and since 2000 at JPL. 
+He worked on MER, Phoenix, as a 
+telecommunications system engineer. 
+Peter worked on all the Mars EDL (entry descent and 
+landing) efforts since MER, and in between Mars missions 
+helped out on the Deep Impact and Cloudat missions at JPL. 
+He currently supports the MSL surface mission phase, and is 
+the telecommunications lead for the Europa mission 
+currently under study. Ilott holds BSc, MSc, and PhD 
+degrees in physics and electrical engineering from McGill 
+and the Univeristy of Montreal. 
+ 
+Ryan Mukai received the B.S.E.E. 
+and the M.S.E.E. in 1997 and the 
+Ph.D. in Electrical Engineering in 
+2003, all from UCLA.  He has been 
+employed at the Jet Propulsion 
+Laboratory as a Telecommunications 
+engineer since 1999 and has served 
+on the Mars Exploration Rover, 
+DAWN, Cassini, Juno, and Mars 
+Science Laboratory projects. 
+ 
+ 
+Polly Estabrook is the deputy 
+manager of the Communication 
+Architectures and Research Section 
+at JPL.   She is a member of NASA’s 
+Space Communication and 
+Navigation Program supporting the 
+definition of the NASA’s future 
+Integrated Communication and 
+Navigation Network and is a member of the Integrated 
+System Engineering team for the Mars Science Laboratory 
+rover.  From 2005 to 2010, she led several communication 
+system design teams with the goal of defining the 
+modifications to NASA’s Space Communication and 
+Navigation infrastructure needed to support the planned 
+human missions to the Moon and Mars. From 2000 to 2004 
+she was the lead telecom system engineer for the Mars 
+Exploration Project, responsible for the performance of the 
+entry descent and landing telecommunications system and 
+for the overall design and performance of the Direct to 
+Earth and relay communications systems. In 2004, Dr. 
+Estabrook received the NASA Exceptional Achievement 
+Medal for her work on the Mars Exploration Rover Telecom 
+System. She has written over 35 technical papers and 
+chaired numerous IEEE and AIAA conference Sessions.  
+Polly Estabrook received her B.A. in engineering physics 
+from the University of California, Berkeley, and M.S. and 
+Ph.D. degrees in electrical engineering from Stanford 
+University, Stanford, CA. 
+ 
+  
+ 
+ 14 
+Kamal Oudrhiri is a senior 
+member in the Radio Science 
+Systems Group at NASA’s Jet 
+Propulsion Laboratory. As a 
+contract technical manager, 
+Oudrhiri led multi-disciplinary 
+teams through the design, 
+implementation and delivery 
+of flight hardware to the radio 
+science community. Over the last decade, Oudrhiri served in 
+key roles on multiple NASA missions: The Mars Exploration 
+Rovers (MER), the International Cassini mission to 
+Saturn,The GRAIL lunar mission and The Mars Science 
+Laboratory (MSL). 
+ 
+Daniel Kahan is a senior member of 
+the Radio Science Systems Group 
+at NASA’s Jet Propulsion Laboratory. 
+Over the last eight years, he has 
+provided engineering support for the 
+radio science community on multiple 
+NASA missions, including Mars Global 
+Surveyor, Mars Reconnaissance 
+Orbiter, the GRAIL lunar mission, the 
+International Cassini mission to Saturn, and Mars Science 
+Laboratory. 
+Edgar H. Satorius is a principal 
+member of the technical staff in 
+the Flight Communications 
+Systems Section of the Jet 
+Propulsion Lab. He performs 
+systems analysis in the 
+development of digital signal 
+processing and communications 
+systems with specific applications to blind demodulation, 
+digital direction finding and digital receivers. He has 
+published over 90 articles and holds two patents in the field 
+of digital signal processing and its applications. In addition, 
+he is an Adjunct Associate Professor at the University of 
+Southern California where he teaches digital signal 
+processing courses. He received his B.Sc. in engineering 
+from the University of California, Los Angeles and the M.S. 
+and Ph.D. degrees in electrical engineering from the 
+California Institute of Technology, Pasadena, California. 

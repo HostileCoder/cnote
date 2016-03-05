@@ -1,0 +1,798 @@
+   978-1-4673-1813-6/13/$31.00 ©2013 IEEE 
+1 
+ 
+Variable Coded Modulation Software Simulation 
+Thomas A. Sielicki 
+Electrical and Computer Eng. 
+University of Alaska Fairbanks 
+Fairbanks, AK 99775 
+tasielicki@alaska.edu 
+Jon Hamkins 
+Jet Propulsion Laboratory 
+California Institute of Technology 
+Pasadena, CA 91109 
+Jon.Hamkins@jpl.nasa.gov 
+Denise Thorsen 
+Electrical and Computer Eng. 
+University of Alaska Fairbanks 
+Fairbanks, AK 99775 
+dlthorsen@alaska.edu 
+ 
+Abstract—This paper reports on the design and performance of 
+a new Variable Coded Modulation (VCM) system.  This VCM 
+system comprises eight of NASA’s recommended codes from 
+the Consultative Committee for Space Data Systems (CCSDS) 
+standards, including four turbo and four AR4JA/C2 low-
+ density parity-check codes, together with six modulations types 
+(BPSK, QPSK, 8-PSK, 16-APSK, 32-APSK, 64-APSK).  The 
+signaling protocol for the transmission mode is based on a 
+CCSDS recommendation.  The coded modulation may be 
+dynamically chosen, block to block, to optimize throughput. 
+A novel aspect of the VCM design is that each operating mode 
+has a unique number of symbols in its frame.  This enables the 
+receiver to identify the code and modulation simply from the 
+number of symbols occurring between the dedicated frame 
+markers which occur between frames, without having to 
+explicitly transmit a signal to identify the operating mode.  
+This concept allows for a limitless selection of modes and low 
+complexity design. 
+The paper describes a MATLAB end-to-end simulation 
+consisting of random data generation, encoding the data, 
+modulation of the data, additive white Gaussian noise for 
+channel simulation, frame marker identification, coded 
+modulation mode extraction, demodulation, and decoding.  
+Achievable error rates and total throughput are recorded.  
+This simulation can be applied to any link budget that 
+describes the signal to noise ratio over time and can selectively 
+use all or some of the supported coded modulation modes.   
+The simulations show that for a representative low-Earth orbit 
+satellite which encounters a 15 dB variation of symbol SNRs in 
+a 10 minute pass, VCM doubles the achievable throughput, 
+compared to the optimal fixed-mode communication.  This 
+simulation shows that VCM is a major and practical method 
+for communicating high data volumes from space.  
+ 
+TABLE OF CONTENTS 
+1. INTRODUCTION ................................................. 1 
+2. VCM SYSTEM DESIGN ..................................... 2 
+3. VCM SOFTWARE SIMULATION ........................ 3 
+4. VCM PERFORMANCE ....................................... 4 
+5. SUMMARY ......................................................... 7 
+REFERENCES ......................................................... 7 
+ 
+ 
+1. INTRODUCTION 
+Many NASA missions communicate in a highly dynamic 
+environment because of variations in geometry, weather, 
+and interference.  On the other hand, during each reception 
+pass, missions typically communicate using fixed channel 
+codes, modulations, and symbol rates, resulting in a 
+constant data rate that does not adapt to the dynamic 
+conditions.  When conditions are good, the fixed date rate 
+can be far below the theoretical maximum, called the 
+Shannon limit; when conditions are bad, the fixed data rate 
+may not work at all.  To move beyond these fixed 
+communications modes and achieve higher total data 
+volume from NASA's emerging high-tech instruments, we 
+investigate the use of time-varying codes and modulations.  
+Variable coded modulation (VCM) takes advantage of the 
+dynamic link by transmitting more information bits when 
+signal-to-noise ratios (SNRs) are high, whereas fixed 
+communications transmits the same information rate as long 
+as a certain signal threshold is met.  Likewise, VCM can 
+throttle down the information rate when SNRs are low 
+without having to stop all communications.  This allows a 
+higher total throughput than can be achieved with fixed-
+ mode communications.  
+The current development of nanosatellites, picosatellites, 
+and CubeSats has introduced the idea that small and simple 
+satellites can be used for important scientific research with a 
+relatively low cost for construction and launch.  Typical 
+CubeSat missions, however, are size and power limited 
+which poses significant limitations for the communications 
+system, especially the downlink.  This in turns adversely 
+affects a designer’s ability to meet the scientific mission 
+requirements.  Designers have attempted to overcome this 
+limitation through the use of globally distributed ground 
+systems [1] and adaptive data rates [2].  This current work 
+suggests that variable coded modulation can provide 
+increased downlink throughput under the constraints of the 
+CubeSat standard while tailored for low complexity onboard 
+the satellite. 
+The purpose of this paper is to introduce a modified VCM 
+system design with a selection of VCM modes and highlight 
+the advantages of this particular design, namely mode 
+detection using only frame markers and unique lengths.  
+Lastly this paper shows the performance of the software 
+simulation, and an example of throughput improvement for 
+a CubeSat application. 
+ 
+ 2
+ 2. VCM SYSTEM DESIGN  
+Physical Layer Frame Structure 
+The design of the proposed VCM system closely follows the 
+VCM protocol used in the Consultative Committee for 
+Space Data Systems (CCSDS) recommendation for serially 
+concatenated convolutional codes (SCCC) [3].  Namely, a 
+Physical Layer Frame consists of a Frame Marker (FM), a 
+Frame Descriptor (FD), and 16 frames of the same VCM 
+type.  The physical layer frame symbol length varies based 
+on the VCM mode being transmitted.  Attached Sync 
+Markers (ASMs) are inserted into the data and the input 
+goes through a pseudo-random interleaver prior to encoding.  
+The FM is generated using the Gold sequence described in 
+the CCSDS recommendation [3].  This FM is 256 bits long 
+and is modulated with binary phase-shift keying (BPSK).  
+The FM always follows the last or 16th codeword and 
+precedes the FD, which signals which code and modulation 
+will be used in the remainder of the physical layer frame. 
+The FD is generated as section 5.3.3.2.2 of the CCSDS 
+recommended standard [3] suggests.  The FD has a total 
+length of 64 bits, can describe up to 32 VCM modes, and is 
+also modulated with BPSK. 
+ 
+Figure 1 – Physical Layer Frame  
+ 
+This paper will show that the CCSDS VCM protocol of [3] 
+can be used with turbo and low-density parity-check 
+(LDPC) codes, providing an easier infusion path for 
+NASA’s use of VCM.  It also shows that the existing 
+CCSDS VCM protocol is general enough to support a 
+variety of codes and modulations. 
+CCSDS Turbo and LDPC codes 
+CCSDS has recommended a set of 16 turbo codes [4].  
+There is a code for each of rates 1/6, 1/4, 1/3, and 1/2, and 
+input lengths 1784, 3568, 7136, and 8920.  These codes 
+have been a workhorse for deep space missions, having 
+been used on, for example, on the Mars Reconnaissance 
+Orbiter and the Curiosity Mars Rover.  From this set of 16 
+codes, this paper will use the turbo codes of length 8920 and 
+rates 1/6, 1/4, 1/3, and 1/2. 
+CCSDS has also recommended a set of nine accumulate 
+repeat-by-four jagged accumulate (AR4JA) LDPC codes, 
+along with one other higher rate LDPC code [4].  The nine 
+ARJA codes represent each combination of code rates 1/2, 
+2/3, and 4/5 and input lengths 1024, 4096, and 16384.  The 
+10th LDPC code, called C2, has input length 7136 and rate 
+223/255, or approximately 7/8.  From this set of ten codes, 
+this paper will use the AR4JA codes of length 16384 and 
+rates 1/2, 2/3, and 4/5, along with the C2 LDPC code. 
+CCSDS Modulations 
+The CCSDS recommendation on SCCC [3] makes use of a 
+number of modulations.  Binary phase-shift keying (binary 
+PSK, or BPSK), quaternary PSK (QPSK), and 8-ary PSK 
+(8-PSK) are text book modulations.  The union of two PSK 
+constellations is used to form a 16-ary amplitude phase-shift 
+keying (16-APSK).  Two other modulations, 32-APSK and 
+64-APSK are also formed from the union of PSK 
+constellations.  CCSDS has described particular symbol 
+mappings and relative amplitude scalings for these 
+modulations [3], and the optimal demodulation of the 
+modulations are described in [5]. 
+The VCM modes 
+The VCM system described in this paper uses eight turbo 
+code modes and 20 LDPC code modes.  Additionally, all six 
+modulation types discussed above are used.  The 28 modes 
+are listed in Table 1, with the shaded modes ultimately 
+omitted from VCM design as described below.  The table 
+gives the code rate, the number of information bits per 
+modulation symbol (equal to the code rate times the base-2 
+logarithm of the number of constellation points of the 
+modulation), the number of modulation symbols per 
+physical layer frame, and the minimum g1831g3046/g1840g2868, in dB, 
+needed to achieve a codeword error rate of 10-4.  Here, g1831g3046  
+refers to the energy of a modulation symbol (not a code 
+symbol.) 
+Design for Receiver Frame Marker Synchronization  
+A desirable property of the VCM system is that the modes 
+have unique physical layer frame lengths.  This is helpful 
+because the separation between frame markers can then be 
+used to identify the VCM mode, in the event that this cannot 
+be determined reliably from the frame descriptor. 
+To obtain this property, the VCM modes in Table 1 were 
+reduced to 24 modes of unique length.  Of the modes the 
+VCM system was designed for, there are four pairs of 
+modes that shared identical symbol lengths: 
+• 2 and 4 (BPSK 1/3 Turbo / QPSK 1/6 Turbo) 
+• 3 and 5 (BPSK 1/2 Turbo / QPSK 1/4 Turbo) 
+• 13 and 16 (8PSK 2/3 LDPC / 16APSK 1/2 LDPC)  
+• 22 and 25 (32APSK 4/5 LDPC / 64APSK 2/3 LDPC) 
+Looking at the eight modes, the solution of eliminating the 
+usage of four modes can conveniently be justified.  In an 
+idealized system which supports BPSK and QPSK equally 
+well, the BPSK modes serve little purpose since QPSK can 
+deliver twice spectral efficiency with no change in power 
+efficiency.  Thus, the BPSK 1/2 and BPSK 1/3 BPSK 
+modes can be removed (labeled Modes 2 & 3).   Mode 13 
+can be eliminated because it is dominated by mode 16: 
+mode 13 achieves a throughput of 2 bits per symbol and 
+requires g1831g3046/g1840g2868 = 6.71 dB, while mode 16 achieves 2 bits  
+ 3
+ Table 1 – VCM Modes 
+ 
+per symbol and only requires g1831g3046/g1840g2868 = 6.33 dB.   Similarly 
+LDPC 32APSK 4/5 & LDPC 64APSK 2/3 both deliver 4 
+information bits per symbol but 64APSK 2/3 requires a 
+higher signal to noise ratio to operate, so 64APSK 2/3 can 
+be removed from the list of VCM modes.   Although we 
+have made these particular choices here, the available 
+support for higher order modulations, and their relative 
+implementation losses, will dictate which modes are 
+dominated and can be eliminated in a particular system. For 
+the purpose of this paper, we assume support of all six 
+modulations and equal implementation losses for all 
+modulation types 
+After reducing the VCM mode list to 24 unique-length 
+modes, the receiver may be structured to identify the VCM 
+mode from the spacing between frame markers, and not by 
+the frame descriptor bits which explicitly indicate the VCM 
+mode.  Thus, the frame descriptor can be eliminated from 
+the protocol entirely.  This number of VCM modes in this 
+new design would not be limited by the number of bits in a 
+frame descriptor – 32 modes for a 5-bit frame descriptor  – 
+and would allow for support of an arbitrary number of VCM 
+modes.  Of course, any additional mode added will be 
+required to have a unique symbol length, or some other 
+means to identify it. 
+CubeSat Implementation Feasibility 
+Only the downlink for CubeSat communications is power 
+limited, resulting in the VCM system being applied for only 
+outbound communications, which is a major key to the 
+implementation of a VCM system in these small satellites.  
+The computational complexity of the error correcting codes 
+is found in the receiver which will be at the ground station.  
+The encoders are relatively low-complexity and can easily 
+fit on Field Programmable Gate Arrays (FPGA) like the 
+Altera Cyclone or Xilinx Spartan3A which are already 
+being included in other CubeSat designs [6]. 
+3. VCM SOFTWARE SIMULATION 
+Overview of Software Implementation 
+An end-to-end software simulation of the VCM system was 
+created.  The software controlling the overall simulation was 
+done in MATLAB, and the encoders and decoders for both 
+LDPC and Turbo were implemented in C, for more efficient 
+processing.  MATLAB Executable (MEX) files were used 
+to interface with the C encoders and decoders.      
+ 
+ 
+Figure 2 – MATLAB Simulation Flow Chart  
+ 
+Coding Type as a Function of the Link Budget 
+To generate physical layer frames to meet the dynamic 
+conditions of the link, the minimum g1831g3046/g1840g2868  for all mode 
+types must be known.  Table 1 shows each mode’s 
+minimum g1831g3046/g1840g2868 needed for a codeword error rate of 10-4. 
+The VCM mode performances were analyzed in a previous 
+paper [5]. 
+ M
+ od
+ e
+  
+M
+ od
+ ulatio
+ n
+  
+C
+ od
+ e
+  
+R
+ ate
+  
+Info
+  
+ Bits
+  /
+  
+Sy
+ m
+ b
+ ol
+  
+F
+ ull
+  L
+ ength
+  
+E
+ s /N
+ 0
+  
+ dB
+  
+CW
+ ER
+  10
+ -4
+  
+              
+0 BPSK Turbo  1/6 0.17 857024 -7.87 
+1 BPSK Turbo  1/4 0.25 571456 -5.84 
+2 BPSK Turbo  1/3 0.33 428672 -4.33 
+3 BPSK Turbo  1/2 0.50 285888 -1.94 
+4 QPSK Turbo  1/6 0.33 428672 -4.86 
+5 QPSK Turbo  1/4 0.50 285888 -2.83 
+6 QPSK Turbo  1/3 0.67 214496 -1.32 
+7 QPSK Turbo  1/2 1.00 143104 1.07 
+8 QPSK AR4JA LDPC  1/2 1.00 262464 0.93 
+9 QPSK AR4JA LDPC  2/3 1.33 196928 3.00 
+10 QPSK AR4JA LDPC  4/5 1.60 164160 4.75 
+11 QPSK C2 LDPC  7/8 1.75 65600 6.27 
+12 8PSK AR4JA LDPC  1/2 1.50 175083 4.04 
+13 8PSK AR4JA LDPC  2/3 2.00 131392 6.71 
+14 8PSK AR4JA LDPC  4/5 2.40 109547 8.94 
+15 8PSK C2 LDPC  7/8 2.62 43840 10.79 
+16 16APSK AR4JA LDPC  1/2 2.00 131392 6.33 
+17 16APSK AR4JA LDPC  2/3 2.67 98624 8.98 
+18 16APSK AR4JA LDPC  4/5 3.20 82240 11.19 
+19 16APSK C2 LDPC  7/8 3.50 32960 12.94 
+20 32APSK AR4JA LDPC  1/2 2.50 105178 8.98 
+21 32APSK AR4JA LDPC  2/3 3.33 78964 11.63 
+22 32APSK AR4JA LDPC  4/5 4.00 65856 13.90 
+23 32APSK C2 LDPC  7/8 4.37 26432 15.73 
+24 64APSK AR4JA LDPC  1/2 3.00 87702 10.97 
+25  64APSK AR4JA LDPC  2/3 4.00 65856 14.12 
+26 64APSK AR4JA LDPC  4/5 4.80 54934 16.61 
+27 64APSK C2 LDPC  7/8 5.25 22080 18.60 
+ 4
+ 4. VCM PERFORMANCE 
+Frame Marker Identification Error Rate 
+A MATLAB simulation was performed to discover the error 
+rate for detecting frame markers under Additive White 
+Gaussian Noise (AWGN).  This process consisted of a cross 
+correlation between the noisy received signal and the 
+expected 256 bit frame marker.  The estimated offset index 
+is given by: 
+g1876g3548 = argmaxg3051:g2868g3000g3051g3000g3039g2879g2869 g3421g3533 g1871? g4670g1863 + g1876g4671 ? g1865g4670g1863g4671
+ g2870g2873g2873
+ g3038g2880g2868
+ g3425 																(1) 
+where s is the noisy signal, m is the known 256 bit frame 
+marker, and g1864 is length of the cross correlation or the length 
+of the search.  The search length l can be selected based on 
+the length of the longest physical layer frame, among all 
+VCM modes.  Under the VCM design the longest physical 
+layer frame possible is 857,024 symbols or bits since the 
+modulation is BPSK.  Doubling this length and subtracting 
+256 (the length of a frame marker) results in the length of 
+the longest possible bit stream containing only one frame 
+marker, which is 1,713,792 bits.  This simulation generated 
+two physical layer frames, chopped off the first frame 
+marker, applied AWGN, and then computed the cross 
+correlation to find the index with the highest correlation.  If 
+this index didn’t match the known value, an error was 
+recorded.  This simulation was repeated one million times 
+for each g1831g3046/g1840g2868 level of -20 to -8 dB.  The simulation results 
+can be seen on Figure 3.         
+ 
+Figure 3 – Frame Marker Identification Error Rate 
+under AWGN 
+ 
+At g1831g3046/g1840g2868 of -8 dB the Frame Marker is misidentified 1 in 
+10,000 trials, which is an acceptable level for even the 
+lowest rate turbo code operating at g1831g3046/g1840g2868 of -7.87 dB with 
+its own Codeword error rate of 10-4.  This simulation shows 
+that the CCSDS designed Frame Marker is acceptable for all 
+codes considered in this VCM design.    
+Frame Descriptor Error 
+The next simulation was to test the frame descriptor 
+performance under the same noisy conditions to ensure that 
+the receiver will demodulate and decode using the right 
+mode.  This simulation assumes that the frame marker was 
+correctly detected.  The simulation randomly selects one of 
+the 32 frame descriptors, simulates a noisy channel with 
+AWGN, decodes the noisy received frame descriptor, and 
+checks if it was correctly detected.  This simulation is then 
+repeated 1 million times for six g1831g3046/g1840g2868  levels, -9 to -4 dB, 
+which are the noisy conditions expected under operation of 
+this VCM system. 
+The receiver demodulation and decoding process of the 
+frame descriptor utilized a lookup table of all 32 unique 
+frame descriptors, stored in a 32 by 64 matrix, d, in their 
+BSPK format of ±1, with g1856g3037 g4670g1861 g4671 denoting the ith bit in the 
+frame descriptor for the jth VCM mode.  Finding largest 
+inner-product between the noisy input signal and all 32 
+frame descriptors yields the frame descriptor with the 
+minimum distance to the received frame descriptor.   
+g1865g1867g1856g1857 = argmaxg3037:g2869g3000g3037g3000g2871g2870 g3421g3533 g1871 g4670g1861 g4671 ? g1856g3037 g4670g1861 g4671
+ g2874g2872
+ g3036 g2880g2869
+ g3425 																			(2) 
+ 
+Figure 4 below shows the results of this simulation. 
+ 
+Figure 4 – Frame Descriptor Identification Error Rate 
+under AWGN 
+ 
+The simulation shows unacceptable error rates for frame 
+descriptor identification for the same low signal levels that 
+at which the turbo codes are designed to work.  The 64 bit 
+code described from the CCSDS standards is actually 
+generated using a (32,6) code which is simply doubled to 
+create a (64,6) code.  This means that the frame descriptor 
+code has the error correction performance of a 6/32 code 
+which will not work with the VCM design when the data is 
+coded at a rate of 1/6.  Similarly, the simulation shows that 
+when operating at g1831g3046/g1840g2868 of -4.5 dB the frame descriptor 
+would be misidentified 1% of the time, and this would 
+prevent reliable decoding of Turbo 1/6 QPSK codes. 
+-20 -18 -16 -14 -12 -10 -8 -6
+ 10-6
+ 10-5
+ 10-4
+ 10-3
+ 10-2
+ 10-1
+ 100
+ Es/N0
+ Er
+ ro
+ r 
+Ra
+ te
+ -9 -8 -7 -6 -5 -4
+ 10-3
+ 10-2
+ 10-1
+ 100
+ Es/N0
+ Er
+ ro
+ r 
+Ra
+ te
+  (dB) 
+Es/N0 (dB) 
+ 5
+ There are several solutions to this problem, the obvious 
+choice is to design a new frame descriptor that has error 
+correcting capabilities surpassing rate 1/6.  In theory, a 
+(64,6) length code might accomplish this.  Or, the problem 
+could be solved with a more complex receiver.  When the 
+receiver demodulates and decodes the received signal with 
+the wrong demodulator and/or decoder, it can be discovered 
+quickly by the failure of the decoder to converge to a valid 
+codeword, or by the simple fact that the next frame marker 
+does not appear in the expected location. 
+Instead of reprocessing data with another mode type or 
+decoding in parallel, this software simulation receiver was 
+designed to find two frame markers, identify the number of 
+symbols in-between the markers, and deduce the mode from 
+the length.  This is a low-complexity, high-performing 
+solution, and one novel result of the paper. 
+This approach relies on the desirable property we discussed 
+in Section 2.  Of the 28 modes selected to be explored, only 
+24 were implemented, as the original 28 modes had all but 
+four unique symbol lengths.  Removing four codes would 
+give 24 unique lengths, and as it turned out the four modes 
+removed do not sacrifice VCM performance (See Design for 
+Receiver Frame Marker Synchronization above).   This 
+method completely eliminates the need for the receiver to 
+process the poorly performing frame descriptor, suggesting 
+that the VCM design could eliminate it all together.   
+Overall Data Throughput Performance 
+Low Earth orbiting satellites are great candidates for VCM 
+communications with primary ground stations, due to a 
+varying link geometry and a fixed power budget.  This paper 
+looks at the performance of using three different sets of 
+VCM codes for a CubeSat mission.  
+The simulation input requires a link budget that describes 
+the “g1831g3046/g1840g2868 vs. time” for the duration of the pass.  For this 
+research Satellite Tool Kit software by Analytical Graphics 
+Inc. was used to describe the link budget of a polar orbiting 
+CubeSat at 600 km with a primary ground station in 
+Fairbanks, AK.  Two passes were generated with constant 
+parameters for antenna gain and transmit power levels, with 
+the only difference being the pass’s maximum elevation.  
+Two pass types were analyzed, a near overhead pass at 80 
+degrees maximum elevation and a slightly shorter pass with 
+only 35 degrees maximum elevation.  The 80 degree pass 
+exhibits a minimum g1831g3046/g1840g2868 of -2.76 dB at the horizon and a 
+maximum of 11.93 dB, with a total time of 635 seconds.  
+The 35 degree pass exhibits a minimum g1831g3046/g1840g2868 of -2.79 dB 
+at the horizon and a maximum of 7.89 dB, with a slightly 
+shorter time of 591 seconds.  
+The two sets of pass data was then simulated with three sets 
+of VCM codes: The 24 VCM modes from Table 1 labeled 
+CCSDS, Digital Video Broadcasting Satellite Second 
+Generation for single carrier per transponder labeled 
+DVBS2, and the SCCC Encoder codes described in [3].  
+VCM mode switching thresholds were calculated using each 
+mode’s respective minimum g1831g3046/g1840g2868  for a codeword error 
+rate of 10-4 [5][7]. 
+Additionally, the simulation calculates the maximum fixed 
+throughput using only one of the VCM modes.  VCM 
+improvement is calculated by dividing the VCM throughput 
+by the fixed mode throughput.  Table 2 shows the advantage 
+of using VCM for these CubeSat passes and the comparison 
+between all three VCM coding sets.  This simulation uses a 
+fixed symbol rate of 9600 kilo symbols per second. 
+ 
+Table 2 – Coding Comparisons and VCM Improvement 
+P
+ ass
+  Elev
+ atio
+ n
+  
+P
+ ass
+  Tim
+ e
+  (s)
+  
+C
+ od
+ e
+  S
+ et
+  
+Fix
+ ed
+  
+Th
+ ro
+ ughp
+ ut
+  
+(M
+ bits)
+  
+V
+ C
+ M
+  
+Th
+ ro
+ ughp
+ ut
+  
+(M
+ bits)
+  
+V
+ C
+ M
+  
+Im
+ p
+ ro
+ v
+ em
+ ent
+  
+35 591 CCSDS 3,437 6,564 1.91 
+35 591 DVBS2 2,909 5,482 1.88 
+35 591 SCCC 3,315 5,732 1.73 
+80 635 CCSDS 3,878 8,502 2.19 
+80 635 DVBS2 3,657 7,068 1.93 
+80 635 SCCC 3,704 7,722 2.08 
+ 
+The simulations showed that all three sets of codes double 
+or nearly double the overall throughput.  The VCM design 
+is able to take advantage of the 80 degree pass’s higher 
+variation in g1831g3046/g1840g2868 and exhibit more improvement.  
+Additionally, the CCSDS set of codes slightly outperform 
+SCCC and DVBS2 in total throughput.  This can be 
+attributed to the turbo codes which are able to operate when 
+the link is the poorest, whereas both SCCC and DVBS2 are 
+unable to utilize the link at all during the times the satellite 
+is on the horizon.    
+Doubling the data throughput is a significant 
+accomplishment for VCM and presents evidence that this 
+system will be a valued asset in space communications.  
+Figures 5 and 6 are visual comparisons of fixed mode 
+communications vs. VCM for the CCSDS codes showing 
+the 80 and 35 degree passes respectively.  Table 3 indicates 
+the subset of VCM modes used in the 80 degree pass.  As 
+can be seen, the rate 1/6 turbo code is used only briefly 
+(1.4% of the pass), corresponding to the very beginning and 
+end of the pass.  The highest rate code, C2, is not used 
+because, as it happens in this idealized example, a lower rate 
+code together with a higher order modulation produces a 
+higher throughput.  For receivers which incur significantly 
+higher losses for the higher order modulations, C2 may play 
+a larger role in the VCM system. 
+ 6
+  
+ 
+Figure 5 – VCM vs. Fixed Mode Communications for 
+CubeSat Pass of 35 Degrees 
+ 
+ 
+Figure 6 – VCM vs. Fixed Mode Communications for 
+CubeSat Pass of 80 Degrees 
+  
+Table 3 – VCM Modes Used in 80 Degree Pass 
+M
+ od
+ e
+  
+M
+ od
+ ulatio
+ n
+  
+C
+ od
+ e
+  
+R
+ ate
+  
+Tim
+ e
+  M
+ od
+ e
+  
+U
+ sed
+  (s)
+  
+P
+ ercentag
+ e
+  
+of
+  P
+ ass
+  
+            
+4 QPSK Turbo  1/6 9 1.4 
+5 QPSK Turbo  1/4 103 16.2 
+6 QPSK Turbo  1/3 128 20.2 
+8 QPSK AR4JA LDPC  1/2 92 14.5 
+9 QPSK AR4JA LDPC  2/3 40 6.3 
+10 QPSK AR4JA LDPC  4/5 50 7.9 
+12 8PSK AR4JA LDPC  1/2 24 3.8 
+16 16APSK AR4JA LDPC  1/2 74 11.7 
+17 16APSK AR4JA LDPC  2/3 66 10.4 
+18 16APSK AR4JA LDPC  4/5 18 2.8 
+21 32APSK AR4JA LDPC  2/3 31 4.9 
+TOTALS 635 100.0 
+  
+For the case of the 80 degree maximum pass the best fixed 
+mode communications system would be mode 9, AR4JA 
+LDPC QPSK 2/3.  Figure 3 highlights that Mode 9 would 
+provide the most throughput.   
+Low Symbol Rate Performance 
+There is a potential penalty associated with selecting certain 
+VCM modes, if their associated physical layer frames are so 
+long that conditions can become more favorable well before 
+one full frame can be transmitted.  This is evident in the 
+case of CubeSats using error correcting codes at low symbol 
+rates like 9600 symbols per second.  This rate only yields 
+5,760,000 symbols per 10 minute pass.  If the first VCM 
+mode is QPSK Turbo 1/6 the first physical layer frame 
+would be 428,672 symbols or 45 seconds. 
+The simplest VCM switching algorithm is selecting the 
+mode with the highest information bit rate that can operate 
+at both the current g1831g3046/g1840g2868 level and throughout the duration 
+of its physical layer frame.  If the link is varying quicker 
+than the time is takes to transmit a physical layer frame 
+smarter decisions can be made when selecting VCM modes.  
+Since there are 24 VCM modes with different lengths, 
+information rates, and g1831g3046/g1840g2868 thresholds, all factors need to 
+be considered when optimizing the highest throughput.  
+Future research will focus on optimizing the VCM mode 
+determination algorithm for a known link budget.  This will 
+help communication systems using VCM at low symbol 
+rates and ensure proper mode transitioning for proper 
+transmission at all noise levels. 
+A Word About VCM vs. Adaptive Data Rates 
+It is worth pointing out that fixed coded modulation in 
+combination with adaptive data rates is also a good means to 
+increase throughput in dynamic conditions.  There is already 
+a CCSDS standard for proximity links – orbiter to orbiter or 
+orbiter to lander links – which describes this approach.  It is 
+currently in use by the Mars Reconnaissance Orbiter 
+(MRO), for example. 
+VCM and adaptive data rates are complementary tools to 
+increase throughput.  As conditions improve, one may 
+adaptively increase the data rate, typically up to some limit.  
+The limit may arise because of spectral constraints.  Each 
+doubling of the data rate doubles the spectral occupancy, 
+after all.  Or, the limit may simply reflect the limitations of 
+the spacecraft.  MRO has a maximum symbol rate of 6 
+Msps, for example. 
+VCM provides the extra flexibility to operate at high 
+throughputs beyond the point at which adaptive data rate 
+technology  has reached its spectral or symbol rate limit.  In 
+this way, low data rates may be doubled, doubled again, 
+etc., using adaptive data rates, until a symbol rate limit is 
+reached, at which point a VCM system at this fixed system 
+may be applied, using higher code rates and/or higher order 
+modulations. 
+ 7
+ 5. SUMMARY  
+The purpose of this paper was to introduce a modified VCM 
+system design for near and deep space communications. 
+Software simulation of this design was performed to 
+determine throughput improvements and verify the 
+feasibility of the whole design.  Problems with frame 
+descriptor identification were resolved by unique length 
+VCM modes and inferring the VCM mode though frame 
+marker spacing.  The simulation looked at an example of a 
+varying communications link, polar orbiting CubeSats.  
+Simulation showed that the proposed VCM system roughly 
+doubles throughput and slightly outperforms similar VCM 
+codes like SCCC and DVBS2.  Future work for the 
+proposed VCM system includes eliminating the frame 
+descriptor from transmission, developing an optimal mode 
+selection algorithm, and developing the proposed system in 
+hardware specifically for CubeSat application. 
+ACKNOWLEDGMENTS 
+The research was carried out at the Jet Propulsion 
+Laboratory, California Institute of Technology, under a 
+contract with the National Aeronautics and Space 
+Administration and the University of Alaska Fairbanks, 
+College of Engineering and Mines, funded in part by the 
+Alaska Space Grant Program. 
+REFERENCES  
+[1] J. Cuttler and J. Mann, “Global Ground Station Survey”, 
+5th Annual CubeSat Developers Workshop, August 2008 
+http://gs.engin.umich.edu/documents/Mann_etal_2008.pd
+ f  
+[2] M. Caffrey, “Exploiting Link Dynamics in LEO-to-
+ Ground Communications”, 6th Annual CubeSat 
+Developer’s Workshop. San Luis Obispo, CA. 2009.  
+http://www.cubesat.org/images/cubesat/presentations/Dev
+ elopersWorkshop2009/4_Comm/2_Caffrey-
+ Link_Dynamics.pdf 
+[3] Flexible Advanced Coding and Modulation Scheme for 
+High Rate Telemetry Applications. CCSDS 131.2-B-1. 
+Blue Book, Issue 1. March 2012, 
+http://public.ccsds.org/publications/archive/131x2b1.pdf 
+[4] TM Synchronization and Channel Coding.  CCSDS 
+131.0-B-2.  Blue Book. Issue 2. August 2011. 
+http://public.ccsds.org/publications/archive/131x0b2ec1.p
+ df 
+[5] J. Hamkins, "Performance of low-density parity-check 
+coded modulation," Aerospace Conference, 2010 IEEE, 
+vol., no., pp.1-14, 6-13 March 2010 
+[6] S. Olivieri, "Modular FPGA-Based Software Defined 
+Radio for CubeSats," Worcester Polytechnic Institute, 
+May 2011. 
+ 
+ [7] Digital Video Broadcasting (DVB), Second generation 
+framing structure, channel coding and modulation systems 
+for Broadcasting, Interactive Services, News Gathering 
+and other broadband satellite applications, ETSI EN 302 
+307, v1.1.2,2006. 
+BIOGRAPHIES 
+ Thomas A. Sielicki received a B.S. 
+degree in electrical engineering from 
+the University of Virginia in 2010.  He 
+is currently a graduate student at the 
+University of Alaska Fairbanks.   
+ 
+ 
+ 
+Jon Hamkins (S’94, M’96, SM’03) 
+received a B.S. degree in electrical 
+engineering from the California 
+Institute of Technology (Caltech), 
+Pasadena, in 1990 and the M.S. and 
+Ph.D. degrees in electrical and 
+computer engineering from the 
+University of Illinois at Urbana-
+ Champaign in 1993 and 1996, 
+respectively.  Since then, he has been 
+with the Jet Propulsion Laboratory, Caltech, where he is 
+now supervisor of the Information Processing Group.  His 
+research interests include error control theory, information 
+theory, autonomous receivers, ranging, and optical 
+communications.  
+ 
+Denise Thorsen (S’82, M’97) received 
+her B.S. (1985), M.S. (1991) and Ph.D. 
+(1996) degrees in electrical and 
+computer engineering from the 
+University of Illinois at Urbana-
+ Champaign. She is an Associate 
+Professor in Electrical and Computer 
+Engineering at the University of Alaska 
+Fairbanks 
+ 

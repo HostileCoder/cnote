@@ -1,0 +1,198 @@
+Wavelet based Compression of Segmented Images using 
+Baseline Non-segmented Approach 
+Image 
+Radoslav Vargic 
+Faculty of Electrical Engineering and 
+Information Technology 
+Slovak Technical University in Bratislava 
+IlkoviEova 3, 8 12 19 Bratislava, Slovakia 
+varni&ktl. elfstuba.sk 
++ Segments + DWT 
+Abstract- We present an approach to compression of 
+segmented images using wavelet transform followed by 
+modified baseline coder. Baseline coder processes the 
+spectral values from all segments in non-segmented 
+style, Le. together in one big block. Proposed scheme 
+has comparative results as existing methods and retains 
+its effectivity as the number of image segments 
+increases. 
+1 Introduction 
+For region and object oriented methods there are 
+needed algorithms that can deal with arbitrarily shaped 
+image regions, called segments. In this article we 
+approximate the texture in segments using discrete wavelet 
+transform (DWT) [4] defined on the rectangle 
+circumscribing the given image segment. To partition the 
+image into segments (see Fig. 1) we used an unsupervised 
+segmentation method for color - texture regions used in [ 11. 
+In [5] and [6] is each segment coded separately and 
+with bit budget proportional to segment size using coding 
+scheme on Fig. 2. The SPIHT [3] algorithm we can use for 
+coding of segments in non iterative process [6] or iterative 
+process 151 which yields about 1% better compression 
+results. In the next we compare our results to the results 
+presented in [5] which contain also a baseline approach [4]. 
+C) d) 
+Fig. 1: Original Baboon image a) and masks for b) 5 e )  12 d) 30 
+segments 
+0-7803-7852-0/03/$17.00 02003 IEEE 
+Jh Prochaska 
+Faculty of Electrical Engineering and 
+Information Technology 
+Slovak Technical University in Bratislava 
+IkoviEova 3, 812 19 Bratislava, Slovakia 
+prochaskakilktl. elfstuba. sk 
+Fig. 2: Basic scheme for coding ofsegmented images 
+Our approach uses the above coding scheme with major 
+modification. The spectrums of all segments are “joined” 
+before compression. This spectrum is then coded with 
+modified baseline algorithm in one step. The “joining” 
+process is discussed later. 
+1.1 Baseline algorithm 
+In Baseline algorithm [4] are the spectral coefficients not 
+partially sorted like in SPIHT [3]. Algorithm relies on the 
+natural fading of the energy of spectral coefficients across 
+the subbands. The tendency to transmit the more important 
+information fust is expressed also at the subband level The 
+wavelet spectrum is quantized where each subband is 
+handled separately. Entropic and run-length coder is used 
+to code the resulting symbols. 
+2 Modifications in Baseline coder for 
+segmented images 
+When we code the image segments using Baseline 
+algorithm separately [6] the coding overhad grows linearly 
+with the number of segments. Advantage of that approach 
+is, that the segments are isolated, so we can decode them 
+individually. Transmission errors are not spread between 
+the segments too. 
+To achieve higher coding efficiency for images 
+with many segments we propose to join the spectral 
+coefficients together according to their decomposition 
+level. So input for the baseline algorithm are goups of 
+Coefficients that express the image details at the same 
+resolution. For coding pourposes we adapted the 
+implementation available 60m [4]. 
+First, set of coefficients are created 6om the subbands of 
+each segment on the same detail levels. Example ofjoining 
+three square-like segment spectrums (Fig. 3) is 
+demonstrated in Fig. 5. 
+Then are the DC components stored and detail 
+coefficients passed to the Baseline algorithm, where they 
+are quantized and entropy coded. 
+955 IClT 2003 ~ Maribor. Slovenia 
+Fig. 3 : Example of 3 segments with sizes 8xS,4x4 and 2x2 and joining of 
+their L X  components 
+Of course not all coefficients from each segment 
+are enclosed to the joining process. Circumscribing a 
+rectangle around each segment, results in black ares e.¶. in 
+areas which a not point of interest in terms of current 
+segment. 
+To determine which spectral coefficients should 
+be used in the joining process we have to choose the 
+appropriate spectral coefficients, that spatially contribute to 
+our image segments. For this purpose we used a spectral 
+segment validity mask in the form depicted in Fig. 4, which 
+has nonzero value for valid coefficients (coefficients that 
+contribute to the segment). To produce the validity mask 
+we can use the down sampling approach as in [2] or more 
+rigorous and slower approach as in 161 which assures no 
+information loss at this stage. 
+We tested both approaches for creating the 
+validity mask. It turned out that the approach from [Z] gives 
+with proposed algorithm a little bit better results. 
+3 Comparison and Results 
+The SPIHT approach in [SI (further referred as SPIHT-S, 
+which means SPlHT with separate block coding) was used 
+without arithmetic coding. This gave always a better image 
+quality than a baseline approach with completely separate 
+coding of blocks. 
+So we will compare our modified-baseline approach 
+results to SHIHT-S. There was no interest to compare the 
+absolute coding efficiency of both algorithms. We wanted 
+mainly to test the behaviour of these two approaches as the 
+number of segments grows and/or bit rate decreases. 
+For “Baboon” and down sampled “Lena” image are the 
+numerical results shown in Tab. 1 and Tab. 2. 
+Fig. 4 : Segment “Baboon’s nod’ and it’s spectral segment validity mask 
+L 
+a) Joining of DC components 
+L 
+b) Joining ofdetails at level I 
+I1 
+Fig. 5 : Example of joining the DC coefficients and details at different 
+decomposition IovcIs. Onb the biggest segment contributes to all detail 
+levels. 
+956 
+Tab. 1. Resulting PSNR values for both methods when coding Baboon 
+[256x256] image using various segment numbers and bit rates. Used DWT 
+with FBI 917 filters 
+524 8. 
+U, 
+[L 
+23 2- 
+I 0.15 I 0.25 I 0.5 I 1 I 
+.................. SPIHT-S at 1 bpp 
+ModEC at Ibpp 
+SPItf-S at 0 15bpp 
+ModEC at 0 I5bpp 
+............ 
+1 ModBC I 21.87 I 22.40 I 23.42 I 26.1 
+Tab. 2. Resultine MSE values for both methods when codine imaee Lena 
+[256x256] imageusing various segment numbers and bit rates. Used DWT 
+with FBI 917 filters 
+n 
+0 --. ................... .x.. ......... .x 21.61 h z  
+50 
+201 
+01234 IO 20 30 40 
+number of segments 
+Fig. 6. Coding of segmented baboon Image, both SPITH 
+and BC have approximately the same behaviour when 
+number of segments is increased or bit rate is changed 
+When computing compression ration we take not in 
+account the information amount needed to code segment 
+boundaries. This amount is for both compared methods the 
+same, thus irrelevant for comparison purposes. Some 
+numerical results from Tab.1 are graphed in Fig. 6. The 
+results show that modified baseline approach gains on 
+performance against SPIHT-B as the number of segments 
+grows. The decay difference in the sense of PSNR is most 
+remarkable at the higher bit rates. Simulations on other 
+segmented images showed similar behaviour. Fig 5: Example ofjoining the DC coefficients and details at 
+different decomposition levels. Only the biggest segment 
+contributes to all detail levels. 
+957 
+4 Conclusion 
+In this article we modified the baseline algorithm [4] to 
+effectively code the image segments using wavelet 
+transforms. As the number of segments grows, PSNR falls 
+down slower than in SPIHT-S algorithm. From certain 
+number of segments (depending on image) is presented 
+approach with modified baseline algorithm more effective, 
+regardless of the initial advantage of SPIHT-S algorithm. 
+References 
+[I ]  [ l ]  T. Karlubkova et al., New Scheme for Region 
+Approximation and Coding with Shape Independent 
+Transform, Proc. Photogrammetric Computer Vision 
+(PCV’O2). Graq Austria, 2002, ISPRS Commision 111, 
+Vol. 34, Part 3B, ISSN 1682-1750, pp. 214-217. 
+[2] [2] Y. Liu, S. Ranganath, X. Zhou, “Wavelet-based 
+lmaee Seement Representation”, Electronics Letters, 
+Vol. 38,No. 19,pp. 1091-1092,2002, 
+[3] [3] A. Said, Pearlman, W., A. A New Fast and 
+Efficient Image Codec Based on Set Partitioning in 
+Hierarchical Trees, IEEE Transactions on Circuits and 
+Systems for Video Technology, vol. 6, pp. 243-250, 
+June 1996 .-- 
+[4] G. M. Davis, ”Baseline wavelet transform coder 
+construction kit,”, 1997, (www.cs.dartmouth.edu 
+!-gdavis/wavelet/wavelet,hhnl) 
+[5] Vargic, R. Wavelet-Based Compression of Segmented 
+Images, Proceedings of EC-VIP-MC 2003, Zagreb, 
+Croatia, 2003, pp.347-351 
+[ 6 ]  Vargic, R., Prochaska J.: Zerotree and baseline 
+approach for image segment compression , 
+RTT2003,CastA-Pila. Slovak Republic, 2003, pp.263- 
+265 
+.. I . .: > ,...*-- 
+958 

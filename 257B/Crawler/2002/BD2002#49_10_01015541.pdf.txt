@@ -1,0 +1,912 @@
+  
+  
+ 
+Creating a National Lab Shared Storage Infrastructure 
+Wayne Karpoff 
+Chief Technology Officer, YottaYotta, Inc. 
+Wkarpoff@YottaYotta.com 
+ 
+Abstract 
+ 
+Big science requires large research teams and huge 
+amounts of data. The Internet 2 project provides the pipes, 
+but where are the next generation buckets that will feed 
+that network? The national labs require a storage 
+infrastructure that is readily expandable, tightly 
+integrated with the network, highly secure and cost-
+effective. This paper will discuss a storage architecture 
+that would meet these most stringent requirements. 
+1. Introduction 
+Over the past decade the nature in which 
+supercomputer centers have been built has changed.  
+Several supercomputers typically occupy a single site, all 
+requiring fast access to a common data pool. The nature of 
+access includes both individual fast streams that feed 
+heavy iron systems and many simultaneous streams that 
+feed clustered systems. Many data centers commonly 
+share computing resources. The users of these data centers 
+are no longer all “insiders”, which implies the need for 
+strong, integrated security without jeopardizing 
+performance. Centers require carrier grade availability. 
+The pressure on I/O performance enormously exceeds 
+Moore’s Law [13, 14] as tracked by traditional storage 
+solutions. The amount of data under management balloons 
+at a rate exceeding the abilities of budgets or IT staff 
+levels to cope. We are in a state of storage siege [3]. 
+To meet today’s demands, YottaYotta posits that a 
+new generation of storage technology is required. In order 
+to overcome traditional limitations, such technology must 
+be re-designed, from the ground up. Current storage forms 
+cul-de-sacs of data off the network.  YottaYotta’s core 
+insight is that networks need to be fully integrated into a 
+single system where the network is not only an access 
+point but is also the backplane of the storage solution.  
+Every element of the storage system exists on a network 
+so that instead of a cul-de-sac, the stored data is an 
+intersection of server, network, and storage I/O. Such an 
+approach suggests a number of improvements that help 
+meet the needs of the next generation supercomputer 
+center. These requirements include the ability to: 
+• Manage an entire data center from a single storage 
+pool by providing all computers access to all data all 
+of the time. 
+• Scale performance to clustered computing 
+environments by allowing many I/O streams to access 
+the same data without performance degradation.  
+• Feed big iron systems with I/O streams exceeding 
+Gigabyte/second speeds. 
+• Ensure the secure implementation of a common 
+storage pool for cost amortization across many users.  
+• Start with a small system and scale it, in terms of both 
+capacity and horsepower, from a departmental system 
+to systems managing hundreds of petabytes.  
+• Integrate and manage existing legacy storage systems 
+as part of the aggregate storage pool.  
+• Export a complete range of storage protocols, 
+including SAN [9], NAS [5], and iSCSI [23], all 
+managed from a common pool.  
+• Export higher-level protocols, such as FTP, HTTP, 
+RSTP, and various specialized protocols, directly 
+from the storage system onto the network. 
+• Interconnect multiple, geographically separated data 
+centers with arbitrary, networking technologies 
+managing them as a single data center. 
+• Provide users in multiple geographies with a common 
+data view with local performance by proactively and 
+automatically moving data around the network as 
+required.  
+• Move data between data centers at the rates of 
+backbone networks.  
+• Provide real-time disaster recovery between data 
+centers allowing them instant recovery from complete 
+site failures in any geography in a truly cost effective 
+manner.   
+This paper describes the architecture required to 
+implement these and other capabilities.  
+Proceedings of the International Parallel and Distributed Processing Symposium (IPDPS02) 
+1530-2075/02 $17.00 © 2002 IEEE 
+   
+  
+2. Scalable Performance 
+Performance scalability can be measured in many 
+ways – and the new world needs them all. In traditional 
+storage systems, “scalability” refers only to capacity. 
+However, the rate of data access has grown only at 
+Moore’s Law while the growth of deployed capacity has 
+greatly outpaced the growth of deliverable performance. 
+Replicating storage images across multiple servers, a 
+stopgap measure traditionally used to deliver high 
+aggregate rates to applications such as web server farms, 
+is no longer viable because even web sites are no longer 
+static. Read-only applications and the ballooning size of 
+the amount of storage in a web site image make 
+replication impractical.  In other words, storage capacity 
+growth has far exceeded storage access growth as 
+measured in I/O per second (IOPS). 
+Over the last few years there have been momentous 
+changes in some areas of the networked computing 
+landscape. The speed of the network pipes has increased 
+from OC48 (1998-99) to OC192/10 Gbps (1999-2000) 
+and again to OC768/40 Gbps (2000-2001). The 
+availability of 80 Gbps networks has been announced for 
+2002. However, this exponential growth rate has not been 
+matched by the increase in the speed of storage systems, 
+which is still tracking Moore’s Law, which predicts speed 
+doubling every 18 months. The same effect is being 
+experienced in feeding supercomputers and high-end 
+servers. Computational performance is growing faster 
+than I/O performance.   Storage systems need to close this 
+gap.  
+Data access patterns are becoming more 
+unpredictable, which is an extension of the “locality of 
+reference” problem seen on disk drives for years. “Hot 
+data” will be hit extremely hard. Unlike standard 
+benchmark depictions, traditional storage technologies 
+develop “hot spots” in cache and processors on 
+controllers, which gate access to “hot data”, while other 
+controllers in the data center remain relatively idle. This 
+phenomenon significantly limits the amount of storage 
+that can be effectively deployed in a single array. 
+Furthermore, disk rebuilds, mirror creation, point-in-time 
+copy and other maintenance functions are real-time 
+operations. The growth of data under management is 
+driving the time for individual controllers to perform these 
+operations below the limits of practicality. The only way 
+to overcome Moore’s Law is through parallelism. Only 
+architectures grounded in distributed memory parallel 
+systems can address all dimensions of scalability.  
+2.1 Scalable Throughput 
+Instead of using individual I/O controllers, each 
+managing its own domain of storage, a network storage 
+system could deploy arrays of controller blades that would 
+work cooperatively as a single parallel computer to 
+manage storage. System software would maintain cache, 
+virtual disk, and file system coherence across multiple 
+controller blades. This architecture would allow any 
+controller to access any data on any disk within a data 
+center. As a result, additional performance could be 
+delivered in several areas simply by adding additional 
+controller blades to the configuration: 
+• Adding more controller blades to a server or 
+supercomputer could increase the I/O performance 
+delivered to the server.1  
+• Multiple servers could have read and write access to 
+all data. This configuration would allow scaling 
+throughput performance by adding additional servers 
+and controller blades. 
+In summary, a parallel system allows adding 
+additional controller blades to increase the aggregate 
+performance of I/O delivered between servers and disks 
+without replicating or partitioning the data.   
+2.2 Scalable Cache and Processor Deployment 
+Because of the collaborative nature of the controller 
+blades and because of inter-controller cache coherence 
+[26], any controller within the cluster could do write 
+operations. Load balancing of I/O operations across 
+controllers ensures sustained performance without 
+traditional bottlenecks.  
+Each controller blade would support several 
+gigabytes of field extendable cache memory. This cache 
+memory would be pooled across controller blades. Thus, 
+adding additional controller blades would increase the 
+cache available to all controllers within the cluster.  
+2.3 Scalable Single Stream Performance 
+A great challenge of Internet storage is that of driving 
+fast networks. Consider, for example, driving a 10 Gigabit 
+Ethernet link. The difficulty of driving these high speed 
+links comes from the fact that raw disk rates from storage 
+systems are run over Fibre Channel [4] with individual 
+rates of 1 Gbs going to 2 Gbs. In our proposed system, a 
+controller blade would support two Fibre Channel 
+connections per controller blade. In order to support a  
+10 Gbs stream, a large read would be striped, in a round 
+robin fashion, over four controller blades. These 
+controllers would take turns driving a 10 Gbs Ethernet 
+port via a common PCI-X bus. 
+ 
+                                            
+1 Limited by the performance of I/O busses within the server. Requires 
+powerful device drivers to enjoy scalable performance without data 
+partitioning.  
+Proceedings of the International Parallel and Distributed Processing Symposium (IPDPS02) 
+1530-2075/02 $17.00 © 2002 IEEE 
+   
+  
+ 
+ 
+ 
+Figure 1: Driving High Speed Links 
+ 
+Any controller blade would be capable of reading 
+from, or writing to, any physical disk block. As a result, 
+multiple clusters could instigate identical content streams 
+without replicating the content on multiple disk images.  
+2.4 Scalable Storage Services 
+Storage management services could also be load-
+balanced and distributed across controller blades. As a 
+result, operations, such as rebuilds, backups, and point-
+in-time copies, would go faster and not impede active 
+I/O rates being delivered to servers. 
+3. Storage Virtualization 
+Storage virtualization has recently received 
+considerable attention in the industry. It offers the ability 
+to isolate a host from changes in the physical placement 
+of storage. The result is a substantial reduction in support 
+effort and end-user impact. 
+Traditionally, a storage virtualization layer refers to 
+a level of abstraction implemented in software that 
+servers use to divide available physical storage into 
+virtual disks or volumes. Virtual volumes are used by the 
+operating system (OS) as if they were physical disks. In 
+fact, it is generally impossible for an operating system to 
+perceive them as anything but real disks. The storage 
+virtualization layer redirects I/O requests made against a 
+virtual disk to blocks in real storage. This 
+direction/redirection means that changes in the physical 
+location of storage blocks (to service access patterns, 
+performance requirements, growth requirements, or 
+failure recovery) can be accommodated by a simple 
+update of the virtual-to-real mappings. 
+A virtual volume can be created, expanded, deleted, 
+moved, and selectively presented independent of the 
+storage subsystems on which it resides. Furthermore, a 
+virtual volume may consist of storage space in different 
+storage subsystems, each with different characteristics. 
+Virtualization architectures [2] will play a key role in 
+solving centralization problems, enabling important 
+functions such as storage sharing, data sharing, 
+performance optimization, storage on demand, and data 
+protection. 
+In order to deliver the vision of central storage pool 
+available to any system that houses diverse users groups, 
+virtualization must be integrated into the storage system. 
+It must be able to export multiple instantiations of the 
+same virtual image. Virtualization must be implemented 
+across multiple controllers to ensure the delivery of 
+scalable performance and high availability. In order to 
+support large customer bases, policy and administration 
+must be automated and integrated into the virtualization.  
+One possible approach to virtualization would allow 
+larger customers to manage their storage as a utility 
+rather than as islands of storage that require individual 
+care. A demand mapped storage device (DMSD) could 
+be used in partnership with traditional solutions. A 
+DMSD would look like a “regular” virtual disk with a set 
+of N contiguous blocks of storage; however, it would 
+typically be much larger than a regular virtual disk, with 
+a total size of up to 1.5 yottabytes (smaller DMSDs could 
+also be created).  
+Controller
+Controller
+Controller
+Controller
+Controller
+Controller
+Controller
+Controller
+Controller
+Controller
+Controller
+Controller
+D
+is
+k
+Fa
+rmFC Switch
+FC Switch
+ High Speed
+Port
+ High Speed
+Port
+ High Speed
+Port
+Switch
+High Speed
+Paths
+Proceedings of the International Parallel and Distributed Processing Symposium (IPDPS02) 
+1530-2075/02 $17.00 © 2002 IEEE 
+   
+  
+The key difference between traditional virtualization 
+and DMSDs is that DMSDs would be demand mapped.  
+A mapping to a real disk would be created only when a 
+particular virtual disk block is written to. When a virtual 
+disk block becomes unused, the physical block is freed 
+and returned to the pool of free blocks.  
+A DMSD approach would have several key 
+advantages: 
+• Host applications never have to deal with volume 
+resizing.  Spare capacity (or “slack space”) can be 
+amortized across multiple DMSDs, thus lowering 
+the cost associated with “on reserve” storage 
+capacity.  
+• The lack of fixed partition sizes means that large 
+data sets can be more easily and more efficiently 
+managed.   
+• Administration of resource consumption can be fully 
+automated allowing a much higher storage–to-
+administrator ratio.  
+• Charge back can reflect actual storage usage.  
+4. File Systems for Distributed Storage 
+The discussions above address managing storage as 
+a pool.  In order to access storage as a pool, a storage 
+system could provide two options. First, host computers 
+could access the storage pool as a block device and 
+deploy parallel file systems, such as GFS [19, 20, 25], on 
+the host computer. Second, a parallel file system (PFS) 
+could be integrated onto the controller blades. The file 
+system can be accessed from a host using IP, Fibre 
+Channel, or Infiniband  [18, 22] networking using a 
+variety of access protocols including NFS [6, 15], CIFS 
+[10], or, when available, DAFS [8].  
+In such a file system, metadata can be extended to 
+allow a variety of behaviors to be dynamically set on a 
+file by file basis, rather than on a volume-by-volume 
+basis. Examples of extended metadata include the 
+abilities to:  
+• Override cache retention priorities. 
+• Specify that a file must be replicated across sites.  
+• Specify whether such replication is synchronous or 
+asynchronous.  
+• Override the automatic selection of RAID type [11, 
+12, 21].  
+• Set the controller level fault tolerance for write-back 
+I/O operations.  
+If you were to implement a file system within the 
+storage system, integration with the lower level system 
+could provide file system topology knowledge enabling:  
+• Storage prefetch operations.  
+• Inter-site management functions.  
+• Cache management subsystems. 
+5. Data Security and Encryption 
+The traditional approach to “user separation” and 
+data security employs a mechanism known as LUN 
+masking and/or the physical separation of storage into 
+separate “islands”. Although this system works, it 
+involves significant overhead in the management of 
+multiple independent pools, and the assignment and 
+maintenance of LUNs. Unless carefully configured and 
+managed, the LUN-based strategy for customer 
+separation and security is also susceptible to intruder 
+attacks.   
+LUN masking technology allows each client, or 
+server, to privately own portions of the storage system’s 
+capacity while concealing it from other attached servers. 
+This means that each server has its own “secure” storage 
+areas and eliminates the possibility of corruption by 
+other servers connected to the same storage resource. 
+Because each server has its own allocated storage space, 
+the servers can be running different operating systems 
+and file systems. This feature is key to delivering true 
+centralized storage and is one of the founding 
+technologies employed by SANs. 
+While controller technology could support 
+traditional LUN masking, a number of new initiatives are 
+required to ensure data security. In general, data security 
+would need to be addressed at four levels via 
+mechanisms that could be optionally deployed: 
+• Ensuring proper user authentication and policy 
+application before allowing access to data or control 
+paths. 
+• Ensuring secure delivery between the controller and 
+client computer. 
+• Encryption [24] of data and metadata on disk.  
+• A fortified architectural ring that encloses and 
+protects controller management, security and policy 
+administration, virtualization, and the file system. 
+The system’s architecture, including hardware 
+support, would need to support a variety of encryption 
+methods, tunneling protocols, and installation 
+architectures with optimal performance.  
+5.1 Storage Level Data Encryption and 
+Transmission Encryption 
+To address the need for user separation and data 
+security, the controller blades would need to include an 
+optional (“in-stream”) encryption engine that could be 
+employed to automatically encrypt/decrypt data as it was 
+written-to, or read-from the virtual disk. The encryption 
+layer would need to be designed to accommodate any 
+encryption approach including hardware-supported 
+encryption. 
+Proceedings of the International Parallel and Distributed Processing Symposium (IPDPS02) 
+1530-2075/02 $17.00 © 2002 IEEE 
+   
+  
+Both the data and the file system structures that 
+contain the data would need to be encrypted. This way, if 
+all of the security mechanisms were circumvented 
+(accidentally or deliberately), an unauthorized user 
+would not be able to read the data of another user, 
+determine its structure, or determine the data’s owner 
+even if connected directly to the storage system. This 
+would also protect against data exposure on disk units 
+removed from the data center without being properly 
+erased (such as a disk being returned on warranty after a 
+failure).  
+Encryption of data for transmission over a non-
+secure medium (such as the Internet) would also need to 
+be supported by the controller technology. Like storage 
+level data encryption, hardware support would be 
+provided for optimal performance. 
+When controller systems are deployed in multiple 
+locations, as described below in the section 
+Geographically Distributed Storage Systems, the 
+communication conduit between remote controller 
+clusters would also need protection. 
+5.2 Architectural Security 
+The controller architecture could also provide a 
+number of security options:  
+• In-band control commands would be able to be 
+selectively disabled (on a command-by-command, 
+port-by-port basis).  
+• Controller blades could have built-in Ethernet ports 
+that are used to create a separate, secure network for 
+out-of-band control commands.  
+• For systems using Fibre Channel to connect hosts, 
+each controller would have sufficient Fibre Channel 
+ports to allow a complete separation of the host side 
+Fibre Channel fabric from the “trusted” disk-side 
+fabric.  
+• The controllers would not execute any user code, 
+thus preventing virus attacks on the file system, 
+RAID systems, or other controller systems. 
+• Redundant storage management servers could 
+operate within the secure network and provide 
+authenticated access via standard firewalls for a 
+central management staff. 
+ 
+ 
+ 
+Proceedings of the International Parallel and Distributed Processing Symposium (IPDPS02) 
+1530-2075/02 $17.00 © 2002 IEEE 
+   
+  
+ 
+Figure 2: Secure Network Installation  
+ 
+6. Fault Tolerance and Data Availability 
+Rather than simply pushing chip reliability curves, 
+the controller system could leverage its parallel 
+architecture to provide fault tolerance and high 
+availability. This could be implemented at three levels: 
+RAID for physical disk failures, N-Way replication for 
+preservation of cache resident data, and geographic 
+replication for disaster recovery.  
+6.1 N-Way Replication on Write Operations 
+The current state of the art in implementing “safe” 
+write-back cache management is the use of Active-Active 
+[16] or Active-Passive controllers. Such strategies, 
+however, can survive at most a single point-of-failure 
+without data loss.  
+The proposed controller system would allow for  
+N-Way replication of write data across controller caches, 
+allowing N-1 levels of failure without data loss. If the file 
+system was used, the level of replication could be 
+dynamically specified on a file-by-file basis subject to 
+limitations set by administrators and the number of 
+available controller blades. When the file system was not 
+Proceedings of the International Parallel and Distributed Processing Symposium (IPDPS02) 
+1530-2075/02 $17.00 © 2002 IEEE 
+   
+  
+being used, replication could be specified for the entire 
+virtual disk. The replicated data would be locked in cache 
+only long enough for the data to be asynchronously 
+written to disk. Another benefit of N-Way replication is 
+that any of the receiving controller blades could perform 
+the write operation allowing a balancing of RAID 
+management.  
+6.2 Geographic Data Replication 
+When data is more important, the proposed system 
+would allow it to be replicated between sites, allowing for 
+a failure of the entire site without data loss. If a file 
+system was used, users could specify, on a file-by-file 
+basis, the number of sites data would be replicated to, the 
+minimum distance, and whether replication was 
+synchronous or asynchronous to the host write. 
+Replication to specific sites could also be specified. If the 
+file system was not used, then replication would be 
+completed at the virtual disk level. Geographic replication 
+could also be used to force distributed copies of data for 
+faster, first time, remote access.  
+6.3 High Availability 
+Because the traditional “one-to-one” relationship 
+between controllers and storage has been removed, a 
+clustering approach to total fault tolerance could be 
+deployed. If any given portion of the system failed, access 
+to data would continue through remaining portions.  All 
+networking would be provided in a multi-redundant 
+fashion. Mirrored volumes could provide even further 
+redundancy.  
+Traditional storage systems are also prone to loss of 
+availability due to system loading. Controller hot spots 
+prevent access to data. The proposed system would spread 
+the controller load across multiple controllers. The 
+controller blades would use the cache on all the controller 
+blades as a single, coherent, distributed pool of cache. 
+Because each controller would read/write data from/to the 
+cache of other controllers, and from/to any disk in the 
+system, there would be no cache or controller “hot spots”. 
+Cache data would be migrated to the cache(s)/controller(s) 
+where it was most needed. Additional capacity could be 
+added, incrementally, at any time by adding additional 
+controllers to the system in a fashion that is analogous to 
+adding additional disks to a system.  
+Another important requirement of storage is the 
+ability to upgrade the system over time in an incremental 
+manner so that the system is never taken down for 
+maintenance and upgrades. An individual component may 
+fail and be replaced, but the system, as a whole, continues 
+to function. Upgrades could be applied incrementally 
+across the system removing the need for planned down 
+time.  
+This concept of availability derives in part from the 
+VAX Cluster model. VAX Clusters are typically used to 
+ensure that data is accessible even if some hosts fail. 
+Some VAX Clusters have been running for over 15 years 
+and have never been down.  
+Such fault tolerance could also be extended to storage 
+management. Rebuilds would be distributed, in a fault 
+tolerant fashion, across the controllers within the cluster. 
+If a controller failed during a rebuild, the rebuild would 
+automatically continue on other available controllers.  
+7. Geographically Distributed Storage 
+Systems 
+Today’s research efforts have large amounts of data 
+housed in data centers all over the world. Unfortunately, 
+these data centers are managed individually as “islands of 
+storage”. Islands of storage limit the collaboration of 
+researchers across locations and inhibit the productivity of 
+traveling scientists. Each center must be individually 
+managed and maintain reserve capacity.  
+The cost of down time for many data centers is 
+measured in millions of dollars. Increasingly, data centers 
+are looking to geographically replicate data to ensure a 
+quick operational recovery in the event of the unexpected 
+unavailability of a data center. Current technology for 
+remote data replication works at the volume level and, 
+therefore, is expensive, operationally inflexible, extremely 
+demanding on network resources, and prone to application 
+level data corruption.  
+Within labs, there are two strategies for supporting 
+departmental projects. One strategy is to put all storage 
+hardware in the department. This implies a high initial 
+capital cost and no ability to amortize reserve capacity and 
+management costs across clients. The second strategy is to 
+provide all storage in a centralized data center remote 
+from the client’s infrastructure. This causes all data 
+accesses to be over a network, which significantly 
+impedes performance.  
+Content distribution engines that accelerate the 
+distribution of media rich and high volume material across 
+the Internet and inter-lab private networks are increasingly 
+used. They function by caching reads of contents at points 
+close to the Internet edge so that subsequent requests can 
+be serviced from cached images that are geographically 
+close to the requester. A lab data server requires a similar 
+support strategy for the delivery of file information that 
+addresses both the read and the write operations.  
+Our proposed architecture could be deployed in 
+multiple geographically separated locations. The resulting 
+“metadata center” would provide users with a single data 
+image. Such technology would enable distributed direct 
+access without storage bottlenecks and provide scalable, 
+distributed networked access with extreme data rates and 
+Proceedings of the International Parallel and Distributed Processing Symposium (IPDPS02) 
+1530-2075/02 $17.00 © 2002 IEEE 
+   
+  
+massive data volumes without performance degradation. 
+Data could be selectively (at a file granularity) 
+geographically replicated with the importance of the data 
+determining how far the data is replicated, the 
+synchronization method of replication, or whether the data 
+is replicated at all.  
+The link connecting sites can be one of a variety of 
+network technologies – the choice of technology dictates 
+the overall performance and bandwidth. This link could be 
+a dark fibre connection, a switched packet frame, or a 
+Wide Area Network (WAN).  
+Basically, geographic deployment addresses two key 
+requirements: distributed data access and data replication. 
+ 
+ 
+ 
+ 
+Figure 3: Geographically Distributed Deployment  
+ 
+ 
+7.1 Distributed Data Access 
+If a file were commonly used in a single location, the 
+system would locate the physical data at that location. 
+Other locations could, however, still access this data. The 
+first time the data was referenced, a copy of the data 
+would be moved to the referencing site. As a result, there 
+would be a network-induced delay while the initial block 
+of a file is referenced, but other blocks within the file 
+would be prefetched, allowing local access performance. 
+The system would recognize files that are commonly 
+accessed at multiple locations and automatically replicate 
+copies of the underlying data blocks to ensure fast access. 
+Automatically derived assumptions about data placement 
+could be overridden by either system administrators or by 
+end users (subject to administration policies).  
+7.2 Remote Data Replication 
+In the past few years, the demand for remote 
+replication solutions has been enormous. Originally, this 
+could only be done by creating local mirrors of data, 
+periodically taking a mirror offline, copying the offline 
+mirror to a remote volume, updating the local mirror, and 
+bringing it back online. This approach requires three to 
+four times the data storage and leaves large opportunities 
+for data loss. A synchronous mirror can be created 
+remotely; however, this only works if the replication 
+distance is small (small latency). More recently, an 
+asynchronous replication approach has been available 
+where every write is written, in the order of the writes, to 
+a remote volume. This solution still leaves a significant 
+window for data loss.  
+A key disadvantage of current solutions is that 
+replication is done at a volume level – every byte of data 
+is treated the same whether appropriate or not. 
+Additionally, the target volumes must be physically 
+identical to the originator. These issues cause significant 
+maintenance difficulties for both the data center 
+administrator and the end consumer.  
+In our hypothetical system, the behavior of 
+replication could be specified at a file level. Key files 
+would be synchronously replicated while less important 
+files would be asynchronously replicated. Unimportant 
+Proceedings of the International Parallel and Distributed Processing Symposium (IPDPS02) 
+1530-2075/02 $17.00 © 2002 IEEE 
+   
+  
+files may not be remotely replicated at all. The file 
+behavior can easily be changed at any time. 
+Replication could also be done at the virtual disk 
+level. The remote copy resides within a pool. This 
+solution would remove the restriction of copies being the 
+same size and optimize the utilization of storage 
+resources.  
+Additionally, the system would be geographically 
+aware. Thus, a file could be synchronously replicated to a 
+center close by, and then, asynchronously replicated to 
+further distances. Users could specify the number of sites 
+to replicate the file, or specific replication sites.  
+The system would also provide support for snap  
+shot [1] copies of data. The copy could then be accessed 
+as an alternate virtual disk.  
+7.3 Distributed Operations Support 
+The proposed system would not only allow data users 
+a virtual single site, but also for the distributed operation 
+to be managed as a single site.  
+From an IT perspective, the system would be 
+managed as one large system. Actual management could 
+be performed from Web-based interfaces, allowing even a 
+distributed IT team to interact with the single system 
+image. The physical location would be irrelevant, because 
+the data could all be managed as a ubiquitous resource.  
+Similarly, from the user’s perspective (at the virtual 
+layer), such a storage solution would manage the virtual 
+perspective of this distributed data as a uniform, unified 
+resource. Additionally, the customer (the end user in the 
+data center) could control the behavior of the file at the 
+virtual level. This file management would be 
+accomplished at the software layer without any physical 
+effort, i.e. without the plugging of cables or the manual 
+copying of disk drives.  
+8. Storage and Network Integration  
+A core element of the proposed system is integrating 
+the technology tightly with the network. Such a system 
+would allow data management to be network-centric 
+rather than server-centric. In order to accomplish this, a 
+number of key technology components are required.  
+The storage system would need to communicate 
+directly with the network. This requirement means putting 
+network protocols, such as IP stacks and TCP/IP, directly 
+on the controller blades. This design is also required to 
+allow connectivity between the controller blades and the 
+hosts over non-traditional networks such as IP or 
+Infiniband encapsulated as SCSI, NAS, VI, or proprietary 
+level 7 protocols that connect the VFS [7] sub layer to the 
+storage system.  
+In addition, a number of other protocols would need 
+to be supported that provide network data services, such 
+as HTTP, FTP, RTSP, and other segment-specific 
+protocols, such as medical imaging’s Dicom. A key 
+requirement of the system’s security model would be that 
+there is user executable code running on the controller 
+blade. This would have implications for the applications 
+that run on the controller blade. For example, an HTTP 
+engine could run entirely on the controller blade except 
+for the authentication and CGI-bin programs, which 
+would execute on a server where the Web page files 
+reside. 
+In order to maintain extremely high data rates and 
+high quality of service, the storage system would be 
+capable of streaming data directly from the storage 
+devices to the network. Furthermore, in order to achieve 
+data rates that are higher than individual Fibre Channel 
+rates, multiple controller blades would work together to 
+aggregate larger blocks of data to create data streams well 
+in excess of Fibre Channel rates. For example, in order to 
+create a 10 Gbs stream, four controller blades could be 
+employed, each being fed by two 2 Gbs Fibre Channel 
+streams. The aggregate output of the controllers would be 
+in the neighborhood of 10 Gbs.  
+8.1 Encryption 
+The backbone switch configuration would enable 
+encryption capabilities. With sufficient intelligence on the 
+controller blade, and the abundance of cache on each 
+blade, encryption could be accomplished at wire-speed 
+using a variety of encryption techniques (including multi-
+pass methods).  
+9. Conclusion 
+This paper has presented a vision of an architecture 
+that would provide storage as a true data pool, both at the 
+physical management level and at the access level; both as 
+a single site and as a distributed data supercomputer. This 
+architecture would support multiple user groups from the 
+pooled environment while maintaining security 
+requirements. It would allow scalable, high performance 
+access to data to both clustered environments and heavy 
+iron systems. It would export both large file system and 
+virtual volume images. Finally, such a system would 
+allow a more automated approach to policy 
+administration. In implementing such a vision, the lessons 
+of parallel computing derived from the past two decades 
+of parallel supercomputing must be deployed from within 
+the storage system. The result is a storage system re-
+architected from the ground up delivering a new category 
+of storage technology.  
+ 
+YottaYotta, the Yottabyte NetStorageTM Company, is 
+developing a system that utilizes massively parallel 
+technology and tight integration with optical networks. 
+Proceedings of the International Parallel and Distributed Processing Symposium (IPDPS02) 
+1530-2075/02 $17.00 © 2002 IEEE 
+   
+  
+This solution creates a geographically distributed storage 
+resource of enormous scalability that is managed as a 
+single machine and supports anywhere from hundreds to 
+millions of users. YottaYotta's Real Time Disaster 
+Recovery storage system gives enterprises unrivaled 
+availability, protecting against complete site outages as 
+well as multiple component failures. 
+YottaYotta enhances existing storage infrastructure 
+from firms such as EMC, Hitachi Data Systems (HDS), 
+Compaq, Sun, IBM, Network Appliance, HP, Brocade, 
+McData, QLogic, and Dell. YottaYotta's massively 
+parallel distributed systems dramatically reduce the cost 
+of storage management and disaster tolerance compared to 
+other next generation storage firms such as Cereva 
+Networks, 3PAR Data, Zambeel, BlueArc, and Pirus 
+Networks. 
+The name YottaYotta comes from the term yottabyte, 
+which is one trillion terabytes of data. Incorporated in 
+January of 2000, the privately held company has three 
+offices, employing over 160 people, in three locations: 
+Edmonton, Canada; Seattle, Washington; and Boulder, 
+Colorado. 
+ 
+References 
+[1] Brown, Keith, et al.  SnapMirror and SnapRestore: 
+Advances in Snapshot Technology. TR3043. Network 
+Appliance, Inc. 
+http://www.netapp.com/tech_library/3043.html#2 
+ 
+[2] Compaq Computer Corp., Intel Corporation, Microsoft 
+Corporation. Virtual Interface Architecture Specification. 
+Version 1.0, 1997. 
+http://www.viarch.org/html/Spec/vi_specification_version_
+10.htm 
+ 
+[3] Farley, Marc. Building Storage Networks, 2nd ed. Berkeley, 
+CA: Osborne/McGraw-Hill, 2000. 
+ 
+[4] Fibre Channel Industry Association. Fibre Channel: 
+Overview of the Technology. 
+http://www.fibrechannel.org/technology/index.master.html  
+ 
+[5] Gibson, Garth A., and Rodney Van Meter. Network 
+Attached Storage Architecture. Communications of the  
+ACM, November 2000, Vol. 43, No.11. 
+http://www.pdl.cmu.edu/PDL-
+FTP/NASD/GARTH_CACM.pdf 
+ 
+[6] International Business Machines.  “Network File System.” 
+In AIX Version 4.3 System Management Guide: 
+Communications and Networks, Chapter 10. Sun 
+Microsystems, Inc., 1988. 
+http://www.rs6000.ibm.com/doc_link/en_US/a_doc_lib/aix
+bman/commadmn/ch10_nfs.htm 
+ 
+[7] International Business Machines. “Virtual File Systems.” In 
+AIX Version 4.3 Kernel Extensions and Device Support 
+Programming Concepts, 2nd Ed., September 1999.  
+http://molt.zdv.uni-
+mainz.de/doc_link/en_US/a_doc_lib/aixprggd/kernextc/toc.
+htm 
+ 
+[8] Katcher, Jeffrey and Steve Kleiman. An Introduction to the 
+Direct Access File System. 
+http://www.dafscollaborative.org/press/dafs_whitepaper.sht
+ml 
+ 
+[9] Khattar, Ravi Kumar, Mark S. Murphy, et al. Introduction 
+to Storage Area Network, SAN. IBM Redbooks, August 
+1999. 
+http://www.redbooks.ibm.com/pubs/pdfs/redbooks/sg24547
+0.pdf 
+ 
+[10] Leach, Paul, and Dan Perry. “CIFS: A Common Internet 
+File System.” In Microsoft Interactive Developer, 
+November 1996. 
+http://www.microsoft.com/msj/defaulttop.asp?page=/msj/ar
+chive/cifs.htm 
+ 
+[11] Massiglia, Paul.  The RAID Book: A Storage System 
+Technology Handbook, 6th ed. Chisago City, MN:  RAID 
+Advisory Board, 1997. 
+ 
+[12] Molina, Joe.  The RAB Guide to Non-Stop Data Access. 
+RAID Advisory Board, 1999. 
+http://www.raid-advisory.com/rabguide.html 
+ 
+[13] Moore, Gordon E. “Cramming more components onto 
+integrated circuits.” In Electronics, April 1965.  
+http://www.intel.com/research/silicon/mooreslaw.htm 
+ 
+[14] Moore, Gordon E. An update on Moore's Law. Intel 
+Developer Forum Keynote, September 1997. 
+ 
+[15] Network Working Group. “Request for Comments: 1094.” 
+In NFS: Network File System Protocol Specification. Sun 
+Microsystems, Inc., 1989. 
+http://www.faqs.org/rfcs/rfc1094.html 
+ 
+[16] nStor Technologies. Foundations of Fault Tolerance For 
+Your Storage Infrastructure, p. 5. nStor Technologies 
+White Paper. 
+http://www.hps.co.uk/documents/FoundationsofFaultTolera
+nce.pdf 
+ 
+[17] O’Keefe, Matthew T. “Shared File Systems and Fibre 
+Channel.” In Proceedings of the Sixth NASA Goddard 
+Space Flight Center Conference on Mass Storage Systems 
+and Technologies, March 23-26, 1998.  
+http://www.sistina.com/shared_file_systems_1.0.pdf 
+ 
+Proceedings of the International Parallel and Distributed Processing Symposium (IPDPS02) 
+1530-2075/02 $17.00 © 2002 IEEE 
+   
+  
+[18] Pfister, Gregory F. “An Introduction to the InfiniBand  
+Architecture.” In High Performance Mass Storage and 
+Parallel I/O. IEEE Press and Wiley Press, 2001. 
+http://www.csse.monash.edu.au/~rajkumar/superstorage/ch
+ap42.pdf 
+ 
+[19] PolyServe. Horizontal Scaling: New Data Center 
+Architectures Enabled by SAN File Systems. PolyServe, 
+Inc., 2001.  
+http://www.polyserve.com/literature/PMxS-
+HorzScaling_WP.pdf 
+ 
+[20] Preslan, Kenneth W., Andrew Barry, et al. “Scalability and 
+Failure Recovery in a Linux Cluster File System.” In 
+Proceedings of the Fourth Annual Linux Showcase and 
+Conference, Atlanta, Georgia, USA. October 10 –14, 2000. 
+http://www.sistina.com/gfs-als2000.pdf 
+ 
+[21] RAID Advisory Board. Storage System Enclosure 
+Handbook. Chisago City, MN:  RAID Advisory Bo12ard, 
+1996. 
+ 
+[22] Robinson, Irv. InfiniBand TM Architecture Overview. 
+http://www.infinibandta.org/data/events/acdc20000522/twg
+.pdf 
+ 
+[23] Satran, J., et al. iSCSI, Internet draft. Internet Engineering 
+Task Force (IETF), April 2001. 
+http://www.haifa.il.ibm.com/satran/ips/draft-ietf-ips-iSCSI-
+06.txt  
+ 
+[24] Schneier, Bruce. Applied Cryptography: Protocols, 
+Algorithms, and Source Code in C, 2nd ed. New York: 
+John Wiley & Sons, Inc., 1995. 
+ 
+[25] Soltis, Steven R., Thomas M. Ruwart, & Matthew T. 
+O'Keefe. “The Global File System.” In Proceedings of the 
+Fifth NASA Goddard Space Flight Center Conference on 
+Mass Storage Systems and Technologies, September 17-19, 
+1996, College Park, MD. 
+http://www.sistina.com/nasa96.pdf 
+ 
+[26] Tartalja, Igor and Veljko Milutinovic.  The Cache 
+Coherence Problem in Shared-Memory Multiprocessors: 
+Software Solutions. IEEE Computer Society Press, 1996. 
+ 
+Proceedings of the International Parallel and Distributed Processing Symposium (IPDPS02) 
+1530-2075/02 $17.00 © 2002 IEEE 

@@ -1,0 +1,364 @@
+A configurable processor network for Document Management. 
+Sebastien Vagnier', Hassane Essafi' and Alain MCrigot2 
+'LETI(CEA - Technologie AvancCe) 
+DEIN - CEA - F91191 Gif-sur-Yvette Cedex, France. 
+sebastien.vagnier@cea.fr, hassane.essafi @cea.fr. 
+tel. (33) 169084684, fax. (33) 169088395. 
+Institut d'Electronique Fondamentale 
+UniversitC Paris Sud, 9 1405 Orsay Cedex, France. 
+Alain.Merigot @ ief.u-psud.fr. 
+tel. (33) 169154008. 
+2 
+Abstract 
+A content-based information retrieval is well used in 
+many applications (digital libraries, interactive video, 
+medical, . . .). The methods involved in content-based 
+information retrieval algorithms need to handle, as 
+quickly as possible, a big volume of data. We are 
+involving in European STRETCH project (Storage and 
+RETrieval by Content of imaged documents) that deals 
+with the archiving and the retrieval by content of imaged 
+(scanned) documents. A component extraction is an 
+important step in the archiving process and it is a time 
+consuming. In this paper we describe a system, based on 
+a configurable processor and a configurable network, 
+designed to accelerate the extraction of the homogeneous 
+components (text, images, table. etc .) of scanned 
+documents. 
+1.) Introduction. 
+The goal of document management is to automatically 
+search the textual and pictorial informations. This task 
+uses algorithms, that are characterized by complex and 
+repetitive operations, large image size and various data 
+interaction (point or neighbourhood operations). These 
+algorithms need a system with intensive computation 
+power to be able to reach a real time. In the literature 
+many architectures have been proposed to treat vision 
+algorithms and these systems can be classified under 
+three categories[ 11: 
+fast uniprocessors 
+parallel processors 
+special purpose accelerators. 
+For first category, performance improvement are been 
+obtain thanks to technological development (0.18u, 6.2M 
+transistors/cm2, 1 Ghz) and architectural innovations 
+(pipeline, superscalar, dynamic branch prediction, data 
+cache . . .). To improve performances for low-level 
+processing, these processors integrate SIMD computing 
+units[2][3][4]. Due these advanced features, we obtain a 
+system on a chip, with a higher performance for general 
+purpose processing, but image processing applications 
+need more compute power. Also, with fast uniprocessor, 
+maximum compute power is never reached[5]. 
+For the parallel processors category, we dispose of 
+systems, that are more adapted for image processing. 
+Either we have the systems with the dedicated parts for 
+each processing level (Symphonie[6], IUA[7], ...), or we 
+have systems massively parallel processors, to obtain 
+good performances for all processing (CM-5[ 81, MasPar- 
+2191, ...). The problem of this solution is that we use 
+systems with significant space. 
+The Special-purpose accelerators category is only used 
+to accelerate low-level processing, before being treated 
+by a fast processor. In the same manner, we don't use the 
+same system for all algorithms. 
+Custom Computing Machines (CCMs) allow to 
+reprogram architecture, according to the application. 
+CCM use reconfigurable logic blocks as basic compute 
+elements, some examples for CCMs are PAM systems, 
+Splash21 lo] systems and the Virtual Computer[ 1 I]. With 
+the advent of field-programmable gate arrays[ 121,it has 
+been possible to reconfigure logic at run time, and 
+improve performances. But the problem of this solution 
+is that the logic is slow, and we use a system with 
+important space, to obtain high performances. 
+The appearance of different solutions, as the field- 
+programmable processor array (FPPA)[ 131, or system 
+with standards entities (UAL, multiplier) and 
+configurable entities[ 14][ 151. These techniques attempts 
+to combine the advantage of configurable (granularity 
+adapted) and synthesized components (low space and 
+consumption). 
+In this article we propose a method using a configurable 
+processor, integrated in a parallel architecture. This 
+architecture is evaluated on an algorithm of document 
+segmentation for document indexing. This paper is 
+organized as follows. The application is described in the 
+232 
+0-7695-0740-9/00 $10.00 0 2000 IEEE 
+next section. Details of the parallel architecture is 
+presented in section 3, followed by its evaluation. 
+Finally, we conclude and present the future directions in 
+the last section. 
+Doc w n t  
++ 
+2.) Application. 
+Our application deals with multimedia document 
+document archiving and retrieval by content. The 
+developed system allows users to retrieve the desired 
+information using composite queries consisting of 
+textual and pictorial sub-queries. The input document 
+can come from scanner, in this case the imaged 
+document is first processed and analysed in order to 
+extract homogeneous blocks, then each one is described 
+(indexed) by its adequate indexing engine[ 16][ 171. This 
+analysis must separate in an automatic way the various 
+document entities (text, background, graph, image), in  
+order to extract their characteristics (interest point, 
+paragraph and text). 
+Blocks 
+extraction 
+- ._ 
+Image Zone 
+Fig. I : Document cutting. 
+This phase of the document archiving process is 
+very important, the pertinence of the retrieval 
+information is highly dependant on the accuracy of the 
+document processing and analysis. For instance if a 
+pictorial component has been identified as textual 
+component, it is sent to the textual indexing engine and 
+all its content will be lost. An other point that we have 
+tried to overcome and that is the subject of this paper, 
+concerns the processing time. The algorithms have to 
+process a big volume of data (one page A4 300dpi is 
+about 2300El3500 color pixels) in short time (less than 
+one minute) 
+To  detect and identify the type of homogeneous 
+components in input images, we have developed a 
+texture-based method[ 18][ 191 This step must be 
+executed in a few seconds. This method consists in 
+providing a group of attributes characterising each pixel 
+of the image (fig. 2b). The image attributes is used by 
+the classification algorithm, to agglomerate in the same 
+group the similar pixels (pixels having similar attributes). 
+Fig. 2a : Indexing global algorithm. 
+Docurrent 
+Filtering Wavelet 
+Tr ansforrn 
+I 1 
+c~assifu: ation De ci si on =#I # I =  
+Fig. 2b : blocks extraction. 
+2.1.) Attributes Generation. 
+This step extracts a set of frequency descriptors, 
+used as attributes by the classification process to identify 
+the homogeneous zone. We use a two-dimensional 
+wavelet transform method. This operation consists in 
+applying a series of recursive Quadrate Mirror Filters 
+(QMF). For each decomposition level, we apply two 
+filters(fig. 3a) on the lines. We obtain two images, that 
+we then decimate. This decimation conserves one point 
+on two, to always treat the same number of points during 
+all applications. Then, for each produced image we apply 
+our two filters on the columns of these two images, and 
+decimate the obtained images. For one decomposition 
+level, we obtain for each pixel, four textual descriptors. 
+233 
+High frequency +I 
+Low frequency High frequency Low frequency High frequency "1 
+Fig. 3a : wavelet decomposition. 
+In order to extract all characteristics of image 
+with the various scales, we apply the above 
+decomposition several times (fig. 3b). This multi- 
+resolution allow to extract large depth object in a low 
+resolution image. 
+HPF 
+The obtained images having undergone some more 
+or less significant intensities fluctuations, we process a 
+smoothing operation on each image, after each 
+decomposition level. But the attributes should not vary 
+too much locally, and we should not loose pertinent 
+information. We use an average 5*5 filter. 
+2.1.) Classification and Decision. 
+Then, we carry out a classification stage, on 
+these attributes. W e  use a non-supervised method based 
+on K-means. This method uses an iterative algorithms, 
+that compute vector distance between each pixel and 
+each class (or each gravity center). Then we determinate, 
+if the gravity center is identic?' ahid if it's not case, we 
+recomputed the gravity center. TI, output classification 
+is a labelled image witch the value of each pixel 
+corresponding to the number of its belonging group 
+(class). This labelled image is sent to the block 
+extraction based on connected component algorithm. 
+This step produced for each block of the document, the 
+information need for the decision module forthese 
+position and dimensions, to treat them and to decide the 
+element class (text or picture). 
+This decision use a statistical approach, based 
+on an average and variance study (fig. 4). Then blocks 
+are be treated differently to seek the characteristics of 
+each class (character recognition for the text, calculation 
+of interest points for the images). 
+Fig. 4 : entities characteristics 
+We have simulated our application for 
+1300* 1800 pixels image on a Pentium I1 processor, for 
+block extraction algorithm. We note that our algorithm is 
+more rapid, if we decompose several times the image 
+(because we reduce the image size), but we don't obtain 
+discounted time (tab. 3 ). 
+U 
+Fig. 3b : multi-resolution decomposition 
+234 
+Number Size Time (sec.) 
+4 650*900 288.1 1 
+16 325*450 188 
+64 163’225 I22 
+operators granularity (fig. 5). 
+configurable processors connected via a Crossbar- 
+Routing. 
+‘f 1 3 5 %  
+I Cmwlutim Cmcvolutim wadet5 
+35 5 9 filter 
+mode is mainly used for low-level processing. The 
+second mode allows to communicate in the grid, 
+according to “virtual cut through” routing. 
+Fig. 5 : gain obtained with MMX extensions for  various 
+low-level algorithms 
+external connections (4 inputs, 4 outputs) to 
+communicate. The CR consists of eight switches 7 
+towards 1, which are controlled by the processors (2 
+switches per processor). External connections are linked 
+between them, according to a model of Torus2D (fig.7b). 
+We choose to connect our CR in Torus2D because this 
+structure allows an intrinsic network reconfiguration in a 
+ring sub-network, and is as powerful as an hypercube 
+architecture for a low number of processors[20]. 
+Moreover the communications management of grid 
+structure is rather simple, and this one slightly reduces 
+the inputs/outputs bandwidth. The CR manages two 
+communication modes. The first mode. is to allow 
+communication of neighbour to neighbour (fig. 7). This 
+235 
+I I 
+hl adder 
+Fig. 6a : 32*32 bits multiplier implement in a Calculalion unit matrix 
+Fig. 6c : 64 bits adder synoptic (with 16 bits adder block). 
+Fig. 66 : 32*32 bits multiplier synoptic (with8*8 bits multiplier block) 
+236 
+Fig. 7a:nerwork structure. 
+- 
+Image Convolution3*3 (*) 
+512*S12 Wavelet Filter (**) 
+Image Convolution 3*3 (*) 
+1300*1800 Wavelet Filter (**) 
+Fig. 7b: Left->Right communications 
+(neighbour a + I  >) 
+Configuruble Parallel Pentiumll 4OOMhz 
+Processor Architecture Without With 
+(CP) (16 CP) MMX MMX 
+S.25 nu 0.4 ms 30ms 8 ms 
+15.7nis 0.98 ms 680ms 447ms 
+47.1 m 2.92 ms 287ms 72ms 
+145 ms 9 ms 6.lsec 4.0lsec 
+3.2) Implementation image processing algorithms. 
+For ours application, we apply filter on lines, then on 
+columns. The number and size of wavelets filter 
+operators allow to implement this filter in alone 
+processor (fig. 8). The treatment is effect in parallel, with 
+the sixteen columns or lines. The gain for this algorithms 
+is consequent (tab. 4). 
+Fig. 7c:Right-> Left communications 
+(neighbour (( - I  >>) 
+Synthcswd block 
+Fig. 8 : Filter Implementation 
+Tab. 4 :execution time comparison. (*) coefficients on a 8 bits. 
+(**) coefficients on a 16 bits 
+237 
+For the classification stage, we can’t not 
+implement this functionality in single processor, because 
+we don’t have sufficiently computation units. For each 
+iteration, this stage is realize in three step, computing of 
+vector distance, research of stability gravity center, and 
+computing of new gravity center if necessary. A example 
+of computing of vector distance, according to our 
+pipeline model on 4 processors is figure 9. 
+The execution time of one classification 
+iteration, for a 1300* 1800 document is approximately 
+0.28 sec, with four processor and 0.07sec with 16 
+processors. Hence the overall execution time for 
+classification stage, with a example image (cf. section 2 )  
+is 3.8 sec. 
+orycentn J. 
+Fig. 9a : Vector disrance implementation. 
+Fig. 9a : network configuration. 
+4.) Conclusion. 
+In this article we have presented an architecture based 
+on configurable processors. This architecture is 
+developed and evaluated under real multimedia 
+application. That deals with the archiving and retrieval 
+information by it content in real time. Unfortunately, it 
+handle a big volume of data and it is time consuming . In 
+order to alleviate that, we have analysed all the 
+application to point out the critical parts, and we have 
+conceived a system to speedup those parts. W e  have 
+shown that the proposed architecture can improve 
+drastically the performance of the application, with a low 
+number of processors. The decision and the 
+characteristics extraction of each block stage should be 
+evaluated. 
+Bibliography. 
+[ I ]  N.K. Ratha, A.K. Jain , “Computer Vision Algorithms on 
+Reconfigurable Logic Arrays ”, IEEE Transactions on Parallel 
+on Distrubuted Systems, January 1999,Vol. 10, no. I ,  pp29-43. 
+[2] A. Peleg, U. Weiser, “MMX Technology”, IEEE Micro, 
+August 1996, pp. 42-50. 
+[3] M. tremblay, J.M. o’connor, V. Narayanan, L. HE, “ VIS 
+speeds new media processing”, IEEE Micro, vol. 16, no. 4, 
+August 1996, pp 10-20. 
+[4] Stuart Oberman, Greg Favor, and Fred Weber, “AMD 
+3DNow! Technology : architecture and implementations”, 
+IEEE Micro, pp. 37-48, March-April 1999. 
+[5] Sebastien Vagnier, Hassane Essafi, alain mCrigot, “Impact 
+of configurable processor in prarallel architecture for 
+document Management.”, PDPTA 2000, Las Vegas. 
+[6] Thiery Collette, Christian Gamrat, Didier Juvin, jean 
+Francois Larue, Laurent Letellier, Marc Peythieux, Renaud 
+Schmitt, Marc Viala, “Symphonie, calculateur massivement 
+parallkle, modClisation et rkalisation”, In Traitemenr du signal, 
+1998. 
+[7]C.C. Weems, S.P. Levitan, A.R. Hanson, E.M. Riseman, 
+D.B. Shu, J.G. Nash, “ The Image Understanding 
+Architecture”, International Joumal of Computer Vision, 
+1989, v01.2, no. 3, pp 251-282. 
+[8] Viktor K.Prasanna, Cho-Li Wang, Ashfaq a. Khokhar, 
+“Low Level vision processing on connection machine CM-5”, 
+in Proc. of IEEE Worshop on Computer Architecture for 
+machine Perception, New Orleans, December, 1993, pp.117- 
+126. 
+[9] J. N. Patel, A.A Khokhar, and L.H. Jameison, 
+“Implementation of parallel image processing algorithms in the 
+CLONER environment”, in Proc. Of IEEE Workshop on VLSI 
+signal processing, California, October 1994, pp.83-92. 
+[lo] Maya Gokhale, William Holmes, Andrew Kosper, Dick 
+Kunze, Dan Lopresti, Sara Lucas, Ronanld Minnich, and Peter 
+Olsen, “Splash: a reconfigurable linear logic array”, In 
+238 
+International Conference on parallel processing, 1990, pages 
+526-532. 
+[ 1 IISteven Casselman. "Virtual computing and the virtual 
+computer", In Duncan A. Buell and Kenneth L. Pocek editors, 
+IEEE Worshop on FPCAs for  Custom Computing Machines, 
+April 1993, pp43-48. 
+[ 121 Andre de Hon "Reconfigurable architecture for general 
+purpose computing", AI Technical report 156, MIT Artificial 
+Laboratory, 545 Technology Sq., Cambridge, MA 021 39, 
+October 1996. 
+[ 131 http://ww.pulsedsp.com/ 
+[ 141 http://www.quicklogic.com/devices/dsp.html. 
+[ 1 51 http://www.atmel .com/products/prod39.html. 
+[I61 H. Essafi, M.Pic, M.Gayrard, P. Adam, "High- 
+performance Programming support for Multimedia 
+DatabaseManagement", HPCN'YY, Amsterdam. 
+[I71 H. Essafi, M.Pic, M.Gayrard, P. Adam, "Hardware and 
+Software Optimisations for Multimedia databases ", PACT'Y9, 
+Saint-Petersburg. 
+[I81 T. Randen, "Filter and Filter Bank Design for Image 
+Texture Recognition ",, these de doctorat, University of 
+Science and Technology, Stavenger College, Norway, 1997. 
+[I91 T. Randen, JH Husoy, "Segmentation of textlimage 
+document using texture approaches", Proc. NOBIM- 
+konferansen-94, Asker (Norway), June 1994, pp66-67. 
+[20]  W. J. Dally, " Performance an analysis of k-ary n-cube 
+interconnections network ", IEEE Transactions on Computers, 
+vol. 39, no. 6, pp. 775-785, 1999. 
+239 

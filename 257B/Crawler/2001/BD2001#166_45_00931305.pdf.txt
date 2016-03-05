@@ -1,0 +1,498 @@
+Obj ect-Oriented Executives and Components 
+for Fault Tolerance’ 
+Ralph Duncan’ and Laura Pullum 
+Quality Research Associates, Inc. 
+296 Englenook Dr. 
+DeBary, FL 32713 
+lpullum@qrainc.com 
+(407) 753-1877 
+Abstract-We have created two kinds of reusable, object- 
+oriented software components to facilitate building fault 
+tolerant applications. Executive components orchestrate 
+familiar software fault tolerance techniques in a data type 
+independent manner. Building block components provide 
+fault tolerance utilities and application-specific functions. 
+We use a three-level class fiamework (or design pattern) to 
+create data type and application-independent classes at the 
+highest level, define data type-dependent base classes in the 
+middle level, and organize application and data type- 
+specific derived classes at the lowest level. This approach 
+employs polymorphism, pointer conversions and Run-Time 
+Type Information. These techniques have successfully 
+handled applications with dissimilar data types. Reusing 
+these components greatly speeds the development of 
+applications that exploit software fault tolerance techniques. 
+TABLE OF CONTENTS 
+1. FAULT TOLERANT COMPONENT APPROACH 
+3. COMMUNICATIONS BETWEEN LEVELS 
+4. EXPERIENCE 
+2. THREE-LEVEL CLASS FRAMEWORK 
+5. CONCLUSION 
+1. FAULT TOLERANT COMPONENT APPROACH 
+Quality Research Associates is developing two sohare 
+component types that provide a basis for building fault 
+tolerant applications (Figure 1) [ 1,2]. Executive components 
+orchestrate the control flow and data flow for a particular 
+sohare  fault tolerance technique (SFTT) without regard to 
+the data types the application is using. Building block 
+components perform a variety of data type-dependent 
+operations for fault tolerance, such as performing data re- 
+expression algorithms, implementing alternative calcula- 
+tions, or providing decision mechanisms that select answers 
+ftom a set of candidate solutions. Users build an application 
+by selecting an executive component that manages the 
+desired software fault tolerance technique and by 
+assembling or building the data type and application- 
+specific building block components the technique requires. 
+EXECUTIVE COMPONENTS 
+Application and data type-independent 
+Fault Tolerance Technique Executives 
+0 N-copy programming (NCP) 
+0 N-version Programming (NVP) 
+0 RetryBlocks 
+I 
+I 
+utilize pointers to 
+$. 
+BUILDING BLOCK COMPONENTS 
+Provide data type speciJc utilities & 
+app Iication functions 
+Data containers 
+0 Data filters 
+0 ‘Voter’ algorithms 
+0 Application hc t ions  
+Figure 1. Two kinds of fault tolerance components. 
+2. THREE-LEVEL CLASS FRAMEWORK 
+Our principal design goal was to create executives that 
+provided SFTT control flow (method invocation) and data 
+flow (parameter passing) for different data types without 
+having to be recompiled. We exploited two key attributes of 
+the SFTTs of interest: having predictable control flow 
+topology (linear or cyclic) and working with a single user 
+data type at a time (however complex). Techniques, such as 
+the ‘visitor pattern’ [3], did not provide the capability to 
+manage method parameters that are type-independent at one 
+level and type-specific at another. 
+0-7803-6599-2/01/$10.00 Q 2001 IEEE 
+Ralph Duncan is now an employee of Intensys Corporation, San Jose, CA 
+6-2849 
+answer 
+SFTT: 
+replicate 
+SFTT: 
+Process(es) 
+(calculate, 
+re-express, 
+data filter) 
+I 
+result SFTT 
+Decide 
+(select, 
+average, 
+result 
+result vote) 
+Figure 2. Example data replication and data flow in a software fault tolerance technique. 
+Software Fault Tolerance Techniques (SFTTs) typically 
+provide multiple pathways for computing a result by 
+providing multiple forms of the input data or multiple 
+methods to calculate the result, or both. A SFTT ultimately 
+arrives at an answer by combining or selecting the various 
+results it produces. Figure 2 illustrates this general SFTT 
+pattern. Thus, providing a reusable SFTT executive 
+component entails providing this entire pattern of data flow 
+and control flow, which includes passing user application 
+data (whether altered or not) to various calculation and 
+decision methods. Unlike the case with many 00 
+applications, our emphasis is not on encapsulating known 
+data with appropriate methods, but on defining high-level, 
+Executive 
+Components 
+1 
+type-independent methods that embody a particular SFTT’s 
+control and data flow patterns. 
+Our current solution organizes components in a three-level 
+framework of 00 (object-oriented) classes that structures 
+the relationships among these components and specifies 
+standard interfaces for their interaction. The framework 
+(Figure 3) lets an executive manage control flow through 
+00 virtual function calls (polymorphism). It lets an 
+executive pass parameters as pointers to a type-independent 
+base class and user methods treat those parameters as the 
+type-specific data they need by using dynamic Run-Time 
+Type Information (RTTI) to perform safe type casting. 
+Building Block 
+Components 
+...................................................................................................................................................................................... * 
+NVP,  NCP, 
+Level-] 
+Base 
+Classes 
+Level-2 
+dependent 
+Classes 
+Data type 
+Level-3 
+Data type- 
+specific b 
+Utilities 
+subclass 
+floatTruncate w Transform I 1 
+I r 
+floatMajority 
+Figure 3. Three-level class hierarchy (framework) for component classes. 
+Level I-Each executive implements control and data flow 
+patterns for a specific SFTT (e.g., N-Version Programming) 
+by invoking appropriate methods in the building block 
+components and by passing them user-specified data. The 
+executives only deal with this data through pointers to 
+objects of the Datacarrier base class. This class is used to 
+derive container classes for objects that encapsulate any 
+kind of data, whether simple or complex. There is no need 
+to create derived classes for the executives, which deal with 
+other objects solely in terms of pointers to various base class 
+objects. Thus, this level also contains base classes for 
+several kinds of fault tolerance components that the 
+executives know about (e.g., filters, transforms, voters). 
+Level 2-The middle-level supplies data type-specific 
+subclasses for data carriers and for fault tolerance building 
+blocks, such as filters, transforms and voters. An 
+application initializes an executive object by passing it 
+pointers to the component objects it will orchestrate. These 
+objects are from third level classes but the executive invokes 
+them through pointers to their second-level base classes. 
+Level 3-These classes provide data type-specific 
+functionality and end-use components for the application. 
+Some provide purely application-specific functionality, 
+while others (e.g., a formal majority voter for float values), 
+supply a component that can be used by many applications. 
+I I 
+3. COMMUNICATIONS BETWEEN LEVELS 
+Before discussing communications between framework 
+levels, we review the interfaces between the user application 
+and an executive component (Figure 4). An application 
+treats an executive component as much like a black box as 
+possible. The application initializes the executive by 
+passing it a list of component pointers to use. Subsequent 
+interactions simply consist of the application repeatedly 
+invoking the principal executive method, passing the current 
+application data as a parameter and receiving a result. 
+Although the overall approach is more important than the 
+current implementation specifics, we discuss them below. 
+At initialization, an executive component receives 
+appropriate building block components in the form of 
+pointers to level one objects, such as Filters, Transforms, 
+Voters, et al. At the start of each data cycle, the user 
+application sends the executive data in the form of a pointer 
+to a datacarrier base class object. The executive 
+orchestrates the relevant fault tolerance technique by 
+invoking virtual methods within the building block 
+components, passing data to and receiving data from those 
+components in the data type-independent form of pointers to 
+datacarrier objects. Figure 5 shows these mechanisms for 
+a simplified depiction of N-Copy Programming. 
+1 ;----;is;-----& 
+Invoke-SFTT 
+EXECUTIVE 
+COMPONENT 
+initialization 
+method 
+SFTT 
+method 
+Figure 4. Application interaction with executive component. 
+6-2851 
+N-Copy Programming Executive 
+Component (Level 1) 
+Data Re-expression 
+Component (Level 2) of 
+int-DRA class 
+Key virtual function: 
+Re-expressData 
+(ptr-datacarrierobject) 
+Variant Component 
+(Level 2) of 
+int-Variant class 
+Key virtual function: 
+do VariantFunction 
+(ptr-DRAobject) 
+Decision Mechanism 
+Component (Level 2) of . int-DM class 
+Data Re-expression 
+Component (Level 3) of 
+change-intRangeDRA 
+Key virtual function: 
+Re-expresslnt 
+(ptr-intCarrierObject) 
+Key virtual function: 
+makeDecision 
+(ptrs-allvariantobjects) 
+Variant Component Decision Mechanism 
+(Level 3) of Component (Level 3) of 
+do-CalcIntVariant class int-exactMajorityDM 
+Key virtual function: 
+do VariantIntFunction makeIntDecision 
+Key virtual function: 
+(ptr-intDRAobjectj (ptrs-all-IntVariantObjects) 
+As the figure above suggests, the level one executive 
+component invokes virtual functions defined for level two 
+classes, which take input data as pointers to datacarrier 
+objects. These level two methods use RTTI inf'ormation to 
+identify the parameter's actual data type (derived class 
+identity). Level two methods then invoke a type-specific 
+virtual function that is implemented at level three. Thus, the 
+level two methods act as switches and safe type casters. 
+Naturally, a level three object also inherits the level two 
+(type-independent) methods fiom its parent class. 
+The benefits of this scheme include easy reusability of the 
+executive component without recompilation and scalability 
+to handle many data types. Executive component 
+reusability and scalability is achieved by having it deal 
+solely with pointers to type-independent datacarrier and 
+level one objects. The executives know nothing about any 
+specific data type. Both the second and third level classes 
+each reflect one specific data type. 
+A user application can use as many data type-specific 
+classes as it needs, though each executive component can 
+legally work with only one at a time. The application text 
+only needs to include the interfaces (header files) for the 
+particular data type-specific components it needs. Similarly, 
+the application only links in modules for the particular 
+components it is using. No executive or building block 
+component needs to know about more than a single data 
+type-specific carrier object in this framework. 
+4. EXPERIENCE 
+Our approach has been tested by two projects that had very 
+dissimilar data type needs. Although the approach was 
+originally envisioned for numeric applications, it proved to 
+be equally applicable to manipulating alphanumeric and 
+symbolic data, as illustrated in the following descriptions. 
+Using the NCP Technique with Flight Plans 
+In the ftrst project [4], the executive component imple- 
+mented the N-Copy Programming (NCP) technique [5,6], 
+using building block components that manipulated flight 
+plan objects. Each object contained an array of waypoints 
+that could be expressed in one of several dissimilar formats. 
+The application was based on the submittal for automated 
+approval of these flight plans. The approving process must 
+understand the waypoints within a plan to determine 
+whether or not the plan is satisfactory. That understanding 
+is based on the contents of databases used for checking the 
+waypoint entries. These databases are updated periodically 
+and may be subject to errors due to malicious attack or 
+unintended erroneous (or untimely) update commands, for 
+example. In a non-fault tolerant such application, if a 
+waypoint cannot be found in the database, the plan is 
+rejected. This may ultimately lead to mission failure. 
+However, using NCP and its accompanying data re- 
+6-2852 
+expression algorithm (DRA) capabilities, the application can 
+be made to tolerate such faults. 
+DRA1: 
+ConvertToLatLon 
+Figure 6 illustrates the NCP technique implementation for 
+this project, with application-specific entities noted. The 
+input is the proposed flight plan submitted for approval. 
+The flight plan is of the format ( Wj, i = 1, . . . , k) where Wj is 
+the ?’ waypoint in the plan and k is the number of waypoints 
+in the plan. Each waypoint can be expressed in a number of 
+ways, e.g., as a latitude and longitude tuple, a pilot’s 
+navigation identifier, a military code, an offset to a specified 
+grid, or in chart square representation. 
+<>  
+r 
+DRA2 : DRA3 : 
+ConvertToID ConvertToMilCode 
+The NCP technique manager passes the input plan to the 
+various data re-expression algorithms (DRA). In this 
+project, 5 DRAs were used, representing the 5 types of 
+waypoint representations. Each DRA converts all points in 
+the plan to one of the alternative representations. For 
+example, the ConvertToLatLon DRA converts each 
+waypoint in the flight plan to its equivalent (latitude, 
+longitude) representation. When all DRA have completed 
+their transformations, the flight plan input has 6 
+representations - the original set of waypoints and one each 
+of the 5 re-expressed versions. 
+Copyl: 
+Approval Task 
+The NCP technique manager then retrieves the re-expressed 
+flight plans and passes them as input to 6 copies of the 
+Approval Task function. Each copy of the function 
+executes and determines whether or not the submitted plan 
+is approved (i.e., consists of legitimate points in its 
+copy2: copy3: 
+Approval Task Approval Task 
+waypoint database). This results in either a Yes, No, or 
+Unknown answer. 
+The technique manager gathers the copy answers and 
+submits them to the decision mechanism. For this project, 
+we developed a special-purpose voter that receives 6 inputs 
+of value Yes, No, or Unknown and performs a variation of 
+the basic majority voting scheme. The final result fiom the 
+NCP technique implementation is a flight plan and its 
+approval status - Approved, Not Approved, or Can Not 
+Decide. 
+This NCP implementation includes classes for: 
+Level 1-the NCP executive component; data carrier classes 
+for flight plan, acceptance state and decision state data 
+types; data type-independent base classes for DRAs, 
+Decision Mechanisms, and a general Acopy class that acts as 
+a base for the approval task copies. 
+Level 2-derived classes for DRAs that accept flight plans 
+as input and produce flights plans as output, for Acopies 
+that accept flight plans as input and produce ‘accept states’ 
+as output, and for Decision Mechanisms that take accept 
+states as input and produce ‘decision states’ as output. 
+Level f-derived classes for the six DRA types that make a 
+specific conversion; the Acopy class that performs the flight 
+plan approval task; and the custom voter that evaluates the 
+various accept state answers and renders a decision. 
+Figure 6. Using NCP to ensure flight plan approval. 
+6-2853 
+Using the NVP Technique with String Data 
+A second project [7] used an N-Version Programming 
+(NVP) [8-101 executive component to manipulate objects 
+containing character strings. Each object contained an array 
+of character strings. 
+Version 1: 
+FAX Delivery 
+This application was based on an automated emergency 
+notification system. The system receives a message and 
+information on the person or agency to whom the message 
+should be sent. A non-fault tolerant application of this 
+system may contain only a single method of message 
+delivery, such as paging the contactee. If the person fails to 
+receive the page, then the system’s function has failed. 
+Using multiple means of contact provides some fault 
+tolerance in the automated system. This can be implemented 
+using NVP with the n versions providing the multiple means 
+of communication. 
+Version 2: Version 3: 
+email Delivery Pager Delivery 
+Figure 7 illustrates the NVP technique implementation for 
+this second project, with application-specific entities 
+indicated. Input to the system is a tuple containing the 
+message to be delivered and information identifying the 
+contactee. Each entry in the tuple is a character string. 
+The NVP technique manager passes the input to the 
+different versions of the delivery algorithm. In this project, 
+3 versions (or variants) were used, representing different 
+means of communicating the message. These include 
+sending the message via FAX, email, and paging the 
+contactee. The result of executing each delivery algorithm 
+is an indication of the success or failure of the delivery. 
+The NVP manager gathers the delivery status messages and 
+submits them to the decision mechanism. For this project, 
+we developed another special-purpose voter. This voter 
+receives 0, 1, 2, or 3 inputs of value Success or Failure and 
+performs the decision algorithm, shown below. 
+if any input == ‘Success ’ 
+else 
+voter result = ‘Success ’; 
+voter result = <Failure’; 
+The potential availability of multiple ‘Success’ inputs to the 
+voter could be used as a confiiation signal. 
+The components of this NVP implementation include: 
+Level 1-the NVP executive component; data carrier classes 
+for the message tuple, version result state and decision state 
+data types; data type-independent base classes for Decision 
+Mechanisms and a general Variant class that acts as a base 
+for the delivery algorithm variants. 
+Level 2-derived classes for Variants that accept message 
+tuples as input and produce ‘delivery states’ (the variant 
+results) as output, and for Decision Mechanisms that take 
+delivery states as input and produce ‘decision states’ as 
+output. 
+Level 3-derived classes for the Variant class that performs 
+the delivery algorithm and the custom voter that evaluates 
+the various delivery state results and renders a decision. 
+Input = (Emergency Message, Contactee Identifier) 
+Result = (Message Delivery Status) 
+Figure 7. Using N V P  to ensure emergency notification. 
+6-2854 
+5. CONCLUSION 
+Our approach provides two kinds of reusable, object- 
+oriented components for building fault tolerant 
+applications: executive components that are technique- 
+specific but type-independent, and building block 
+components that are type-specific (and sometimes 
+application-specific as well). A three-level class 
+hierarchy is key to structuring the relationships between 
+these components and to isolating type dependencies. 
+The approach was originally intended to handle numeric 
+values but has been used successfully to implement 
+s o h a r e  fault tolerance techniques for flight plan and 
+character data. We believe that using such components 
+can greatly speed and ease development efforts. 
+6. ACKNOWLEDGEMENT 
+The work described in this paper was funded in part by 
+NASA, the U. S. Air Force, Sentar, and Quality Research 
+Associates IR&D. 
+7. REFERENCES 
+[l] Laura L. Pullum, et al., “Data Diverse S o h a r e  Fault 
+Tolerance Techniques for C31 Technologies: Phase II 
+Final Report,” Quality Research Associates Technical 
+Report, QRA-SWFTDA-FTR, Rome Laboratory 
+Contract, November 1997. 
+[2] Laura L. Pullum, and Ralph V. Duncan, “Fault- 
+Tolerant Object-Oriented Code Generator: Phase I Final 
+Report,” Quality Research Associates Technical Report, 
+NASA Ames Research Center Contract, June 1999. 
+[3] Erich Gamma, Richard Helm, Ralph Johnson, and 
+John Vlissides, Design Patterns: Elements of Reusable 
+Object-Oriented SofhYare, Addison-Wesley, Reading, 
+M A ,  1995. 
+[4] B. Daniel, J. Yalowitz, M. Whitten, Laura L. Pullum, 
+Ralph Duncan, et al., “Final Report for Fault-Tolerant 
+Cooperative Intelligent Agent Systems for Distributed 
+C31,” Sentar Technical Report, Rome Laboratory 
+Contract, May 1999. 
+[ 5 ]  Paul E. Am”, “Data Diversity: An Approach to 
+S o h a r e  Fault Tolerance,” Digest of Papers: FTCS-17, 
+pp. 122-126, 1987. 
+Transactions on Computers, 37 (Apr.), pp. 418-425, 
+1988. 
+[7] J. Yalowitz, M. H. Whitten, A. G. Schooley, Laura L. 
+Pullum, and Ralph V. Duncan, “SBIR Phase I Final 
+Report: Reliable Distributed-Object Computing with 
+Fault-Tolerant Cooperative Intelligent Agents,” Sentar, 
+National Science Foundation Contract, July 1999. 
+[SI W. R. Elmendorf, “Fault-Tolerant Programming,” 
+Proceedings ofFTCS-2, Newton, MA,  1972, pp. 79-83. 
+[9] A. Avizienis, “On the Implementation of N-Version 
+Programming for S o h a r e  Fault-Tolerance During 
+Execution,” COMPSAC ‘77, Chicago, IL, 1977, pp. 149- 
+155. 
+[lo] L. Chen, and A. Avizienis, ‘“-Version Program- 
+ming: A Fault-Tolerance Approach to Reliability of 
+S o h a r e  Operation,” Proceedings of FTCS-8, Toulouse, 
+France, 1978, pp. 3-9. 
+8. BIOGRAPHIES 
+Ralph Duncan is Principal Compiler Software Engineer 
+with Intensys Corporation of San Jose, Califonia. He 
+was previously Chief Scientist at Quality Research 
+Associates, a consultant for Rome Laboratory, and 
+System Software Design Consultant with Control Data’s 
+Government Systems Division. He holds a BA from the 
+University of Michigan, an M A  from the University of 
+California, Berkeley and an MS from the Georgia 
+Institute of Technology. 
+Dr. Laura L. Pullum is the President of Quality Research 
+Associates, Inc. Her experience includes system and 
+software dependability, fault tolerance, safety, and 
+reliability. She has published over I O 0  papers and reports 
+on these subjects and her book, S o h a r e  Fault Tolerance 
+Techniques and Implementation, is currently scheduled 
+for publication in Spring 2001. She also has a patent (as 
+co-inventor) in the area of fault tolerant agents. Dr. 
+Pullum holds a BS in Mathematics and an MS in 
+Operations Research from the University of Alabama in 
+Huntsville, and an MBA and a Doctorate of Science in 
+Systems Engineering and Operations Research fiom the 
+Southeastern Institute of Technology, Huntsville. She is a 
+member of the IEEE Reliability Society and WIT (Women 
+in Technology). 
+[6] Paul E. Ammann, and J. C. Knight, “Data Diversity: 
+An Approach to Software Fault Tolerance,” IEEE 
+6-2855 
+This page intentionally left blank. 
+6-2856 

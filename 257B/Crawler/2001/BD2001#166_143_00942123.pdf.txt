@@ -1,0 +1,463 @@
+A Scaleable Approach to Visualization of Large Virtual Cities 
+Jiri Zara’, Pave1 Chrom:?, Jiri Cizek’, Kamil Ghais’, Michal Holub’, Stanislav Mikes’, Jakub Rajnoch2 
+‘Department of Computer Science and Engineering, Czech Technical University in Prague 
+zarawel. cvut. cz 
+’Faculty of Mathematics and Physics, Charles University in Prague 
+fpchr5077, jciz610’7, kgha6147, mho1.5152, smik6381, jraj7493)@barbora.ms.mflcuni. cz 
+Abstract 
+Visuulizution qf Iurge urbun complexes on the web is 
+highly demunding tusk both from the networking und 
+compututionul point qf view. The whole three-dimensionul 
+model qf U city is mostly too #big to be downlouded in U 
+reusonable time und to be stored in umemory qf 
+commonly used computers. This puper presents U 
+sculeuble upprouch ,for subdividing an urbun model into 
+smuller parts. Dynumic louding una’ unlouding dutu 
+allows theoreticully unlimited extension qf U model with 
+constunt network und computation loud. Further 
+requirements specific to preseiqtution qf virtuul cities ure 
+also discussed. Theoreticul considerations are ,followed 
+by U pructicul implemenfurion urilizing VRML Iunguuge 
+for modeling historicul city of i3rugue. 
+1. Introduction 
+Contemporary technologies (fast CPU, 3D accelerated 
+graphic cards, and fast network) allow interactive 
+visualization of quite detailed parts of a virtual city with 
+very authentic 3D models combined with photographically 
+obtained textures. Several citieij can be currently found on 
+the web including well-known towns like Paris [ l ] ,  
+Glasgow [2], New Orleans [3], Sydney [4] or Toronto [ 5 ] .  
+Two main technologies are frequently used for modeling 
+and visualization - QuickTime VR [6] and VRML [7]. 
+While QuickTime approach is based on photographs only, 
+the VRML uses both 3D modells and images. In this paper 
+we focus on utilization of VRML due to its higher 
+interactive functionality. 
+The common problem arising in almost all examples 
+mentioned above is the amount of data that must be sent 
+through the web and rendered in  one. The size of such city 
+models ranges from hundreds of kilobytes up to tens of 
+megabytes per city district. Most users are unable to 
+download this data in interactive time due to the network 
+connection speed. Moreover, ,such large data cannot be 
+rendered in a real time even when powerful graphic 
+accelerators are used. Therefore the solution is to send to 
+the user only a small amount of data describing hidher 
+vicinity. Because of memory limits, no longer used data 
+should be simultaneously removed from the memory as 
+a user walks through the virtual town. Similarly, new data 
+should be downloaded and prepared in advance. These 
+demands require well-prepared and structured city 
+models, designed for this specific purpose. Most of 
+currently implemented virtual cities use either no data 
+hierarchy or they divide the city into smaller blocks 
+connected via hyperlinks and presented by parts. While 
+the first approach is inefficient the second causes 
+undesirable pausedjumps when walking from one virtual 
+district to another one. This paper proposes a universal 
+data structures and methods suitable for smooth and 
+continuous walk-through arbitrary virtual city. 
+The paper presents in Section 2 typical requirements 
+for virtual cities presented on the web. Section 3 
+introduces a solution for scaleable structured models and 
+Section 4 describes one concrete implementation of the 
+proposed approach. 
+2. Characteristics of Virtual Cities 
+Three-dimensional interactive models of real cities 
+have several specific features different from other spatial 
+virtual scenes. They are characterized by large number of 
+virtual houses covered by texture images of big sizes. 
+Hardware support for texture mapping is often required 
+when the city is presented to users. Number of textures 
+can reach hundreds or even thousands of images. The 
+modeled area covers several squared kilometers and 
+includes from tens to hundreds of houses. On the other 
+hand, virtual models of houses can have simple shapes 
+because users mostly walk on the streets and do not enter 
+any houses. This fact leads to significant simplification - 
+houses are typically represented by their front faces 
+(frontages) only. Neither roofs or floors are to be 
+specified. The only exception is the bird view of a city 
+when all roofs are visible. This case should be suppressed 
+since it requires rendering of the whole town. This is 
+usually impossible for large cities thus the visitor should 
+639 
+0-7695-1195-3/01 $10.00 0 2001 1E:EE 
+Figure I. Example taken from 2D map of Dublin shows that a given square area determines a lot of visible 
+objects in various directions and distances. The small circle marks an  area currently examined by a user. 
+The big circle containing all potentially visible objects has  a radius about 300 m. Visible objects represent less 
+than 10 % of data covered by the big circle. (Courtesy of Jiri Bittner, CTU Prague) 
+be delighted by a number of other nice urban features 
+rather than the bird view. 
+The main purpose when presenting virtual cities is to 
+give a complex information to users. Virtual visitors can 
+be attracted to become real visitors/tourists later. The 3D 
+model is only a subset of offered information. The full and 
+rich model should contain the following components: 
+0 2D map synchronized with user’s movement in 3D 
+virtual space 
+Additional textual information, description of sights 
+Direct choosing of target places from a list or a map 
+0 Interactivity (animations, hyperlinks) 
+0 Virtual bus tour (animated viewpoint) 
+0 Search function combined with automatic navigation 
+from current to target place 
+0 Help subsystem, hints, advices 
+All those information are usually stored in a database. The 
+idea to store also a structured 3D model in a database is 
+thus straightforward. Some applications already use a 
+database [SI, but mostly for searching purposes and not 
+for the task of spatial arrangement of virtual houses and 
+other models. The following section discusses problems 
+and solutions for such a task. 
+3. Scaleable urban model 
+When thinking about the structure for the virtual city 
+an idea of regular space subdivision seems to be inviting 
+and suitable. A regular grid has good properties from the 
+perspective of finding neighboring city parts for a given 
+region. When a user examines a certain cell of a grid, four 
+or eight neighboring cells can be read in advance and 
+prepared for the visualization. Similarly, when a user 
+leaves currently visited cell, a set of probably no longer 
+examined city areas can be easy determined and unloaded. 
+Unfortunately, the problem of advanced data 
+preparation cannot be solved on the base of topology only. 
+A user can see a number of virtual houses that are very far 
+from a given area. This is demonstrated on the Figure 1 
+showing a user examining a square in the city center. 
+While house frontages around the square hide many 
+houses in the closed vicinity, long and straight streets 
+allow seeing objects placed hundreds of meters from a 
+user. The conclusion is that the city structure should take 
+both topology and visibility issues into a consideration. A 
+presentation system should download models which are 
+both new the user and visible from hisher current 
+position. 
+3.1. Topology 
+The grid or other regular structure does not fit into 
+arbitrary city configuration. Only a few real towns like 
+New York has a strict rectangular structure while other 
+cities with historical centers delight users with serpentine 
+alleys and variously shaped plazas. A topology of a virtual 
+city has to correspond with the reality thus non-uniform 
+but flexible data structures are required. Of course the 
+request for fast determination of.neighbot-s for a given 
+area has a big importance. 
+We propose a system of blocks corresponding with 
+streets, plazas and other open spaces. One block is 
+typically assigned to a square while several successive 
+blocks represent one long street. This approach is similar 
+640 
+to space subdivision used for QuickTime VR 
+presentations [6]  where the whole space is covered by set 
+of cylindrical panoramas. Here we extend this method to 
+universal description of 3D virhlal space. 
+The block is depicted on Figure 2. The polygonal 
+layout is basically two-dimensional. The border consists 
+of edges holding house frontages and gates allowing 
+walking from one block to the neighboring one. Special 
+closing gates serve as obstacles when a user wants to visit 
+spaces that are not modeled yet. Standalone 3D models 
+representing statues, fountains, tram stops, trees and other 
+solitaires can be placed into a polygonal block. 
+Proxy gates 
+Figure 2, Each block consists of area surrounded 
+by house frontages, optional 3D objects and 
+several gates connecting neighboring blocks. The 
+two-sided proxy gate holds information on objects 
+that are to be loaded/uiiloaded when a user 
+crosses the gate. 
+A standard gate is invisible ;and users can cross it. The 
+main purpose for introducing a gate is that it holds an 
+information about neighboring block. Each time a user 
+crosses a gate a request for loading/unloading data is 
+produced. This approach suppresses the need for 
+continuous evaluation of user’s position in the whole city, 
+because the only important moment is the time when 
+a user walks through a gate, That is why we call gates 
+proxy gates. Note that proxy gate is actually two-sided. It 
+should detect whether the user enters into a block or 
+leaves it. Leaving a block leads to releasing certain data, 
+entering causes downloading new models. A two-sided 
+proxy gate can be implemented either by two separate 
+sensors or by one proximi17 area combined with 
+evaluation routine checking avatar’s movement. 
+It is useful to read data belonging not only to one block 
+but to have a possibility to specify the amount of models 
+to be downloaded in advance. Based on the actual 
+available computer memory a visualization system can 
+request the database holding the city structure for sending 
+data from blocks in specific distance from currently 
+examined block. This can be achieved by breadth-first 
+search algorithm known from graph theory. 
+Figure 3. Based on the topology only, the specified 
+distance 2 (blocks) ensures, that blocks A, B, D, 
+and E are already in a memory when a user 
+examines the block C. When crossing the gate 
+between C and D, blocks F, G, and H should be 
+downloaded while A can be released. 
+A simple set operation is needed to determine data for 
+unloading - the difference between newly specified set of 
+blocks and a set of blocks already presented in a memory. 
+Note that these two sets should contain a common subset 
+of blocks ensuring that a user can walk through blocks 
+without undesirable waiting for a data. Figure 3 depicts 
+the situation when the user leaves block C and enters 
+block D. A common subset consists of blocks B, C, D, 
+and E for that case. 
+An ordinary edge in the block structure holds data for 
+several adjacent house frontages. A closing gate can be 
+also considered as an edge with one face. Usually this face 
+is covered by photography showing street or other free 
+space that is not included into a 3D model. 
+3.2. Visibility 
+A potentially visible area for a given user’s position 
+contains typically quite different blocks than those found 
+on the base of topology only as shown on Figure 1 .  Thus 
+the visibility issue has to be included into a city structure. 
+Each block contains a list of blocks that could be seen as 
+a user moves within this block. Data belonging to 
+potentially visible blocks should be read as soon as the 
+block is evaluated by topology search algorithm to be 
+a candidate for advanced downloading. Note that lists of 
+visible blocks can overlap for neighboring blocks thus 
+they have to be maintained using set operations similarly 
+like in the previous case of topology. 
+The problem of finding the potentially visible set of 
+polygons for a given spatial arrangement has been 
+intensively investigated in past decades. The literature 
+from the field of computational geometry and computer 
+graphics [9] introduces a lot of methods that differ in the 
+speed (from off-line to real time processing), utilization of 
+additional data structures (mostly based on trees), 
+computations performed in various coordinate systems 
+(dual space, 2D space only) and other features. Here we 
+, 64 1 
+do not suggest using any specific method. Relatively slow 
+algorithms can be used since the evaluation is performed 
+in time of creating acity structure. This preprocessing 
+saves resources for later real-time visualization. 
+Note that the visibility computations should be 
+repeated each time when a database containing the city 
+structure is changed. Newly added houses can be visible 
+database on the server, to transfer 3D data from it, and to 
+control relevant VRML scene structure. 
+3.4. Urban Level of Detail 
+The principle known as “Level of detail” is frequently 
+used in virtual reality systems. It allows achieving a higher 
+from many blocks. The example is Eiffel Tower in Paris. 
+While the topology evaluation is 2D problem only, 
+speed Of rendering by 
+when an Object appears far from a user. 
+a representation 
+mile this 
+a visibility should be really computed in 3D space. simplification is often based on decreasing anumber of 
+polygons per object, virtual houses require different 
+3.3. Memory management 
+When designing data structures for scaleable virtual 
+cities, the VRML language has been considered as a tool 
+for the final presentation. The memory management in this 
+language is unfortunately not directly accessible and the 
+visualization system cannot control the memory 
+allocation/de-allocation. VRML browsers are often part of 
+WWW browsers. They depend on the host memory 
+management algorithm based mostly on late garbage 
+collection. No explicit command in VRML allows for 
+memory control. 
+The future extension of the VRML language will bring 
+certain improvement. The GeoVRML specification [ 101 
+introduces GeoLOD and Geolnline nodes allowing 
+requesting a browser for releasing data from a memory. 
+Although the basic approach to geographic data expects 
+a use of orthogonal 2D grid for the description of a virtual 
+world, a proposed structure for virtual cities could also 
+benefit from the new VRML nodes. Currently the 
+implementation of visualization system has to trust to 
+external languages like JavaScript and Java and their 
+memory management subsystems. Routines written in 
+those languages are able to communicate with the 
+approach. High number of polygons does not cause a 
+problem here since only a few faces represent each house. 
+The most demanding task is to map and render big texture 
+images. Our observation shows that levels of details 
+should carefully work with textures. We have designed the 
+following “urban” levels of detail that save both memory 
+and rendering time markedly. 
+We propose a four-step level of detail for each virtual 
+house. Those levels are shown on Figure4 from the 
+simplest to the most complex one. A distance from the 
+user together with graphic performance of client computer 
+can be taken into a consideration when switching between 
+levels. While the simplest representation definitely does 
+not look wonderfully, the second one gives surprisingly 
+realistic results with small network and computation 
+demands. The idea is based on downloading a texture for 
+a window that is the most noticeable part of a house. This 
+image has always a small size (typically 64 x 64 pixels) 
+and it is fast transferred from a server to the client. 
+A window is then repeatedly placed on the front face thus 
+saving a lot of texture memory. One house can hold 
+several windows with various shapes. The visible 
+difference between level b) and c) on Figure 4 varies from 
+case to case, but the memory savings are evident in all 
+cases. 
+a) Colored front face b) Repeated small texture(s) c) Overall texture d) Textured 30 model 
+Figure 4. Newly proposed levels of details for virtual houses. The simplest representation consists of one 
+polygon, two intermediate levels use textures and the best model is fully three-dimensional. 
+642 
+4. Virtual Old Prague 
+The principles described above have been utilized for 
+the model of historical part of Prague [ 1 I]. A student team 
+has implemented a database holding the proposed city 
+structure as well as a number of additional informations 
+(viewpoints, web addresses of shops and other objects 
+located in a city etc.). The database (MySQL) runs on the 
+web server. PHP scripts process requests from clients and 
+prepare new data for them. Virtual Prague is modeled 
+using VRML. Client Java apple4 synchronizes attached 2D 
+map with user’s walk through the town using External 
+Authoring Interface [ 121. A program written in JavaScript 
+loads all necessary 3D data and releases unused models 
+from the memory. 
+All modules of the system are shown on Figure 5. Two 
+utilities have been developed. The first (House Editor) 
+allows semi-automatic construction of “urban” level of 
+detail. It  works in connection with another program for 
+drawing a front face of a house when a texture image is 
+given. The second utility (City Editor) maintains 
+geographical data in the database. It allows creation and 
+editing urban blocks with proxy gates and other 
+information. The visibility is not solved automatically yet 
+but it is written to the database explicitly by the 
+authoddesigner. 
+The user interface consists of several parts as shown on 
+Figure6. A user can either directly choose aviewpoint 
+from a list or to interactively pick it from 2D map. 
+Simultaneously updated icon on the map symbolizes 
+user’s position and orientation in the city. The 3D window 
+offers real time walk through the town. Sensitive parts 
+(billboards, tram stops etc.) are connected to hyperlinks 
+that are targeted to a new startdalone window. A textual 
+and pictorial infonnation is presented on the bottom right 
+side accordingly to user’s movement from one block to 
+another one. Several control iccins on the top allows to set 
+a view angle, a height of a user, a walking speed, to 
+display a process of loading data from the server, and to 
+change various system settings like required quality of 
+houses with levels of detail, computer performance, and 
+network parameters. 
+5. Conclusion 
+The scaleable data structures describing virtual cities 
+have been introduced in this paper. A sequence for levels 
+of detail specific to urban modeling has been designed. 
+Although originally targeted i:o VRML, the proposed 
+approach can be directly used in arbitrary visualization 
+tool working with 3D models. 
+Theoretical work has been followed by a practical 
+implementation of visualization system for historical city 
+Java, HTML, VRML 
+and settings Texture images 
+~~ ~ 
+WWW Sewer 
+PHP 
+Current block Block( s) description 
+Data base 
+MySQL 
+VRML Urban LOD City topology 
+House Editor City Editor F l  Fl
+Figure 5. Modules used for the model of the Virtual 
+Old Prague. The database stores basic geometrical 
+information. VRML models and texture images are 
+located on the web server file system. 
+of Prague. Currently about 60 houses were modeled and 
+placed into a database. Even though this number is far 
+from real requirements to complex presentation of the 
+whole city, the measurements performed on those data 
+have demonstrated the accomplishment of intended goals. 
+The virtual walk through the town is smooth thanks to 
+reading 3D data in advance. Carehl loading and 
+processing textures in levels of details saves graphics 
+performance thus the Virtual Old Prague can be presented 
+on ordinary computers with acceptable speed of 
+rendering. 
+It should be stressed that the visualization system 
+utilizing several technologies and components (HTML, 
+VRML, Java applets, and JavaScript routines) is not as 
+steady as we wish. The bottleneck of the system seems to 
+be a VRML browser. Its stability when manipulating with 
+scene structure is low. Two browsers were tested - 
+CosmoPlayer and Cortona. The final visualization 
+program had to be adapted in such a way that it uses 
+different techniques for different VRML browsers. We 
+hope that VRML browsers will be implemented much 
+more robustly in the future thus the dependencies on 
+certain browser could be removed. 
+6. Acknowledgment 
+This work has been supported by the Ministry of 
+Education, Youth and Sports of the Czech Republic under 
+research program No. Y04198: 212300014 (Research in 
+the area of information technologies and 
+communications). 
+643 
+I - 
+The Little Quarter (Lesser Town) 
+was  established in 1257,  built 
+on the slopes below Prague 
+Castle In 1541 i twas  badly 
+damaged by a great fire and than 
+erected again during 17th and 
+I 8th century It is pad of Prague 
+least effected by recent histoly 
+hanng an image as the ultimate 
+Baroque city The centre olthe 
+LiUle Quarter i s  the Little Quarter 
+Square. originally a market 
+place Dominating the square is 
+masterpiece of Baroque 
+the Church Of St Nicholas, the 
+here since the late 18th century 
+and the quader is rich in 
+Splendid Baroque palaces and 
+old houses with attractive signs 
+Founded in 1257 it is  built on 
+the slopes belowthe Castle hill 
+with magnificentview across the 
+Figure 6. Main window of Virtual Old Prague visualization system contains several components. Virtual 
+houses are modeled in four levels of details. All of them can be found in VRML window in this figure. 
+7. References 
+[ 11 Virtual Paris (based on blaxxun technology) 
+http://uw.2nd-world. fr/ 
+[2] Virtual Glasgow (VRML model) 
+http://iris.abacus.strath.ac.uk/glasgow/ 
+[3] Virtual New Orleans (VRML model) 
+http://www.planet9.comlearth/neworleans/ 
+[4] Virtual Sydney (VRML model) 
+http://www.planet9.com/earth/sydney/ 
+[SI Virtual Toronto (VRML model) 
+http ://www . intoront o.com/ 
+[6] QuickTime VR (Apple web site) 
+http://www.apple.com/quicktime/qtvrl 
+[7] The Virtual Reality Modeling Language. International 
+Standard ISOIIEC 14772-1:1997, 
+http://www.web3d.org/technicalinfo/specifications/ 
+vrml97hndex. htm 
+[SI A. Heinonen, S. Pulkkinen, and I .  Rakkolainen: “An 
+Information Database for VRML Cities”. In Proceedings 
+of IV 2000 - Information Visualization 2000, London, 
+Great Britain. IEEE Computer Society, ISBN 0-7695- 
+0743-3, pages 469-473. 
+[9] F. Durand: “A multidisciplinary survey of visibility”. 
+ACM SICCRAPH Course notes. Visibility, Problems, 
+Techniques, and Applications, July 2000. 
+[ 101 M. Reddy, L. Iverson, and Y. G. Leclerc: “Under the 
+Hood of GeoVRML 1.0”. In Proceedings of The Fifth 
+Web3DNRML Symposium. Monterey, California. 
+February 2 1-24,2000 
+http://www.ai.sri.com/geovrml/ 
+[ 1 11 Virtual Old Prague. Student Project. 
+http://www.ms.mff.cuni.cz/vsp/ 
+[12] The Virtual Reality Modeling Language - External 
+Authoring Interface. Drajl ISO/IEC 14772-2, 
+http://www.vrml.org/WorkingGroups/vrml- 
+eaiiSpecificationl 
+644 

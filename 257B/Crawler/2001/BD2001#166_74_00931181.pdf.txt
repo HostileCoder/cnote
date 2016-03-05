@@ -1,0 +1,612 @@
+A Systematic-DSP 
+for Satellite On-Board Application] 
+Philippe Bonnot, Didier Nicholson, Philippe Kajfasz 
+THALES Communications 
+66, rue du Fosse Blanc - BP 156 - F9223 1 Gennevilliers - France 
++33 146132000 
+(philippe.bonnot, didier.nicholson, philippe.kajfasz} @tcc.thomson-csf.com 
+Abstract-Satellite on-board front-end processing is 
+currently implemented with ASIC because of high 
+computation throughput. We describe in this paper a signal 
+processor, which offers high computation power. After a 
+brief description of the targeted class of applications, the 
+architecture of the processor and the software development 
+tool kit, and two representative applications are presented. 
+KEYWORDS : Systematic signal processing, fast 
+computation, System-On-a-Chip, Fixed-point, SIMD, OBP, 
+JPEG2000, Wavelet Transform. 
+TABLE OF CONTENTS 
+1. INTRODUCTION 
+2. SYSTEMATIC SIGNAL PROCESSING SOLUTION 
+4. PROGRA~~MING LAYERS 
+5. IMAGE COMPRESSION APPLICATION 
+6. TELECOMMUNICATION APPLICATION 
+7. CONCLUSION 
+3. ARCHITECTURE OF THE CIRCUIT 
+1. INTRODUCTION 
+The main requirements of satellite on-board processing are 
+volume, weight, and power consumption, computation 
+power always growing and excellent reliability. In many 
+applications, the main part of the computation power is 
+spent in the fi-ont-end processing. That is why the usual 
+implementation solution is an architecture based on ASICs 
+sometimes associated to a DSP. This leads to a very high 
+integration level but all the disadvantages of the specificity 
+of ASICs are kept: difficulty to implement multi-mode 
+applications, impossibility to authorize algorithm evolution, 
+limitation of re-use, high development cost. We present in 
+this paper a computation intensive, fully programmable 
+VLSI circuit for digital signal processing which offers the 
+computation power of several (roughly 10) DSPs. Clusters 
+with several interconnected circuits structures increase 
+significantly this computation power. 
+example, the fi-ont-end processing will be dealt by the 
+(( Systematic-DSP )) and the processing implying data 
+dependent scheduling will be dealt by a DSP. On one hand, 
+this solution presents the advantage to keep a full flexibility 
+and on the other hand it brings high computation power with 
+a good level of integration. 
+Computation efficiency objective is obtained by specializing 
+and optimizing the circuit to the type of functions that 
+represent the majority of the computation load. Flexibility 
+objective is reached thanks to the full programmability of its 
+computation unit and can be illustrated by the fact that the 
+circuit can be used for sequences of different processing 
+steps as those met in real applications. Unlike ASIC 
+implementations which are specialized in one type of 
+transformation, this circuit addresses a class of processing 
+which includes most of the costly systematic transformations 
+found in signal processing or data compression. 
+2. SYSTEMATIC SIGNAL PROCESSING SOLUTION 
+The Systematic-DSP circuit (named PIRANHA) presented 
+here is devoted to a subset of signal processing that we can 
+call Systematic Signal Processing [l]. This field of 
+application gives many optimization opportunities that 
+permit to implement on the chip a highly efficient 
+multiprocessor structure, which can be extended by 
+cascading multiple PIRANHAS. A systematic signal 
+processing application can be seen as a chain of 
+deterministic loops each repeating (N,*N2* ...* Nk times) a 
+particular Core Arithmetic Function (CAF). The CAF has a 
+complexity low enough to be programmed on a typical DSP- 
+like arithmetic unit and its set of general-purpose registers. 
+Thus, CAF examples can be dot products as well as classical 
+FFT radix, but also user specific functions. This CAF takes 
+its operands and stores its results following systematic and 
+linear multi-dimensional addressing laws. So, the condition 
+for a CAF loop (also said task) to be manageable by the 
+circuit is that the address of any operand or result in iteration 
+(nl, n2, ..., Q) is obtained by a fixed linear transformation : 
+This innovative solution to integration problems introduces 
+what could be called a (( Systematic-DSP D which can be 
+associated to usual DSPs (like 21020) or ASICs. This allows 
+the architecture designer to make the trade-off adapted to its 
+need (multi-mode, re-use, on-fly reprogramming, . . .). For 
+A(&, ..., nk, = A 0  -t n1I1 +... -t n& (1) 
+to the in which the 
+Operand Or result Of the cAF. 
+are fixed integer Parmeters 
+Updated November 28,2000 
+5-2233 
+Figure 1 gives an example of a CAF and illustrates the linear 
+laws that pennit to fetch (or store) operands within a pattern, 
+and from a pattern to its successor for next iteration of the 
+CAF. In that example, the task calculation is : 
+~ ( m , s , p )  = C H ( ~ ) X ( ~  1m + 2n,s, p ) (2) 
+n=0..3 
+f x  
+0 
+0 
+Figure 1 - Systematic Signal Processing example 
+3. ARCHITECTURE! OF THE CIRCUIT 
+A general block diagram of the circuit is given in Figure 2. 
+As computation power is the main objective of the circuit, 
+four 16-bits fured point arithmetic blocks, each containing 
+one multiplier, one shifter, adders and data registers, form 
+the arithmetic unit [2], capable of 4 MACS (i.e. 
+multiplication + accumulation) at each clock cycle. The 
+arithmetic blocks are in charge of executing the CAFs, but 
+play no role in address generations. They work 
+synchronously, executing the same common CAF micro- 
+instruction at a given cycle (Single Instruction Multiple 
+Data). Note that each arithmetic block is responsible for the 
+complete execution of a CAF : at a given time, four 
+iterations of the same CAF, on different sets of opeirands, are 
+being executed in a circuit. 
+MEMORIES 1 EXTPROGMEM I 
+-b TASK 
+I 10 SCHEDULER 
+I I  I 
+MEMORY GENER 
+t 
+Figure 2 - PIRANHA IP Bloc Diagram 
+Arithmetic blocks are fed and read back by a high- 
+bandwidth (8 dadcycle) on-chip memory sharedl with the 
+I/O ports. Internal memory is addressed by address 
+generators which compute the linear laws mentioned before. 
+The I/O ports are : 
+- Memory ports, 
+- Inter-PIRANHA port for synchronous SIMD data 
+exchanges between circuits. 
+The circuit includes blocks controlling the operational 
+blocks of PIRANHA (AU, internal memory, I/O ports). 
+Each control block gets instructions from the external 
+memory. These instructions define the expected function of 
+the operational block and launch execution. Control blocks 
+report to the central controlling block called the Task 
+Scheduler. The Task Scheduler manages parallel execution 
+of computation and transfer tasks by defining the sequences 
+of instructions. These sequences are fully deterministic. 
+The circuit also includes the Arithmetic Unit Program 
+Memory which contains the micro-program of the CAFs. As 
+the micro-instruction is rather wide (Very Long Instruction 
+Word) and as one instruction must be delivered at every 
+clock cycle, this memory is on-chip. 
+The Extlemal Program Memory contains all the information 
+necessary to confgure and launch the resources of the 
+circuit. This includes in particular address laws and 
+scheduling directives. The Arithmetic Unit binary micro- 
+program is also read from the external program memory and 
+transferred to the internal Arithmetic Unit Program Memory, 
+before the execution of a computation task. The External 
+Programt Memory is addressed by the Task Scheduler. 
+PIRANHA is basically designed to be used alone or within a 
+2 or 4-PIRANHAS SIMD cluster and by that way they form 
+a front-end processing multiprocessor architecture. The 
+confguration offering the best performances in term of 
+inputloutput data rate as well as memory needs and 
+computation latency is the data parallelism configuration. In 
+that configuration, a block of data that has to be processed is 
+distributed on the 4 circuits. By that way, in a 4-PIRANHA 
+cluster, each one receives one fourth of the block. The 
+amount of data to be stored and the input data rate are thus 
+divided by 4 when compared to a time-slicing or pipeline 
+solution. Data exchanges are generally necessary during the 
+process, but the global data rate (inputloutput and 
+exchanges) remains in most cases inferior to data rate of 
+other solutions. 
+PIRANlHAs cluster works in a SIMD manner. This means 
+that each PIRANHA does exactly the same thing as the other 
+ones of the cluster. So data exchanges are completely 
+symmetric and deterministic. They are easy to program : it is 
+only needed to consider the PIRANHA number in the cluster 
+as one dimension in the description of the process. 
+Programming tools and control blocks of the “Intellectual 
+Property” (IP) then assume the control of the complete 
+process on the cluster. 
+Figure 3 shows an example of a program for a 256-poht 
+FFT on a 4-PIRANHA cluster (without the declaration part, 
+the acquisition task and the CAF body). We can see that the 
+progranvning of such an application is quite easy. The 
+program is just made of loops descriptions, plus a few 
+5-2234 
+instructions giving the loop scheduling in the pipeline 
+stages. This simplicity is mainly made possible by the 
+systematic signal processing hypothesis. 
+4. PROGRAMMING LAYERS 
+4. I Arithmetic Unit Program 
+The arithmetic unit, or more precisely the arithmetic blocks, 
+can be programmed using an assembly language which 
+features orthogonal fields, each attached to a particular 
+arithmetic resource (registers, ALU, multiplier, shifter, 
+etc...). Arithmetic Unit programs are relatively short 
+sequences of instructions describing Core Arithmetic 
+Functions. One instruction can be generated ,at every cycle, 
+although its execution may take several cycles (latency due 
+to some pipeline within the operators). Typical CAFs are 
+FFT radix 2 and 4 butterflies and nested loops as dot 
+products. A wide range of specific user’s CAFs can also be 
+programmed. 
+4.2 General Control Program 
+The general control program is addressed by the scheduler, 
+and carried by the program bus. Three kinds of actions are 
+defined and permitted by the general control program : 
+- Parameters downloading : this permits to deliver subsets of 
+parameters .to a control block. Parameters for a block 
+generally use several 32-bits instructions of the general 
+control program, indicated by a header. Examples are 
+downloading of Arithmetic Unit code under control of the 
+AU controller, programming of address increments into the 
+address generators, ... 
+- Execution launch : these commands make the 
+corresponding resource (AU, YO port) start its execution, 
+under the control of their control block. 
+- Scheduling control : these commands are directed to the 
+scheduler itself defining task dependencies, etc . . . 
+Using these commands, the programmer can make a 
+PIRANHA or a cluster of PIRANHAS execute powerfd 
+operations. The following pseudo-program gives an example 
+of a typical multi-resource execution by PIRANHA : nested 
+loops with simultaneous use of computation and transfer 
+resources. The language used in this example is just for 
+comprehension. 
+DO nl TIMES { I 
+DO { 
+FETCH datal-block FROM external-mem 
+FETCH data2-block FROM external-mem} 
+DO ml TIMES CAF#l with @param( ...) 
+DO m2 TIMES CAF#2 with @param( ...I } 
+EXCHANGE result1 BETWEEN piranhas 
+OUTPUT result2 TO hostgort } } 
+IN PARALLEL WITH { 
+IN PARALLEL WITH { 
+# NBPE 4 
+ARRAY [256] samples; 
+w Y [ 2 5 6 1  res; 
+VOID butterfly4 (24RRAY[4] INO, 
+AFCtAY[3] COEFO, AFSAY[4] OUTO); 
+$$ COMPUTATION TASK 1 PIPE 1 WAIT 0 
+FOR (Q1=0; Q1<4; Q1 ++) 
+FOR (QO=O; Q0<4; QO ++) { 
+FOR (DO=O; D0<4; DO ++) 
+IN0 (DO) = samples (16*DO +4*QO +Q1) ; 
+COEFO = ROM (4*NumPir +64*QO +16*Q1); 
+butterfly4 (INO, COEFO, OUTO) ; 
+FOR (DO=O; D0<4; DO ++) 
+sfftl (16*DO + 4*QO + Ql)=OUTO(DO);} 
+$5 COMPUTATION TASK 2 PIPE 1 WAIT 0 
+FOR (Ql=O; Q1<4; Q1 ++) 
+FOR (QO=O; Q0<4; QO + + ) {  
+FOR (DO=O; D0<4; DO ++) 
+COEFO = ROM (lG*NumPir+64*Ql) ; 
+butterfly4 (INO, COEFO, OUTO) ; 
+FOR (DO=O; D0<4; DO ++) 
+IN0 = sfftl (4*DO + 16*QO + Ql); 
+sfft2 (4*DO + 16*QO + Q1)= OUTO;) 
+$$ EXCHANGE TASK 3 PIPE 2 WAIT 0 
+FOR (Ql=O; Q1<4; Q1 ++) 
+FOR (QO=O; Q0<4; QO ++) 
+FOR (DO=O; D0<4; DO ++) { 
+INO(D0) = sfft2 (16*DO + 4*QO + Q1); 
+sfft2~(64+D0+16*Q0+4*Ql) = IN0 (DO) ; } 
+$$ COMPUTATION TASK 4 PIPE 3 WAIT 2 
+FOR (Ql=O; Q1<4; Q1 ++) 
+FOR (QO=O; Q0<4; QO ++) { 
+FOR (DO=O; D0<4; DO ++) 
+COEFO = ROM (64*QO); 
+butterfly4 (INO, COEFO, OUTO) ; 
+FOR (DO=O; D0<4; DO ++) 
+sfft3 (64+4*DO+Q0+16*Q1)= OUTO (DO) ; } 
+IN0 = sfft2x (64+4*D0 + QO + 16*Q1); 
+$$ COMPUTATION TASK 5 PIPE 3 WAIT 0 
+FOR (Q1=0; Q1<4; Q1 ++) 
+FOR (QO=O; Q0<4; QO ++) { 
+FOR (DO=O; D0<4; DO ++) 
+COEFO = ROM (0 ) ;  
+butterfly4 (INO, COEFO, OUTO) ; 
+FOR (DO=O; D0<4; DO ++) 
+IN0 = sfft3 (64+DO + 4*QO + 16*Q1); 
+res (128+16*D0+4*QO+l*Ql) =OUT0 (DO) ; } 
+Figure 3 - Algorithm description example 
+The generation of binary code for use by the arithmetic unit 
+is done using an assembler program, which detects and 
+signals invalid syntax, improper use of resources, and 
+verifies that the CAF program can be overlapped as 
+explained above. The CAF assembler files have to be linked 
+with the global assembler file. Those files are converted into 
+binary PIRANHA-usable code by a program which detects 
+invalid syntax, improper use of resources, and executes 
+5-2235 
+some needed tedious conversions. The output is i3 32-bits 
+wide binary program. 
+5. ON BOARD SIGNAL PROCESSING APPLICATIONS 
+5. I Image Compression Application 
+The architecture of the circuit fits well with the efficient 
+implementation of image compression algorithms, which are 
+generally based upon a transformation of the piixel data 
+(DCT, wavelets ..) and a entropy coding algorithm. The 
+Consultative Committee for Space Data Systems (CCSDS) 
+is interested in the future JPEG 2000 standard for possible 
+future use on its space platforms and ground archive 
+systems, and the space requirements given by CCSDS have 
+been taken into account in the features of JPEG 2000. This 
+standard provides the state of the art in term of compression 
+performance, and outperfom the current space on-board 
+image compression algorithm, despite a higher coimplexity. 
+This problem of complexity, which is true for DSP or ASICs 
+implementation is not anymore valid with the "Systematic- 
+DSP" approach. 
+P E G  2000 has proved to be one of the most powerhl image 
+compression algorithm for remote sensing high resolution 
+images [12]. The only drawback, is its complexity, which is 
+higher than a existing specific compression schemes. The 
+fact that JPEG 2000 is an IS0 standard that will be used for 
+digital still camera and intemet applications is a major 
+advantage. This will enable to have P E G  2000 viewers on 
+any PC machine using standard image processing software. 
+In [12] two approaches, one using JPEG 2000 irt a mode 
+adapted to on-board processing (scan based), and the other 
+one based upon a proprietary algorithm (Wavelet based) 
+have been compared. The two algorithms are depicted in the 
+following figure. 
+alkcatii 
+Figure 4 Wavelet-based image compression algorithm 
+Simulations of both algorithms show that PEG2000 scan- 
+based m,ode gives slightly better performances on CCSDS 
+selected images. These experiments have been done using 
+the Daubechie 9/7 wavelet kemel, with 3 decomposition 
+levels. However, PEG2000 complexity is significantly 
+higher and the feasibility of a P E G  2000 ASIC 
+implementation at 20MpixelsIs is questionable. In addition 
+to the algorithm complexity, JPEG 2000 is highly re- 
+configurable (block size, progression of order ....), which 
+make diFficult an implementation on a non re-programmable 
+device. 
+For this type of application, the proposed on-board 
+architecture aims to solve this implementation issue, by 
+splitting the algorithm between the different types of 
+processing units, SlMD (PIRANHA), FPGA and DSP. In 
+addition, our re-programmable architecture enables to chose, 
+depending on the application or the mission, the PEG2000 
+or another Codec. 
+The soflware algorithm complexity for P E G  2000 has been 
+analyzed in [13], for an implementation on a generic 
+processor (Intel Pm). It shows that for on-board real time 
+processing it is not possible to use DSP based only 
+processing for high resolution images, and that a hardware 
+implementation is mandatory. The major part of this 
+software complexity is due to the bloc based entropy coding 
+[ 101 as depicted in the following figure: 
+Time repmtlton 
+W Data Management and 
+0 Wwekt transform 
+0 Codestream building 
+W Data input 
+ind 
+0% 
+Figure 5 :  Processing time distribution (513 filter, 3 
+decomposition level, loss-less compression) 
+The algorithm is split as follow: 
+- SMD: wavelet transform, scalar quantization and rate 
+control 
+- FPGA.: bloc based entropy coding 
+- DSP: Program Management, syntax and rate control 
+Complexity analysis: 
+- SlMDl PIRANHA 
+The functions to be processed by the SIMD are the 
+component transform (if any), the wavelet transform and the 
+scalar quantization. The 9/7 kernel has proved to provide 
+good result when compressing visible remote sensing images 
+and is ithe mode to chose in such applications. It implies to 
+use fixed point coefficients for its implementation, but is 
+done using the lifting method [SI which allow to reduce the 
+complexity. For lossless compression, the 9 3  kemel has to 
+5-2236 
+be used. It is also done with lifting scheme, with integer 
+coefficients and require only additions. In this case there is 
+no scalar quantization possible (quantization step equal to 
+1). If the 513 kernel is used for lossy compression, the 
+reduction of bit-rate will be done on the entropic coder level. 
+The wavelet transform is applied first vertically and then 
+horizontally as show in the following figure. On the output 
+of the lifting implementation of the 1D DWT, the 
+coefficients are interlaced (the values given in the next table 
+take into account the de-interlacing). packet 
+The algorithmic complexity of the 1D wavelet transform and 
+the scalar quantization is as follow: 
+log, (NI /4)  ( z 2 b * 3 + 2 * N i ) * a  b=O 
+Function 
+= 
+*a 1 packet 
+Block size 
+*2 * NI * a' 
+513 D W  (lifting) 
+9/7DWT(lifting) 
+scalar 
+- FPGA 
+The several sub-bands obtained after the DWT and scalar 
+quantization, will be split in rectangular blocks, called code- 
+blocks. The entropy coding will be applied separately on 
+each code-block for each bit-plane. The data on the output 
+of the coder will be grouped together depending on the 
+chosen progression of order (scalability in quality, 
+scalability in resolution), to be managed by the DSP. 
+The block based entropy coding has two different parts, the 
+bit coefficient modeling and the arithmetic coding. The 
+maximum number of bits to be processed inside a block is 
+4096, with a scan order of four vertical bits as show in the 
+following figure (7). A typical value for the code block size 
+is 64*64 pixels. 
+13 0 19 
+20 12 52 
+0 3 6 
+Figure 6: sub-bands 
+decomposition in 
+code-blocks 
+DWT 
+Code-stream 
+scan order 
+/pixel 
+39 55 
+0,002 6 
+With a limited number of gates for the FPGA, not all the bits 
+can be processed in parallel, but the code-blocks are very 
+suitable for parallel processing. The bit modeling requires 
+300 basic gates plus 4000 gates for the arithmetic coder and 
+this per code block. 
+- DSP 
+The functions to be done in the DSP includes the creation of 
+data packets as well as markers, to be included in the 
+complete P E G  2000 codestream. A packet made of a 
+packet header and a body will include a certain number of 
+part of code-block information. 
+I Header I Body 
+Operation / I Max = ) o  
+' a corresponds to the decomposition level, 
+a = 1 for LL sub-band, a = 3 elsewhere 
+Software complexity estimation example : 
+In order to relate the previous processing figures for the 
+SIMD and DSP to an example, the P E G  2000 test image 
+Txturl (earth observation image taken in visible spectrum) 
+require the following complexity values in order to be 
+coded. The 513 kernel in a loss-less mode with 3 
+decomposition level, block size of 64*64 pixels has been 
+used. 
+Memory access 
+8 bitslpixel 
+generation 
+Taking into account these values it has been possible to 
+obtain a good trade-off and to propose a processing 
+architecture allowing up to 20 MpixeYsec real time 
+PEG2000 compression. This architecture is presented in the 
+following figure: 
+I 
+Figure 8 Image Architecture I 
+5 - 2 2 3 7  
+5.2 Telecommunication Application 
+The second application presented is an on-board Frequency 
+band switching telecommunication system. The Frequency 
+band switching chain is composed of de-multiplexing 
+modules based on polyphase filters followed by configurable 
+Frequency band-switching modules and terminated with 
+multiplexing modules. The mux and demux modules are 
+made of clusters of “Systematic-DSP” whereas switch 
+modules are based on ASICs. The advantage of this 
+architecture is its good level of integration associated to the 
+possibility to change the type of filters by software. 
+The demux processing chain to be performed for that 
+application receives complex samples at 20 MHz irate. The 
+first step of the chain is the polyphase filter itself: 
+5 
+x(m,n) = z a ( m ,  k)ech(8n + 8k + m) (m=O to 73 (3) 
+k=O 
+This first step can be programmed through a single 6-tap 
+dot-product CAF on PIRANHA. This CAF will be repeated 
+within m.n loop. Each CAF corresponds to 6 real by 
+complex multiplication-accumulation. This CAF is repeated 
+at a fiequency of 20 MHz. The resulting computation power 
+is then 240 MMACS (M multiplication-accumulatiodsec). 
+Then, following step is an ODFFT16 : 
+7 ( 2 k + l ) m  
+-j2s- 
+X ( k , n )  = i z x ( m , n ) e  l6 @=I to 6) (4) 
+m=O 
+This second step can be programmed through a second CAF 
+on PIRANHA. This CAF is a sort of butterfly with M=8 
+input complex data and K=6 output complex data. It is 
+basically formed of complex multiplication with 
+trigonometric coefficients and a partial 8-point FFT. The 
+complexity of this CAF is of 30 multiplications. This CAF is 
+repeated at a fiequency of 2.5 MHz. I So, the resulting 
+computation power is 75 MMACS. 
+The overall computation power for that demux function is 
+around 315 MMACS. Since PIRANHA computation power 
+is 100 MMACS, the implementation of this chain is made 
+possible within a 4-PIRANHA cluster single board. Thus, 
+this solution gives a good integration level and keep the 
+advantage to be highly programmable. A.DSP solution 
+would have needed more than 20 DSP boards. 
+The mux function is identical to the demux function. Thus, 
+we obtain the final architecture which presented in the 
+following figure. 
+4 
+I SWlTCHASlC I 
+4 
+Figure 9 Frequency Band Switching Architecture 
+6. CONCLUSION 
+Thales Communications has developed the PIRANHA 
+circuit i n  ATMEL (formerly TEMIC/MHS) .5 pm rad- 
+tolerant technology [3], [4]. 
+______ ~. - --- 
+Figure 10 PIRANHA Layout 
+Figure 11 PIRANHA Package 
+5-2238 
+A PCI board with a 4-PIRANHA cluster has been Image Processing (KIP), 24-28 October 1999, Kobe, 
+developed. This board permitted to validate the circuit and Japan 
+to perform application prototyping on application such as 11 11 M. w. Marcellin, M. Gomish, A. B i k h  M. Boliek, “An 
+those that have been presented. Overview of JPEG 2000,” PVOL 4 ~ a t a -  O ~ W N S W ~ L  CO@- 
+1 Snowbird, Utah, March 2000. 
+[12] C. Lambert-Nebout, C. Latry, G. Moury, C. Parisot, M. 
+Antonini, M. Barlaud - On-board optical image 
+compression for future high resolution remote sensing 
+systems, SPIE 
+[13] D. Nicholson, P. Martinez, M. Iregui, J. Corral - Evaluation 
+de la complexite algorithmique de JPEG 2000, CORESAbOOO, 
+19Lh-20’h October, Poitiers, France 
+Figure 11  4-PIRANHA cluster Evaluation Board 
+PIRANHA is also implemented in commercial .25 p. In 
+the .25 p technology, the die size is around 15 mmz and the 
+performances of a 4-PIRANHA cluster are 6 GOPS (2 
+billion MAC per second plus ALU) [5]. 
+A PIRANHA IP is also a very attractive solution for the 
+integration of ikont-end signal processing within System-&- 
+a-Chip structures. It allows the implementation of low cost 
+and/or highly integrated systems. 
+RE33ENCES 
+[l] A. Demeure & al., “Array-OL: proposition d’un 
+formalisme Tableau pour le Traitement de Signal Multi- 
+Dimensionnel”, GRETSI 95, Juan-les-Pins, 1995 
+[2] E. Lenormand & al., “Circuit programmable de traitement 
+numerique du signal pour les applications embarquees a 
+bord de satellite”, CNES Actes Joumbes Adkquations 
+Algorithme, Architecture en Traitement du Signal et 
+Images, 3e ed., 147-152, 1996 
+[3 J Ph. Bonnot, E. Lenormand, “A computation intensive fully 
+programmable VLSI circuit for on-board digital signal 
+processing”, 2“d Round Table on Micro/Nano 
+Technologies for Space, ESTEC, Noordwijk, 1997 
+141 Ph. Bonnot, Ph. Kajfasz, “A programmable circuit for on- 
+board front-end, digital signal processing”, Small Satellites 
+Systems and Services, Antibes-Juan les pins, 1998 
+[5] D. Maufroid, P. S. Paolucci, Ph. Kajfasz & A. Bertini, 
+‘“Agic FPU : VLIW Floating Point Engines for “System- 
+On-Chip” Applications”, EMMSEC ’99, june 1999, 
+Stockholm, Sweden. 
+[6] ISO/IEC JTC l/SC 29WG 1 PEG 2000 Part I Final Draft 
+International Standard Version 1.0, N1855, 18& August 
+2000 
+[7] M. Antonini, M. Barlaud, P. Mathieu, and I. Daubechies, - 
+Image coding using the wavelet transform, IEEE Trans. 
+Image Proc. 1,  pp. 205-220, April 1992 
+[SI W. Sweldens, - The lifting scheme: a custom-design 
+construction of biorthogonal wavelets, Appl. Comput. 
+HarmonicAnalysis, vol. 3, no. 2, pp 186-200, 1996. 
+[9] A.R. Calderbank, I. Daubechies, W. Sweldens, and B.-L. 
+Yeo, “Wavelet transforms that map integers to integers,” 
+Journal of Applied and Computational Harmonic 
+Analysis, vol. 5, no. 3, pp. 332-369, July 1998. 
+[10]D. Taubman, - High performance scalable image 
+compression with EBCOT, Proc. IEEE Int. Conference on 
+Phirippe Bonnot is currently in charge of 
+processors architecture deJnition within 
+the Advanced Architecture I’ group of 
+THALES Communications. He is also 
+responsible for the development of the 
+‘I MEFISTO System-On-Chip which 
+includes a cluster of PIRANHA SIMD 
+cores, a FPU DSP and a ARM RISC core. He was 
+responsible for the development of the PIRANHA SIMD 
+processor. He has been involved in the architecture 
+deJinition of on-board telecommunication satellite payloads. 
+He holds 2 patents on SIMD architectures related to 
+PIRANHA architecture. 
+Didier Nicholson received his Electronic 
+Engineer Degree in 1990 @om REIMS 
+University and from CNAM Paris, 
+specialized in Signal Processing, Digital 
+Television and Multimedia Techniques. He 
+joined Thomson-CSF in 1991 and, from 
+this date, has been working on several 
+R&D projects in the signal and image 
+processing field. He is currently working in TCC Signal 
+Processing Team, in the Multimedia Laboratory. His main 
+technical background deals with system design, hardware 
+and software integration (with a large experience around 
+Digital Signal Processors), as well as image coding and 
+watermarking. He is currently the THALES representative 
+to ISOIIEC JTCl SC29 WGO1 known as JPEG, working on 
+JPEG-2000 through the ISTproject MGRATOR 2000. 
+Philippe Kaifasz currently heads up 
+THALES Communications’ Advanced 
+Architecture group which performs mid 
+and long-term research for products that 
+arefiom three to ten years into thefiture. 
+The R&D activities cover four main 
+areas: Intensive Signal Processing 
+processors (systematic-DSP for space and commercial 
+equipment, DSP cores), Multi-processor Signal Processing 
+machines, Design Methodologies, and Simulation 
+Techniques. He has numerous research publications in real 
+time Signal Processing architectures, and design methodo- 
+logies. 
+5-2239 

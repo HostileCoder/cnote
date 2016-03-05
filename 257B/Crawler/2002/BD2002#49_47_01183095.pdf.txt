@@ -1,0 +1,1175 @@
+ An Agent-Based Framework for Petroleum Information 
+Services from Distributed Heterogeneous Data Resources
+ 
+ 
+Chengqi Zhang, Chunsheng Li 
+Faculty of Information Technology 
+University of Technology, Sydney 
+PO Box 123, BROADWAY 
+NSW 2007, AUSTRALIA 
+{chengqi, csli}@it.uts.edu.au 
+Zili Zhang 
+School of Information Technology 
+Deakin University 
+Geelong, Victoria 3217 
+AUSTRALIA 
+zzhang@deakin.edu.au 
+ 
+ 
+Abstract 
+ 
+For making good decisions in the area of petroleum 
+production, it is becoming a big problem how to timely 
+gather sufficient and correct information, which may be 
+stored in databases, data files, or on the World Wide 
+Web. In this paper, Gaia methodology and Open Agent 
+Architecture were employed to contribute a framework 
+to solve above problem. The framework consists of three 
+levels, namely, role mode, agent type, and agent 
+instance. The model with five roles is analyzed. Four 
+agent types are designed. Six agent instances are 
+developed for constructing the system of petroleum 
+information services. The experimental results show that 
+all agents in the system can work cooperatively to 
+organize and retrieve relevant petroleum information. 
+The successful implementation of the framework shows 
+that agent-based technology can significantly facilitate 
+the construction of complex systems in distributed 
+heterogeneous data resource environment. 
+ 
+ 
+1. Introduction 
+ 
+For making good decisions in most areas, it is 
+becoming a key stage to timely gather sufficient and 
+correct information, which may be stored in distributed 
+heterogeneous data resource environment, such as 
+databases, data files or the World Wide Web. For 
+example, a large amount of information has been 
+produced nowadays from any specialized oil field in 
+petroleum production industry. But the storage of the 
+information is very various. Before computers were 
+widely applied in petroleum production in early days, the 
+information might be written or drawn on paper as 
+documents stored in bookcases. The information was 
+usually stored in data files with diversiform formats or 
+heterogeneous databases after computers were widely 
+applied in oil fields. With the wide applications of the 
+Internet or Intranet, the huge amount of information 
+about petroleum production is stored on websites today. 
+At this stage, the concept of information is extended and 
+may include data, reports, news, financial assessments, 
+etc. All kinds of above information are important for 
+making good decisions of petroleum production.  
+In the new distributed heterogeneous data resource 
+environment, petroleum production industry eagerly 
+wants to develop a novel system with an advanced 
+framework to deal with petroleum information. The 
+user’s requirements mainly include four aspects. Firstly, 
+the information written or drawn on paper must be 
+converted to the formats that can be stored in computer 
+systems for using by themselves or other users. This kind 
+of information may include images, descriptions in 
+characters or curves that may imply some valuable data. 
+Secondly, some data stored in databases or data files with 
+diversiform formats may be queried in data mode or 
+graph mode in an integrated system. Thirdly, information 
+for a specialized project realm may be retrieved from 
+websites or text files according to user’s query statement. 
+The users expect to only obtain the necessary information, 
+no less and no more. Fourthly, non-agent systems, which 
+were developed before and are currently called legacy 
+systems, are not affected under the new framework. Those 
+legacy systems may manipulate databases or data files. In 
+this paper, we focus on the legacy data (databases and 
+data files), which can be operated as they have been done 
+before the novel agent-based framework. 
+With the agent-based technique becoming the 
+mainstream of software engineering paradigm [4], many 
+non-agent systems, such as, database management 
+systems must satisfy the agent-based environment. There 
+are three methods, namely, rewriting, transducer, and 
+Proceedings of the Ninth Asia-Pacific Software Engineering Conference (APSEC’02) 
+0-7695-1850-8/02 $17.00 © 2002 IEEE 
+wrapper, to solve the problem [15]. ‘Rewriting’ means 
+that a new agent-based system is built and the original 
+one is discarded. In this method, the function and 
+characteristics of the non-agent original system must be 
+inherited by the agent-based system. ‘Transducer’ means 
+that some agents that look like a channel between task 
+agents (to complete a specialized task for each one) and 
+non-agent systems are built. The transducer acts as an 
+interpreter between task agents and a non-agent software 
+system, which can run independently in computer and 
+consider the transducer as its ordinary user. The 
+transducer accepts messages from task agents, translates 
+them into the non-agent system’s native communication 
+protocol, and passes those messages to the non-agent. It 
+accepts the non-agent system’s responses, translates into 
+agent communication language, and sends the resulting 
+messages on to the task agents. ‘Wrapper’ means the 
+technique to place wrapping software around the legacy 
+code. Agents enable legacy (non-agent) software to be 
+incorporated in a relatively straightforward manner in 
+this method [4]. The wrapper presents an agent interface 
+to the other software components and thus from the 
+outside it looks like any other agent.  
+In this paper, we applied the third method to wrap 
+databases and data files because those data resources are 
+of their specialized characteristics. For example, 
+databases are different from other kinds of non-agent 
+software systems. Firstly, the main objective of databases 
+is to organize, store and manage neuter data. The neuter 
+data here means that database management systems care 
+naught for the meaning of the data but data types. 
+Secondly, the direct operations on databases are usually 
+other application systems, which are developed with 
+database operation language (e.g. SQL) or application 
+programming interface (API, e.g. ODBC, JDBC). 
+Thirdly, database management systems in a specialized 
+application usually run in stationary servers and cannot 
+be transferred randomly. Fourthly, many database 
+management systems generally provide more than one 
+developing method for designers’ convenience to develop 
+their diversiform application systems. For example, 
+Oracle not only provides SQL functions to operate the 
+database in database programming environment, but also 
+Pro*C to develop application systems in C programming 
+language environment. For the above characteristics of 
+databases, we know that databases are of closed feature. 
+Because of the closed feature, it is reasonable to wrap 
+database with an agent wrapper. 
+To implement the system of petroleum information 
+services efficiently and effectively in agent-based 
+distributed heterogeneous data resource environment is 
+the chief goal of our research. In this paper, we employed 
+some ideas of Gaia methodology [12] and Open Agent 
+Architecture (OAA) [8] to contribute an agent-based 
+framework to perfectly achieve the chief goal. The 
+framework consists of three levels, namely, role mode, 
+agent type, and agent instance. We analyze a model with 
+five roles and design four agent types to construct the 
+system. Six agent instances are developed. An 
+information-filtering agent, which filters the relevant 
+documents from the results of browsing agent and search 
+engines, is developed with information retrieval 
+techniques [14]. An information input agent, which 
+scans, preprocesses, compresses, and digitizes images to 
+data files or curve data, is developed with the image 
+processing techniques. A data file management agent to 
+store and access data in files is developed with the idea 
+of distributed file system. A middleware agent, which is 
+run in the same server with database management 
+system, is developed with legacy software wrapping view 
+to manipulate heterogeneous databases in uniform 
+database agent communication language (DBACL). 
+From agent viewpoint, the middleware agent is a 
+wrapper of database, which makes database exhibit the 
+agent characteristics in agent-based environment. 
+The remaining sections of this paper are organized as 
+follows. In Section 2, the related work about this 
+research is briefly described. Section 3 presents 
+methodology of constructing agent-oriented systems and 
+the model with five roles for petroleum information 
+services in distributed heterogeneous data resource 
+environment. Section 4 discusses four agent types for 
+designing the five roles and gives the complete 
+framework. Section 5 describes the architecture of each 
+agent instance and introduces DBACL for implementing 
+the framework. Section 6 gives the results of case study 
+about the framework. Section 7 concludes the paper.  
+ 
+2. Literature review 
+ 
+Agent-based systems have shown much promise for 
+flexible, fault-tolerant, distributed problem solving [8]. 
+Much of the foundational work on agent technology has 
+focused on methodologies to build agent-oriented 
+systems [3, 4, 5, 8, 12], inter-agent communication 
+protocols [4, 5, 14], and agent-based application systems. 
+Many agent-based models or frameworks were proposed 
+for some specific applications. However, an integrated 
+framework tailored to complex systems, especially to 
+integrated petroleum information processing, is rare. 
+Gaia is a methodology, which was specifically 
+tailored to the analysis and design of agent-based systems 
+[12]. The main Gaian concepts can be divided into two 
+categories: abstract and concrete [12]. Abstract entities 
+are those used during analysis to conceptualize the 
+Proceedings of the Ninth Asia-Pacific Software Engineering Conference (APSEC’02) 
+0-7695-1850-8/02 $17.00 © 2002 IEEE 
+system, but which do not necessarily have any direct 
+realization within the system. Concrete entities, in 
+contrast, are used within the design process, and will 
+typically have direct counterparts in the run-time system. 
+But Gaia, as it presently stands, is not a general 
+methodology for all kinds of multi-agent systems. It is 
+not suitable for modeling open systems and controlling 
+the behavior of self-interested agents [15]. The OAA 
+made it possible for software services to be provided 
+through the cooperative efforts of distributed collections 
+of autonomous agents [8]. Communication and 
+cooperation between agents were brokered by one or 
+more facilitators, which were responsible for matching 
+requests, from users and agents, with descriptions of 
+capabilities of other agents.  
+Many agent-based software systems evolved some 
+notion of our framework have been developed. Lipperts 
+and Park developed an agent-based middleware to serve 
+as a basis for user mobility [7]. An integrated 
+environment acting as a software agent for discovering 
+correlative attributes of data objects from multiple 
+heterogeneous resources was presented in [1]. 
+Papastavrou, et al. proposed a framework for Web-based 
+distributed access to database systems based on Java-
+based mobile agents [9]. In this system, mobile agent 
+(DBMS-aglet) was employed. The system lost some 
+benefit for transferring DBMS-aglet between client and 
+servers. AgentRAIDER [10] was a comprehensive 
+architecture for an intelligent information retrieval 
+system with distributed heterogeneous data sources. It 
+focused on specific aspects of the distributed 
+heterogeneous problem such as database queries or 
+information filtering. To reflect the standards of 
+communication in a distributed heterogeneous system, a 
+multi-level model and an agent template were proposed 
+by Sheremetov and Smirnov [11]. Xu, et al. presented a 
+logic-based language, SAFIN, for developing networked 
+software agents [13]. It integrated agent-oriented 
+programming, KQML and basic mobile techniques to 
+support intelligent behaviors, software interoperatablity 
+and code transportability. KQML is based on speech act 
+theory and allows cognitive agents to cooperate [2]. 
+Although such an endeavor is certainly of interest, the 
+KQML project display loopholes. 
+ 
+3. Methodology 
+ 
+The system of petroleum information services 
+consists of four components, namely, information input, 
+data manipulation, information gathering, and data 
+query, according to the user’s requirements stated in 
+Section 1. Each component of the system makes use of 
+significant computational resources and is of 
+independent feature. The organization structure of the 
+system is static because inter-agent relationships do not 
+change at run-time. So it is suitable for applying Gaia to 
+analyze the system of petroleum information services. 
+ 
+3.1. Analysis with the Gaia methodology 
+ 
+Gaia is intended to allow us to go systematically from 
+a statement of requirements to a design that is 
+sufficiently detailed that it can be implemented directly. 
+In applying Gaia, we move from abstract to increasingly 
+concrete concepts. The objective of the analysis stage is 
+to develop an understanding of the system and its 
+structure. In this stage, the system consists of roles, 
+which role is defined by four attributes: responsibilities, 
+permissions, activities, and protocols. Responsibilities 
+determine functionality and, as such, are perhaps the key 
+attribute associated with a role.  Responsibilities are 
+divided into two types: liveness properties and safety 
+properties. Liveness properties describe those states of 
+affairs that an agent must bring about, given certain 
+environmental conditions. In contrast, safety properties 
+are invariants. An acceptable state of affairs is 
+maintained across all states of execution. The atomic 
+components of a liveness expression are either activities 
+or protocols. An activity is somewhat like a method in 
+object-oriented terms, or a procedure in a PASCAL-like 
+language. It corresponds to a unit of action that the agent 
+may perform, which does not involve interaction with 
+any other agent. Protocols, on the other hand, are 
+activities that do require interaction with other agents. 
+Permissions are the “rights” associated with a role. The 
+permissions of a role thus identify the resources that are 
+available to that role in order to realize its 
+responsibilities. The activities of a role are computations 
+associated with the role that may be carried out by the 
+agent without interacting with other agents. Protocols 
+define the way that it can interact with other roles. The 
+roles model identifies the key roles in the system.  A role 
+will have associated with it certain permissions, relating 
+to the type and the amount of resources that can be 
+exploited when carrying out the role [12]. 
+In the system of petroleum information services, the 
+component of data manipulation includes relatively 
+independent two tasks, one for data file management and 
+another for database manipulation. This component is 
+broken down into two roles. The other components and 
+roles are one-to-one correspondence. So the role model 
+comprises five roles, namely, Information Input (II), 
+Data Query (DQ), Information Gathering (IG), Data File 
+Management (DFM), and Database Manipulation 
+Proceedings of the Ninth Asia-Pacific Software Engineering Conference (APSEC’02) 
+0-7695-1850-8/02 $17.00 © 2002 IEEE 
+(DBM). Each role can be described in the formal mode 
+of Gaia as follow. 
+II role involves inputting information written or 
+drawn on papers into file servers or databases by means 
+of interaction with DFM role or DBM role. The protocols 
+and activities are as follows:  
+InputText, StoreDataFile, ScanImage, PreprocessImage, 
+CompressImage, DigitiseCurve, StoreDatabase. 
+Responsibilities:  
+II=(A1)*|(A2)*|(A3)* |(A4)*  
+A1=(InputText) .StoreDataFile 
+A2=(InputText) .StoreDatabase 
+A3=(A5) .(A6)*.(A7)*.(A8)*.(StoreDataFile)+ 
+A4=(A5) .(A6)*.(A7)*.(A8)*.(StoreDatabase)+ 
+A5=ScanImage 
+A6= PreprocessImage 
+A7= CompressImage 
+A8= DigitiseCurve 
+Where: ‘.’ means follow by; ‘|’ means ‘OR’; ‘x*’ 
+means x occurs 0 or more times; ‘x+’ means x occurs 1 or 
+more times; ‘x ’ means x occurs infinitely. We write 
+activity names in a sans serif font, and use a similar font, 
+underlined, for protocol names. The following 
+descriptions about roles submit to this comment. 
+DQ role involves accepting user’s query, controlling 
+to generate and deliver the system goals, and displaying 
+query results, which may be displayed in text or graph. 
+The protocols and activities are as follows: 
+InputQuery, AnalyzeTask, GenerateGoals, DeliverGoal, 
+GetResults, Displayresults. 
+Responsibilities:  
+DQ=(B2)* |(B3)* 
+B1=(InputQuery) .AnalyzeTask.GenerateGoals 
+B2=(B1)+.DeliverGoal 
+B3=(GetResults) . (Displayresults)+ 
+IG role involves getting the two kinds of information 
+retrieval expressions (one for Web browsing, another for 
+information filtering (IF)) by analyzing user’s query 
+statement based on retrieval basic expression library, 
+browsing the relevant documents by employing search 
+engines with Web browsing expressions, and filtering 
+documents got from browsing phase with IF expressions 
+based on the category expression libraries. The protocols 
+and activities are as follows: 
+ReceiveStatement, SendResults, AnalyzeExpressions, 
+FilterDocuments, BrowseDocunments, GetDocuments. 
+Responsibilities:  
+IG=(C2)* |(C3)* 
+C1=(ReceiveStatement) .AnalyzeExpressions 
+C2=C1.BrowseDocunments 
+C3=(GetDocuments) .(FilterDocuments)+.SendResults 
+DFM role involves creating, reading, updating, or 
+deleting data files that are stored in file servers. This role 
+can manage more than one file servers. The addresses 
+and applications of all file servers for the system are 
+stored in this role. The protocols and activities are as 
+follows: 
+ReceiveOperation, AnalyzeStates, SaveFile, Readfile, 
+SendResults. 
+Responsibilities:  
+DFM=(D2)* |(D3)* 
+D1=(ReceiveOperation) .AnalyzeStates 
+D2=D1.Savefiles 
+D3=D1.(Readfile) .SendResults 
+DBM role involves operating databases. Although 
+this role manages all operations for every database used 
+by the system, each database must be of its own agent 
+instance. An agent instance is like a middleware between 
+the specialized database and other agents, which want to 
+operate that database. The protocols and activities are as 
+follows: 
+ReceiveOperation, AnalyzeStates, SaveData, Readdata, 
+SendResults. 
+Responsibilities:  
+DBM=(E2)* |(E3)* 
+E1=(ReceiveOperation) .AnalyzeStates 
+E2=E1.SaveData 
+E3=E1.(ReadData) .SendResults 
+ 
+3.2. Structure of the role model 
+ 
+There are inevitably dependencies and relationships 
+between the five roles in the system of petroleum 
+information services. Indeed, such interplay is central to 
+the way in which the system functions. The relationships 
+between the roles are shown in Figure 1. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+The dependencies and relationships between the roles 
+are presented in the interaction model (I Model). ‘I 
+Model’ consists of a set of protocol definitions, one for 
+each type of inter-role interaction. Here a protocol can be 
+DHDRs 
+Ws 
+DFs 
+DBs 
+Figure 1. Structure of the role model  
+Non-Agent 
+Systems 
+S1 
+S2 
+Sm 
+  …   
+IG 
+Role 
+DBM 
+Role 
+I Model  DFM 
+Role 
+DQ 
+Role 
+II 
+Role 
+Proceedings of the Ninth Asia-Pacific Software Engineering Conference (APSEC’02) 
+0-7695-1850-8/02 $17.00 © 2002 IEEE 
+viewed as an institutionalized pattern of interaction. That 
+is, a pattern of interaction that has been formally defined 
+and abstracted away from any particular sequence of 
+execution steps. Viewing interactions in this way means 
+that attention is focused on the essential nature and 
+purpose of the interaction, rather than on the precise 
+ordering of particular message exchanges. A protocol 
+definition consists of initiator (the role responsible for 
+starting the interaction), responder (the role with which 
+the initiator interacts), inputs, outputs, and processing. In 
+II role, StoreDataFile and StoreDatabase interact with 
+DFM role and DBM role respectively through ‘I Model’, 
+but InputText and ScanImage interact with user. The 
+protocols with user consist of the interfaces and 
+constraints to use the system. In DQ role, DeliverGoal, 
+GetResults, and Displayresults interact with IG, DFM, 
+and DBM roles respectively through ‘I Model’. In IG, 
+DFM, and DBM roles, the protocols and activities with 
+underlines interact with II role or DQ role respectively 
+through ‘I Model’. 
+This structure does not affect non-agent systems (S1-
+Sm) to operate their data resources. Those systems may 
+operate databases (DBs), data files (DFs), or websites 
+(Ws), which comprise the distributed heterogeneous data 
+resource (DHDR) environment. 
+ 
+4. Framework of the agent types 
+ 
+The Gaia design process involves generating three 
+models, namely, agent model, service model, and 
+acquaintance model. The agent model identifies the 
+agent types that will make up the system, and the agent 
+instances that will be instantiated from these types. The 
+service model identifies the main services that are 
+required to realize the agent’s role. Finally, the 
+acquaintance model documents the lines of 
+communication between the different agents [12]. 
+According to the analysis about the system of petroleum 
+information services in Section 3, four agent types are 
+suitable for expressing the five roles. They are 
+information input (II) agent type, data query (DQ) agent 
+type, information filtering (IF) agent type, and 
+information manipulation (IM) agent type as shown in 
+Figure 2. In this framework, we break information 
+gathering (IG) role down into two parts for convenience 
+to implement the role. One part is separated as an 
+independent type, namely, IF agent type, which 
+centralizes on information filtering based on categorizing 
+knowledge. Another part combines with DFM role and 
+DBM role to form a new agent type, namely, IM agent 
+type, which wraps the distributed heterogeneous data 
+resources as an agent-based platform. From the OAA 
+viewpoint [8], IM agent type and DHDRs comprise 
+facilitator agent. The facilitator is a specialized server 
+agent that is responsible for coordinating agent 
+communications and cooperative problem solving. In our 
+system, the facilitator is used to provide a global data 
+manipulation for its client agents, which allows them to 
+adopt a blackboard style of interaction [8]. The 
+interactions between the agent types follow the rules 
+defined in acquaintance model. Acquaintance model 
+includes all communication function of StoreDataFile, 
+StoreDatabase, DeliverGoal, GetResults, Displayresults, 
+ReceiveStatement, BrowseDocunments, GetDocuments, 
+SendResults, ReceiveOperation, SaveFile, Readfile, 
+SaveData, and Readdata. We design a database agent 
+communication language (DBACL, see Section 5.7 for 
+detail) for implementation of this model. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+There are three agent instances, namely, browsing 
+agent, data file management agent, and middleware 
+agent, in IM agent type. Browsing agent deals with 
+getting the relevant documents from websites according 
+to the browsing expressions by calling search engines. 
+Some information of search engines, such as, their 
+addresses, calling modes, is stored in this agent instance. 
+Data file management agent deals with manipulation of 
+data files stored in file servers with diversiform formats. 
+Middleware agent deals with operating the database. 
+Each of II agent type and DQ agent type is a one-to-one 
+correspondence between roles and agent types. So far 
+each of those two agent types only includes one agent 
+instance. 
+ 
+5. Architecture of the agent instances 
+ 
+As described in Section 4, the system of petroleum 
+information services consists of six agents, namely, 
+information input (II) agent, data query (DQ) agent, 
+information filtering (IF) agent, browsing (BW) agent, 
+data file management (DFM) agent, and middleware 
+Figure 2. Architecture of the agent types 
+DHDRs 
+Ws 
+DFs 
+DBs 
+ 
+ 
+ 
+IM 
+ 
+Agent 
+ 
+Type 
+IF 
+Agent 
+Type 
+DQ 
+Agent 
+Type 
+II 
+Agent 
+Type 
+Acquaintance 
+Model 
+Users
+Proceedings of the Ninth Asia-Pacific Software Engineering Conference (APSEC’02) 
+0-7695-1850-8/02 $17.00 © 2002 IEEE 
+(MW) agent. The relationships of the agent instances are 
+shown in Figure 3.  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+In this section, we present the architectures of those 
+agent instances, respectively. At last, we design the 
+communication protocols, namely, DBACL, between 
+agents based on database operations and give some 
+examples to show how to use DBACL. 
+ 
+5.1. Architecture of the II agent 
+ 
+The II agent consists of Interface Module, Scanning 
+Module, Preprocessing Module, Compressing Module, 
+Digitizing Module, Knowledge For Digitizing Module, 
+DBACL Module, and Control (C) Module. The 
+architecture is shown in Figure 4.  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Because II agent must interact with users, for 
+example, inputting text or data by keyboard, scanning 
+image into computer by scanner, controlling to execute 
+specialized function, or displaying states of the agent, 
+Interface Module deals with interaction between users 
+and the agent to achieve above tasks. Some data drawn 
+on drawing papers with diversiform curves may be 
+scanned into computer as image files (TIFF format). 
+Scanning Module completes the scan task and saves the 
+results as temple image files to temporary file hard disk 
+(TF). Some images may need to be preprocessed for 
+forming a standard image pattern before compressing 
+and digitizing. Preprocessing Module completes above 
+preprocessing task. Compressing Module compresses 
+standard image pattern files to data files, which will be 
+stored forever in hard disks. At the same time, a large 
+amount of hard disk space is saved. Digitizing Module 
+digitizes the compressed image files, which include 
+skeleton type of curves and implicate some data in those 
+curves (Here, skeleton type of curve means that the shape 
+of the curve is only preferred, but the width of the curve 
+is not important). Because some kinds of curves are 
+ambiguous in digitizing process, digitizing knowledge is 
+required in order to getting accurate data. Knowledge for 
+Digitizing Module stores and manages those kinds of 
+knowledge. DBACL Module deals with the interactions 
+with DFM agent and MW agent. Control Module, which 
+is the control center of the II agent, makes other modules 
+work in order. 
+ 
+5.2. Architecture of the DQ agent 
+ 
+The DQ agent consists of Interface Module 
+(INTERFACE), Information Gathering Query (IGQ) 
+Module, Preprocessing Module, Data Query (DQ) 
+Module, Curves Review Module, DBACL Module, and 
+Control Module. The architecture is shown in Figure 5.  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Because DQ agent must interact with users, for 
+example, querying text or data displayed in characters, 
+querying regenerated images that include data curves, 
+controlling to execute specific function, or displaying 
+states of the agent, Interface Module deals with 
+interaction between users and the agent to achieve above 
+tasks. When users want to gather specialized information 
+by means of this agent, they must input query statement 
+with natural language first, and then save the statement 
+into hard disk as a temporary file (TF). When the agent 
+gets relevant documents, those documents must be shown 
+Figure 4. Architecture of the II agent 
+TF
+DBACL 
+Module 
+I 
+N 
+T 
+E 
+R 
+F 
+A 
+C 
+E 
+ 
+C Module 
+Scanning 
+Module 
+Digitizing 
+Module 
+Compressing 
+Module 
+Knowledge for Digitizing 
+Preprocess 
+Module 
+Figure 5. Architecture of the DQ agent 
+TF
+DBACL 
+Module 
+I 
+N 
+T 
+E 
+R 
+F 
+A 
+C 
+E 
+ 
+C Module 
+IGQ 
+Module 
+DQ 
+Module 
+Preprocessing 
+Module 
+Curves Review Module 
+DHDRs 
+Ws 
+DFs 
+DB 
+Figure 3.  Relationships of the agents 
+ 
+IF 
+Agent 
+ 
+DQ 
+Agent 
+II 
+Agent 
+DBACL 
+Users 
+BW 
+Agent 
+DFM 
+Agent 
+MW 
+Agent 
+Proceedings of the Ninth Asia-Pacific Software Engineering Conference (APSEC’02) 
+0-7695-1850-8/02 $17.00 © 2002 IEEE 
+to users. IGQ Module completes all above tasks. If the 
+users’ query statement is not in standard format, the 
+statement must be revised automatically before it is 
+transferred to IF agent. This task is completed by 
+Preprocessing Module. DQ Module deals with showing 
+data queried from data file servers or database to users. 
+The data can be displayed in text mode or image mode. If 
+users want to display data in image mode, the data, 
+which are from database or data files, need to be 
+processed before they are displayed. Curves Review 
+Module completes this task. DBACL Module deals with 
+the interactions with IF agent, BW agent, DFM agent 
+and MW agent.  
+ 
+5.3. Architecture of the IF agent 
+ 
+The information-filtering agent consists of DBACL 
+Module, Preprocessing Module, Training Module, 
+Filtering Module, Control Module, Common Word (CW) 
+Library, Basic Expression (BE) Library, Relevant 
+Expression (RE) Library, and Non-relevant Expression 
+(NE) Library. The architecture is shown in Figure 6.  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Because information filtering agent must interact 
+with browsing agent for retrieving relevant documents 
+with browsing keywords or expressions, DBACL Module 
+transmits the keywords or expressions to BW agent. 
+Expression here consists of some sequential words with 
+logic operators. At the same time, IF agent can get 
+enough documents from BW agent. We call those 
+documents as rough documents because many non-
+relevant documents may be included. DBACL Module 
+deals with the interactions with DQ agent and BW agent. 
+Preprocessing Module completes two tasks. The first task 
+is to deal with training documents stored in temporary 
+file hard disk (TF). Training documents, which are 
+categorized, are analyzed one by one. The goal is to draw 
+out the key relevant expressions and non-relevant 
+expressions based on basic expression library (BE 
+Library) and common word library (CW Library). The 
+basic expression library manages all expressions or 
+keywords the agent uses. The common word library 
+stores the words that cannot be used as keyword or 
+expression, such as, ‘the’, ‘is’, ‘that’, ‘I’, and so on. The 
+second task is to deal with user’s query statements stored 
+in temporary file hard disk (TF) for filtering documents. 
+User’s query statement, which is described in natural 
+language, is analyzed. The goal is to draw out the key 
+relevant expressions and non-relevant expressions based 
+on relevant expression library (RE Library) and non-
+relevant expression library (NE Library). The results of 
+this module are stored in TF. 
+Training Module trains relevant expression library 
+and non-relevant expression library. We applied the 
+vector model for information retrieval, which based on 
+clustering techniques [14] to train the expression weights 
+in RE Library or NE Library. For determining the weight 
+of each relevant expression, calculate two factors, that is, 
+intra-clustering similarity and inter-clustering 
+dissimilarity. Term frequency (tf) is used for intra-
+clustering similarity and inverse document frequency 
+(idf) is used for inter-clustering dissimilarity. Each word 
+weight is given by: 
+          Wi,j=tfi,j * idfi,j 
+Where i indicates the expression and j indicates the 
+category. 
+                     RDNj 
+tfi,j = (1/RDNj IUHTk,i,j / totalfreqk,j) 
+                      
+k=1 
+idfi,j = log(NRDNj / ni,j) / log(NRDNj) 
+Where RDNj is the total number of all relevant 
+documents of category j; freqk,i,j is the frequency of 
+expression i appeared in relevant document k of category 
+j; totalfreqk,j is the total frequency of all expressions 
+appeared in relevant document k of category j; NRDNj is 
+the total number of all non-relevant documents of 
+category j; ni,j is the frequency of expression i appeared in 
+all non-relevant documents of category j. 
+Filtering Module filters the rough documents, which 
+are from BW agent, based on query expressions, relevant 
+expression library and non-relevant expression library. 
+ 
+5.4. Architecture of the BW agent 
+ 
+The browsing (BW) agent consists of information 
+retrieval (IR) Module, DBACL Module, Control Module, 
+and search engine library. IR Module deals with 
+interaction between search engines and the agent for 
+getting enough rough documents from websites. The 
+search engines and their locations are listed in search 
+engine library. The task of IR module is to get the rough 
+documents by means of calling search engines with 
+Figure 6. Architecture of the IF agent 
+TF
+DBACL 
+Module CW Library C Module 
+Preprocess Module 
+Filtering Module 
+BE Library 
+RE Library 
+Training Module 
+NE Library 
+Proceedings of the Ninth Asia-Pacific Software Engineering Conference (APSEC’02) 
+0-7695-1850-8/02 $17.00 © 2002 IEEE 
+browsing keywords or expressions. DBACL Module 
+deals with the interactions with IF agent or DQ agent.  
+ 
+5.5. Architecture of the DFM agent 
+ 
+The DFM agent consists of file manipulation (FM) 
+Module, DBACL Module, Control Module, and file 
+server address library. FM Module deals with file 
+manipulations that other agents want this agent to do. 
+The file manipulations include creating, reading, 
+updating, or deleting a file. The data file server and their 
+addresses are listed in file server address library. DBACL 
+Module deals with the interactions with II agent or DQ 
+agent.  
+ 
+5.6. Architecture of the middleware agent 
+ 
+The middleware agent consists of Socket Module, 
+DBACL Checking Module, Task Executing Module, 
+Database Operating Module, Output Result Generation 
+Module, Knowledge For Database Operation Module, 
+and Control Module. The architecture of the agent is 
+shown in Figure 7. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  
+The Socket Module deals with the communication 
+with other agents. This part is the lower layer of DBACL 
+and makes the DBACL formats satisfy Socket and vice 
+versa. DBACL Checking Module deals with parsing of 
+DBACL statement according to the rules and database 
+information stored in the module of Knowledge For 
+Database Operation Module through Control Module. If 
+the DBACL statement is valid, it is transmitted to Task 
+Executing Module, otherwise transmitted to Output 
+Result Generation Module to generate an error message 
+as response. Task Executing Module decompounds the 
+DBACL statements as the SQL statements to operate 
+database through Database Operation Module. On the 
+other hand, this module organizes the results from 
+database and transmits them to Output Result Generation 
+Module. All function of this module abides by the 
+knowledge stored in Knowledge For Database Operation 
+Module. Database Operating Module is the interface to 
+operate the database. Output Result Generation Module 
+forms DBACL statements based on the rules stored in 
+Knowledge For Database Operation Module. The inputs 
+of the module are from DBACL Checking Module or 
+Task Executing Module and the outputs are DBACL 
+statements with the results accessed database or with 
+responses. Knowledge For Database Operation Module 
+manages and stores the DBACL rules and database 
+operating information.  
+ 
+5.7. Protocols between the agents 
+ 
+For communication between agents, protocol and 
+language must be proposed. There are two methods to 
+design communication protocol. The first one is that the 
+transmitted data do not include any additional message 
+to explain the meaning of valid data. The meaning of 
+transmitted data is explained by both sending and 
+receiving agents. The transmitting rate is higher in this 
+method, but the flexibility is lower. The second one is 
+that the transmitted data, called packet, include 
+necessary additional message to explain the meaning of 
+valid data. Sending agent must pack the valid data with 
+some additional message before transmitting them. 
+Receiving agent must unpack the packet and get the 
+valid data and their meaning according to the additional 
+message. The flexibility of this method is higher, but the 
+throughput of the networks is heavier. We design the 
+DBACL by combining above two methods. Because the 
+operations for the databases are certain, the statement  
+(or called item) types can be confirmed according to the 
+task to be completed. Those statements can be 
+understood by both sides of agents. Because the 
+parameter of each statement may assign different types of 
+value, the required data type of parameter is indicated by 
+the additional message for flexibility of the protocol. The 
+format of protocol body (DBACL program) is as 
+following: 
+&$ITEM1:PARAMETER1_VALUE$$ITEM2: 
+PARAETER2_VALUE$……@ 
+Where ‘&’ is the beginning mark of protocol body; 
+‘@’ is the end mark of protocol body; ‘$’ is the 
+beginning and end marks of an item (statement). Each 
+item includes three parts: parameter, its value and 
+separator ‘:’. The statements defined in DBACL, their 
+meanings and their comments are shown as following: 
+(1) TP: Request type. 1, query data; 2, update data; 
+3, delete data; 4, input data; 5, create table. 
+(2) TY: Query type. 1, query curve data; 2, query 
+others. 
+Figure 7.  Architecture of the middleware agent 
+DB 
+Non 
+Agent 
+ 
+S 
+O 
+C 
+K 
+E 
+T 
+ 
+Control Module 
+DBACL 
+Checking 
+Module 
+Output 
+Result 
+Generation 
+DB 
+Operate 
+Module 
+Knowledge for DB operation 
+Task 
+Execute 
+Middleware Agent 
+Proceedings of the Ninth Asia-Pacific Software Engineering Conference (APSEC’02) 
+0-7695-1850-8/02 $17.00 © 2002 IEEE 
+(3) TNM: Table name. String, if more than one 
+name, separated by comma. 
+(4) ZNM: Field name. String, if more than one field 
+name, separated by comma. 
+(5) FITP: Data type. N, integer; F, float; C, 
+character; D, date; L, Boolean; M, memo. 
+(6) FWID: Width of field. Point out the width of a 
+field and the location of radix point. 
+(7) FDOT: Location of radix point. When convert a 
+float number to string, point out the location of 
+radix point. 
+(8) COND: Query condition. If more than one 
+condition, can use AND, OR, etc. operators. 
+(9) WNM: Blueprint name. When query a blueprint, 
+use this name. 
+(10) CNM: Curve name. When query a curve of a 
+blueprint, use this name. 
+(11) SDEPTH: Start point. Y-coordinate starting 
+value of the curve. 
+(12) EDEPTH: End point. Y-coordinate end value of 
+the curve. 
+(13) PORT: Socket port. Port of machine for 
+communication. 
+(14) ADR: IP address. 12 decimal digits. 
+(15) USR: Logon user name. String. 
+(16) PASS: Logon password. String. 
+(17) DUSER: Database logon user name. String. 
+(18) DPASS: Database logon password. String. 
+(19) PATH: User work directory. A string of valid 
+path. 
+(20) FNAME: File name. A string consists of path 
+and file name. 
+(21) RESULT: Success or not. 1, success; 2, failure. 
+The following are some examples to operate the 
+database by DBACL. 
+Example 1: Query curve data.  
+&$TP:1$$TY:1$$WNM:blueprint name$$CNM: curve 
+name1,curve name2,…$$SDETPH:star point$$EDEPTH 
+: end point$@ 
+Example 2: Query non-curve data. 
+&$TP:1$$TY:2$$WNM:table name$@ 
+Example 3: Update data. 
+&$TP:2$$TNM:table name $$ZNM:fied name1;filed 
+name2;… $$FITP: field type1;fieldt ype2;…$$FWID: 
+field width1,radix point;field type2,radix point;…$$ 
+FNAME: data file name$$COND:condition of 
+operator$@ 
+Example 4: Delete data. 
+&$TP:3$$TNM:table name$$COND:condition of 
+peration$@ 
+Example 5: Insert data. 
+&$TP:4$$TNM:table name$$ZNM:field name1;field 
+name2;…$$FITP:field type1;field type2;…$$FWID:field 
+width1,radix point;field type2,radix oint;…$$FNAME: 
+data file name$$COND:confition of operation$@ 
+Example 6: Create new table. 
+&$TP:5$$DUSER:logon user name of database$$ 
+DPASS:logon password of database$$TNM:table name 
+$$ZNM:field name1;field name2;… $$FITP:fied type1; 
+field type2;…$$FWID:field width1,radix point; field 
+width2,radix point;…$@ 
+ 
+6. Case study and results 
+ 
+The framework and its implementation described in 
+this paper have been applied in an industrial project----
+An agent-based curve-digitizing approach to well-
+logging data manipulation [6]. The blueprint with well-
+logging curves is scanned as an image file (TIFF format) 
+by scanner. The image file is preprocessing as the 
+standard pattern file and then compressed to 
+characteristic data files, which are saved to data file 
+servers by data file management agent. The curves 
+implied in those data files can be digitized to curve data. 
+Transmit curve data to middleware agent by means of 
+DBACL to store the data to Oracle database. A 
+redrawing agent can access curve data or other 
+information in Oracle database or data file servers by 
+means of middleware agent or data file management 
+agent and redraw the blueprint again. The agents worked 
+well by processing test with thousands of blueprints. The 
+Figure 8 shows part of one of the redrawing results of 
+well-logging data from Oracle database. The Figure 9 
+shows the result to query the digitized well-logging data 
+from Oracle database. The second column indicates the 
+different depths of a well and third to ninth columns are 
+the values of seven curves related to the well.  
+ 
+ 
+ 
+ 
+Figure 8. The redrawing result of curve data 
+Proceedings of the Ninth Asia-Pacific Software Engineering Conference (APSEC’02) 
+0-7695-1850-8/02 $17.00 © 2002 IEEE 
+  
+ 
+ 
+A prototype of the information retrieval and filtering 
+system is implemented using C and Socket technique. 
+We concentrate on the preprocessing of natural language 
+statements and information filtering. We are interesting 
+in locating some information about ‘what information is 
+available on petroleum exploration in the South Atlantic’ 
+that is stored on 4 websites, which contain more than 
+500 documents on various aspects of petroleum as an 
+experiment. Certainly, the system has been trained by 
+categorized petroleum information before the query. The 
+result is that 307 documents are retrieved and 29 articles 
+are got after filtering, but one out of 29 articles was non-
+relevant. The precision and recall rate of the filtering 
+algorithm are about 97% and 9%, respectively. However, 
+the results very depend on the training documents and 
+the articles on websites. 
+ 
+7. Conclusions 
+ 
+The system shows that agents well satisfy distributed 
+heterogeneous data resource manipulation; furthermore, 
+the architecture of agent-based framework can be used as 
+a basis for the agent systems, which need to operate a 
+large quantity of information. The main contributions in 
+this paper are as follows. 
+•  A specialized framework, which satisfies both 
+multi-agent and distributed heterogeneous data 
+resource environment, is built. 
+• Agent-oriented analysis and design methodology, 
+which is based on Gaia and OAA, is proposed and 
+applied in petroleum information service system. 
+•  The architectures of six agents is developed and 
+implemented.  
+•  A database-oriented agent communication 
+language (DBACL), which is suitable for both the 
+databases and agents, is designed. 
+ 
+8. References 
+ 
+[1] M. Chen, Q. Zhu and Z. Chen, An integrated interactive 
+environment for knowledge discovery from heterogeneous data 
+resources, Information and Software Technology, 43(8), 2001, 
+pp. 487-496. 
+[2] M.A. Covington, Speech acts, electronic commerce, and 
+KQML, Decision Support Systems, 22 (3), 1998, pp.  203-211. 
+[3] Ferber, J., Multi-agent systems: an introduction to 
+distributed artificial intelligence, Addison-Wesley, London, 
+1999. 
+[4] N.R. Jennings, On agent-based software engineering, 
+Artificial Intelligence, 117(2), 2000, pp. 277-296. 
+[5] R. Khosla and T. Dillon, Engineering intelligent hybrid 
+multi-agent systems, Kluwer Academic Publishers, USA, 1997. 
+[6] C. Li, M. Wang and L. Yang, An agent-based system for 
+well-logging data manipulation on Intranet, Daqing Petroleum 
+Institute Journal, 26(1), 2002, pp. 54-56. 
+[7] S. Lipperts and A.S. Park, An agent-based middleware -- a 
+solution for terminal and user mobility, Computer Networks, 
+31(19), 1999, pp. 2053-2062. 
+[8] D.L. Martin, A.J. Cheyer, and D.B. Moran, The open agent 
+architecture: a framework for building distributed software 
+systems, Applied Artificial Intelligence, 13(1-2), 1999, pp. 91-
+128. 
+[9] S. Papastavrou, G. Samaras and E. Pitoura, Mobile agents 
+for World Wide Web distributed database access, IEEE 
+Transactions on Knowledge and Data Engineering, 12 (5), 
+2000, pp. 802-820. 
+[10] N.G. Shaw, A. Mian and S.B. Yadav, A comprehensive 
+agent-based architecture for intelligent information retrieval in 
+a distributed heterogeneous environment, Decision Support 
+Systems, 32(4), 2002, pp. 401-415. 
+[11] L.B. Sheremetov and A.V. Smirnov, Component 
+integration framework for manufacturing systems re-
+engineering: agent and object approach, Robotics and 
+Autonomous Systems, 27 (1-2), 1999, pp. 77-89. 
+[12] M. Wooldridge, N.R. Jennings, and D. Kinny, A 
+methodology for agent-oriented analysis and design, In 
+Proceedings of the Third International Conference on 
+Autonomous Agents (Agents 99), Seattle, WA, May 1999, pp. 
+69-76. 
+[13] D. Xu, G. Zheng and X. Fan, A logic based language for 
+networked agents, Information and Software Technology, 
+40(8), 1998, pp. 435-442. 
+[14] Yates, R.B., and B.R. Neto, Modern Information 
+Retrieval, Addison Wesley, New York, 1999. 
+[15] Zhang, Z., An Agent-based hybrid framework for decision 
+making on complex problems, Ph. D. Thesis, Deakin 
+University, Australia, 2001. 
+ 
+Figure 9. The digitized data of curves  
+Proceedings of the Ninth Asia-Pacific Software Engineering Conference (APSEC’02) 
+0-7695-1850-8/02 $17.00 © 2002 IEEE 

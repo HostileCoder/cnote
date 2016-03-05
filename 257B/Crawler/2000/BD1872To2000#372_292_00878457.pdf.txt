@@ -1,0 +1,625 @@
+A Survey of Parallel Program Performance Evaluation Techniques 
+using Visualization and Virtual Reality* 
+Kenneth L. Summers 
+The University of New Mexico 
+Department of Computer Science 
+and the 
+Albuquerque High Performance Computing Center 
+1601 Central NE 
+Albuquerque, New Mexico 87 13 1 
+summers @ahpcc.unm.edu 
+(505) 277-8249 
+John Greenfield 
+The University of New Mexico 
+Department of Electrical and Computer Engineering 
+and the 
+Albuquerque High Performance Computing Center 
+1601 Central NE 
+Albuquerque, New Mexico 87 13 1 
+green@ ahpcc.unm.edu 
+(505) 277-8249 
+Brian T. Smith 
+The University of New Mexico 
+Department of Computer Science 
+and the 
+Albuquerque High Performance Computing Center 
+1601 Central NE 
+Albuquerque, New Mexico 87131 
+bsmith 0 ahpcc.unm.edu 
+(505) 277-8249 
+Abstract - Performance tuning parallel programs is a chal- 
+lenging, often frustrating, endeavor. Many tools exist to as- 
+sist in this area, most using text and 2D visualization to try 
+and explain what is happening in an executing program. This 
+paper summarizes several commonly used techniques for vi- 
+sualizing running parallel programs, with examples. These 
+tools are an excellent resource, but still suffer from scalability 
+limitations. The second part of this paper presents a proposed 
+method for interacting with these types of visualizations in a 
+virtual environment. 
+TABLE OF CONTENTS 
+1. INTRODUCTION 
+2. SURVEY OF CURRENT PERFORMANCE 
+VISUALIZATION TECHNIQUES 
+3. IMPROVEMENTS 
+4. CONCLUSIONS 
+1. INTRODUCTION 
+Program performance tuning is an age old problem. The pro- 
+cess is fairly straightforward in a serial program: ascertain 
+where the program spends most of its time or, more subtly, 
+where the most time can be saved, and streamline it. Parallel 
+programs, however, complicate this picture. Multiple execu- 
+tion paths, often on completely independent processors, in- 
+duce complicated interactions between the processes that are 
+indeterminant due to processes executing on completely dif- 
+ferent hardware and competition for shared resources. 
+The solution to these problems that many groups have come 
+up with is to attempt to visualize these program interactions. 
+Because of the large number of interactions and the large 
+number of different types of interaction in a typical paral- 
+lel program, many different types of visualization tools have 
+been developed. Many of these have to do with the debugging 
+of parallel code. This paper will not discuss those. For more 
+information on debugging tools, reference [ 11. 
+This paper will concentrate on a survey of performance pro- 
+gram visualization tools for parallel programs, followed by a 
+summary of a proposed virtual reality (VR) system designed 
+to provide these services while overcoming some shortcom- 
+ings in current tools. Tool functionalities have been divided 
+up into categories: Communication graphs, statistical process 
+summaries, topology diagrams, statistical communications 
+summaries, and call trees. Examples of tools that demon- 
+strate each category are discussed, and the strong as well as 
+weak points of the implementations are discussed. 
+Section 2 is a survey of the tools, while Section 3 presents the 
+proposed VR environment. Section 4 contains conclusions 
+and future research. 
+*O-7803-5846-5/CQ/$10.00 @ 2000 EEE 
+457 
+2. SURVEY OF CURRENT PERFORMANCE 
+VISUALIZATION TECHNIQUES 
+There are many techniques for visualizing parallel program 
+performance. This paper focuses on a few important and pop- 
+ular types of visualization views. Other taxonomies of visu- 
+alization exist and a more thorough one is referenced in the 
+book The Grid [2]. Of the several existing program visual- 
+ization packages, this paper uses AIMS [3], and VAMPIR [4] 
+as sources of illustrative examples. AIMS, Automated Instru- 
+mentation and Monitoring System, a suite of tools developed 
+at the NASA Ames Research Center under the sponsorship of 
+the High Performance Computing and Communication Pro- 
+gram. supports analysis of performance of FORTRAN and 
+C message-passing programs written using the NX, PVM, 
+or MPI communication libraries. All views in this paper of 
+the AIMS system were taken from the AIMS users guide [3]. 
+VAMPIR, a commercial performance analysis tool from Pal- 
+las, supports message-passing programs written using MPI. 
+All views in this paper of the VAMPIR system were taken 
+from an overview of VAMPIR on the web [4]. These two 
+packages were chosen because they provided convenient il- 
+lustrative examples of the visualization views to be discussed. 
+While this paper discusses and gives examples of individual 
+views from these tools in the following sections, it should be 
+noted that both of these tools are capable of displaying more 
+than one view at the same time, as shown in Figure 1. 
+Parallel program performance visualization allows identifi- 
+cation of problems with process and communication perfor- 
+mance, and algorithm structure and implementation. In gen- 
+eral the value of performance visualization tools is to allow 
+the programmer to easily compare the actual execution pat- 
+terns of a program with the pattern that the programmer ex- 
+pected. 
+This paper divides the tools into classes according to the type 
+of data being viewed. The five categories are communication 
+graphs, statistical process summaries, topology diagrams, sta- 
+tistical communications summaries, and call trees. 
+Communication Graphs 
+A Communication Graph is a Strip or Gantt chart, which 
+shows execution status as a bar with time on one axis and 
+processes on the other, with communication represented by 
+lines between processes, often with starting and ending times 
+indicated. The state of each process at any given time is typ- 
+ically indicated using colors. Usually, it is possible to zoom 
+in and out on the time axis. Figure 2 shows an example of a 
+communication graph from VAMPIR, and Figure 3 shows an 
+example from AIMS. 
+The communication graph provides a visual model of both 
+communication and process state, which conveys information 
+about processing, communication and their interaction in a 
+single view. The exact relationship between process state and 
+communications is clearly visible. The exact relationship be- 
+45 8 
+Identified I.:essaqc 
+Inngh r4se.e 
+sermt+.t$33 396 ms, 
+DalaraC :48! n*B . . . .. ... . .. . ..... 
+Figure 1 Full VAMPIR screen showing multiple pro- 
+gram views. 
+tween transmit and receive times (Le., communication delay) 
+is clearly visible. Communication bottlenecks are also easily 
+visible. 
+These graphs are arguably one of the most useful diagnostic 
+tools currently available. They are intended to allow the pro- 
+grammer to see, on a large scale, how the program is behaving 
+overall. Zooming allows detail down to the individual mes- 
+sage level. Slow or hung processes, large knots of commu- 
+nication, and large communication delays are quite evident 
+with this type of display. These types of graph excel at com- 
+paring all of the processes and communications in a program, 
+making anomalous behavior stand out. 
+, 
+Communication graphs do not scale well to large numbers of 
+processes, or effectively show large amounts of communica- 
+tion in a short time period. Too much detail in too small an 
+area causes confusion and unreadability. While it is possible 
+VAMI'IIt ... ..... ....- 
+........... ? .  . I. -. . 
+.. &---:  ....... =---; ............ ,--___ * 
+.......... ................... . 
+. . . . . . . . . . . . . . . . . . . . . .  . .  
+v,;-:.. ...! .;-- 
+p "  . . . a _  
+i 
+Figure 2 VAMPIR communication graph. 
+OverVIEW 
+copernicus-e (16) 
+sigma(15) --B 
+-tmng(14) Y, 
+bacon (13) 
+freya (12) 1 
+dennett (11) 
+zaphod(10) \ 
+petri (9) 
+elmnd (8) 
+markov(7) ' 
+SP- (6) 
+kronos-ether (5) 
+faraday (4) 
+ptolemy-ethe (3) 
+surya (2) 
+tatertot (1) 
+tatertot (0) 
+281747.5728 TIME (msec) 280747.5728 
+Figure 3 AIMS communication graph. 
+to zoom in on the time axis to improve readability, the same 
+solution does not usually exist for the process axis. Zooming 
+on the process axis is prevented by the problem that com- 
+munication arcs between 'processes can extend over all the 
+processes in the graph. 
+The communication graph needs the ability to reduce the clut- 
+ter when communications are dense. Also, the ability to ex- 
+amine in detail small areas of the chart without losing sight 
+of the larger picture would be a great improvement. 
+Statistical Process Sumniaries 
+The Statistical Process Summary is usually a pie chart, bar 
+chart, or histogram, showing the percentage of time spent by 
+each process on various tasks or in various calls. Figure 4 
+shows an example of a Statistical Process Summary from 
+VAMPIR. 
+It is a statistical summary, so it gives indications of overall 
+performance in a clear, concise, and easily understood way. 
+Two frequent uses of this type of display are to identify a pro- 
+1 mcesso mcess I mcess 2 RDcess 3 
+6.2s 6.2s 6.2s 
+J 1 *cess4 Rocass5 m c e s s 6  mcess7 
+Figure 4 VAMPIR statistical process summary. 
+cesses that varies significantly from the others and to identify 
+an activity common to all processes to which too much time is 
+devoted. The former can be an indication of poor load balanc- 
+ing, while the latter is indicative of problems in the algorithm 
+design (too much time spent communicating, for instance). 
+As a statistical summary, this view cannot locate isolated or 
+transient problems. It forces the user to map from the layout 
+on the screen (e.g., a grid of pies or a row of bars) to the 
+program topology. Typically no communication is shown. 
+Displaying an A to B time sweep indication to allow bet- 
+ter isolation of localized phenomenon would make this view 
+more useful. 
+Topology Diagrams 
+Topology diagrams are usually represented by a ring or grid 
+of processes. They are similar to communication graphs in 
+that they show execution status and communications between 
+processes, but, unlike communication graphs, they only show 
+one instant in time with no history. Figure 5 shows one exam- 
+ple of a Topology diagram from AIMS, and Figure 6 shows 
+another. 
+The topology diagram shows at a glance the current state of 
+the processes and gives a good animation of the overall pro- 
+gram execution. It is primarily useful for offline diagnosis of 
+program performance, where the programmer can time step 
+through a recorded run and see the exact state of the program 
+at any given time. 
+This view provides no history; it only shows the current sit- 
+uation. Topology of the processes usually cannot be rear- 
+ranged, thus requiring the user to map from a ring or grid 
+to the actual program topology. Information is presented at 
+a fixed abstraction level. There is limited scalability because 
+large numbers of processes or heavy communication makes 
+the view too crowded. 
+459 
+Figure 6 AIMS network topology diagram. 
+. . -  ..... 
+Figure 5 AIMS ring topology diagram. 
+It would be useful to be able to rearrange the nodes into dif- 
+ferent topologies. The ability to vary the abstraction level 
+to provide more or less detail as required would increase the 
+usefulness of this view. 
+Statistical Communication Summaries 
+The statistical communication summaries are typically a grid 
+of N x N processes, with a number (typically in bytes, bits, 
+kilobytes, etc.) representing the amount of communication 
+between any two processes at their intersection in the matrix. 
+They are typically directional with communication from the 
+processes on one axis, and to the processes on the other. Fig- 
+ure 7 shows an example of a statistical communication sum- 
+mary from VAMPIR. In this example the number of bytes 
+passed between each process is printed at the intersection of 
+the sender row and the receiver column. Additionally, the 
+value is color coded to allow the user to rapidly scan the ma- 
+trix for values of interest. Figure 8 shows a message length 
+statistics view from VAMPIR, which is not a grid of pro- 
+cesses, but shows a statistical summary of the number of 
+packets of any given size. 
+These views allow thorough analysis of communication per- 
+formance, providing easy detection of overly high or stray 
+communications. They are most useful for detecting overly 
+high communications traffic between individual processes 
+and for getting a feel for the amount and type (size) of com- 
+munications going on. 
+As a statistical summary, these views provide no ability to 
+identify transient or cyclical problems. Since no process state 
+is shown, this view gives no ability to detect process prob- 
+460 
+Figure 7 VAMPIR statistical communications sum- 
+mary. 
+lems, or interactions between processes and communications. 
+This view is typically text based so that it requires mental 
+visualization of the problem topology and then mapping the 
+numbers onto that topology (a double translation ... numbers 
+to “amounts” to processes in relation to one another in the 
+problem space). 
+The communication summary could be improved by making 
+it a more graphical representation reducing the reliance on 
+numbers, and by generating a representation that more closely 
+mirrors the program model. 
+Call Trees 
+A call tree is a tree diagram showing the calls made by a pro- 
+gram at the object, subroutine, and even loop and conditional 
+level. All calls made by a unit are represented as its children, 
+while its parent is the unit that called it. Figure 9 shows an 
+example of a call tree from AIMS. 
+I 1 0 500 1000 1500 2000 2500 3000 3500 4OOO 
+d 
+Figure 8 VAMPIR message length summary 
+I . .  
+I ....... vyI, ............. . . . . .  
+CUI [om.. initsco.?I ...... .-... 
+............ ........... . Call (w?-nhi i t tJ  ., I ...... 
+I, !I,,+:*-- - . -...._ I . $ ~ ~  [rJrl ............ ~ ...... 
+.. 
+. r .  
+.,'I 
+: . ,  . .  
+- CRen?!'VM ... Rvcv :;!wit .r --. j Stllrflllltl j ." ' . .  
+'..... 0 . 1  (~vnl..upr;nl( I '  
+i .... 
+; nlfimtttlie ( ~ ~ : : ~ ~ h / :  - - - I  u u ~  [Furl ...................... I . o . ~ ,  [ far;  ............... , !  
+, C ~ l l   pm ini?rriid; 
+I 
+9'; , 
+! 
+..................... ......... .................. ' , ,  I. - ............. I 
+Figure 9 AIMS call tree 
+This view allows low level tracing of a program at a higher 
+level than a parallel debugger, cutting out annoying and dis- 
+tracting details. It would mostly be used for algorithm debug- 
+ging and analysis, checking to see if the program is perform- 
+ing in the manner the programmer expected. 
+Typically this view shows a limited amount about the paral- 
+lelism of the code or about the interaction between parallel 
+processes. Communication is not easily identified, and time 
+dependent information is largely hidden. 
+3. IMPROVEMENTS 
+So far several general types of parallel program visualiza- 
+tion techniques have been discussed, along with some of their 
+shortcomings. This section reviews these difficulties and sug- 
+gests methods for overcoming them. 
+Summary of Dificulties 
+The previous sections reviewed two of the popular perfor- 
+mance toolkits for parallel programs. These tools allow the 
+user to see various aspects of an executing program. In some 
+cases the tool shows the information as text, and sometimes 
+as a visualization representing the parallel process. The fol- 
+lowing subsections will summarize the types of shortcomings 
+noted in previous sections and a description of a possible vir- 
+tual reality (VR) system to overcome these difficulties. 
+Scalability - In all of the examples given in the previous sec- 
+tion scalability has been an issue. Some, such as call trees, 
+handle this complexity fairly well by allowing the user to 
+scroll the available data, keeping the level of abstraction fixed. 
+By offering the user a small number of different abstraction 
+levels the tool can cover the available data set (in this case 
+the call tree) completely. Even so, the entire call tree is never 
+visible, so the user must memorize the non-visible portions of 
+the graph. Other types of diagnostic tools are severely limited 
+by scalability. 
+Communication graphs can become crowded very quickly 
+when heavy communication loads are experienced, a com- 
+mon occurrence in parallel programs. Statistical summaries 
+are process based and become too large to handle when the 
+number of processes becomes large. Topological diagrams 
+such as these suffer from overcrowding on the screen. A com- 
+puter screen can only hold so many processes at a time and 
+must resort to either scrolling or zooming. When scrolling is 
+used the entire process structure is not visible, while zooming 
+reduces detail, possibly to the detriment of the information 
+being conveyed. 
+Historical Detail - Statistical summaries and topological di- 
+agrams suffer from historical detail difficulties. Statistical 
+summaries such as communication and process summaries 
+are historical representations. That is, they represent the sum 
+total, average, or some other statistical value of the property 
+being measured from a specified time in the past, often the be- 
+ginning of monitoring. This behavior tends to mask transient 
+conditions that may effect program performance. 
+Other representations such as topological state diagrams, 
+meanwhile, suffer from exactly the opposite problem. They 
+represent the state of the system at one moment in time. They 
+contain no historic information and therefore are only useful 
+for ascertaining the current state of the system. 
+Topological translation - When writing programs, program- 
+mers create mental models of the problem solution. The pro- 
+grammer must then translate these models into code. There is 
+not a one-to-one relationship between a programmers mental 
+model and a code to solve the problem. In fact a many-to- 
+many relationship exists between mental models and code: 
+for any given task there are multiple ways to code a solution, 
+and multiple mental models can be derived solely from look- 
+ing at the code. Furthermore mental models can change as 
+the programmer thinks about different aspects of a problem. 
+It is, therefore, a large simplification to fix the visual model 
+used by a tool. The mental models of the programmer may 
+be radically different from that presented by the tool. Even 
+worse, program visualization tools are almost exclusively 2D 
+in nature. A human, however, is accustomed to dealing with 
+objects in 3D, and his mental models may well reflect that. 
+Dealing with a fixed, two dimensional representation of pro- 
+gram data forces the programmer to translate the data from 
+the representation given to his mental model and back again. 
+46 1 
+The tool should be flexible enough to allow the programmer 
+to arrange the displayed elements (e.g., processes) any way he 
+wishes, in any number of dimensions. Virtual reality systems 
+are a promising method of achieving this. 
+Virtual Reality Representations 
+Human senses are used to dealing with three dimensions. But 
+program dimensionalities tend to be much higher than three. 
+Even using implicit dimensions such as color and texture only 
+extends the number of representable dimensions. What we 
+really want is to have a method of visualization that will allow 
+us to represent any number of dimensions of data. 
+Dirnensioriality iii virtual environinents - A person im- 
+mersed in a virtual environment would be making maximal 
+use of the very senses he uses everyday in the real world. 
+These senses include three visual dimensions, three aural di- 
+mensions, touch, and even smell [5 ] .  The three visual di- 
+mensions are the ones we would expect: height, width, and 
+depth. Audio is also three dimensional because the human 
+ear is capable of disceming the direction from which a sound 
+originates. In addition to the three obvious dimensions pro- 
+vided by both vision and hearing, there are many more dimen- 
+sions that can be encoded within those three. For example 
+the color or brightness of an object can indicate other dimen- 
+sions, as can the pitch or volume of a sound. This allows for a 
+very large number of discernible dimensions in both domains. 
+Touch, likewise, has three spatial dimensions with additional 
+dimensions provided by other properties such as texture and 
+temperature. Following is a discussion of how these three di- 
+mensional representations can be used to address some of the 
+problems encountered earlier. 
+Topological arrangewent - A VR environment allows the 
+programmer to rearrange the data representation to more 
+closely align with his mental model of how the program 
+should work. For instance, when the program being studied is 
+a code that uses processes in a square grid pattem, a topolog- 
+ical state diagram can be organized so that the processes are 
+represented as a square grid, with communications being rep- 
+resented as arrows stretching between those processes in the 
+remaining dimension (See Figure 10). This allows patterns to 
+be seen that would otherwise be difficult to associate with the 
+problem. Note that in this example the (pastel colored) row 
+communications are easily visible. 
+Scalability in VR - In and of itself VR opens up a large num- 
+ber of new representations for diagnostic data. But it only 
+moves the barrier back the displays are still not scalable. The 
+dimensionality of programs will vary from domain to domain 
+and individual program to individual program. Furthermore, 
+the program itself will vary the number of dimensions used 
+dynamically as it is executed. This implies that our visualiza- 
+tion method must not only be able to represent multiple di- 
+mensions, but it must be scalable. What is needed is the Holy 
+Grail of information visualization: any number of dimensions 
+462 
+available for display. While VR is probably not capable of 
+displaying an infinite number of dimensions simultaneously, 
+it certainly should be capable of greatly increasing the num- 
+ber of dimensions that can be simultaneously communicated 
+to the user. 
+A Proposed Approach 
+To solve scalability and level of detail problems a method 
+is required to allow the user to smoothly access all levels 
+of detail and as many program dimensionalities as possible. 
+Research is being conducted at the University of New Mex- 
+ico Albuquerque High Performance Computing Center (AH- 
+PCC) [6,7,8] into using the idea of proximity to trigger shifts 
+in levels of abstraction, or detail. Since proximity only has 
+meaning in a system where “near” and “far” also have mean- 
+ing, a three dimensional environment is ideal. In a two di- 
+mensional environment, proximity is difficult to implement, 
+as near and far are harder to define (nearer to or farther from 
+what?). 
+The approach being followed is proximity triggering of con- 
+tinuous semantic zooming. Semantic zooming [9] is a method 
+of using the semantics of the problem (program structure in 
+this case) to traverse a hierarchical tree of abstraction levels. 
+At the highest level a summary of information over a wide 
+area is provided. As finer and finer levels of detailed are ex- 
+posed, less and less of the total problem space can be seen. 
+Continuous semantic zooming adds the idea that the “big pic- 
+ture” should not be lost while examining details. So, for in- 
+stance, while examining one part of the program structure in 
+detail, the user could still turn his head and see the next layer 
+of detail up for all other sections of the program. 
+As an example of this consider the square grid of processors 
+with overhead arrows mentioned earlier. These arrows can be 
+quite confusing when there are a large number of them. In 
+Figure 10 the AllGather operation (the white arrows) tends 
+to cause communication arrows that obscure other commu- 
+nications occurring simultaneously. When a message is sent 
+between two processes, an arrow is drawn between the cubes 
+representing those processes. The tail of the arrow obscures 
+any following messages until it disappears. To ameliorate this 
+situation we can apply proximity triggered continuous seman- 
+tic zooming. From a distance the arrows exist between any 
+two processors that have ever communicated. As the user 
+draws closer to an individual arrow tail, it fades to a translu- 
+cent state, allowing the user to see “packets” representing any 
+messages that may be passing between the two processes. 
+Drawing even closer other information might be displayed 
+about each packet, such as it’s length, content, etc. It is im- 
+portant to note that while this arrow is receiving a focused 
+scrutiny, all of the other arrows in the system are still visible 
+with a simple, mostly unconscious head turn. This allows the 
+user to focus on the area of interest without losing sight of the 
+remainder of the displayed data. 
+Figure 10 Visualization of parallel program communication in a virtual environment. 
+This method could be extended to solve the historical de- 
+tail problem as well. One could assign color codings to the 
+arrows, with “warmer” colors for high traffic arrows, and 
+“cooler” colors for lower traffic arrows, and leaving the ar- 
+rows forever once established. This allows a historic view 
+of the communications data. Once again, as the user moves 
+closer instantaneous data is available by looking “into” the 
+arrows and seeing packets as they are transmitted. In this 
+way, both historical and momentary data is available simulta- 
+neously, in the same view. 
+Using the extra dimensionality available in a virtual environ- 
+ment, problems with scalability and multidimensionality can 
+be addressed and better represented without resorting to mul- 
+tiple, mutually exclusive views and windows. This, coupled 
+with a virtual environment’s natural feel for the human used 
+to manipulating a 3D world, makes VR an outstanding envi- 
+ronment to represent parallel program performance data. 
+4. CONCLUSIONS 
+This paper has presented a survey of parallel program perfor- 
+mance analysis techniques along with examples of tools that 
+use these techniques. The two biggest problems with the im- 
+plementation of these techniques are scalability and historical 
+detail. A common problem with most representations of data 
+is that the techniques fail to communicate effectively when 
+the amount of data becomes large enough to overwhelm the 
+display media. As a remedy to these problems an argument 
+was made how a virtual environment could solve, or at least 
+go a long way toward solving, the scalability problem. Using 
+the three dimensions of the virtual environment (VE) allows 
+the use of proximity as a trigger to allow indefinite scalabil- 
+ity. This indefinite scalability, when combined with the more 
+traditional performance analysis techniques, provides the pro- 
+grammer with a larger tool in his tool box. 
+Future research in this area includes implementing the ideas 
+presented here for a VE system. The incorporation of stan- 
+dard data views, probably in a highly modified form, will be 
+required. Human factors testing will also be necessary to as- 
+sure that the resulting tools are easily usable and do not incur 
+problems associated with the VE that detract from the useful- 
+ness of the new data visualizations. 
+463 
+ACKNOWLEDGEMENTS 
+Many thanks to Tom Caudell of the UNM EECE Depart- 
+ment, the principal author of the virtual environment who 
+contributed greatly to the ideas in VR presented here. 
+REFERENCES 
+Shirley Browne, Jack Dongarra, and Kevin London. Re- 
+view of performance analysis tools for mpi parallel pro- 
+grams. accepted in the NHSE Review, to appear 
+http://www.cs.utk.edul brownelperftools-review. 
+Ian Foster and Carl Kesselman, editors. The Grid: 
+Blueprint .for a New Computing Inj?astructure, chapter 
+15: Performance Analysis and Visualization. Morgan 
+Kaufmann. San Francisco, CA, 1999. Authors: Daniel 
+Reed and Randy Ribler. 
+Aims version 3.7 user's guide. 
+http://www.nas.nasa.gov/Groups/Tools/Projects/AIMS/ 
+manuaUTableTest.html, 1999. 
+Vampir 2.0 - visualization and analysis of mpi programs. 
+http://www.pallas.de/pages/vampir.htm, 1999. 
+Huong Q. Dinh, Neff Walker, and Larry E Hodges. Eval- 
+uating the importance of multi-sensory input on mem- 
+ory and the sense of presence in virtual environments. 
+In Larry Rosenblum, Peter Astheimer, and Detlef Teich- 
+mann, editors, Proceedings of Virtual Reality '99 Con- 
+ference, pages 222-228, Los Alamitos, CA, March 1999. 
+IEEE Computer Society. 
+Thomas P. Caudell. A virtual environment interface to 
+complex autonomous perceptual systems. International 
+Journal of Virtual Reality, 1(1):9-22, 1995. 
+Thomas P. Caudell, Han Lin, and Doug Warner. Virtual 
+reality system to enhance comprehension and validation 
+of complex high performance software systems. In Pro- 
+ceedings of the First Conference on High Integrity Sofr- 
+ware, pages 10-18, Albuquerque, NM, October 1997. 
+Homunculus project home page- 
+http://www.ahpcc.unm.edu/homunculus, 1999. 
+Jeyakumar Muthukumarasamy and John T. Stasko. Vi- 
+sualizing program executions on large data sets using 
+semantic zooming. Technical Report GIT-GVU-95-02, 
+Georgia Institute of Technology, January 1995. 
+Ken Suntmers is a Research Assistant 
+at the University of New Mexico's Al- 
+buquerque High Pei$ormance Comput- 
+ing Centei: He is working on a P1i.D. in 
+Coinputer Science at UNM in the area 
+of parallel program visualization. Past 
+research has included building, testing. 
+arid profiling L i n u  clusters, applica- 
+tion of visual prograrnmirig environments to parallel pro- 
+grams, and scientific visiralication. Be fiveen stints at IBM and 
+a sniall defense contractor Ken has approximately 10 years of 
+industry experience in hardware and sofware design. He has 
+a BSEEfiom New Mexico State University arid a MSCS from 
+the University of New Mexico. 
+John Greenfield is a Research Scieii- 
+tist at the University of New Mexico's 
+Albuquerque High Peiformance Com- 
+puting Centei: He is working on re- 
+search in distributed collaborative en- 
+vironments, and program visualization. 
+Past work included programming meth- 
+ods for clusters of shared memory pro- 
+cessors, load balancing .for parallel programs, scheduling 
+systems for High Performance Computing, network pei$or- 
+inarice of parallel computers, high pei$onnance computer 
+system maintenance and design, and models of domain de- 
+composition of Finite Element Method modeling codes. He 
+has a BSEE and an MSEE from the University of New Mex- 
+ico. 
+Brian Smith is the Interim Director 
+of the Albuquerque High Pe$ormance 
+Computing Center (AHPCC) and a 
+Professor of Coinputer Science at 
+the University of New Mexico. He is 
+a member of the Fortran Standards 
+Technical Committee, a member of the 
+IFIP Working Group on Numerical 
+Software 2.5, a past member of the Cray Advisory Board for 
+Fortran, a past Chairman of the UNM Computer Science 
+Department, and a past Assistant Dean of the College 
+of Engineering. Brian has over 30 years experience in 
+numerical sofmare and mathematical libraries and was one 
+of the original developers of EISPACK and a participant in 
+the NATS Project (National Activity to Test Sofmare). He is 
+a co-developer of AURA, an automated reasoning assistant 
+from Argonrae National Laboratory. He has a BS in Applied 
+Mathematics, and an MS and a Ph.D. in Computer Science, 
+all from the University of Toronto. 
+464 

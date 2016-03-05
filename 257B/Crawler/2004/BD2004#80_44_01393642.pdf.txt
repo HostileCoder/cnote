@@ -1,0 +1,436 @@
+FRames-Ensured-Delivery Algorithm for 
+Smoothing and Multiplexing Prerecorded Videos 
+Yaakov A. Bembaron 
+Department of Electrical and Computer Engineering 
+Ben-Gurion University of the Negev 
+Beer-Sheva ,84105 Israel 
+bembaron@bgumail.bgu.ac.il 
+Absfrocf Video-on-Demand (VoD) Servers normally stnre 
+MPEG compressed versions of prerecorded videos in order to 
+reduce their network bandwidth demands. Compressed videos 
+have variable-bit-rate (VBR) for a specific compression quality. 
+Transmission of videos on the network at a peak rate results in 
+poor bandwidth utilization, while transmission at a lower rate 
+results in quality-of-service (QoS) degradation. Implementation 
+of a traffic smoothing on the VBR stream, using a buffer at the 
+client receiver, is a widely known approach to overcome the rate 
+variability problem. This paper presents a novel smoothing and 
+multiplexing protocol for prerecorded videos that c o n ~ t r ~ c h  a 
+FRames-Ensured-Delivery (FRED) and constant-bit-rate (CBR) 
+transmission plan. The protocol achieves perfect QoS, and also 
+provides ideal bandwidth utilization without any frame loss. 
+According to the proposed protocol, the server rate Eau be 
+changed to explore its affect on the startup latency and the 
+client's buffer size requirements. Simulation results are provided. 
+We compare FRED protocol to a published work called Join-the- 
+Shortest-Queue (JSQ). FRED protocol overcomes JSQ protocol 
+io places where there is a lack of bandwidth or where the 
+statistical multiplexing gain is not big enough. 
+Index Terms - Video-on-Demand, FRames-Ensured- 
+Delivery, prerecorded video, Join-the-Shortest-Queue, Variable- 
+Bit-Rate, bandwidth utilization, statistical multiplexing, Quality- 
+of-Service, traffic smoothing, multiplexed video, Constant-Bit- 
+Rate 
+I. IN7aODUCTION 
+igital networks technology has made rapid strides over 
+applicable for most ADSL or CABLE internet 
+subscribers. The commercial market is full with digital video 
+applications such as E-leam, VoD libraries, Near-VoD 
+libraries and more. Video servers normally store MPEG 
+compressed versions of prerecorded videos in order to reduce 
+their storage and network bandwidth demands. Compressed 
+videos have variable-bit-rate (VBR) characteristic for a 
+specific compression quality. Transmission of videos on the 
+network at peak rate results in poor bandwidth utilization, 
+while transmission at a lower rate results in frame losses and 
+Quality-of-Service (QoS) degradation. A widely known 
+approach to solve this problem is to implement a traffic 
+smoothing algorithm using a buffer to reduce server rate 
+variability. 
+Many smoothing methods have been proposed for a single 
+video [1]-[10]. All of these methods optimize one parameter 
+a ~ ~ o ~ - z 6 z s ~ ~ o ~ ~ ~ ~ o . o o  o zw IEEE 39 
+D. the last few years. Nowadays, digital videos services are 
+Ofer Hadar 
+Department of Communication Systems Engineering 
+Ben-Gurion University of the Negev 
+Beer-Sbeva , 84105 Israel 
+hadar@bgumail.bgu.ac.il 
+or more for an individual video. However, in the case of 
+several multiplexed streams, these methods result a sub- 
+optimal transmission plan because they are not intended for 
+smoothing a multiplexed stream and disregard statistical 
+multiplexing gain in their algorithm. Numerous smoothing 
+protocols for multiplexed videos have been proposed in the 
+literature [ I  1]-[17]. While these protocols enjoy the benefits 
+of statistical multiplexing gain, they do not provide a lossless 
+rate smoothing and a Constant-Bit-Rate (CBR) transmission 
+plan at the same time, therefore they do not utilize the server 
+bandwidth and also preserve the QoS. 
+This paper presents a novel smoothing and multiplexing 
+protocol for prerecorded videos, which constsucts FRames- 
+Ensured-Delivery (FRED) and Constant-Bit-Rate (CBR) 
+transmission plan. The proposed FRED protocol achieves 
+perfect QoS without any frame loss and also provides ideal 
+bandwidth utilization using a smoothed CBR transmission 
+plan. The tradeoffs for this perfect plan are larger client's 
+buffer size requirements and larger startup latency for initial 
+prefetching. FRED protocol uses a-priori information about 
+future frames sues, and thus succeeds in allocating the entire 
+server bandwidth among its clients, so each client has enough 
+data to present its frames on time. The proposed protocol 
+promises a full use of server bandwidth, by using the rest of 
+the bandwidth for prefetching. The prefetching policy 
+objective is to equalize the prefetched data among all clients, 
+so clients buffer size requirements are as low as possible. 
+Initial prefetching is performed to avoid lack of data on the 
+clients which results in loss of frames and QoS degradation. 
+The server CBR can be adjusted as a parameter to FRED 
+protocol, changing affects the initial latency and the client 
+buffer size requirements. 
+The paper is organized as follow. Section I1 presents and 
+descrihes the pseudocode of the FRED algorithm. Section 111 
+compares the FRED protocol to previously published 
+smoothing scheme for multiplexed video stream (JSQ [I I]). 
+Section lV draws some conclusions. 
+11. FRED ALGORITHM 
+There are two phases to the FRED algorithm. During the 
+first phase the algorithm scans the videos frames from the last 
+frame to the first frame. A CBR transmission plan is 
+calculated to prevent frame losses. The only drawback at this 
+phase is that there is no limitation to the amount of buffer 
+prefetching thus in some cases, mostly at the end of a movie, 
+the buffer occupancy can exceed the remaining amount of 
+video to be transmitted. This situation implies that prefetching 
+has been done for a non-existent future video stream. This 
+extra prefetchmg causes bandwidth waste, degrading the 
+bandwidth utilization. 
+The second phase remedies this problem. To do this first, 
+let us denote the remaining amounts of video to be transmitted 
+to client j starting at time t as ACCj(t). During the second 
+phase the videos frames are scanned in chronological order. If 
+an exception is discovered (i.e. occupancy of buffer j is larger 
+than ACC,(t)), then the buffer occupancy is lowered to 
+ACCi(t). The spare bandwidth released from this action is then 
+splitted equally among the other clients. 
+These two phases use only the buffer's occupancy matrix. 
+Translating this matrix to rates is done by the following 
+operator: 
+where R,(t) is the transmission rate at time t to client j, 
+Buf,(t) is the buffer occupancy of client j at time t, and FLj(t) 
+is the sue  of the frame, to be presented on client j 's monitor at 
+timet. 
+The FRED pseudocode is divided into four sub-sections. 
+The first sub-section contains general notations. The second 
+sub-section describes the fnst phase. The third sub-section 
+describes the second phase, and the fourth sub-section 
+combines all the previous sections. 
+Notations: 
+Rj  (t) = Bufj (t + 1) - Buf, (t) + FL, (t) (1) 
+a - Rate coefficient, should be equal to 1 usually. 
+J - Number of clients. 
+. N  -Number of frames in a movie 
+FL,(t) - Sue of the h e  to he shown on clientj at 
+timet. 
+Bufj(t) -Buffer occupancy of client j at time t. 
+The amount of data to be presented on all clients monitors, 
+at time t is 
+1 
+n ( t ) =  CFL,( t )  
+j-, 
+Occupancy of all clients buffers at the beginning of time t is 
+Buf( t )=CBuf j ( t )  
+j., 
+Bandwidth allocated to client j at time t: 
+Rj(t) = Bufj(t + 1)- Buf,(t)+n,(t)  
+I 
+Phasel( FLi(t)  ,R) {building the first transmission plan} 
+{zero final buffer's occupancies] 
+[scan frames backwards] 
+Buf,(N +1) = 0 ; j=l..J 
+FOR t=N downto 1 DO 
+{Equalize buffer's occupancies} 
+- R  ;j=I..J 1 1  
+Loopl 
+Mark all clients as orefetchable. 
+S P A R E 4  {assume no extra bandwidth} 
+IF ( Rj(t)  < 0 for any j) THEN {if negative rate] 
+SPARE=SPARE+IRj(t)( {update extra bandwidth} 
+Buf,(t) = Buf,(t +I) + FL,(t) (make Rj(t) = 0 ] 
+Mark client j as Non-prefetchahle. 
+ENDIF 
+IF (SPARE>O) 
+Cnt=Numher of prefetchable clients. 
+(Give back bandwidth of prefetcbahle buffers} 
+SPARE = SPARE + 
+{if there is extra bandwidth} 
+Buf, (t + 1) - Buf, (t) 
+,:Rlfclcbmblc 
+[Spread spare bandwidth on prefetchahle buffers) 
+Bufj(t) = ; i=l..Cnt 
+j:RlmFb.b,c Cnt 
+ENDIF 
+IF [there was at least one negative Rj(t) ] THEN 
+GOT0 Loopl 
+ENDIF 
+ENDFOR t 
+[Avoid illegal negative buffer occupancies} 
+Mi = min, [Buf,(t)] ; j=I..J {find min buffer occupancies} 
+[Make Buf,(t) non-negative} 
+Buf, (t) = Buf, (t) - Mi ; j=l  ..J , t=l ..N+l 
+RETURN with Bufj(t) 
+Server total bandwidth. 
+R(t) = x R,(t) = Buf(t +I) - Buf(t) +FL(t) = R 
+Number of bits to he shown from time t to the end of 
+movie: ACC,(t) = ~ F L , ( c )  
+J 
+1 4  
+N 
+Ti, 
+END of Notations 
+40 
+PhaseZ(Bufi(t) ,ACC,(t),FL,(t)) {fixing the plan} 
+{scan frames forwards} 
+Mark all clients as prefetchable. 
+FOR + I  to N DO 
+{Look for exceptions in buffer's occupancies] 
+IF(Bufj(t)>ACCj(t) foranyj)AND 
+Loop2 
+(Client j is Prefetchable) THEN 
+SPARE=O {assume no extra bandwidth} 
+Mark client j as non-prefetchable 
+FOR ~ = t  to N DO {run till the end of movie j} 
+{Update extra bandwidth} 
+SPARE=Bufj(s)-ACCj(r) 
+Bufj(r) = ACC,(r) 
+{Spread spare bandwidth on prefetchable Buffers} 
+{fix the exception} 
+CnPNumber of prefetchable clients. 
+Buf,(r) = Buf,(r)+- ; i=l..Cnt 
+j:Prr&blble Cnt 
+ENDFOR T 
+BREAK; 
+ENDIF 
+IF (Buffer exception has been found) THEN 
+GOT0 Loop2 
+ENDIF 
+ENDFOR t 
+RETURN with Buf,(t) 
+FRED 
+Read FLj(t) from file 
+R=cr*Average [FL(t)] {calculate server bandwidth] 
+Bufj(t) =Phase]( FL,(t),R) {build fmt transmission plan] 
+ACC,(t) = 5 F L j ( r )  {for details, look notations] 
+Buf,(t) =Phase2( Buf,(t), ACC,(t) ,FL,(t)) {fix the plan] 
+{Convert Buffer's occupancies to rates} 
+R,(t) = Bufj(t + I )  -Buf,(t)+ FL,(t) 
+DISPLAY FL, (t), Rj (t), Buf, (t) 
+r=, 
+{Show Results} 
+STOP 
+In. PERFORMANCES COMPARISON 
+In this section we compare the FRED protocol to a similar 
+protocol known as JSQ. The following parameters are 
+compared: loss probability, buffer size requirements, startup 
+latency and processing time. 
+The JSQ protocol assumes a given bandwidth (i.e. R) and 
+@ies to utilize it. The algorithm calculates which one of the 
+client buffers is the emptiest and then sends a frame to that 
+client. JSQ repeats this procedure until there is no more 
+bandwidth to send the desired frame. This routine repeats it 
+self for each time frame. An extension of JSQ policy succeeds 
+to utilize further the server bandwidth, using the fact that 
+although the client with the emptiest buffer can't get more 
+frames, there is still available bandwidth that can be used for 
+other clients. This extension does not prevent the frames from 
+spreading when it has no more bandwidth for 
+delivering a frame to the emptiest buffer, but it does try to 
+deliver a frame to the second emptiest buffer, and so on, until 
+its remaining bandwidth is so low it can't deliver any frames to 
+the clients. In the simulations presented in this section the 
+extended version of JSQ has been used because it gives better 
+smoothing results and was simulated in the original paper. 
+The simulations were written in C, and evaluated on a 
+MATLAB workplace for convenience. The simulations ran 
+on an Intel Pentiwn 4HT, 2600 MHz computer with 256 MB 
+memory. We investigated the influence of server bandwidth 
+and statistical multiplexing gain on two protocols: FRED and 
+JSQ. The statistical multiplexing gain was raised by adding 
+different MPEG-1 movies [I81 to the multiplexed stream 
+@resented on x axis). First, the FRED algorithm was tested, 
+without restricting the client's buffer's size. The FRED 
+algorithm has built a transmission plan, and returned the 
+minimal client's buffers sue it needed for lossless 
+transmission plan. Then JSQ algorithm was tested using the 
+same server bandwidth's used in FRED algorithm and using 
+the buffer sues delivered by FRED algorithm. Whenever JSQ 
+did not use its entire buffer space, the minimal client buffer 
+requirement has been lowered. The results of these 
+simulations are presented in the following sections. 
+Figure I .  Comparison of Loss Probabilities of FRED and JSQ algorithms. 
+As can be seen in Figure 1, the FRED protocol always 
+achieves perfect QoS, no matter what the server rate is, owing 
+to its lossless transmission plan. Nominal bandwidth rate is 
+calculated by averaging the rates of all the videos. The 
+numbers appearing to the right of the JSQ legend describe the 
+setver bandwidth used for the simulation. For example, JSQ 
+0.8 used bandwidth of O.S*(nominal bandwidth). It can be 
+seen from the figure that JSQ reaches low losses only when 
+there is enough statistical gain (i.e. more than seven 
+multiplexed videos) and only when the s m e r  bandwidth is 
+high enough (i.e. close to the nominal bandwidth or higher). 
+41 
+2 4 . 6 8 10 12 1. 16 18 
+Numh,oIYid.ol 
+Figure 2. Campanson of pmccssing time ofFRED and JSQ algorithms. 
+Figure 2 depicts the processing time of the two protocols as 
+a function of the statistical multiplexing gain, achieved by 
+multiplexing a growing number of videos. It can be seen that 
+the FRED processing time is always lower than the JSQ 
+processing time. FRED algorithm is completed within 1.5 
+seconds for multiplexing up to 19 videos. Figure 2 indicates 
+that the complexity of FRED is lower than that of JSQ. FRED 
+algorithm deals with J clients at once, while JSQ algorithm 
+deals with each frame separately. JSQ suits better for real-time 
+decisions, because it does not need to calculate the whole 
+transmission plan to start sending the videos. JSQ need to 
+calculate only part of the transmission plan which enables the 
+clients to display the movie until a specific time. The FRED 
+algorithm lacks this advantage because it has to finish the first 
+phase before it starts processing the second phase. The FRED 
+algorithm can he optimized to reduce the processing time by 
+&g the second phase processing time faster than the 
+frames rate. Thus the only processing time of relevance is that 
+of the first phase. 
+Figure 3. CampanSon of clients buffer size of FRED and ISQ algorithms. 
+Figure 3, shows that JSQ requires lower buffer sues. We 
+have already seen in Figure 1, that JSQ has high loss 
+probability for the case of less than seven multiplexed videos. 
+This can also he observed in Figure 3. JSQ doesn't smooth 
+very well for less than seven multiplexed videos, therefore it 
+doesn't need a large buffer. When exceeding seven 
+multiplexed videos the statistical multiplexing gain is 
+increased and JSQ reaches low loss probability. Clients' buffer 
+sizes of FRED and JSQ are almost the same with some 
+advantage to the JSQ algorithm. It can he seen that the 
+maximum buffer size requirement of the FRED algorithm 
+occurs for a single video streaming. In this case the clients 
+should have at leave 8MB buffer for lossless receiving. This 
+size of buffer is reasonable for the available technology. 
+Figure 3 indicated the statistical multiplexing gain trend. The 
+linearly descending FRED graph implies that the gain is raised 
+linearly as the number of videos raises (up to 7 videos). The 
+stabilization of FRED graph, which starts from 7 multiplexed 
+videos, implies that the gain reached saturation. 
+Figure 4. Compfson of starmp latency of FRED and JSQ algorithm. 
+Figure 4 shows that JSQ does not have startup latency at all. 
+This implies that JSQ suits interactive applications. The FRED 
+algorithm does have startup latency. This latency is less than 
+12 sec for nominal bandwidth and for up to 19 multiplexed 
+videos. FRED startup latency depends on the server 
+bandwidth. Larger server bandwidth should decrease the 
+startup latency (i.e. FRED 1.2 gives only 2 sec latency for the 
+worst case). Lower bandwidth increases the latency. For 
+example, FRED 0.8 has 400 seconds latency for any number 
+of multiplexed videos up to nineteen. 
+N. CONCLUSIONS 
+A novel lossless smoothing method, called FRED has been 
+presented. FRED can smooth individual video, hut it allows 
+also smoothing multiplexed videos. Smoothing multiplexed 
+streams is more convenient to the network because each video 
+stream statistically smoothes the others. The FRED algorithm 
+can conshuct a perfect lossless smoothing plan. The costs for 
+this lossless CBR Uansmission plan are larger startup latency 
+which prevents future losses and minimal client's buffer size 
+requirements, which are tolerable for most applications. 
+The FRED algorithm is superior to the JSQ when the 
+42 
+statistical gain is low or when the server bandwidth is lower 
+than the nominal bandwidth (which is the average bit rate of 
+all the multiplexed videos). In other situations, FRED gives 
+similar results to JSQ. An additional advantage of the 
+proposed algorithm is lower complexity. On the other hand, 
+JSQ has no stamp latency, while FRED has latency of several 
+seconds, which is especially a disadvantage for interactive 
+applications. Future work will try to decrease the startup 
+latency of FRED protocol, so it can be adjusted to interactive 
+applications. 
+The FRED algorithm is very flexible as it guarantees a 
+lossless CBR transmission plan for any server bandwidth. 
+Applications that are indifferent to startup latency should 
+adapt the FRED algorithm as a preferred smoothing algorithm. 
+Achowledgment 
+The authors would like to thank Dr. Oliver Rose from the 
+Department of Distributed Systems, Wuerzburg University for 
+the video streams database. This research was suDDoaed by 
+the Israeli Ministrv of Science, Grant No. 2105. 
+REFERENCES 
+[I] W. Feag and I. Rexford, “Performance evaluation of smoothing 
+algorithms for ” i t t i n g  prerecorded variable-bit-rate video.” IEEE 
+Tram. an Multimedia, pp. 302-313, September 1999. 
+[Z] W. Feng and 1. Rexfotd, “A eompaisoo of bandwidth smoothing 
+techniques for the traosmission of prerecorded wmpressed video,” Roc. 
+IEEE INFOCOM, pp. 58-66, A p d  1997. 
+W. Feng, “Rate-constrained bandwidth smwthig for the delivery of 
+stored video,” Roc. IS&TlSPE Multimedia Networking and 
+Computing, pp. 316-327, February 1997. 
+[4] I. Salehi, Z. Zhang, J. Kurose, and D. Towsley. “Suppatting stared 
+video: reducing rate vuiabiliry and end-wend resome requirements 
+through optimal smoothing,” 1996 ACM Sigmeuics Conference, 
+Philadephia, PA, May 1996. 
+S.  Sen, J. Dey. I. Kumse, I. Stankovic, and D. Towsley, “CBR 
+transmission of VBR stored video,” SPlE Symposium on Voice Video 
+and Data Cmuoications: Multimedia Nmorkii: Security, Displays, 
+T-nals, Gateways, Dallas, TX, November 1997. 
+[3] 
+[5] 
+[6] S .  Lam S .  Chow, and D. Yau. “A losslai smoothing algorithm for 
+compressed video,” IEEFJACM Transactions on Networking, vol. 4, no. 
+5,  October 1996. 
+S .  Lam, S .  Chow, and D. Yau, ‘‘AD algorithm for IossIess smoothing of 
+MPEG video,” Roecedings ACM SlGCOMM ‘94, London, August 
+1994. 
+W. Feng and S. Seehrest, “Smwthing and buffering for the delivery of 
+pre-recorded video,” Proceedings of ISETISPIE Multimedia Computing 
+andNetworking, pp. 234-244,1995. 
+0. Hadar and R Cohen, “PCRTT enhancement for off-line video 
+smoothing,” Special Issue on Adaptive Real Time Multimedia 
+Transmission over Packet Switching Networks in Joumal of Real Time 
+Imaging, “01.7, no. 3,pp. 301-314, June.2001. 
+[IO] 0. Hadar and R Cohen, “PCRTT enhancement for off-line video 
+moothing,” Roc. SPIE, Multimedia System and Applications, vol. 
+3528, pp. 89-100. 
+[l I] M. Reisslein and K Ross, “Join-the-Ehottest~”ueue prefetching for VBR 
+video an d e n m u  Proceedings of IEEE lntematiaoal Conference on 
+Network Rotacols (IC”), Atlanta, G& pp. 63-72, October 1997. 
+[I21 0. Hadar, A. Kazir, and R .Stone, “Refeteched multiplexing of 
+individually smoothed video streams.’’ o p t i c o m  2001, Optical 
+Networking and Communications Conference, Denver, CO, pp. 19-24, 
+August 2001. 
+[I31 S. Kang and H. Yeom, “Aggregated smwthing: considering all sue- 
+simultaneously for ” i s i o n  of vanable-bit-rate encoded video 
+objects,” Joumal of Communications and Networks, vol. 5, no. 3, pp. 
+258-265, September 2003. 
+[I41 S .  Kang and H. Yeom, “Aggregated smwtbing of VBR video stre-,” 
+Proceedings of the 14th Iotemational conference on Loformation 
+Networking (ICON-14). Hsin-Cbu, Taiwan, J a n u q  2000. 
+[ I51 J. McManus and K. Ross, “A dynamic progmnming methodology for 
+managing prerecorded VBR SOUTC~S in packet-switched networks,“ 
+Telewmmuoicatioos Systems, vol. 9, 1998. 
+[I61 0. Hadar and S .  Grcenberg, ‘Video rate smoothinp and rtatirtieal 
+multiplexing using the e-PCRTT algorithm,” SPlE Symposium on Voice 
+Video and Data Communications: Multimedia Systems and Applications 
+11, Boston. MA, September 1999. 
+[I71 Z. Zhang, J. Kumse, I. Salehi, and D. Towsley, “Smwthing, statistical 
+multiplexing and call admission EOOUOI for stored video,’’ IEEE Joumal 
+on Selected Areas in Communieatiaos, August 1997. 
+[I81 0. Rose, “Statistical properties of MPEG video m%c and their impact 
+on traffic modeling in ATM system,” University of Wuerzblrrg. 
+Institute of Computer Science Research Report Series. Report no. 101, 
+F e b m q  1995. 
+Web address and directoly ofthe used video traces: 
+h r r p : l l w w w 3 . i n f o r m a t l k . u n i - u r u e n b u r g . d e i 7 i p  
+[7] 
+[SI 
+(91 
+43 

@@ -1,0 +1,663 @@
+Enabling Onboard Spacecraft Autonomy though Goal- 
+based Architectures: an Integration of Model-based 
+Artificial Intelligence Planning with Procedural 
+Elaboration1 
+Russell Knight, Steve Chien, Robert Keller 
+Jet Propulsion Laboratory, California Institute of Technology 
+4800 Oak Grove Drive, Pasadena, CA 91 109-8099 
+email: {firstname.lastname)@jpl.nasa.gov 
+Abstracr- This paper describes the integration of a model- 
+based planner into a procedural architecture. This 
+architecture is unusual in that the internal procedures and the 
+planners inter-operate in an asynchronous fashion in a multi- 
+threaded environment via a goal-based interface. The 
+submission of goals may trigger either internal procedures or 
+planners, and both internal procedures and planners may 
+submit goals. The procedural architecture described is the 
+Mission Data System (MDS) Goal Achieving Module 
+(GAM) architecture. The planner described is the CASPER 
+(Continuous Activity Scheduling Planning Execution and 
+Replanning) system. This approach has been prototyped and 
+tested against virtual spacecraft and comet-lander operations 
+scenarios and simulations. 
+1. 
+2. 
+3. 
+4. 
+5. 
+6. 
+7. 
+8. 
+9. 
+TABLE OF CONTENTS 
+INTRODUCTION 
+OVERVIEW 
+THE GOAL ACHIEVING MODULE 
+CASPER 
+MAPPING THE INTERFACES 
+PROTOTYPICAL RESULTS 
+CONCLUSIONS 
+ACKNOWLEDGEMENTS 
+THE GOAL-BASED INTERFACE 
+1. INTRODUCTION 
+The MDS (Mission Data System) is a multi-mission 
+combined flight and ground software designed to enable 
+significant autonomy in spacecraft operations. A definition 
+of a spacecraft/scenario consists of modules that are 
+responsible for maintaining the state of the spacecraft and 
+achieving high level goals while reacting to unforeseen 
+changes onboard and in the environment. 
+CASPER (Continuous Activity Scheduling Planning 
+Execution and Replanning) is a soft real-time planning 
+system that achieves high level goals while monitoring the 
+state of the spacecraft and environment, as well. The 
+definition of a spacecraft/scenario for CASPER consists of a 
+declarative model consisting of activities, states, resources, 
+and their relationships. 
+The difference between these systems is that the modules 
+that make up a spacecraft/scenario definition in the MDS are 
+procedural-that is to say, they are (somewhat) arbitrary 
+pieces of code. The definition of a spacecraftlscenario for 
+CASPER is (mostly) declarative. Both have advantages and 
+disadvantages. Arbitrary code can be very specialized and 
+fast, but is difficult to validate and difficult to produce. 
+Validation tools exist for declarative models, and the 
+development of these models is fairly straightforward, but 
+generic algorithms for reasoning about all possible domains 
+do not yet exist (and in our opinion are not likely to any time 
+soon). We present a mapping fi-om the requirements of MDS 
+modules to the capabilities of CASPER that enables a mixed 
+mode of proceduraVdeclarative modeling while providing 
+monitoring, prediction, and validation of state. 
+2. OVERVIEW 
+We first describe the goal-based interface. This is the glue 
+that holds the MDS together. Then we describe procedural 
+units called GAMS. We follow with a description of 
+CASPER and its associated activity-executiodstate-update 
+interface. We describe a mapping to and fiom both 
+interfaces. Finally, we present results demonstrating the 
+feasibility of this approach. 
+3. THE GOAL-BASED INTERFACE 
+A key concept in the MDS is the notion of a goal. A goal is 
+a constraint on a state-variable over time. 
+A state-variable is the representation of state used to reason 
+about actual states of the spacecraft, e.g. propellant level, 
+orientation, or memory usage. A state-variable may also 
+represent an abstraction such as the number of high quality 
+pictures stored in memory. A constraint on a state-variable is 
+an expression of what values the state-variable may be and 
+still satisfy the goal, e.g. orientation must be pointing at 
+0-7803-6599-2/01/$10.00  2001 IEEE 
+1-141 
+Europa implies that, of all values for orientation possible, 
+only those where the spacecraft (or the camera) is; pointing 
+at Europa are valid. 
+oak constrain state-variables over a specified time or 
+interval. This interval is expressed as two ordered time- 
+points-a start-time and an end-time. 
+At any point in time throughout its life, a goal finds itself in 
+one of many states referred to as its status. The status 
+consists of an outcome, stability, and time. Outcome 
+describes whether the goal is achieved or failed (or 
+predicted to be achieved or failed.) Stability indicates 
+whether or not the system is performing computations that 
+might result in a change in the outcome (e.g. during 
+elaboration), and time indicates whether the goal is pending, 
+currently active, or past. 
+The interface upon which the architecture is based is quite 
+simple. State-variables receive goals and route these to a 
+dedicated module that is responsible for status updates to 
+every goal submitted to it. It is also responsible for 
+submitting new goals to ensure that the current goals under 
+its purview are achieved. These modules are Goal Achieving 
+Modules or GAMs (described more fully later.) Thus, each 
+GAM must provide the facility for accepting .submitted 
+goals. In a sense, we can see each GAM as a node connected 
+to the goal-cloud via state-variables, much as computers 
+connected to a network. Each node is neither concerned with 
+how the information is passed nor with how it was 
+generated, only that it must be fulfilled. Any GAM can 
+submit goals to the cloud, and any GAM might receive goals 
+ftom the cloud (see Figure 1). 
+GAMs State Variables 
+GoalCloud 
+goals 
+J 
+goals 
+Figure 1. The Goal Interface as a Goal Network Cloud 
+4. THE GOAL ACHIEVING MODULE 
+The basic function of the GAM is to achieve and maintain 
+constraints on state-variables over time (i.e. make goals 
+true). These constraints are received through the goal-based 
+interface as goals. Each state-variable in the system has one 
+associated GAM. A single GAM may be responsible for 
+many state variables but must be responsible for at least one 
+state variable (otherwise, it cannot receive goals.) 
+Upon receipt of a goal, a GAM must decide if this new goal 
+can be achieved. The GAM must decide on one or more of 
+the following: 
+the goal is already satisfied 
+rescind other conflicting goals to accommodate the 
+new goal 
+perform actions that will accommodate the new 
+goal (make it true) 
+sub-goal to other GAMs in hopes of 
+accommodating the new goal. 
+This decision process is known as elaboration. 'The result of 
+elaboration is a beliefthat the goal will be achieved over the 
+period specified assuming the predicted future state is within 
+tolerance of the actual hture state. 
+For example, an OIUENTATION GAM (or simply 
+OFUENTATION) may receive a request from the IMAGERY 
+GAM (or simply IMAGERY) in the form of a pointing goal. 
+(Note: since state variables act as routers for goals and do 
+not actually change them in any way, we will henceforth talk 
+about goals being received directly by GAMs with the 
+understanding that the goals are actually routed through the 
+state-variable constrained by the goal.) In general, a goal 
+describes a time-window that the goal must be true: in our 
+example:, the orientation of the spacecraft must be consistent 
+with the pointing request. ORIENTATION might be capable of 
+achieving this without further sub-goaling. But, 
+O ~ A T I O N  may decide on a course of action that includes 
+sub-goaling, such as using reaction wheels to achieve the 
+pointing goal. Reaction wheels require the use of power, so 
+a power goal would be issued to POWER, and so on, until all 
+goals can be achieved (see Figure 2). Of course, it may be 
+the case that a goal is unachievable. If so, the goal is 
+reported as such by the receiving GAM, and the issuing 
+GAM must decide on what operations make sense to achieve 
+its outstanding goals in light of this unachievable sub-goal. 
+I 
+Ensure tG you have a 
+picture of Europa by 11:OO A.M 
+Point iEuropa \ t - . from 10:OOA.M. to 10:30A.M. \ 
+\ 1 \ 
+PO-  est Goal / 
+from 10:OOAM. to 10:30AM./ 
+Figure 2. Elaboration Example 
+1-142 
+-Estimates of 
+State Value 
+Measurement 
+Estimates of 
+State Value Cmt"mds 
+. -  -I-------------- 
+Low level controllers and hardware 
+Figure 3. MDS Modules and Interfaces 
+Elaboration is only one facet of achieving goals; spacecraft 
+operations demand execution and monitoring, as well. 
+Through a system checking preconditions of the goal, the 
+lower level controllers are notified as to the state they must 
+maintain at any given time based on the time-points. 
+Therefore, execution is simply the commanding of modes to 
+lower level controllers. 
+Monitoring is the process of updating state estimates based 
+on measurements. Measurements result from a process of 
+combining appropriate information and reporting these to a 
+measurement model. It is up to the measurement model to 
+update the state appropriately. The overall relationship 
+between the modules described is represented in Figure 3. 
+Note that the interfaces are simple: State Variables receive 
+updates and provide estimated values; GAMS receive goals 
+and estimated values and provide goals and commands; 
+Measurement models receive measurements and estimated 
+values and provide state updates. 
+5 .  CASPER 
+Spacecraft operations demand a high level of responsiveness 
+in dynamic environments. To provide the required level of 
+responsiveness while including a declarative modeling 
+environment, we utilize a continuous planning approach and 
+have implemented a system called CASPER. 
+Traditionally, declarative planners provide execution 
+capabilities based on a batch formulation of the problem. In 
+the batch approach, time is divided up into a number of 
+planning horizons, each of which lasts for a significant 
+period of time (see Figure 4). When one nears the end of the 
+current horizon, one projects what the state will be at the end 
+of the execution of the current plan. The planner is invoked 
+with a new set of goals and this state as the initial state (for 
+example the Remote Agent Experiment operated in this 
+fashion pel1 et al, 19971). 
+Figure 4. Traditional Batch "Plan the Execute" Cycle. 
+This approach has a number of drawbacks. In this batch 
+oriented mode, typically planning is considered an off-line 
+process which requires considerable computational effort 
+and there is a significant delay from the time the planner is 
+invoked to the time that the planner produces a new plan2 If 
+a negative event occurs (e.g., a plan failure), the response 
+time until anew plan may be significant. During this period 
+the system being controlled must be operated appropriately 
+without planner guidance. If a positive event occurs (e.g., 
+activities finishing early), again the response time may be 
+significant. If the opportunity is short lived, the system must 
+be able to take advantage of such opportunities without a 
+new plan (because of the delay in generating a new plan). 
+Finally, because the planning process may need to be 
+initiated significantly before the end of the current planning 
+horizon, it may be difficult to project what the state will be 
+when the current plan execution is complete. lf the 
+projection is wrong the plan may have difficulty. 
+Rather than considering planning a batch process in which a 
+planner is presented with goals and an initial state, the 
+planner has a current goal set, a plan, a current state, and a 
+model of the expected future state. At any time an 
+incremental update to the goals, current state, or planning 
+* As a data point, the planner for the Remote Agent Experiment 
+@AX) flying on-board the New Millennium Deep Space One 
+mission (Muscettola et al 1997) takes approximately 4 hours to 
+produce a 3 day operations plan. RAX is running on a 25 MHz 
+RAD 6000 flight processor and uses roughly 25% of the CPU 
+processing power. While this is a significant improvement over 
+waiting for ground intervention, making the planning process even 
+more responsive (e.g., on a time scale of seconds or tens of 
+seconds) to changes in the operations context, would increase the 
+overall time for which the spacecraft has a consistent plan. 
+1-143 
+I I I I  New Activity I I I I I I Update 
+Update Update Update Update Update causes Update Update causes Update Now 
+valid plan 
+Figure 6 .  Plan Repair in Response to Updates 
+\ 
+Activity Requests I 
+,State Values 
+State Uudates 
+Measurements Commands 
+- J - - - - - - - - -- - - L -  
+Low level controllers and hardware 
+Figure 6. CASPER Module Interfaces 
+horizon (at much smaller time increments than batch 
+~lanning)~ may update the current state of the ]plan and 
+thereby invoke the planner process. This update may be an 
+unexpected event, the receipt of a new goal, or siniply time 
+progressing forward. The planner is then responsible for 
+maintaining a consistent, satisficing plan with the most 
+current information (see Figure 6). This current plan and 
+projection is the planner’s estimation as to what it expects to 
+happen in the world if things go as expected. However, since 
+things rarely go exactly as expected, the planner stands 
+ready to continually modify the plan. 
+As illustrated in Figure 6, CASPER receives state updates. 
+CASPER also executes commands based on activities 
+currently planned and scheduled. Figure 6 shows the 
+interfaces in CASPER. 
+State Determination performs a function similar to 
+measurement models in MDS in that it takes as input the 
+current estimated state(s) and outputs state updates. 
+CASPER itself receives as input activity requests, user 
+commands and state updates, and it outputs commands and 
+state values. 
+6. MAPPING THE INTERFACES 
+To map CASPER into the MDS, we must first define which 
+modules CASPER replaces and define a mapping from the 
+interfaces for these modules to the interfaces provided by 
+CASPER. Conceptually, CASPER acts as a stand in for 
+Stave Variables and GAMS. A key notion of this integration 
+is that the machinery or planning (whether performed by an 
+AI planner or by code within a GAM/State Variable) is 
+hidden from an external goal-submitting agent. The interface 
+presented is identical. The dashed box in Figure 7 delineates 
+the modules to be swapped out. This box indicates the meta- 
+module that CASPER functions as. 
+For the spacecraft control domain we envision an update rate on 
+the order of 10 seconds real time. 
+1-144 
+other 
+Measurement Estimates of 
+Model( s) State Value 
+Values Variable(s) 
+Variable Measurements Updates 
+. -  A,,------------ 
+Low level controllers and hardware 
+Figure 7. State Variable and GAM modules to be replaced by the Meta Module 
+This leads to the following simplified meta-module (see 
+Figure 8.) 
+-Estimates of A 
+State Value 
+\ 7 
+Meta Module State Updates 
+Com”ds 
+4 
+Figure 8. The Meta Module standing in for a GAM and its 
+associated State Variable 
+As illustrated in Figure 6, CASPER already provides an 
+interface for state updates, estimates of state value, and 
+commands, but lacks a clear interface with respect to goals, 
+both in terms of receiving goals and in terms of creating new 
+goals. CASPER can accept new activities, so we need to 
+provide a mapping between activities and goals. 
+An activity is similar to a goal in that it is partially defined 
+by an interval that consists of a start- and end-time. But, an 
+activity need not represent a constraint on a state at all. In 
+fact, many activities simply represent an abstraction that is 
+later “fleshed-out” in more detail according to 
+decomposition rules in the model. So, the definition of an 
+activity is less constrained in theory than that of a goal. But, 
+an activity may have constraints on shared states and 
+resources. These are roughly synonymous with state 
+variables. These constraints usually span the temporal extent 
+of the activity, and therefore are a very close match to a 
+goal. Thus, we can define special activities that represent the 
+same semantics as goals. This provides us the interface to 
+receive goals (by converting them to appropriate activities.) 
+However, we still require an interface that allows CASPER 
+to submit goals that constrain external state variables. Again, 
+we can create an activity, and upon creation of these 
+activities we can convert them to goals and submit them. 
+But, how do we keep track of the status of the activity? 
+What if the receiving GAM modifies the goal by 
+constraining the times when it can be executed? We still 
+require a communication path that informs CASPER of 
+when a sub-goal is achievable. 
+When CASPER requires an activity, it adds it to the plan 
+and schedules it. Normally, CASPER knows all about the 
+activity, so it can reason about it without external assistance. 
+Depending on the permissions of the activity, CASPER may 
+then attempt to move it or delete it or perhaps change the 
+value of one of its parameters. The model dictates control of 
+each of these operations with permissions e.g. if an activity 
+does not have “move7’ permission, then CASPER cannot 
+move it. 
+One of the myriad operations CASPER performs is 
+scheduling an activity. Scheduling an activity is the act of 
+constraining states and resources according to the model of 
+the activity. If CASPER does not have “schedule” 
+permissions for an activity, it can never satisfy the 
+constraints of the activity because it will never be allowed to 
+do so. But, if some external agent (a user, perhaps) overrides 
+the permissions and schedules the activity, then CASPER 
+can continue. This is the mechanism through which we allow 
+the submission goals to external agents. First, we detect and 
+report activities that do not have “schedule” permission to 
+an activity-to-goal translator. This translator then creates a 
+goal and submits it to the goal-cloud while monitoring the 
+goal’s status. When the status reports back that it will be 
+achieved, the unscheduled activity is scheduled by 
+overriding the permissions via the user command channel, 
+thereby closing the loop. 
+Also, CASPER must keep a skeleton model of all state 
+variables that it wishes to constrain via sub-goals submitted 
+to GAMs. Note that this is synonymous with bestowing to 
+GAMs the knowledge of how to express goals. 
+Our final architecture with the new modules that performs 
+the same functions as the meta module of Figure 8 is shown 
+in Figure 10. Note that the unscheduled activity reporter is 
+imbedded directly in CASPER due to the special knowledge 
+requirements demanded by its function. 
+- - 3- 1-145 
+I 
+State 
+Updates 
+Commands + 
+Figure 10. CASPER and supporting modules as the Meta Module 
+1. ensure a picture 
+is availab1e picture <of X / Of 
+4. reserve 
+Figure 10. Elaboration of goal in VSS 
+7. PROTOTYPICAL RESULTS 
+We have demonstrated this approach in two domains. The 
+first is the VSS (Virtual Spacecraft Scenarioca synthetic 
+domain designed to represent a simple spacecraft. The 
+second is the comet nucleus sample retum scenario 
+(CNSR)-a comet-lander drilling, testing samples, 
+observing surface features and effects, and reporting results 
+to an orbiting spacecraft. Our approach worked well in both 
+scenarios in that the CASPER meta module performed at 
+least as well as the procedural modules. 
+The Virtual Spacema# Scenario 
+The purpose behind a simple scenario is to test ideas Without 
+the overhead of high fidelity simulators. Toward this end, 
+the VSS was developed. It consists of a spacecraft with one 
+axis of control (much like a phonograph turntable, for those 
+who remember such things), a camera, solar panels mounted 
+on a gimbal with l i i t e d  motion, a power bus, and batteries. 
+An example of a high level goal that would be sent would be 
+“ensure that a picture of object X is available at 5:OO P.M.” 
+This is a constraint on the SCIENCE state variable. A 
+simplified example of elaboration of this goal would 
+proceed as shown in Figure 10 (nodes are state 
+variablelGAh4s and arcs are goals). The numbering indicates 
+a possiblle ordering of decisions by the system even though 
+elaboration is a potentially parallel process. 
+For simplicity we do not indicate times for the goals, but a 
+temporal ordering is imposed by the system to ensure proper 
+executicin. 
+1-146 
+Consider the operation performed by ORIENTATION in 
+response to the “point at X” goal. When constructing a 
+GAM, information about turning and propellant usage is 
+encoded in implementation code. As the GAM is 
+implemented using standard coding techniques, it is difficult 
+to generate, verify, and maintain. CASPER allows the same 
+behavior while employing a declarative representation, 
+thereby cutting development time while enabling proven 
+verification techniques to be applied to the model. 
+Maintenance time is also cut in that the encoding for the 
+domain is more readable and changes are easier to 
+implement. 
+Each time a pointing goal appeared in the goal cloud, the 
+goal-to-activity translator would create an appropriate 
+pointing-activity. The elaboration of this activity is encoded 
+in its definition (as above.) It is possible that we would 
+oversubscribe a resource, e.g. using “lo” of propellant may 
+oversubscribe our existing store. In this case, CASPER uses 
+its generic algorithms to plan around the oversubscription, 
+and solve it through any number of means. 
+We first modeled this scenario entirely using GAMS and 
+state variables. Once this operated properly, we 
+implemented pieces in CASPER, until we had example of 
+system performance with varying levels of GAMs versus 
+CASPER elaboration and state representation. As was 
+expected, we found that procedural GAMs took longer to 
+encode than their declarative counter parts. We also found 
+that performance was comparable between the two, both in 
+terms of computation time and in terms of solution quality. 
+Comet Nucleus Sample Return 
+This scenario entails the landed operations of a comet 
+lander. The lander must drill core samples, test them in an 
+oven, and report information via a communications link. 
+Also, it must take photos of features on the surface and react 
+to interesting events such as the out-gassing of material. 
+A major difference in terms of our tests between CNSR and 
+VSS is that we have a high fidelity simulator for CNSR. 
+Even though we had the demands of a more challenging 
+scenario, we found that most state variables could be 
+represented within CASPER, and similarly, we found that 
+the development time for models expressed in a declarative 
+manner was shorter than those expressed procedurally. 
+8. CONCLUSIONS 
+We have described the integration of CASPER, a model- 
+based planner, into the MDS GAM fi-amework, a procedural 
+architecture. This integration was facilitated by the fact that 
+the internal procedures and the planners inter-operate via a 
+goal-based interface. We demonstrated our approach by 
+prototyping and testing against VSS and CNSR We have 
+observed that declarative modeling reduces development 
+time while still providing solutions to rich domains. 
+9. ACKNOWLEDGEMENTS 
+This work was performed by the Jet Propulsion Laboratory, 
+California Institute of Technology, under contract with the 
+National Aeronautics and Space Administration. Portions of 
+this work were supported by: the Autonomy Technology 
+Program, managed by Dr. David Atkinson and with Melvin 
+Montemerlo as the headquarters program executive, NASA 
+Code SM and by the Mission Data Systems Project, 
+managed by Allan Sacks, NASA Code S, and by the JPL 
+Telecommunications and Mission Operations Technology 
+Program, Mission Services Element managed by Jay Wyatt. 
+We acknowledge the entire MDS team for their 
+contributions to this work. Specifically, Erann Gatt, Tom 
+Starbird, and Kim Gostelow have contributed to this work. 
+REFERENCES 
+[l] Ambros-Ingerson, J. A. and Steel, S., “Integrating 
+Planning, Execution and Monitoring,” Proceedings of the 
+7th National Conference on ArtiJicial Intelligence, St. Paul, 
+MN, 1988. 
+[2] A. Barrett, “From Rovers to Orbiters: Continuous Task- 
+distribution-based Coordination,” Working Notes of the 2nd 
+International Workshop on Planning and Scheduling for 
+Space, San Francisco, CA, March 2999, pp. 170-175. 
+[3] J. Bresina, K. Golden, D. Smith, and R. Washington, 
+Increased Flexibility and Robustness of Mars Rovers, 
+Proceedings of the 5th International Symposium on AI, 
+Robotics, and Automation in Space, Noordwijk, The 
+Netherlands, June 1999. 
+[4] R. P. Bonasso, J. Firby, E. Gat, D. Kortenkamp, D. 
+Miller, M. Slack, “Experiences with an architecture for 
+intelligent, reactive agents. Journal of experimental and 
+theoretical artijkial intelligence 9(2). 
+[5] S. Chien and G. DeJong, “Constructing Simplified 
+Plans via Truth Criteria Approximation,” Proceedings of the 
+Second International Conference on Artijicial Intelligence 
+Planning Systems, Chicago, IL, June 1994, pp. 19-24. 
+[6] S. Chien, G. Rabideau, J. Willis, and T. Mann, 
+“Automating Planning and Scheduling of Shuttle Payload 
+Operations,’’ Artzjkial Intelligence Journal, 1 14 (1999) 
+[7] M. Deale, M. Yvanovich, D. Schnitzius, D. Kautz, M. 
+Carpenter, M. Zweben, G. Davis, and B. Daun, “The Space 
+Shuttle Ground Processing System,” in Intelligent 
+Scheduling, Morgan Kauhan, San Francisco, 1994. 
+[SI B. Drabble, J. Dalton, A. Tate, “Repairing Plans on the 
+Fly,” Working Notes of the First International Workshop on 
+Planning and Scheduling for Space, Oxnard, CA 1997. 
+[9] T. Estlin, T. Mann, A. Gray, G. Rabideau, R. Castano, 
+S. Chien and E. Mjolsness, “An Integrated System for Multi- 
+Rover Scientific Exploration,” Sixteenth National 
+239-255. 
+- .* 1-147 
+Conference on Artificial Intelligence, Orlando, FL, July 
+1999. 
+[10]T. Estlin, G. Rabideau, D. Mutz and, S. Chien, “Using 
+Continuous Planning Techniques to Coordinate Multiple 
+Rovers,” IJCAI99 Workshop on Scheduling and Planning 
+meet Real-time Monitoring in a Dynamic and Uncertain 
+World, Stockholm, Sweden, August 1999. 
+[11]F. Fisher, R Knight, B. Engelhardt, S. Chien, N. 
+Alejandre, “A Planning Approach to Monitor and Control 
+for Deep Space Communications”, Proceedings of ,the IEEE 
+Aerospace Conference, Big Sky, MT, March 2000. 
+[12]A. Fukunaga, G. Rabideau, S. Chien, D. Yan, “‘Towards 
+an Application Framework for Automated Planning and 
+Scheduling,” Proc. 1997 Int.1 Symp. on Art. Int., Robotics 
+and Automation for Space, Tokyo, Japan, July 1997. 
+[13]S. Hayati, and R. Arvidson, “Long Range Science 
+Rover (Rocky 7) Mojave Desert Field Tests,” Proceedings 
+of the 1997 International Symposium on Artificial 
+Intelligence, Robotics and Automation in Space., Tokyo, 
+Japan, July 1997. 
+[14]M. Johnston and S. Minton, “Analyzing a Heuristic 
+Strategy for Constraint Satisfaction and Scheduling,’’ in 
+Intelligent Scheduling, Morgan Kaufinan, San Francisco, 
+1994. 
+[15]H. Kautz, B. Selman, “Pushing the Envelope: Planning, 
+Propositional Logic, and Stochastic Search,” Proceedings 
+AAAI96. 
+[ 161 The Mission Data Systems Project, 
+http://mds.jpl.nasa.gov/, 2000. 
+[17]N. Muscettola, B. Smith, S. Chien , C. Fry, E:. Rajan, 
+S. Mohan, G. Rabideau , D. Yan, “On-board Planning for 
+the New Millennium Deep Space One Spacecraft,” 
+Proceedings of the 1997 IEEE Aerospace CoHference, 
+Aspen, CO, February, 1997, v. 1, pp. 303-318. 
+[ 181 K. Myers, “Towards a Framework for Continuous 
+Planning and Execution”, in Proceedings of the A M  Fall 
+Symposium on Distributed Continual Planning, 1998. 
+[ 191 A. Nareyek, “A Planning Model for Agents in Dynamic 
+and Unicertain Real-Time Environments,” in Integrating 
+Planning, Scheduling, and Execution in Dynamic and 
+Uncertain Environments, AIPS98 Workshop, AAAI 
+Technical Report WS-98092. 
+[20]G. Rabideau, R Knight, S. Chien, A. Fukunaga, A. 
+Govindjee, “Iterative Repair Planning for Sipacecraft 
+Operations in the ASPEN System,“ Int Symp on Artificial 
+Intelligence Robotics and Aut. in Space (ISAIRAS), 
+Noordwijk, The Netherlands, June 1999. 
+[21]G. Rabideau, B. Engelhardt, S. Chien, “Using Generic 
+Preferences to Incrementally Improve Plan Quality,” in 
+Proc. 5th Int. Cod. on Artificial Intelligence Planning and 
+Scheduling, Breckenridge, CO. Apri1,2000. 
+[22] R Simmons, “Combining Associational and Causal 
+Reasoning to Solve Interpretation and Planning Problems,” 
+Tech. Rep., MIT Artificial Intelligence Laboratory, 1988. 
+[23] S. Smith, “OPIS: An Architecture and Methodology for 
+Reactive Scheduling,” in Intelligent Scheduling, Morgan 
+Kaufinan, 1994. 
+[24]R. Volpe, J. Balaram, T. Ohm, and R. Ivlev, “Rocky 7: 
+A Next Generation Mars Rover Prototype,” Journal of 
+Advanced Robotics, 1 1(4), December 1997. 
+[25]M. Zweben, B. Daun, E. Davis, and M. Deale, 
+“Scheduling and Rescheduling with Iterative Repair,” in 
+Intelligent Scheduling, Morgan Kaufman, San Francisco, 
+1994. 
+Russell Knight is a member of the 
+Artificial Intelligence Group at 
+the Jet Propulsion Laboratory, 
+California Institute of Technologv 
+where he is the sojhvare lead for 
+the CASPER real-time planning 
+system, Additionally, he is a 
+member of the Mission Data 
+System/ Mission Planning and 
+Execution Team. He developed communications software 
+for the W A C S  Mars Polar Lander ground system. 
+Previously, he developed systems for automatic system 
+configuration, intelligent inventorying, request fu@llment, 
+and restocking for GTE. He is currently also a Ph.D. 
+student at the University of California, Los Angeles studying 
+under the advisement of Dr. Rich Korf: He holds a B.S. 
+Magna cum Laude in Computer Sciencefiotn the University 
+of Maryr‘and and a MS.  in Computer Sciencefiom UCLA. 
+Mr. Knight was the recipient of’ the GTE 
+Technobogical Development Award in 1996 and was a 
+member of the development team for the ASPEN Planning 
+System that received Honorable Mention in the 1999 
+Software of the Year Competition. 
+Dr. Steve Chien is Technical 
+Group Supervisor of the 
+Art$cial Intelligence Group 
+and Principal Computer 
+Scientist in the Exploration 
+Systems Autonomy Section at 
+the Jet Propulsion Laboratory, 
+California Institute of 
+Technol(ow where he lea& 
+eforts in-. automated planning and scheduling for space 
+exploration. He also is the Technology Community Lead for 
+Autonomy for the Jet Propulsion Laboratory. Dr. Chien is 
+also an .Adjunct Associate Professor with the Department of 
+Computer Science of the University of Southern Califomia. 
+He holds a B.S. with Highest Honors in Computer Science, 
+with minors in Mathematics and Economics, MS.,  and 
+1-148 
+Ph.D. degrees in Computer Science, allfrom the University 
+of Illinois. 
+Dr. Chien was a recipient of the 1995 Lew Allen 
+Award for Excellence, JPLs highest award recognizing 
+outstanding technical achievements by JPL personnel in the 
+early years of their careers. In 1997, he received the NASA 
+Exceptional Achievement Medal for his work in research 
+and development of planning and scheduling systems 
+for NASA. He is the Team Lead for the ASPEN Planning 
+System that received Honorable Mention in the 1999 
+SofhYare of the Year Competition and was a contributor to 
+the Remote Agent System that was a co-winner in the same 
+1999 competition. In 2000, he received the NASA 
+Exceptional Service Medal for service and leadership in 
+research and deployment of planning and scheduling 
+systems for NASA. 
+Dr. Robert Keller is a Stag 
+Member, Senior Level, at JPL. 
+He is also Csilla and Walt 
+Foley Professor and Chair of 
+Computer Science at Harvey 
+Mudd College, Claremont, 
+Califomia. His interests are in 
+sofhvare development, and 
+languages for concurrency and 
+real-time systems. He has held faculty positions at 
+Princeton University, the University of Utah, and U. C. 
+Davis, as well former& being Vice President of R&D at 
+Quintus Computer Systems. ProJ Keller has a Ph.D. from 
+U.C. Berkeley and other degrees from Washington 
+Universiw, St. Louis. 
+1-14s 

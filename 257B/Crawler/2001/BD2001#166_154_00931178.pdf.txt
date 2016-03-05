@@ -1,0 +1,553 @@
+Networking Intelligent Components to Create Intelligent 
+Spacecraft 
+Robert C. Hammett 
+Draper Laboratory 
+555 Technology Square 
+Cambridge, MA 02139 
+rhammett@draper.com 
+6 17-258-2494 
+Abstract-Spacecraft utilize complex digital electronic 
+controls to perform their missions. Although these systems 
+have benefited from the availability of ever-faster computers 
+and miniaturized electronics, overall control system 
+architectures have changed little, utilizing a shared, 
+centralized computer programmed to service many 
+subsystems. These centralized systems perform well, but are 
+a challenge to design and integrate, requiring complex 
+custom software, custom U 0  electronics and extensive 
+vehicle wiring. The availability of microprocessors, 
+memories and serial data terminals small and rugged enough 
+to be embedded directly into subsystem mechanical 
+components has opened the door to revolutionary new 
+distributed architectures. These so-called “smart” or 
+intelligent components can be interconnected into a network 
+to form a distributed architecture. This paper discusses work 
+done to define these distributed architectures and to 
+construct prototype components. Important issues addressed 
+include the physical network required to distribute data and 
+power to components, highly reliable, fault-tolerant 
+operation, the importance of industry standards and a 
+discussion of packaging and installation considerations. 
+TABLE OF CONTENTS 
+1. Introduction 
+2. Comparing Networked to Traditional Systems 
+3. Networked Component System Concept 
+4. U 0  Network Development 
+5. Breadboard System Demonstrations 
+6. Conclusions 
+1. INTRODUCTION 
+In 1999, the Scalable Fault-tolerant Intelligent Network of 
+X(trans)ducers (SFINX) project was sponsored by the 
+NASA Marshall Space Flight Center to explore the 
+application of “smart” U 0  devices to spacecraft and to build 
+a prototype system for laboratory demonstration. Draper 
+Laboratory teamed with NASA and the Oak Ridge National 
+Laboratories on this project. Draper had previously 
+conducted internal research and development in this area 
+and this project built on this work [Ref 11. The project 
+objective was to develop and demonstrate a system concept 
+that could reduce avionics weight and utilized an open 
+industry standard for the smart U 0  system. A standard 
+interface was considered the key to managing software 
+complexity issues, to encouraging greater use of commercial 
+components on NASA vehicles and to promoting the reuse 
+of proven components and software [Ref 21. Key program 
+considerations were that the sensors and actuators contain 
+embedded processing, that all communications between 
+sensors, actuators and computers would be digital data 
+rather than analog and that a shared, multi-drop network of 
+two wires would be used to distribute both power and data 
+to all sensors and actuators. To provide the required 
+reliability and fault tolerance needed for spacecraft, the 
+SFINX project specified a redundant network architecture 
+and cross-coupling data links at each sensor and actuator to 
+provide localized and highly effective fault detection and 
+redundancy management. 
+This paper will describe some of the design features of the 
+SFINX approach and will discuss the progress that has been 
+made on the laboratory demonstration. Future plans to space 
+flight test demonstration hardware and the introduction of 
+these systems into operational spacecraft will be discussed. 
+2. COMPARING NETWORKED TO TRADITIONAL 
+SYSTEMS 
+The space avionics systems in use today and being 
+developed for NASA X-vehicles are largely based on 
+avionics developed for the space shuttle. At the time it was 
+developed, 25 years ago, the shuttle represented a 
+revolutionary improvement upon previous systems by using 
+a fault-tolerant architecture and as the first system to use 
+serial data buses to carry critical signals [Ref 31. The use of 
+serial data for critical signals was necessitated by the weight 
+penalty involved in wiring hundreds of individual analog 
+signals the full length of the shuttle payload bay. But the 
+shuttle avionics are a heavy, complex system. According to 
+the space shuttle reference manual [Ref 41, “The space 
+shuttle avionics system consists of more than 300 major 
+electronic black boxes located throughout the vehicle, 
+connected by more than 300 miles of electrical wiring. 
+There are approximately 120,400 wire segments and 6,491 
+connectors in the vehicle. The wiring and connectors weigh 
+approximately 7,000 pounds, wiring alone weighing 
+approximately 4,600 pounds. Total weight of the black 
+boxes, wiring and connectors is approximately 17,116 
+pounds. “ 
+0-78034599-2/01/$10.00  2001 IEEE 
+5-2209 
+With the shuttle payload capacity of 65,000 pounds, 
+avionics weight is 25% of the useful payload. At thLe current 
+shuttle payload to orbit cost of $10,000 per pound, reducing 
+this avionics weight by 75% would increase the payload 
+capacity by about 13000 pounds and reduce the cost per 
+pound by about 17% to $8300 per pound, a substantial 
+improvement. In addition, reducing the power required by 
+the avionics can further reduce weight or, in the case of 
+shuttle, could be used to allow the shuttle to increase its 
+endurance beyond today’s 14 day missions. Although some 
+of this benefit will be automatically realized fiom using 
+modem black boxes that are lighter and use les,s power, 
+much of the wire weight is associated with analog sensors 
+and actuation equipment that is still the only choice for 
+today’s vehicles. 
+The network of smart, digital I/O equipment described in 
+this paper represents a new paradigm for avionics systems. 
+Although it is probably not practical to retrofit this approach 
+into the shuttle, it can be applied to new vehicles. This new 
+approach is contrasted with the space shuttle in Figiure 1. 
+3. NETWORKED COMPONENT SYSTEM CONCEPT 
+Development of the SFINX network VO concept began with 
+an analysis of the I/O required for future space vehicles. An 
+early conclusion was that it is desirable to have a fully 
+integrated health monitoring, data acquisition, and control 
+systems, not separate systems. An integrated approach will 
+minimize weight, simplify installation and provide 
+maximum flexibility for robust control and effective health 
+management. But the requirements for control systems are 
+more demanding then what is needed for data acquisition, 
+requiring that hard, real-time deadlines be met and that 
+system performance be completely repeatable and 
+deterministic. And of course many control func:tions are 
+safety critical and typically must continue to operate 
+correctly and without interruption following (electronic 
+system failures. 
+It was also recognized that an ideal system would ‘have both 
+distributed and centralized control functions. For functions 
+data Digital conversion 
+s \ analog eFctronics; 
+Analog senso 
+actuators, wiri 7 
+requiring information from many sources or the coordinated 
+operation of many subsystems, a central flight control 
+computer is required. Requirements analysis also revealed 
+that the central computer must provide closed loop control 
+of some functions thus tight control of data latency must be 
+maintained. But it was also revealed that it is also desirable 
+to off-load sensor and actuation specific processing to 
+distributed I/O devices wherever possible, allowing the 
+central computer to serve in a supervisor capacity. 
+Distributing the VO software can reduce the complexity of 
+the flight computer software and enhance the dependability 
+of the system. By embedding sensor and actuator specific 
+processing within the sensors and actuators, this software 
+becomes a part of the component. 
+To meet these requirements, the overall architecture shown 
+in Figure 2 was established. In this architecture, the central 
+flight control computer interfaces to a high-speed 
+“backbone” data bus to acquire data fiom distributed 
+intelligent components and to transmit commands to them. 
+These intelligent components may be individual intelligent 
+sensors and actuators or they may be more complex 
+components consisting of multiple sensors, actuators and 
+mechanical systems with integral control processing 
+packaged within. To limit the amount of power delivered by 
+I/O network wiring, and to avoid the need to equip each 
+sensor and actuator with an expensive high-speed network 
+interface, a number of lower tier, reduced power and lower 
+speed U 0  networks are used. Each of these interface to the 
+high-speed backbone using a gateway. These VO networks 
+make use of a low cost, multi-drop network to provide 
+power to, and exchange data with, the individual sensors 
+and actuators. The backbone data bus can use any one of a 
+number of existing or emerging electrical or fiber optic bus 
+standards. Since many of the functions controlled by this 
+system are critical to the survival of human beings or 
+survival of the autonomous vehicle, both backbone bus and 
+the individual VO networks must be redundant and provide 
+fault-tolerances. And even less critical functions benefit 
+fiom fault-tolerance that insures mission success and 
+rmnunizes launch delays. . .  
+FIGURE 1 - NETWORKED AVIONICS COMPARED TO SPACE SHUTTLE 
+5-2210 
+Fautt-Tolerant Ftight Control Computer 
+I 
+pigh speed Backbone Data Network 
+y5 From Backbone To individual 110 Networks 
+Typical 110 Network 
+FIGURE 2- NETWORK I/o APPLIED TO A SPACE VEHICLE 
+4. YO NETWORK DEVELOPMENT 
+The primary focus of the SFINX program has been on 
+developing the I/O networks needed to connect individual 
+intelligent sensors and actuators to the vehicle backbone. 
+These U0 networks must provide both a data interface and a 
+source of electric power to the intelligent sensors and 
+actuators. The data terminal and power conditioning 
+circuitry associated With each individual sensor or actuator 
+must be kept small, low power and environmentally rugged 
+to allow it to be located within or near the sensor or actuator 
+it serves. This ability to directly interface the I/O network to 
+a single sensor or actuators holds the key to wire reductions, 
+to “plug and play” development and is a major differences 
+between the SFINX approach and miniature, multi-channel 
+data acquisition systems that are already available. The 
+SFINX project explored four important topics related to 
+these U 0  networks: 
+Fault-tolerant architectures 
+Two wire power and data networks 
+lEEE -1451 Standards 
+Packaging and installation considerations 
+Two Wire Paver and Data Networks 
+The SFINX project selected a 2-wire combined power and 
+data network for the I/O networks. By using only two wires, 
+the amount of wiring is minimized and vehicle installation 
+is simplified and made highly reliable. Altematives 
+considered but not selected included: 4-wire power and data 
+network; optical fiber and power wiring; and wireless data 
+and power wiring. Another altemative, wireless data with 
+battery power was not considered due to the issues of 
+battery replacement. 
+Two options for the 2-wire U 0  network were ultimately 
+pursued; a high speed, simultaneous bi-directional data 
+approach and a modest speed command I response 
+approach. The high-speed approach, capable of millions of 
+bit per second data rates, was developed as part of the 
+SFINX project. It makes use of spread spec” CDMA RF 
+data transmissions onto the power wires and offers the 
+benefit of supporting simultaneous and tightly synchronized 
+communication with many sensors and actuators. This high- 
+speed approach offers enormous growth potential, but 
+currently requires circuitry that is too large to be embedded 
+into individual sensors. The modest speed approach utilized 
+a beta version off-the-shelf component under development 
+for the automotive industry. This approach superimposes a 
+low level Differential Phase Shift Keyed (DPSK) data signal 
+upon a DC power line to provide 25OKbps data rates. This 
+approach can meet the needs of many vehicles, and is 
+available today in a very small package. The conclusion 
+reached was that the modest speed approach could be used 
+to support NASA’s near term generation 2 vehicles while 
+the high speed approach should be developed for future 
+generation 3 vehicles. 
+Fault-Tolerant Architecture 
+Since the I/O networks must support critical functions, a 
+redundant, fault-tolerant architecture is needed. Although 
+the use of multi-drop networks offers many advantages, it 
+does introduce common mode failures that can affect many 
+sensors and actuators simultaneously and requires system 
+level to overcome these. For the most critical of functions, a 
+full four-channel or quadraplex architecture coupled with 
+majority voting mechanisms to reject faulty data is required. 
+For non-essential instrumentation, the same U 0  network 
+wiring can support non-redundant or “simplex” sensors. 
+Other functions may require dual or triplex redundancy to 
+provide the desired reliability. The SFINX solution was to 
+develop the architecture with the flexibility to support any 
+5-2211 
+of these levels. Figure 3 illustrates that a typical SFINX I/O 
+network can be configured with four redundlant and 
+independent networks, and that individual intelligent I/O 
+components plugged into the network may have from one to 
+four channels of redundancy. 
+UD to four redumdant Gateways to backbone 
+Sensor /actuator nodes may be quad, triplex, 
+dual or simplex (as needed for reliability) 
+FIGURE 3 - FAULT-TOLERANT ARCHITECTURE FOR 
+U 0  NETWORKS 
+The four channels are maintained electrically independent of 
+one another and electrically isolated to insure that faults do 
+not propagate between channels. To remove YO specific 
+software from the central processor and distribute it to the 
+intelligent I/O units, each unit is made responsible for its 
+own calibration, linearization, and other data pr'ocessing. 
+But to make the redundant sensor or actuator units truly 
+independent of the central computer, each must perform its 
+own fault detection, isolation, and recovery without 
+assistance from the flight computer. To meet this need, the 
+SFINX architecture includes a cross channel data link 
+feature to allow the redundant sensors and acblators to 
+exchange data. 
+This cross channel data link features is illustrated in Figure 
+4. This exchange of redundant measurements and status 
+information makes it possible for the embedded processors 
+to detect subtle sensors failures by comparing the redundant 
+readings and for the redundant channels to perform 
+thorough diagnostics upon themselves or on the redundant 
+channels they are communicating with. Similarly for 
+actuators, commands arriving at the flight control Icomputer 
+Four channel crosslink 
+Three channel crosslink 
+* * *  
+FIGURE 4 - FAULT-TOLERANT ARCHITECTURE, FOR 
+I/O NETWORKS 
+can be exchanged and compared and corrupted commands 
+ignored. This command voting functionality is similar to 
+that provided on the space shuttle for critical commands to 
+fire pyrotechnics to ignite engines and separate stages. 
+Redundant U 0  networks offer the promise of providing the 
+extremely high levels of actuation dependability and safety 
+applied to the space shuttle pyrotechnics, but at a more 
+affordable cost. 
+IEEE-1451 Open System Standard 
+The success and acceptance of the networked U 0  approach 
+is dependent upon the adoption of an open, standard 
+interface to the intelligent sensors and actuators. An open 
+standard will allow any potential suppliers of sensors or 
+actuators to build components that can be plugged into the 
+same network with components from other suppliers and 
+they will be interoperable. This standardization will promote 
+competition for similar components, which spurs innovation 
+and cost reductions. The availability of off-the-shelf 
+intelligent components with a standard interface will 
+promote greater use of each component design, leading to 
+economies of scale recurring cost benefits and the ability to 
+spread non-recurring development costs over a greater 
+number of units. The reuse of standard intelligent 
+components reduces the amount of time required to develop 
+new avionics systems and will naturally lead to the reuse of 
+well tested software already embedded in the components. 
+To insure interoperability, the standard must address the 
+followitng : 
+Electrical interface 
+I Data transport interface 
+Embedded electronic data sheets 
+Physical interface (connectors and cables) 
+For the SFINX project, the IEEE 1451 standards were 
+selected. The E E E  1451 standard was one of the first 
+efforts to develop standards specifically for intelligent 
+compon'ents. In particular, the standard pioneered in the 
+development of Transducer Electronic Data Sheets or 
+TEDS. The TEDS establishes a standard for the types and 
+format of data that can be stored within the memory of 
+intelligent devices and allows the flight computer to 
+interrogate the sensors and actuators for this data. At the 
+time of this publication, efforts are underway by the 1451 
+industry groups to establish standards for the electrical, 
+physical and data transport interfaces for a multi-drop, 
+combined power and data interface that can be used for 
+these U 0  networks. 
+Packaging and Installation 
+The enabling technology for intelligent I/O networks is 
+highly miniaturized, rugged and utilities low power 
+electronics. The ability to embed the electronics needed to 
+transform analog output sensors and analog controlled 
+actuators into digital, multi-drop devices is the key to the 
+network U 0  concept. Embedding additional processing 
+5-2212 
+capability and memory into these devices transforms them 
+into intelligent component that allow us to move from 
+complex, software intensive centralized computer systems 
+to more easily integrated distributed systems. The move to 
+digital multi-drop networks also can greatly simplify the 
+installation of electronics in the vehicle, both during initial 
+vehicle development and during modifications and 
+upgrades. Specifically, large amounts of point to point 
+analog signal wiring can be replaced by a combined 
+instrumentation power and digital data network with taps to 
+connect to each sensor and actuator. Segregating low-level 
+analog signal wires from potential sources of electro- 
+magnetic interference is no longer required. Significant 
+weight can be saved by replacing individually routed 
+switched electrical power wiring with a main power bus 
+connected to remote power switching devices under fault- 
+tolerant control by the U 0  network. The elimination of 
+power wiring eliminates the hazard associated with chaffed, 
+cracked or arcing power wiring, enhancing the safety of the 
+vehicle. The I/O network packaging and installation concept 
+is shown in Figure 5. As shown in the figure, the concept is 
+to integrate microminiature sensors or actuators (such as 
+MEW units) and all support circuitry into a single tiny, 
+lightweight package that can be installed in place of a 
+traditional sensor. The sensor is internally redundant, 
+designed to provide absolutely dependable fault-tolerant 
+operation and is connected to redundant (triplex shown) 
+networks to provide fault tolerant delivery of power and 
+data to the internally redundant sensor. The electrical 
+connections to each of the three networks use separate 
+connectors requiring only two wires. The supporting 
+circuitry embedded into the device includes 
+microprocessors, one per channel, with associated program 
+memories and Non-Volatile (NV) memory to allow the 
+intelligent device to retain information after power is 
+removed. The software program for the microprocessor can 
+Larger gage “tnmk“ wiring 
+Smple “T’ connector 
+Small gage “spur” m g  
+2 pm Connector 
+to each bus 
+opt0 isolated 
+/ dataexchanges 
+ed 
+location 
+MEMS sensor and 
+micro-electronics 
+2 wire data terminal 
+2 wire power supply ID tag 
+microprocessor 
+in-service programmable NV memory 
+*sensor signal conditioning circuits 
+opto-isolated cross-link & ID tag commuoications 
+FIGURE 5 - INTELLIGENT I/O COMFONENT 
+be updated by downloading a new one over the network 
+during maintenance. A physical ID memory tag attached to 
+the location where the sensor is to be installed rather than to 
+the sensor itself allows the sensor to determine its location 
+and to configure itself for this location. As previously 
+discussed, the channels of the device may exchange 
+information over cross-link data paths and these paths are 
+electrically isolated to insure electrical faults do not 
+propagate. 
+For the SFINX project, a prototype of this packaging 
+approach was developed as shown in Figure 6. Making use 
+of readily available components and using Micro-Chip- 
+Module (MCM) packaging techniques, a three-channel 
+vibration sensor with-an integral digital signal processor and 
+a 2-wire power and data interface was designed. The actual 
+accelerometer sensors would be separate and 
+short cables. 
+connected by 
+FIGURE 6 - MCMPACKAGED VIBRATION SENSOR 
+5. BREADBOARD SYSTEM DEMONSTRATIONS 
+Although the Network I/O architecture is based on proven 
+electronics, details of the system concept and packaging 
+issues require significant development before it will be 
+considered ready for deployment on an operational vehicle. 
+NASA established a goal for the fvst phase of the project to 
+produce a breadboard demonstration. A later phase would 
+then repackage the breadboard system into flight worthy 
+prototypes and demonstrate them in space on either a NASA 
+X-vehicle or as a space shuttle experiment. The small-scale 
+demonstration shown in Figure 7 was developed to show 
+that both the network concept and several prototype 
+intelligent I/O units could be made to operate together. 
+This breadboard demonstration included four types of 
+representative intelligent transducers: a pressure sensor, a 
+vibration sensor, a solenoid operated valve controller and a 
+temperature sensor. The breadboard system utilized triple 
+redundancy, the intelligent transducers would include 
+crosslinks to exchange data and both power and data would 
+be delivered to the nodes on a two wire interface. IEEE- 
+145 1 standards were applied to the breadboard interfaces. 
+5-2213 
+Simulated flight 
+control computer 
+Transducer bus 
+controller 
+breadboard 
+Intelligent transducer network 
+I I 1  I I I 
+I I 1  I I I 
+valve 
+power 
+pressure vibration Y valve temperature 
+sensor sensor solenoid sensor 
+W’ DSP valve controller 
+FIGURE 7 - SFINX SWL SCALE DEMONSTRATION 
+Figure 8 shows a photograph of the vibration sensor 
+breadboard built for this demonstration, connected to the 
+modest speed off-the-shelf 2-wire power and data modules. 
+Off the shelf accelerometers were used for the sensors rather 
+than the MEMS sensors postulated for the ideal packaging 
+solution. The large three channel digital signal processing 
+breadboard was built to provide experimental flexibility, not 
+for minimum size. 
+6.  CONCLUSIONS 
+The frst phase of the SFINX program raised the network 
+U 0  concept to a NASA Technology Readiness Level ( T U )  
+of level 4. A TRL of 4 indicates that the system has been 
+shown lo operate in the laboratory, but that it has not been 
+shown to be able to operate in the space environment. Low 
+risk reduction of these new systems on an operational 
+vehicle will require additional risk reduction activities. To 
+reach this level, prototype hardware designed to operate in 
+the space environment must be design and built, 
+environmental qualification testing performed and a system 
+demonstrated as an experiment on a space vehicle. Future 
+commercial suppliers of these intelligent components must 
+be included in these experiments and given a chance to gain 
+familiarity with this new approach. At the present time, 
+NASA is soliciting proposals for these types of risk 
+reduction activities and this appears to be the opportunity to 
+mature these systems. 
+The we of networks of intelligent U 0  components 
+represents a new approach for designing the electronics 
+needed for space vehicles. There are many immediate 
+benefits, to be realized including: 
+Increased reliability and safety 
+Improved health management (reducing operations 
+w 
+Reduced wiring weight and complexity 
+costs) 
+Reduced software complexity and cost 
+Simplified vehicle development and integration 
+Beyond these near term benefits, its seems likely that 
+vehicle subsystem designers will discover many innovative 
+features can be added once they have affordable and 
+completely dependable electronic intelligence embedded in 
+their systems. 
+REFERENCES 
+[l]Ultra-Reliable Real - Time Control Systems - Future 
+Trends - Robert Hammett, 17th Digital Avionics Systems 
+Conference, Oct 98, Seattle WA. (selected as best paper of 
+conference) Also published in the IEEE Aerospace and 
+Electronic Systems Magazine, Aug 99 
+[2] Sensors Smurfen Up - Bill Travis, EDN magazine, 
+March 4,1999 
+FIGURE 8 - VIBRATION SENSOR BREADBOARD 
+[3] Space Shuttle Avionics Systems, NASA report SP-504, 
+John F. Hanaway and Robert I. Moorehead, 1989 
+[4] Space Shuttle Online reference, 
+http://spaceflight.nasa.gov/shuttle/reference/shutreff orbiterla 
+vionics/overview.html 
+5-2214 
+ACKNOWLEDGEMENTS 
+I would like to acknowledge the contributions of Mr. 
+Anthony Kelley and Mi. W.T. Powers of the NASA MSFC 
+and those of Mr. William Bryan and Mr. Mark Buckner of 
+the Oak Ridge National Laboratories. I would also like to 
+acknowledge the considerable efforts made towards this 
+work by Mr. William Wyman and Mr. Robert Menyhert, 
+and Ms. Jeanne Brady of the Draper Laboratory. 
+BIOGRAPHY 
+Mr. Robert Hammett is a principal member of the Draper 
+technical staff. He has degrees in both mechanical and 
+electrical engineering. He has 23 years experience in the 
+design, development, test, and manufacture of electronic 
+control systems for aircraft, ships, and space applications. 
+Prior to Draper, he has worked for Pratt and Whitney 
+Aircraft, Chandler Evans and Allied Signal. At Pratt and 
+Whitney, he helped pioneer the development of the first 
+Full-Authority Electronic Engine Controls (FADEC) for jet 
+engines. These FADECs were first-of-a-kind systems that 
+represented a significant step forward in the use of digital 
+electronic controls for life-critical applications. At Allied, 
+Rob developed electronic controls for such applications as 
+aircraft auxiliary power units, cabin pressure controls and 
+air data computers. He was been exposed to the full 
+development cycle of avionics including concept definition, 
+product design, qualification testing, manufacturing and 
+long term product support. 
+At Draper, he has developed fault-tolerant controls for 
+unmanned underwater vehicles, the Seawolf submarine, and 
+the Kistler space launch vehicle. For the Seawolf, Rob was 
+responsible for the development, test, and deployment of the 
+Performance Monitoring functions that detect faults, 
+manage redundancy, and provide maintenance advisory 
+information. The Seawolf was also a unique first-of-a-kind 
+system, using a fault tolerant computer and redundant U 0  
+electronics to provide a “swim-by-~ire~’ system. Recently, 
+Rob has been the principal architect of the Vehicle Health 
+Management (VHM) s o h a r e  for the Kistler launch vehicle 
+and several programs investigating upgrading the Space 
+Shuttle avionics. Rob w a s  technical director of the NASA 
+SFINX Program to develop I/O networks for future 
+spacecraft and lead several earlier IR&D efforts looking into 
+the use of WO networks. 
+5-2215 

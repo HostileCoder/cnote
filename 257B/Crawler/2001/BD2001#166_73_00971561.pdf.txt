@@ -1,0 +1,602 @@
+Communication Dimensions 159 
+Who are You, and Where Did You Come From? 
+Who Are You, and Where Did You Come From? 
+John Russell 
+Oracle Corporation 
+400 Oracle Parkway 
+mailstop 40~1124 
+Redwood Shores, CA 94065 
+john.russell@oracle.com 
+One of the big challenges of technical writing is to gather feedback to help make 
+decisions. Traditionally, feedback is scarce and mostly negative. The web offers the 
+possibility to draw lessons from actual usage patterns on a documentation site, with 
+information about success as well as failure, and a large sample size. This paper 
+discusses fhe implementation and findings from a database-backed web site that 
+collects such usage infomation. The site offers technical documentation and is used by 
+a wide variety of product customers. We use the data to help improve the web site and 
+underlying information. The paper discusses how to collect usage data, what data to 
+collect, and presents examples of data and associated conclusions drawn h r n  our web 
+site. 
+Keywords: Information Model, Types, Categories, Metadata 
+OVERVIEW OF THE ONLINE DOCUMENTATION SYSTEM 
+The documentation site we use is http://tahiti.oracle.com/, which has separate areas for 
+the Oracle8i and OracleSi versions of Oracle's database software. The Oracle8i library 
+contains 75 books, while OracleSi has 107. The site provides search, PDF downloads, 
+traditional access methods such as tables of contents and a master index, and quick 
+references for important topics. 
+Every time someone loads a page on this site, we generate a dynamic page, and store 
+information about the page view in an Oracle database. The visitor might be entering the 
+site for the first time, or following a link from one part of the site to another, or following a 
+link out of the site. (The actual documentation content is located elsewhere, so when 
+somebody begins reading the documentation, they are considered to leave this site.) 
+0-7803-7209-3101/$10.00 0 2001 IEEE J. Russell 
+Communication Dimensions 160 
+Who are You, and Where Did You Come From? 
+TELL ME, TELL ME: COLLECTING INFORMATION ABOUT PAGE VIEWS 
+Because each page on the site is generated dynamically, we can process and store the 
+usage data in real time. The information comes from three sources: 
+Hi'TP headers. Before a web page is loaded, the browser sends certain standard 
+information such as its software version and the preferred language of the user. This 
+allows the web server to generate different versions of pages for different browsers 
+or languages. The web server makes this information available to dynamic pages so 
+that they can do the same. The information is available through a set of CGI 
+variables, whose names vary with each web server. Here is the kind of information 
+available this way to pages on our site: 
+REMOTE-HOST = 123.456.78.90 
+QUERY-STRING = paraml =value1 &param2=value2 
+HTTP-REFERER = http:/hrvww.fictional-host.com 
+HTTP-AC C E PT-LAN G U AG E = en-u s 
+HTTP-USER-AGENT = Mozilla/4.0 (compatible; MSlE 5.0; Windows 98; DigExt) 
+HTTP-COOKIE = KEY1 =value1 ;KEY2=value2 
+0 Parameters embedded in the URL following a ? character. The part after the 
+question mark is known as the query string. 'You can see above that the entire 
+string is available through a CGI variable. The mechanism we use for dynamic 
+pages allows us to get each parameter directly, without having to parse the query 
+string. Some parameters correspond to choices made by visitors, for example, by 
+picking from a dropdown list or checking a checkbox. Others parameters are 
+provided by us, hardcoded in links or through hidden form parameters. For example, 
+if multiple pages all link to the same destination page, each link might include a 
+special parameter so that we can tell how many people follow each navigation path. 
+0 Cookies. The 0racle.com domain uses a consistent set of cookies for personalizing 
+content and authorizing users to restricted pages. Although we do not require a user 
+to have an Oracle.com cookie to view the site, we use the cookie values when 
+available to count distinct visitors and to present slightly different pages to users who 
+have or haven't signed into the site. 
+DO'S AND DON'TS: TERMS OF THE PRIVACY POLICY 
+Our site is part of the Oracle Technology Network, a section of the Oracle.com site for 
+software developers and technical customers. The things we can do with usage data are 
+determined by the Oracle Technology Network privacy policy: 
+0 Only aggregate data (such as which areas of the site are most popular, or how 
+many people have done x) can be shared with other groups within Oracle. 
+0 The usage data for any individual user is confidential and can be analysed only 
+to improve the web site. It is not used for sales purposes, and it is not disclosed 
+outside of Oracle or to other groups within Oracle. 
+0 We do not combine data for individual users with identifying details from 
+elsewhere, such as e-mail address. 
+0-7803-7209-31011$10.00 0 2001 IEEE J. Russell 
+Communication Dimensions 
+Who are You. and Where Did You Come From? 
+161 
+BE GRACIOUS TO YOUR HOST: LOOKING UP VISITOR DOMAINS 
+We count how many visitors come from company x or country y using the domain names 
+of visitors. However, the web page receives only the cryptic IP address (such as 
+123.456.78.90). To determine that this address belongs to Oracle.com or Stanford.edu, 
+we use the nslookup command: 
+dlsun2115 jdrussel > nslookup 130.35.177.44 
+Server: dnsl -us.us.oracle.com 
+Address: 130.35.249.41 
+Name: stpc338.us.oracle.com 
+Address: 130.35.1 77.44 
+This technique has some limitations: 
+Because it is a relatively slow operation, it requires offline processing. We usually 
+process 1-2 days worth of lookups at once. 
+Sometimes a lookup might fail with a timeout due to network congestion, but a 
+subsequent attempt might succeed. A single failure does not mean the address 
+cannot be resolved. 
+Some IP addresses can never be resolved because the host names are not 
+available at all. We've found that 45.4% of host names could be resolved, and 
+the rest (more than half!) remain unknown. 
+When counting users, the number of IP addresses is not a precise indicator: 
+0 A single user can come in from multiple hosts. They might use different machines 
+at work and at home, or multiple machines at work, or their network might relay 
+their requests through different firewall or proxy servers. 
+A single proxy host name can represent multiple users, shielding the addresses 
+of their individual machines. We found it especially tricky to measure usage from 
+Oracle employees, because proxy settings often treat URLs at your own 
+company different than those of external sites. 
+0 
+Once we have all the different hostnames, there are further pitfalls in determining usage 
+by company. For example, many users might come through the same Internet Service 
+Provider. Because Oracle has so many customers involved with the Internet, it is hard to 
+tell if these visitors are employees of network, Internet, or phone companies, or 
+customers that use those companies for Internet access. 
+IN SEARCH OF A FAR COUNTRY: GEOGRAPHICAL DISTRIBUTION OF VISITORS 
+Once we have a set of host names, we can look at the international distribution of 
+visitors: 
+0 To understand the degree of international usage of our information. 
+0 To decide whether and how to internationalize our site, or customize features 
+based on connection speeds to all corners of the world. 
+0 To see how Internet use is spreading to developing nations, or places where 
+phone service is relatively expensive. 
+0 Because it's just a lot of fun to imagine people worldwide using the results of our 
+work. 
+0-7803-7209-3/01/$10.00 0 2001 IEEE J. Russell 
+Communication Dimensions 162 
+Who are You, and Where Did You Come From? 
+The country of origin is indicated by a two-letter suffix at the end of a host name. For 
+example, a name ending in .ch is from Switzerland, while a name ending in .jp is from 
+Japan. 
+Most host names, though, end in one of the standard top-level domains .corn, .edu, and 
+.org, or the rarer US-specific ones such as .gov and .mil. Although many .com addresses 
+originate in the US, with a bit of detective work we can find the international ones. 
+Network Solutions offers a lookup service at this URI,: 
+http://www.networksolutions. com/cgi-bin/whois/whois 
+and it is possible to parse the output of this script to extract the country code. 
+Even the best analysis is never 100% perfect though: 
+0 The output of the WHOIS script sometimes includes incorrect country codes such 
+as GB, ENGLAND, CANADA, and so on. 
+0 Cross-border telecommunications means that, for example, some visitors from 
+Singapore may actually live in Australia. 
+0 As domain-name registration is handled by more and more companies, it 
+becomes less likely that any one lookup service will have a record of all domain 
+names. 
+Along with analysis by country, we count the number of visitors from a given company. It 
+is fairly easy to tell the company, university, or organization name from its .corn, .edu, or 
+.org address. But different conventions across different countries mean that the 
+significant part of the name might be farther back: 
+0 Sometimes the company name comes directly before the country code, such as 
+Sym patico.ca. 
+0 Companies sometimes embed .com or similar suffix in the middle of the URL. 
+Here are some common endings: 
+.corn. ar 
+.com.au 
+.com.br 
+.co.at 
+.m id  
+.co.il 
+.plc.uk 
+And sometimes the company name is clear, but the country code is embedded in the 
+middle of the domain name: 
+.ca.oracle.com 
+.ch.oracle.com 
+.de.oracle.com 
+0-7803-7209-31011$10.00 0 2001 IEEE J. Russell 
+Communication Dimensions 163 
+Who are You, and Where Did You Come From? 
+Some countries now sell country-specific domains commercially to people who couldn't 
+get the corresponding .corn, or who want a .md or .tv domain for a doctor or TV show. 
+(We found that our .md visitors really were from Moldova, while .cc users were from US 
+firms rather than the Cows and Keeling Islands.) 
+Although Internet use may not be widespread in every country, we were pleasantly 
+surprised to find visitors from such places as Gabon, Jordan, Andorra, Iceland, Oman, 
+and Kazakhstan. 
+NOT CREATED EQUAL: THREE TYPES OF USERS 
+By analyzing usage data across the entire site, we picked out several usage patterns: 
+searchers who look up information online, downloaders who retrieve certain files to view 
+or print later, and spiders that try to download every page and follow every link. 
+Searchers 
+As expected, search is a very popular way of finding information, and many visitors use 
+search exclusively. We analyzed these results a number of different ways: 
+0 Most frequent search terms. This was not particularly useful, because our highly 
+technical users searched for many specific terms, rather than a few general 
+ones. The main Oracle.com site gets thousands of searches for the same terms 
+every week, but we found no such standouts. 
+0 Most frequent search destinations. Because of the way we implemented search, 
+the number of potential destinations was much higher than on a typical search 
+site. To get useful figures, we had to aggregate the results across entire 
+chapters, books, and even groups of books. The results figured into decisions 
+about where to allocate authoring resource. 
+Failed searches. Along with the search term, we recorded how many matches 
+each search returned. By looking at those that returned zero matches, we 
+spotted trends in spelling words ("e-mail" versus "email") and product names 
+(which often include or omit spaces in unexpected places, making it harder for 
+users to search for them). This information is driving our use of search features 
+such as synonym matching and placing alternative spellings in the document 
+source or in metatags. 
+0 
+Down loaders 
+We offer PDF files for downloading and printing, and many visitors head straight to the 
+download section to get either a specific set of books, or the entire set. In fact, when we 
+put links to the HTML table of contents and the PDF download for each book side-tu- 
+side, PDF downloads outnumbered the people who browsed the HTML. As a result, we 
+designed the site to make it easy to download large numbers of PDFs without switching 
+between pages. 
+0-7803-7209-3/01/$10.00 0 2001 IEEE J. Russell 
+Communication Dimensions 
+Who are You, and Where Did You Come From? 
+1 64 
+Spiders 
+Some visitors download such large numbers of files, or visit such large numbers of 
+URLs, that they are clearly automated programs rather than real interactive users. We 
+found different patterns among these users. 
+Some of these visitors are spider programs associated with search engines. They 
+typically begin at one page, then follow each link to try and visit all pages on the site. 
+Well-behaved ones visit each page only once, and limit their activity so as not to slow 
+down the site. Inconsiderate ones visit the same page multiple times, send hundreds or 
+thousands of requests in quick succession, ignore the robots.txt convention that 
+identifies pages (such as search results) that spiders should not index, and come back 
+day after day after day. 
+Some of these visitors are real users, running software that downloads a complete 
+website for use offline. Because this is a one-time operation, it is not a big concern. 
+These programs can usually access sites that use cookies or passwords, so they are 
+hard to distinguish from regular users other than by the number of pages visited. Spiders 
+can usually be picked out by their lack of any site cookie. 
+Spiders caused us headaches in the early days of the site. Those from the well-known 
+sites such as Google and AltaVista were well-behaved, but others caused serious 
+slowdowns by running thousands of complex search operations. This led to certain 
+redesigns on the site: 
+0 Because spiders generally appear to be anonymous users (with no Oracle.com 
+cookie), we show fewer search links to anonymous users than to signed-in ones. 
+Originally, we showed all users hint links along with search results, leading to an 
+infinite number of searches. 
+We began recording the HTTP USER-AGENT header, to distinguish between 
+regular browsers and automated agent programs. This allowed us to prevent 
+these programs from descending too far into the search results. For example, 
+some of the agents we found include: 
+FlashGet 
+Webcopier v.2.2 
+Offline Explorer/l.6 
+Su perBot/2.5 (Wi n32) 
+Teleport Pro/l.29.1590 
+WebReaper [webreaper@otway.com] 
+WebZIPM.0 (http://www.spidersoft.com) 
+Website Quester - www.asona.org 
+0 We instituted a robots.txt file to prevent well-behaved spiders from viewing 
+inappropriate pages. 
+0 We measured site performance during spider "attacks", and tuned our search 
+and web site so that now even the most aggressive spider does not slow the site 
+down too much. 
+0-7803-7209-31011$10.00 0 2001 IEEE J. Russell 
+Communication Dimensions 
+Who are You, and Where Did You Come From? 
+165 
+WAR NO MORE: MEASURING BROWSER AND OPERATING SYSTEM USAGE 
+The USER-AGENT value is also useful to measure usage by visitors with particular 
+browsers and operating systems. The problem here is that similar browsers send 
+different values. The trick is to look for identifying substrings within all these different 
+values. 
+For example, all of these values identify the same general kind of browser and operating 
+system combination: 
+Mozilld4.0 (compatible; MSlE 5.01; Windows NT 5.0) 
+Mozilld4.0 (compatible; MSlE 5.01; WinNT) 
+Mozilld4.0 (compatible; MSlE 5.0; Windows 95; DigExt) 
+Mozilld4.0 (compatible; MSlE 5.0; Windows 98; DigExt) 
+However, to count the Windows NT users, we would have to look for variations such as 
+'Windows NT" and "WinNT. In the same way, to count Solaris users, we must look for 
+both "SunOS and "Solaris". 
+The "compatible" string above means that the browser is not Netscape, but is 
+compatible with it (usually signifying Internet Explorer). To find the actual Netscape 
+users requires a process of elimination -- "Mozilla" without "compatible". For example: 
+Mozilld4.75 [en] (X11; U; Linux 2.2.1 3 i686) 
+Mozilld4.76C-CCK-MCD Netscape [en] (X11; U; SunOS 5.6 sun4u) 
+Mozilld4.76 [en] (Win95; U) 
+Mozilld4.76 [en] (Win98; U) 
+Mozilld4.76 [en] (WinNT; U) 
+And there are scattered instances of other browsers, such as Opera and Konqueror: 
+Operd5.O (Linux 2.2.19 i686; U) [en] 
+Because this string has no definite length, we had to guess at the maximum number of 
+characters to allow. 64 characters truncates some values; 96 seems about right. 
+WEAVING THE WEB OF TRUST: BOOKMARKS, NEWSGROUPS, E-MAIL, SEARCH 
+ENGINES, AND REFERRAL SITES 
+The site was launched without great fanfare. This allowed us to monitor performance as 
+usage increased gradually, and to track how effectively we could publicize it using word- 
+of-mouth techniques. 
+Each page on the site is bookmarkable, including the results page of a search. In 
+publicizing the site through e-mails and newsgroup postings, we usually used a detailed 
+search URL, which let us count how many people performed exactly the same search by 
+following the link we gave. For example, we might reply to a posting on the newsgroup 
+comp.databases.oracle.server with a URL that searched for the relevant subject, with 
+options to narrow the search down and make the answer obvious. 
+0-7803-7209-3/01/$10.00 0 2001 IEEE J. Russell 
+Communication Dimensions 166 
+Who are You, and Where Did You Come From? 
+The flip side is that we could not rely on users to follow a consistent path starting at the 
+home page. Visitors might arrive at a navigation page 2-3 levels down as the result of a 
+link from a public search engine, or they might'follow a link to jump into the middle of a 
+complex search query. In cases of a conflict between data gathering and site usability, 
+we gave up the extra data and allowed users to skip navigation steps. 
+Many of the early visitors who saw these low-key postings put links to our site from their 
+own sites. These people tended to be well-respected experts whose sites received a lot 
+of traffic. 
+Happily, the days of manipulating search-engine rankings by loading pages with 
+metatags and other tricks appear to be over. Google ranks pages according to their 
+credibility, based on who links to your site and haw credible they are. Sites that are 
+ranked highly in Google listings seem to also score well in searches on Lycos, Excite, 
+MSN, and various lesser-known search engines. Without specifically submitting the site 
+to any search engine (except AltaVista, which needed a nudge to index the site), we 
+began appearing on the first page of search results for various searches at popular 
+search engines. This is confirmed by sample values for the HTTP-REFERER CGI 
+variable, when users followed a link from another site to ours: 
+http://WWW.goog le.com/search?hI=en&lr=&safe=off &q=PL%2FSQL+examples 
+http://search.excite.com/search.gw?c=web&search=oracle8i+Books&onload= 
+Analyzing visitors referred by search engines helped in a number of ways: 
+0 Confirming that the keywords we used on our introduction pages matched the 
+terms people were really searching for. 
+0 Ensuring that casual searchers would have the chance to get to the latest version 
+of the documentation. Many organizations have obsolete editions stored on a 
+public server. People who went to those sites might have bypassed the Oracle 
+site entirely. This way, we could see what they were interested in and (ideally) 
+turn them into repeat visitors. 
+Helping us understand the URLs that are recorded and need to be stable. The 
+OracleSi documentation files have already been moved between servers once, 
+but the navigation site URLs have stayed the same. We found that some search 
+engines indexed the site using an internal domain name that happened to work 
+outside the firewall, while others used the numeric IP address. 
+0 
+Publicity through news articles resulted in usage spikes but only small increases in long- 
+term traffic. Being added to a popular referral site or search engine resulted in 
+permanent traffic increases. We produce reports like the following for the sites that refer 
+a lot of visitors: 
+Google has referred ... visitors in 82 days, for a rate of ... visitors per hour 
+so that we can see how steady this traffic is. 
+In the beginning, traffic was highest during the week, but fell off sharply during 
+weekends. We considered that the site had "arrivedB when significant numbers of people 
+began visiting in their spare time. 
+0-7803-7209-3/01/$10.00 0 2001 IEEE J. Russell 
+Communication Dimensions 167 
+Who are You, and Where Did You Come From? 
+Because there are so many different possible HTTP-REFERER values, it is 
+cumbersome to use them to measure how people move between pages within the site. 
+We created a special remark parameter, included in links between pages, so that we 
+could tell how people arrived at a particular page. For example, someone can reach a 
+search results page by filling in a form on the home page, or from "search" links 
+scattered throughout the site, or by following a "hint" link from the result page of a failed 
+search. Similarly, there is a primary page for downloading PDFs, but other, less obvious 
+pages also link to PDF downloads. We measured the effectiveness of links like these, 
+and removed those that were not being used often. 
+THE GOOD, THE BAD, AND THE UGLY: ADVENTURES IN SEARCH QUERIES 
+Searches in technical documentation tend to be different than on a general-purpose or 
+marketing web site. While Oracle.com receives thousands of searches for broad terms 
+such as "Linux", our site receives thousands of unique search terms. This makes it much 
+more difficult to analyze whether visitors are successful in finding information. We 
+supplement the reports of search terms with reports of URLs visited, so we can bring up 
+the same pages and judge if people reached what we consider the authoritative 
+information on a subject. 
+Because every search engine has its own notation for phrase searching or boolean 
+queries, we receive some (but not many) searches using AltaVista-style notation, with 
+quotation marks around phrases, and users expecting the results to be implicitly ORed. 
+(Although AltaVista has recently switched to doing an implicit AND between all search 
+terms.) Others enter multiple words expecting them to be implicitly ANDed as Google 
+does, as or use other notation such as commas between each search term, or long 
+sentences as you might give to "Ask Jeeves". 
+Sometimes such queries result in no matches, other times in an unwieldy number of 
+matches. We actually like these cases, as it gives a chance to present a mini-tutorial on 
+the search notation at the beginning of the search results. ("Maybe you meant ..." or "It 
+might be better if you did ...".) We provide links to Fwritten search queries, for example 
+with AND and OR spelled out between the terms. Using the remark parameter 
+mentioned earlier, we verify that people are seeing and following these hint links. 
+Some misspellings appear to be due to finger fumbling, others due to non-English (or 
+even just non-American) users who don't know the spelling. Some users intentionally 
+enter a partial word, expecting the search engine to do wildcard expansion. It is common 
+to see extra or missing spaces, dashes, or other punctuation in product names, 
+programming keywords, or terms like "e-mail" and "datatypes". For example: 
+Upgradation, tunnig, catidges, passowrd, catridge, create tabel, coast base, 
+adaptive degree of parallism, materialised views, materialis. 
+Because getting technical or lengthy terms exactly right can be tricky, we sometimes 
+offer hardcoded search links to important terms. 
+Some people are simply at the wrong site, searching for topics not covered anywhere in 
+our information. We actually check for such terms when someone does an unsuccessful 
+search, and offer links to alternative sites. 
+0-7803-7209-3/01/$10.00 0 2001 IEEE J. Russell 
+Communication Dimensions 168 
+Who are You, and Where Did You Come From? 
+VOTED MOST POPULAR: WHY SOME AREAS GET ALL THE VISITORS, AND WHY 
+IT DOESN'T MAlTER 
+We knew ahead of time some books or areas were used more than others. Rather than 
+trying to direct visitors equally to all parts of the documentation, we coded additional and 
+more direct links to that content, and made those books appear first in some lists. To 
+some extent, this is a self-fulfilling prophecy, because the extra links result in more 
+visitors. This is not a concern. We knew that these books were already popular, and if 
+they become more popular as a result of the web site, so be it. 
+By checking whether these extra visitors visit these links equally, or follow particular 
+ones more often, we verify that people are following the most popular links out of real 
+interest and not just random curiosity. 
+A DOSE OF REALITY: HARDCOPY VERSUS SOFTCOPY USAGE 
+As much as we like to think that software users want to read information off the screen, 
+PDF downloads are 
+still very popular. We have to dig a little to determine this: 
+0 
+0 
+e 
+Since 
+9% of all users have downloaded PDF. 
+17% of all users have browsed to a table of contents in HTML. 
+Yet despite the larger number of users choosing to browse the HTML versus 
+downloading the PDF, those who go the PDF route tend to download several 
+books at once. Total PDF downloads run 70% higher than visits to HTML tables 
+of contents. Visitors who download PDFs do so 14.5 times on average. 
+so many visitors to the list-of-books page download multiple PDFs, we designed 
+that page as a single alphabetical list to facilitate multiple downloads, rather than making 
+users hunt back and forth for each one. This is perhaps the hardest thing for people 
+within our company to accept, because it is so common to split up books for different 
+components across different pages. 
+Of course, random access to information is still the favorite for users:* 
+0 70% of all users have searched. 
+0 15% of all users have used the master index. 
+LIES, DAMN LIES, AND STATISTICS: INTERPRETING RESULTS 
+All of the findings in this paper represent approximations. Given unresolvable host 
+names, anonymous users, and others who log in through multiple accounts, it is 
+impossible to be precise with any figures. Following are some inaccuracies that we have 
+found, and how we adjust our interpretations as a result. 
+0-7803-7209-3/01/$10.00 0 2001 IEEE J. Russell 
+Communication Dimensions 
+Who are You, and Where Did You Come From? 
+169 
+~ ~~ ~~ ~~~ 
+Spider programs cause serious distortions in statistics: 
+e 
+e 
+0 
+0 
+Users 
+public: 
+e 
+e 
+0 
+e 
+Originally, we identified individual host names with impossible-for-a-human 
+numbers of searches or pages visited, and omitted all traffic from those machines 
+in our statistics. (Which might also have thrown away valid traffic from other 
+users going through the same proxy server.) 
+Some spiders came from within Oracle, especially since many people linked their 
+internal home pages to our site. We changed such links to point to an internal 
+web sewer. 
+Lately, we have started collecting the value of the USER-AGENT HTTP header, 
+so that we can omit programs that identify themselves as spiders or site- 
+download tools. 
+Because our site has more links to some books than others, the main effect of 
+spider traffic is to make those popular areas seem more dominant than they 
+really are. Only in a few cases did these distortions change the order of the most- 
+visited books. 
+within your own company may have different usage patterns than the general 
+We prepared different popularity rankings for all users, and just those from 
+outside the company, based on the associated host names. 
+Since Oracle employees are perfectly valid users of the site, we do not throw 
+away their statistics, just analyze them separately to see whether developers, 
+support personnel, and so on have different needs than customers. 
+We filtered out usage data caused by our own testing, to the extent possible. We 
+omitted the IP addresses of known test machines (both internal and external), 
+and used standard, obscure search queries for sanity checking. As usage of the 
+site has increased, our testing has become such a small percentage of the traffic 
+that this is not a big concern. 
+The main influence of testing data was to make it seem as if all areas had a 
+baseline level of popularity. That is, we would download each PDF, visit URLs in 
+each book, and so on. Spider traffic has the same effect. If several unpopular 
+books all had the same minimum number of downloads, sometimes we simply 
+subtracted this number from all download figures to filter out users who 
+downloaded every book. 
+PDF downloads in particular show big spikes in activity, as some visitors download every 
+PDF in sight. Some even download more PDFs than we have available, or download the 
+same one over and over. We do not have a definite explanation for this behavior. 
+Perhaps the connection was lost partway through a download. Perhaps the file was 
+printed several times, and downloaded each time from the web site. 
+Less frequently, visitors may jump to the same URL multiple times. Perhaps they looked 
+for an alternative answer elsewhere, then decided the original information was the best. 
+We did not do anything to filter this traffic from the popularity rankings. 
+The items of information collected increase over time, meaning we can't look back 
+equally far for each item. For example, all statistics of the form "x% of users do such- 
+and-such" are based only on usage data from the date we began using cookies rather 
+0-7803-7209-3/01/$10.00 0 2001 IEEE J. Russell 
+Communication Dimensions 170 
+Who are You, and Where Did You Come From? 
+than simply host names. Each piece of analysis looks at the earliest date for which the 
+corresponding information is available. For example, we recorded the first link from 
+various search engines on different days: 
+Google has referred ... visitors in 82 days, for a rate of ... visitors per hour. 
+Yahoo has referred ... visitors in 81.95 days, for a rate of ... visitors per hour. 
+Altavista.com has referred ... visitors in 61.37 days, for a rate of ... visitors per 
+hour. 
+Adding new information to the search index, or adding, removing, or changing links, can 
+cause changes in traffic patterns from that point on. In many cases, we use a 14-day or 
+21-day or similar rolling window is useful to combat the effects of adding or changing 
+things. 
+Temporary site outages mean there are periods when statistics were not collected. We 
+do not factor these into our average-per-hour figures. 
+The unreliability of nslookup means we cannot rely on knowing the precise geographic 
+distribution of customers. In particular, we assume there are more users from Asian 
+countries than the statistics show. 
+Some number of the most popular search terms come from prominent links on our site 
+or links from somebody's personal page. To filter these out, we use the remark 
+parameter, mentioned above, to determine how someone arrived at the search results 
+page. We can determine which searches were done by typing into the search box, or by 
+following a link on our site, or by following a link from an external site. 
+For performance, and to keep file size from ballooning, some large pages with many 
+links are saved as static files with direct links, rather than generated dynamically with 
+links that call the logging routines. We can tell when users jump to the master index or 
+master glossary, but not which links they follow once there. 
+With the Oracle8i documentation site, we have a relatively complete picture of user 
+activity, missing only the master index and master glossary traffic. This is because the 
+interface was all-new. Wth the Oracle9i site, the navigation files are immortalized on 
+documentation CD-ROMs and certain other web sites. The only link back to the dynamic 
+site that collects statistics is for the search feature, so we can only analyze the traffic 
+related to searching. Some searchers then remain an the site and visit other pages, but 
+not enough to give an accurate picture of overall usage - by definition, many of these 
+visitors are unsuccessful searchers. 
+The close relationship between various search and portal sites makes it hard to 
+distinguish between them. Visitors referred by Google may come from a search, or from 
+a link in a newsgroup posting now that Google has absorbed the old Dejanews service. 
+Yahoo visitors may come through a link from the Yahoo site, or from Google search 
+since Yahoo uses Google as its search engine. 
+The statistics for overall searches are not especially useful by themselves. There is a 
+fairly constant ratio between the number of searches, and the number of links followed 
+from search results pages. But this says nothing about whether visitors actually found 
+the answer to their question. To prepare the documentation for online presentation, we 
+0-7803-7209-3/01/$10.00 0 2001 IEEE J. Russell 
+Communication Dimensions 171 
+Who are You, and Where Did You Come From? 
+rewrote many headings to be clear and attention-grabbing. Using the URL-visit report 
+mentioned above, we can confirm that many people who jump to search results follow 
+these clearly worded links. By looking at a random sample of links followed, we can 
+check if the headings match the content. For example, sometimes users are slightly 
+misled and jump to a description of a particular chapter, because the description has the 
+same title as the real chapter. Other times, they jump to a heading featuring the name of 
+a feature, only to find a brief mention of the feature and a statement that it is described 
+fully somewhere else. Cases like these result in followup work items for authors, to 
+clarify heading wording or otherwise distinguish the less-relevant heading. 
+TOO MUCH OR TOO LllTLE OF A GOOD THING: SITE PERFORMANCE AND 
+SCALABILITY 
+We must not hurt the performance of the web site while collecting usage data in real 
+time. We must be able to process large quantities of data with fast turnaround to support 
+all the different kinds of analysis discussed in this paper. 
+We use an Oracle database for all aspects of the web site: generating dynamic pages, 
+collecting usage data, and analyzing the data. This solves most performance and 
+scalability issues in a single stroke: 
+0 The time to collect data for each page view is imperceptible. 
+0 Page loading speed is determined more by the responsiveness of the web server 
+and the visitor's connection speed than by the time to produce the page. 
+0 We can analyze the usage data in real time using the same database that 
+powers the site, as the number of data points nears one million. Traditionally, 
+large quantities of data such as web semer logs are collected over a period such 
+as a month, then moved elsewhere for analysis. 
+As traffic increased, we discovered some areas where the site infrastructure needed to 
+be adjusted: 
+0 Visits from badly behaved spiders formed a kind of denial-of-service attack that 
+slowed down the site. Surprisingly, the bottleneck was not the search queries 
+that move megabytes of information, but the data collection that stores only a few 
+kilobytes each time. The site settings were optimized for read rather than write 
+operations. Upgrading some software components solved this problem, so now a 
+spider performing 20,000 searches a day does not slow down the site noticeably. 
+Some complex database queries, such as those to produce the master index, 
+seemed silly to run over and over again, since the resulting pages were exactly 
+the same every time. Thousands of links to the data collection routines made the 
+resulting files too big for visitors to download. We made these pages into regular 
+HTML files, giving up the ability to measure the popularity of links inside those 
+pages. (We felt that we already had this data through past usability studies.) 
+Although we could retrieve detailed data for search queries or page views, the 
+resulting web pages became too large to view. Even displaying results for a fixed 
+number of days resulted in too much data, so we introduced a cap on the number 
+of results displayed. 
+0 
+0-7803-7209-3/01/$10.00 0 2001 IEEE J. Russell 
+Communication Dimensions 172 
+Who are You, and Where Did You Come From? 
+CONCLUSIONS 
+Use audience numbers only for very rough guidance. You will never know for 
+sure the countries or companies for about 50% of visitors. 
+You might get your best results when you just start with low traffic that increases 
+gradually. Measure how people learn about the site, as well as what they do 
+there. 
+A small number of areas might receive the majority of page views. Concentrate 
+search features on those areas. 
+PDF downloads have different characteristics than searches. Support people 
+looking for printable information as well as those viewing HTML pages. 
+Filter out traffic figures that don't represent interactive users. Spiders and site- 
+download tools can distort results. 
+But make your site friendly for spiders too. Let them into parts of the site you 
+want to appear in search engines, but don't let them follow endless chains of 
+links. 
+You might have to balance usage data against site performance. Give up the 
+data rather than inconvenience users with a slow site. 
+REFERENCES 
+Hall, Robert. Tracking Web Activity: Benefits of a Database-Backed Web Site. Oracle 
+Technology Network. 2000. 
+http://ot n .oracle. com/prod ucts/oracle8i/htdocs/ats/ats home. ht ml 
+Nielsen, Jakob. Tracking the Growth of a Site. Alertbox. Feb. 22, 1998. 
+http://www.useit.com/alertbox/980222. html 
+ABOUT THE AUTHOR 
+John Russell leads several search, online navigation, and usability initiatives within the 
+Server Technologies group at Oracle Corporation. He also authors two books for Oracle 
+application developers: PUSQL Guide and Reference and Application Developer's 
+Guide - Fundamentals. Formerly, he served as Web Architect with the DB2 database 
+group at IBM. He received his BSc. from Memorial University of Newfoundland. 
+0-7803-7209-3/01/$10.00 0 2001 IEEE J. Russell 

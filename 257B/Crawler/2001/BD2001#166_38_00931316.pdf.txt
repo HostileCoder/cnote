@@ -1,0 +1,961 @@
+Hybrid Reasoning for Prognostic Learning in CBM 
+Systems 
+Amulya K. Garga, Katherine T. McClintic, Robert L. Campbell, Chih-Chung Yang, Mitchell S .  Lebold, 
+Todd A. Hay, and Carl S. Byington 
+Applied Research Laboratory 
+The Pennsylvania State University 
+P.O. Box 30 
+State College, PA 16804-0030 
+garga@psu.edu 
+814-863-5841 
+Abstract-Reasoning systems that integrate explicit 
+knowledge with implicit information are essential for high 
+performance decision support in condition-based 
+maintenance and prognostic health management 
+applications. Such reasoning systems must be capable of 
+learning the specific features of each machine during its life 
+cycle. In this paper, a hybrid reasoning approach that is 
+capable of integrating domain knowledge and test and 
+operational data from the machine is described. This 
+approach is illustrated with an industrial gearbox example. 
+In this approach explicit domain knowledge is expressed as 
+a rule-base and used to train a feed-forward neural network. 
+The training process results in a parsimonious representation 
+of the explicit knowledge by combining redundant rules. A 
+significant added practical benefit of this process is that it 
+also is able to identify logical inconsistencies in the rule- 
+base. Such inconsistencies are notorious in causing deadlock 
+in large-scale expert systems. The neural network can be 
+periodically updated with test and operational data to adapt 
+the network to each specific machine. The flexibility and 
+efficiency of this hybrid approach make it very suitable for 
+practical health management systems designed to operate in 
+a distributed environment. 
+TABLE OF CONTENTS 
+1. INTRODUCTION 
+3. MACHINERY PROGNOSTICS AND REASONING 
+4. AUTOMATED REASONING METHODS 
+5. VIBRATION FEATURE EXTRACTION 
+6. HYBRDREASONING 
+7. PROGNOSTIC LEARNING 
+8. CONCLUSIONS 
+9. ACKNOWLEDGMENTS 
+10. REFERENCES 
+11. BIOGRAPHIES 
+2. CONDITION-BASED MAINTENANCE 
+1. INTRODUCTION 
+Aerospace systems are usually designed to provide high 
+performance, safety, and high efficiency. However, due to 
+the high complexity these systems are very costly to operate 
+and maintain. Often, such systems are being used longer 
+than their initial anticipated life. Moreover, the operational 
+conditions that these systems are subject to can be 
+significantly different from what they were designed for. 
+The robustness and longevity of aerospace systems is a 
+strong testimony to the advanced state of the technology 
+involved in aerospace systems. However, prudence demands 
+that advanced monitoring and maintenance systems are 
+needed to preserve or enhance operational efficiency and 
+safety. For aerospace systems that are being designed now 
+advanced monitoring needs to be an integral part of the 
+design. This would provide improved situational awareness 
+to the crew and a sound basis for making maintenance and 
+other decisions about the equipment. 
+Maintenance and operational costs constitute a large part of 
+the life-cycle cost of a platform that can be reduced with the 
+use of enhanced information about the platform. Condition- 
+based maintenance (CBM) systems are being developed that 
+provide the operators and maintainers with valuable 
+information about the platform [7]. In addition, such 
+specific condition information is also valuable in mission 
+planning. 
+The availability of improved sensors and increasingly 
+affordable and fast computing technology has made on-line 
+monitoring of complex equipment a reality. Traditional and 
+smart sensors are now finding increased use in machinery 
+applications. Many reliable methods are available of 
+extracting key health indicators about the condition of the 
+machinery. Material and component level failure prediction 
+models are available for some systems. Extensive research 
+being performed in advanced sensors, feature extraction 
+methods, and modeling of mechanical systems is rapidly 
+improving the quality of information that can be gathered 
+from mechanical systems. However, increased information 
+about the platform does not automatically enable improved 
+decision-making. Automated reasoning is required to use 
+the diagnostic and prognostic indicators in the context of the 
+past usage and anticipated mission of the machinery. 
+6-2957 
+Most automated reasoning systems in use presently employ 
+explicit knowledge in the form rules about the mechanical 
+systems. The main advantage of this is that such knowledge 
+is usually based on the domain understanding of designers 
+and engineers. Furthermore, the reasons for specific 
+outcomes can be established. However, such systems suffer 
+from performance problems when the reasoning system 
+becomes large and they are based on general domain 
+knowledge and not machine-specific knowledge. Implicit 
+knowledge about the machine is contained in sensor data 
+that can be captured during testing and operation. Some 
+reasoning systems can use such information to infer the 
+condition of the machine. However, such systems do not 
+explicitly use valuable domain knowledge and also require 
+enormous amount of training data. Adequate training data is 
+usually unavailable due to cost, safety, and time constraints. 
+Furthermore, it is usually not possible to explain the reason 
+behind indications coming of such reasoning systems. 
+Thus, neither explicit reasoning nor implicit reasoning by 
+itself is adequate in accurate reasoning about specific 
+machines. Reasoning systems that combine implicit and 
+explicit knowledge are being developed to exploit the 
+advantages of the two types of knowledge [3]. As advanced 
+sensors, feature extraction, and prognostic modeling 
+techniques are utilized in CBM the need for such reasoning 
+is only increased. 
+In Section2, a brief overview of condition-based 
+maintenance is provided. The issues pertaining to machinery 
+prognostics, especially those related to reasoning, are 
+examined in Section 3. In Section 4, a brief overview of 
+rule-based systems and neural networks is provided. The 
+process of extracting features used in the reasoning example 
+is described in Section 5 .  The hybrid reasoning method, 
+which integrates explicit and implicit information, is 
+described in Section 6.  The need for prognostic learning in 
+CBM systems is motivated in Section 7 with the help of a 
+fault classification example. Some concluding remarks are 
+made in Section 8. 
+system must be instrumented with one or more sensors for 
+monitoring subsystem components. In addition, reasoning 
+with computer algorithms is required to make diagnostic 
+inferences and estimate remaining useful life. In some 
+systems, real-time decisions could then be made to shorten 
+or extend the time between expensive system overhauls, or 
+to modify the real-time use of the system to minimize 
+human or equipment damage. Thus, CBM provides the 
+potential for improved safety, reduced lifecycle maintenance 
+costs and extended use of existing equipment. Indeed, if 
+properly implemented, smart CBM systems could be used to 
+reduce the manpower required to operate and maintain large 
+machinery. CBM is becoming increasingly viable due to 
+recent advances in sensors, digital signal processing, 
+mechanical modeling, and automated reasoning techniques. 
+The flow of information in a CBM system is shown in 
+Figure 1. Sensors are placed in critical locations around the 
+platform to gather the material and component level 
+variations during the operation of the platform. This data is 
+processed with various feature extraction methods, which 
+enhance various indications related to faults of interest. The 
+determination of the type of fault is done next using 
+appropriate fault classification techniques. Some of the 
+features could also be employed by prognostic models to 
+produce time to failure indications. This information can 
+now be interpreted for its impact on the current mission of 
+the platform. In addition, the alternatives available for 
+continued safe and efficient operation could also be 
+determined. Such information can also be used by 
+maintenance scheduling systems to avoid in-service failure. 
+Though data fusion is shown to be occurring after fault 
+classification, fusion occurs at all levels at the hierarchy. 
+Similarly, reasoning of different types must occur at all 
+levels in the hierarchy. The platform hierarchy is shown on 
+the left-hand side in Figure 2. 
+There are many additional considerations that go into 
+implementing a CBM system. An important part of the 
+CBM methodology is machinery prognostics. 
+2. CONDITION-BASED MAINTENANCE 
+3. MACHINERY PROGNOSTICS AND REASONING 
+Condition-based maintenance is an alternative to the 
+traditional maintenance philosophies of schedule or use 
+based maintenance and restorative maintenance [4]. In use- 
+based maintenance preventive maintenance is performed 
+after a specified period of time or history of machine use. 
+The maintenance interval is based on mortality statistics 
+derived from accelerated testing of similar mechanical 
+systems. This is usually governed by worst-case scenarios 
+and leads to wastage of useful life of components. 
+Moreover, unnecessary maintenance can induce other faults. 
+In restorative maintenance repairs are made to machinery 
+after it fails or exceeds operational bounds. In contrast, 
+condition-based maintenance is performed based on the 
+observed condition of the individual system and on 
+projections of failure events. It follows that the mechanical 
+Prognostic Health Management requires context-based 
+reasoning incorporating domain knowledge, sensor data, 
+model predictions, user preferences, and a priori fault 
+statistics. Presently, parameter operating ranges are 
+established using engineering heuristics, but simply flagging 
+such exceedances is inadequate for detecting subtle fatigue 
+faults near threshold, diagnosing their origin, tracking them 
+in real-time, or predicting their temporal trajectories. This 
+more extensive form of health monitoring, i.e., prognostics, 
+is what is required to provide the long lead-times needed to 
+anticipate failures. Such a capability would also enable 
+prolonging component life through mission or maneuver 
+limiting. Machinery prognostics is an active area of research 
+PI. 
+6-2958 
+*I 
+\ 
+. . . . . . . . . . . . . . . . . . . .  
+Figure 1 : Condition-based maintenance information flow. 
+As prognostics technology matures and more diagnostic 
+and prognostic information becomes available, 
+monitoring systems need to present more information 
+about the platform in a more refined and concise manner 
+to avoid information overload. Thus, the use of data 
+fusion is necessitated to remove redundant information 
+and to combine imprecise information, in order to obtain 
+distilled and accurate information. This is possible 
+because different sensors provide information about 
+different aspects of a complex system and data fusion 
+utilizes the most reliable information from each sensor to 
+provide more accurate information about the complex 
+system than is possible to obtain with any one sensor [ 141. 
+The identification, characterization, and classification of 
+impending faults and failure conditions on complex 
+machinery provide a number of challenges. One of the 
+main challenges is the need for fault transitional data for 
+prognostic model development [ 11. Usually failure causes 
+are not directly observable. For example, a crack in a 
+gear tooth that could ultimately result in a broken tooth 
+and failed transmission cannot be directly observed. 
+Instead, evidence of this condition may be observed as 
+increased vibration. However, increased vibration could 
+also result from excessive wear, shaft misalignment, and 
+many other conditions. Thus, it is required to infer failure 
+phenomena given macro-level sensor data. Moreover, the 
+inference problem is hierarchical. Failure conditions at a 
+microscopic level propagate through the mechanical 
+hierarchy (elements, components, subsystems, systems, 
+and platform). When making the inference it is essential 
+to factor in the context of current operation. Finally, the 
+reasoning concerning the condition of a machine must 
+consider the temporal evolution of the machine. 
+Automated reasoning systems that integrate explicit 
+knowledge with implicit information are essential for high 
+performance decision support in CBM and prognostic 
+health management applications. In practical applications, 
+variations in the manufacturing process, the usage and the 
+maintenance of complex mechanical systems lead to 
+substantial differences across machines that are built 
+according to identical specifications. Therefore, reasoning 
+systems developed for assisting in the health management 
+of complex machinery must be capable of learning the 
+specific features of each machine during its life cycle. 
+Most reasoning systems in use are designed for use at the 
+decision level in the platform. They usually employ 
+expert system rules about the machinery to make 
+decisions. Such systems are adequate for small systems 
+but cannot capture the intricacies of complex systems. In 
+larger systems, the prognostic indications coming at 
+various levels through the hierarchy must be handled 
+using appropriate reasoning methods at that level. This is 
+shown in Figure 2. Implicit knowledge methods are more 
+suitable at the lower levels in the hierarchy and explicit 
+knowledge methods are more suitable that the higher 
+levels in the hierarchy. 
+6 - 2 9 5 9  
+Six-Layer Hierarchy 
+Plant I Platform 
+Subsystem 
+Component 
+Element 
+Material 
+Subsystem 
+Subsystem 2 
+I 
+Subsystem FaultDetection 
+; NN Anomaly Detection 
+g Template for Negative Info 
+Figure 2: Reasoning integrates effects through the platform hierarchy to encapsulate the impact of the condition of 
+the platform on its mission. 
+4. AUTOMATED REASONING METHODS 
+Many reasoning methods are applicable for assessing the 
+impact of diagnostic and prognostic indications. These 
+include graphical modeling, model-based reasoning, rule- 
+based systems, neural networks, and fuzzy logic. Most 
+reasoning methods can be broadly categorized as implicit 
+and explicit reasoning techniques. Implicit reasoning 
+techniques, such as artificial neural networks or pattern 
+recognition techniques, transform observed data into an 
+assessment of the status or health of a monitored system. 
+Explicit automated reasoning techniques, such as rule-based 
+expert systems, encode explicit knowledge gained from 
+maintenance personnel or system designers to allow 
+interpretation of fault conditions based on the values of 
+observed data. Recently, hybrid reasoning approaches have 
+also been proposed to integrate domain knowledge and test 
+and operational data from the machine. 
+Rule-Based Expert Systems-Rule-based systems are useful 
+in encapsulating explicit knowledge from experts. Expert 
+systems have been used in the AI community in the mid 
+1960s. It was believed that expert performance could by 
+produced by combining the power of computers with the 
+laws of reasoning. Expert systems are intelligent computer 
+programs that emulate the reasoning process of human 
+experts in order to solve difficult problems. These systems 
+must first acquire the knowledge of a human expert and then 
+be able to use this knowledge to infer solutions that can be 
+used by non-experts. Usually, rules are expressed in form; 
+IF condition, THEN consequence. The condition portion of 
+the rule is usually some type of fact while the consequence 
+portion can include oucomes that affect the outside world, 
+test another condition or rule, or even add a new fact to the 
+database. These rules can be specific domain rules or 
+heuristic rules (rules of thumb) and can be chained together 
+using logical operators. 
+A rule-base was prepared to represent domain knowledge 
+about three gearbox failure phenomena: Cracked or broken 
+teeth, Cracked or Broken Shaft, and Bearing failure. Some 
+examples of from the mle-base: 
+IF (Wavelet Magnitude High) OR (BP Kurtosis High) 
+THEN (Cracked or Broken Teeth High) 
+IF (Axial Vibration High) AND (BPRS High) THEN 
+(Cracked or Broken Shaft High) 
+IF (Vibration NOT High) AND ( WaveZet Magnitude NOT 
+High) AND (BP Kurtosis NOT High) THEN (Cracked or 
+Broken Teeth Low) 
+In these rules the vibration indicator variables, such as 
+Wavelet Magnitude or BP Kurtosis, could also treated as 
+linguistic variables. In this case, the rules can be treated as 
+fuzzy rules and can provide a more rich and succinct 
+representation of the domain knowledge [ 5 ] .  However, this 
+also requires the construction of membership hc t ions  to 
+map the raw numerical values of the vibration features into 
+fuzzy linguistic variables. In fuzzy rule-bases it is also 
+possible to visually examine the dependence of a 
+consequent condition, such as Broken Gear Teeth, on 
+specific vibration features, as shown in Figure 3. However, 
+this can only be done for two features at a time. 
+6-2960 
+Nevertheless, this can be a useful tool in checking the 
+validity of the rules. 
+Figure 3: Rule surface for broken gear teeth based on 
+vibration features. 
+Artificial Neural Networks-Arti ficial neural networks have 
+been inspired by the relative ease with which humans, using 
+biological neural networks, can perform many tasks that 
+have been nearly impossible for conventional (or von 
+Neumann type) computers. A neuraZ network, or an 
+artiJicial neural network to be more precise, is a parallel 
+distributed processing system. Neural networks are 
+networks of computing elements that mimic biological 
+neural networks. However, there are several differences 
+between the two types of neural networks. In biological 
+neurons, small electrical signals collected and accumulated 
+by dendrites. If total activation exceeds threshold, signal 
+sent to other neurons through axon. Connections frequently 
+activated are strengthened using Hebbian type updating. In 
+artificial neurons, input signals are combined in a weighted 
+sum. If the total sum, transformed with a nonlinearity, 
+exceeds a threshold the output is activated. Learning is 
+accomplished by adjusting weights according to some 
+optimization procedure. 
+Neural networks consist of information processing units, 
+called neurons or units, interconnected in a specific way 
+through connection weights, to produce a desired output in 
+response to its inputs. Such networks can be feedforward or 
+recurrent. Feedforward neural networks are usually 
+organized into layers of neurons in which signals can only 
+propagate from the inputs to the outputs and there is no 
+feedback. Most often the connection weights are restricted 
+to connect only the neurons in adjacent layers. Each neuron 
+accumulates the weighted sum of its inputs through the 
+connection weights and maps it into an output by employing 
+a transfer function, called the activation function, which is 
+usually nonlinear. If a neuron has N inputs, xi, and the 
+corresponding connection weights are wi, then 
+where f(.) is the activation function. The weighted sum is 
+simply the inner product of the input vector and weight 
+vector, 
+An important type of activation function is called the 
+threshold&nction, which produces a binary output based on 
+the comparison of the accumulated input of the neuron with 
+a threshold or bias. The output of a threshold neuron is 
+given by 
+(1, (X’W) -b > 0 
+y={0.5,  (x,w)-b=O, 
+10, (x,w)--6 < 0 
+where b is the bias. Such neurons are very useful in 
+classification tasks. Perhaps the most commonly employed 
+activation in neural networks is the sigmoid function, 
+sometimes called the squashing function since it maps its 
+input into the interval [0,1], with its inflection point being 
+located at the threshold or the bias. 
+The two activation functions are related since the threshold 
+function can be seen as the limiting case of the sigmoid 
+hnction when the slope at the threshold value is infinite. 
+Sigmoid functions have been shown to have very good 
+properties in function approximation. In particular, neural 
+networks consisting of two hidden layers of neurons with 
+sigmoid activation functions are universal approximators. 
+Unlike threshold and sigmoid functions, a radial basis 
+function (RBF) is not a monotonic function, i.e., its output 
+value gets smaller on either side of the threshold or bias 
+value. Typically, RBF neural networks utilize guassian 
+functions as the activation function and compare the input 
+vector with its weights vector. The response of the RBF 
+neuron is controlled by the location of the center (weight 
+vector) and a spread parameter, S ,  which determines its 
+“radius” or support region, , 
+where 1.1 denotes the modulus (i.e., size} of a vector. 
+Unlike programs or rule-based systems, neural networks are 
+trained using prior examples. There are several methods 
+used to train neural networks, which can be broadly 
+separated into supervised and unsupervised training 
+methods. Supervised training or learning utilizes the inputs 
+and the corresponding output values, called target or desired 
+output values, and modifies the weights and biases until 
+there is sufficient agreement in the networks outputs and the 
+target outputs. In unsupervised learning only the inputs are 
+provided and the network modifies weights and biases to 
+minimize some prescribed error criterion. 
+6-2961 
+Usually gradient descent used for training. 
+W k + l  = W k - a k g k ,  
+where w is a weight vector at time instant k, a, is the 
+learning rate at time k, and g is the gradient at time k. The 
+weights are modified to minimize mean-squared error 
+where t (k)  and a(k) are the target output and actual 
+network output respectively and e(k)is the error 
+corresponding to pattern number k of Q patterns. 
+Thus, when working with neural networks one must pay 
+attention to the following considerations for each neural 
+network 
+Network type: feedforward, recurrent, polynomial 
+Network size: number of layers, number of neurons 
+Neuron activation function: sigmoid, linear, 
+polynomial 
+Training method backpropagation, Levenburg- 
+Marquadt 
+Training and Test set: number and distribution of 
+exemplars 
+Convergence criteria: error bounds for 
+traininghesting 
+In addition, one must decide whether to use a single network 
+or multiple networks, trading off local vs. global influences 
+when selecting inputs, and methods for prevention of 
+overtraining. 
+EZ Net-A graphical user interface, EZ Net, was developed 
+to aid in the creation, simulation, and performance analysis 
+of artificial neural networks for fault classification problem 
+(see Figure 4). This was developed in MATLAB and uses 
+the techniques that are available in the Neural Networks 
+Toolbox. The tool allows the user to enter the topology of 
+the neural network and training and testing files. Various 
+parameters govem the performance of the network in a 
+specific application. The GUI allows the user to set all 
+network parameters prior to implementation and to view the 
+network’s simulation performance in real-time. The 
+network’s average performance over several iterations is 
+displayed as well. Special effort was made to prevent 
+common data entry errors as well as to visually guide new 
+users through the GUI during network configuration. The 
+combination of both network control and performance 
+analysis tools enables the user to systematically find the best 
+network parameters for a specified application. The use of 
+the GUI and the neural network toolbox was first tested with 
+the Iris data set, a standard benchmark for pattern 
+classification. EZ Net is being used to for various fault 
+classification problems. 
+The main limitations of rule-based systems are 
+combinatorial explosion and consistency maintenance. 
+These are especially accentuated as the number of variables 
+becomes large. The first limitation is partly alleviated with 
+the use of fuzzy logic instead of symbolic logic and this has 
+the pleasant side effect of reducing the severity of the 
+second problem as well. Nevertheless, even fuzzy rule- 
+based systems are not designed to handle both explicit and 
+implicit knowledge simultaneously. The main limitations of 
+neural networks are (a) it is usually very hard to explain the 
+reason that the network made specific decisions and (b) 
+training techniques usually take very long to converge and 
+require trial and error and educated guesses to decide the 
+network size, topology, and initialization. It is natural, then, 
+to combine the two approaches to exploit their advantages 
+and to eliminate their disadvantages. 
+Figure 4: Graphical user interface for easy use of MATLAB neural networks toolbox functions for classification 
+application. 
+6-2962 
+Model-based reasoning has been employed to incorporate 
+domain knowledge into the diagnostic reasoning process 
+(e.g. [9],[10],[1 I]). Such methods have shown success in 
+diagnosis of mechanical equipment with respect to known 
+faults. However, when unknown conditions arise such 
+methods are limited since there are no models for such 
+unknown conditions. Furthermore, most explicit modeling 
+methods are subject to combinatorial explosion as the 
+system becomes complex. One attractive feature of model- 
+based approaches is that the hierarchical nature of complex 
+mechanical equipment can be reflected in the models. This 
+partly alleviates the combinatorial explosion. However, 
+there remains the problem of incorporation of learning in the 
+model, especially when information about new fault modes 
+or conditions becomes available. 
+5. VIBRATION FEATURE XTRACTION 
+The example used here uses transitional data from 
+accelerated failure tests of a single-reduction industrial 
+gearbox. The mechanical diagnostics test bed (MDTB) 
+drives an industrial gearbox using a 30 HP, 1750 RPM AC 
+induction drive motor into a load supplied by a 75 HP, 1750 
+FWM AC induction absorption motor. The speed and torque 
+of the motors are controlled using analog voltages that are 
+supplied by computer via a digital to analog conversion 
+board. Both single and double reduction gearboxes with 
+reduction ratios between 1.2: 1 and 6: 1 can be tested using 
+the MDTB. With this range, the system is capable of 
+providing two to five times the maximum rated torque of 
+Raw Signal 
+each gearbox, which is desired in order to accelerate 
+gearbox failure. The sensors used included accelerometers, 
+thermocouples, pressure sensors, etc. This sensor data is 
+processed using various signal processing techniques and 
+algorithms. In this section some of these techniques are 
+identified. 
+A CBM toolbox [I21 was used to extract several features 
+from the vibration data. This toolbox was developed in 
+MATLAB to provide a researcher with a set of standard 
+processing routines for machinery prognostics. The main 
+features that were investigated are: FWS, Kurtosis, FM4, 
+and Wavelet magnitude. The process employed in the 
+obtaining the features and the features calculated are shown 
+in Figure 5. 
+6. HY~RID REASONING 
+In general, it is a good practice to first do a comparative 
+analysis of the different types of reasoning methods in the 
+context the given application. Such a comparison was 
+performed for the estimation of remaining useful life on 
+accelerated failure testing of industrial single-reduction 
+gearboxes [13]. The processing flow diagram for this 
+comparison is shown in Figure 6. In this comparison, neural 
+networks and fuzzy logic systems performed better than 
+expert system (see Error! Reference source not found.). 
+Hybrid system combined the estimates to provide improved 
+robustness. 
+DC Offset 
+Removal 
+Signal 
+Conditioning 
+Conditioned 
+Raw Signal 
+Time Synchronous 
+Averaging , 
+Remove 
+fundamental shaft 
+and mesh 
+frequencies and 
+harmonics 
+Signal 
+1 Remove 1st order I 
+sidebands 
+Difference 
+Signal 
+BP around 
+fundamental mesh 
+frequency 
+including 
+sidebands 
+i I 
+Band-Pass Mesh 
+Signal 
+Figure 5: The flow diagram for the CBM toolbox. 
+6-2963 
+Feature 
+Extraction - -  
+Figure 6: Comparison of three reasoning methods for remaining useful life estimation on a simple gearbox, 
+I , to train a neural network to learn the rule set. The 
+antecedents in the rules are fuzzy variables and, therefore, 
+they take values from a finite discrete set, which can be 
+mapped to any set that is isomorphic to a finite subset of the 
+set of natural numbers. This important observation results in 
+two consequences (a) the rule-base is finite, though its size 
+is an exponential function of the number of unique variables 
+and (b) it allows the interpretation of the neural network, 
+trained with such rule-set. 
+During the training process, the existence of inconsistencies 
+can be identified since it will prevent the network from 
+achieving the desired convergence. Moreover, redundant 
+rules are also combined so that the resulting knowledge base 
+is much smaller than the initial one. The trained neural 
+-20 .ia -16 -14 .?a -io .a 4 4 P o network itself is a parallel inference engine and can be used 
+I 
+0 
+Time to Failures, hours in on-line applications. These practical advantages are 
+significant for systems with large rule sets. 
+However, the most important advantage of this approach is 
+the ability to incorporate machinery data. This is done in 
+Figure 7: Time to failure prediction for the three 
+reasoning methods and their fusion. 
+two ways: by customizing the membership functions that 
+transform the numerical data into linguistic variables and by 
+retraining the neural network periodically during the 
+operational life of the machine. 
+A hybrid reasoning system is now described, which 
+integrates explicit domain knowledge and machine9 sensor 
+data. The processing flow diagram is shown in Figure 8. To 
+develop a rule-base, a knowledge engineer elicits explicit 
+rules from a domain expert about the system. These are used 
+6-2964 
+Domain Explicit 
+Expert Rule Set 
+Neural Network 
+Data Domain Knowledge 
+Hybrid Neural Network 
+Machine Specific ~ n o ~ l e d ~ ~  
+Figure 8: Hybrid reasoning approach for integration of implicit and explicit knowledge. 
+To accommodate the variability in signal levels from 
+machine to machine, the signals are first converted into 
+fuzzy variables. These signals are then used by the neural 
+network to perform the reasoning. In Figure 9, the fuzzy 
+variables corresponding to the RMS feature are shown for 
+MDTB run #14. Here, RMS-L, RMS-M, RMS-H, stand for 
+the membership values in Low, Medium, and High value 
+sets, respectively. Similarly, Figure 10 shows linguistic 
+(fuzzy) variables corresponding to the wavelet feature. 
+Clearly, since the wavelet feature was designed specifically 
+to detect gear tooth breakage it shows a much cleaner 
+transition as the test progresses. However, there remains 
+some in the last part of the run. This is the reason that 
+reasoning with additional features is required to obtain 
+clarification. 
+1 
+0.8 
+0.6 
+0.4 
+0.2 
+0 
+90 95 I00 105 I10 I15 
+Time, hn 
+Figure 9: Linguistic (fuzzy) variables corresponding to 
+RMS feature. 
+I 
+0.8 
+0.6 
+0.4 
+0.2 
+0 
+90 95 100 105 110 115 
+Tim, hrs 
+Figure 10: Linguistic (fuzzy) variables corresponding to 
+the wavelet feature. 
+Many different types of neural networks can be used in this 
+approach. Indeed, a comparative analysis of such methods is 
+necessary for a better understanding of the relative 
+advantages and disadvantages of the various neural 
+networks in this context. In this example, a self-organizing 
+map was used to transform the rules into a two-dimensional 
+feature map, which can be partitioned into regions that 
+represent the different type of machinery condition. Here, a 
+self-organizing neural network trained with antecedent 
+conditions of rules and consequents used to label neurons. 
+Such a map that was trained with the MDTB rules, some of 
+which were shown in a previous section, is shown in Figure 
+11. 
+6-2965 
+, 
+. .  
+Figure 11: Self-organizing neuron map represents 
+MDTB gearbox fault map. 
+The main distinction of this method is that due to the visual 
+nature of the arrangement of neural network it is possible to 
+explain the reasoning behind the indications that the neural 
+network provides. An additional advantage is that the neural 
+network also points out where there are ambiguities and 
+missing knowledge in the rule-base (see Figure 12). In 
+addition, multiple hypotheses can be maintained 
+simultaneously. As the knowledge matures over the life of 
+the machine, the hybrid system encapsulates refined rules, 
+which can be examined periodically for verification and 
+domain knowledge updates. 
+Figure 12: One arrangement of fault classification 
+regions based on the SOM. 
+7. PROGNOSTIC LEARNING 
+A reasoning system employing CBM data must be capable 
+of learning as new data and informtion becomes available 
+during the life cycle for the machine. This is necessitated by 
+several factors, such as, 
+incomplete a priori knowledge of machinery 
+dynamics, especially under fault progression 
+conditions, 
+variations in usage and maintenance histories of 
+individual machines, 
+changes in the composition of the machine, 
+modifications in the intended uselmission of the 
+machine, and 
+technological advancements in sensing, modeling, 
+and analysis methods. 
+In this section, the impact of new data on fault classifiers is 
+described to illustrate how fault classification regions are 
+affected due to differences in training data. 
+Previously, the benefit of feature selection for enhancing 
+fault classification performance was demonstrated using the 
+0"s Westland helicopter vibration data set [15] (see 
+Figure 13). The Westland data set consists of multisensor 
+vibration data from a testbed for the aft transmission of a 
+CH-46 helicopter. Eight accelerometers collected vibration 
+data during several test runs under no fault condition and 
+with faulty or seed fault components. The data were 
+collected to for comparing various methods of classifylng 
+the data among the eight fault classes (no fault and seven 
+fault classes). 
+0.125 
+0.12 
+0.1 15 
+0.11 
+0.105 
+0.1 
+0.095 
+I 
+I Quill Shaft 
+I Crack 
+No . 
+Helical Idler 
+Gear Crack 
+35 0 0 05 0 1  
+F1 
+Figure 13: Fault classification regions for the Westland 
+helicopter vibration data set. 
+The data set was also used to show the benefit of data fusion 
+for providing improved robustness in fault classification 
+6-2966 
+[16] (see Figure 14). Indeed, these methods are among the 
+steps that should be taken to avoid the pitfalls in 
+implementing data fusion [ 171. 
+0.9 
+0.8 1 
+:I , , , , , , , 
+0 
+1 2 3 4 5 6 7 8  
+Number of sensors 
+Figure 14: Improvement in fault classification 
+performance with data fusion. 
+More recently, data from Penn State Applied Research 
+Lab’s Mechanical Diagnostic Test Bed (MDTB) [I]  was 
+used to construct fault classifiers. Several HUMS features 
+were computed (as described in Section 5). For fault 
+classification six features were selected: FM4, NA4*, M8A, 
+and three features derived from the interstitial signal (RMS, 
+standard deviation of rectified signal, and peaks in the 
+envelope spectrum). In this case, the interstitial signal is 
+obtained by bandpassing between the third and fourth 
+harmonic of the mesh frequency (see [I21 for more details 
+on the feature extraction methods). Using the six features 
+Fisher’s discriminant method was used for variable selection 
+and a minimum distance classifier was designed as in [ 151. 
+When data from the break-in period was used along with the 
+data from the overload period the classification regions 
+obtained were as shown in Figure 15. In this figure the 
+green corresponds to the early period of the run, blue 
+corresponds to the middle portion of the run where damage 
+has been detected, and red corresponds to the last portion of 
+the run. 
+Figure 15: Fault classification regions using data from 
+break-in and overload periods. 
+However, when only the data from the overload period was 
+used the regions were as shown in Figure 16. 
+Figure 16: Fault classification regions using only data 
+from overload period. 
+It is clear that the selection of the training data has a major 
+impact on the actual classification boundaries. Another 
+important point that must be made is that most classification 
+methods try to partition all of the feature space into the 
+regions corresponding to the target classes. It is important 
+that when designing a classifier one should provide target 
+classes for unknown and ambiguous conditions. Doing this 
+leads to more reliable decision making since when the 
+inputs are ambiguous or correspond to an unknown 
+condition the human decision-maker can utilize additional 
+contextual information to make informed decisions. 
+Moreover, incremental knowledge gains can be made to 
+address the unknown conditions. 
+The self-organization step of the neural network provides 
+dimension reduction and in addition provides a valuable 
+visual indication of the condition of the machine. Such 
+visual diagnotic tool is of enormous value to the operator as 
+well as the maintainer of the machine. The relative 
+arrangment of nodes corresponding to various faults 
+inferencd by the neural network method described in the last 
+section is intuitve. As the retraining proceeds the nodes 
+connresponding to ambiguous and unkown conditions are 
+resolved into definite fault conditions. Additional research is 
+in progress to understand the respective advantages and 
+limitations of statistical and neural networks methods 
+applicable to prognostic learning. Indeed, with the improved 
+understanding guidelines for their use will emerge. 
+8. CONCLUSIONS 
+In this paper, a hybrid automated reasoning method was 
+described that integrates explicit domain knowledge in the 
+form of rules and sensor data to assess the condition of the 
+system being monitored. There are several advantages of 
+this approach over other reasoning methods. It combines 
+domain knowledge and machinery operational and test data. 
+6-2967 
+It learns machine’s nominal levels and enables the 
+adaptation of machine-specific hypotheses based on 
+diagnostic and prognostic information. The organization of 
+the neural network provides a visual explanation of the 
+reasons for diagnosis. The resulting knowledge also uses the 
+absence of indicators to reduce the possible faults that could 
+be present [6]. It can be used to identify knowledge gaps 
+and augment knowledge using historical information. 
+Finally, it can be used to eliminate inconsistency and 
+redundancies in rule-base. It is possible to derive rules that 
+utilize the information about what is wrong with the system 
+and other rules that utilize the information about what’s not 
+wrong with the system. Moreover, this flexibility results in 
+reducing the size of the resulting rule sets. Therefore, this 
+reasoning system is capable of learning the specific features 
+of each machine during its life cycle. The flexibility and 
+efficiency of this hybrid approach make it very suitable for 
+practical health management systems designed to operate in 
+a distributed environment. 
+9. ACKNOWLEDGMENTS 
+This work was supported by a grant from the Office of 
+Naval Technology (the Multi-Disciplinary University 
+Research Initiative for Integrated Predictive Diagnostics 
+Grant no. NO00 14-95- 1 -1 046 1). 
+10. REFERENCES 
+[l] C. S. Byington, and J. D. Kozlowski, “Transitional Data 
+for Estimation of Gearbox Remaining Useful Life,” 
+Proceedings of the 51“ Meeting of the Society for 
+Machinery Failure Prevention Technology, April 15-1 7, 
+1997. 
+[2] S. I. Engel, B. J. Gilmartin, K Bongort, and A. Hess, 
+“Prognostics, the real issues involved with predicting life 
+remaining,” Proceedings of the IEEE Aerospace 
+Conference 2000, Vol. 6 ,  pp. 457-469, March 2000. 
+[3] A. K Garga, “A Hybrid ImplicitlExplicit Automated 
+Reasoning Approach for Condition-Based Maintenance,” 
+Proceedings of the ASNE Intelligent Ships Symposium II, 
+pp. 393405, Philadelphia, November 25-26, 1996. 
+[4] D. L. Hall, “Concepts of Condition-Based Maintenance for 
+Intelligent Ships.” Proceedings of the ASNE Intelligent 
+Ships Symposium II, PhiladeEphia, PA, 25-26 November 
+1996. 
+[SI D. L. Hall, A. K.. Garga and J. A. Stover. “Machinery 
+Fault Classification: The Case for a Hybrid Fuzzy Logic 
+Approach.” Proceedings of the 53“‘ Meeting of the Society 
+for Machinery Failure Prevention TechnoIogy (MFPT), 
+Vol. 53, pp. 241-252, Virginia Beach, VA, 1999. 
+[6] D. L. Hall, R. J. Hansen, and D. C. Lang, “The negative 
+information problem in mechanical diagnostics,” 
+Transactions of the ASME, Vol. 119, pp. 370-377, Apr. 
+1997. 
+[7] Hansen, R. J., D. L. Hall, and S. K. Kurtz, “A new 
+approach to the challenge of machinery prognostics,” 
+International Gas Turbine and Aeroengine Congress and 
+Exposition, Netherlands, June 13-16, 1994. (Also in the 
+Transactions of the ASME, 117:320-325, April 1995.) 
+[8] D. Hush and B. Home, “Progress in supervised neural 
+networks: What’s new since Lippman?,” IEEE Signal 
+Processing Magazine, pp. 8-39, Jan. 1993. 
+[9] A. Misra, G. Provan, G. Karsai, G. Bloor, and E. Scarl, “A 
+generic and symbolic model-based diagnostic reasononer 
+with highly scalable properties,” Proc. 1998 IEEE 
+Intemational Conference on Systems, Man, and 
+Cybernetics, vol. 4, pp. 3 154 -3160. 
+[lo] G. Provan and Y. Chen, “Component-based modeling and 
+diagnosis of process-control systems,” Proc. 1999 
+International &mposium on Computer Aided Control 
+System Design, pp. 194-199, Hawaii, August 1999. 
+[ l l ]  G. Provan and Y. Chen, “Model-based diagnosis and 
+control reconfiguration for discrete-event systems: an 
+integrated approach,” Proc. 3 9  Conference on Decision 
+and Control, v01.2, pp. 1762-1768, Pheonix, AZ, 
+December 1999. 
+[12] M. Lebold, K McClintic, R. Campbell, C. Byington, and 
+K.. Maynard, “Review of vibration analysis methods for 
+gearbox diagnostics and prognostics,” Proc. 53& meeting 
+of the Society for Machinery Failure Prevention 
+Technology, VA Beach, VA, May 14,2000, pp. 623-634. 
+[ 131 D. L. McGonigal, A Comparison of Automated Reasoning 
+Techniques for Condition-Based Maintenance, M. S .  
+Thesis, Electrical Engineering Department, Pennsylvania 
+State University, 1997. 
+[ 141 J. A. Stover, D. L. Hall, and R. E. Gibson, “A Fuzzy-Logic 
+Architecture for Autonomous Multisensor Data Fusion,’’ 
+IEEE Transactions on Industrial Electronics, pp. 403410, 
+June 1996. 
+[15]A. K. Garga, B. T. Elverson, and D. C. Lang, “Fault 
+Classification in Helicopter Transmission Vibration 
+Signals,” Proceedings of the 53rd American Helicopter 
+Society Annual Forum, vol. 2, pp. 1316-1323, Virginia 
+Beach, VA, May 97. 
+[ 161 J.D. Erdley, Improved Fault Detection using 
+Multisensor Data Fusion, M. S .  Thesis, Electrical 
+Engineering Department, The Pennsylvania State 
+University, May 1997. 
+[17]D. L. Hall and A. K. Garga, “Pitfalls in Data Fusion 
+(and How to Avoid Them),” Proceedings of 2nd 
+Intemational Conference on Information Fusion 
+(FUSION 99), Sunnyvale, CA, 6-9 July 1999. 
+6-2968  
+1 1.  BIOGRAPHIES 
+Amulya K. Garga is a Research Associate at 
+the Applied Research Laboratory at the 
+Pennsylvania State University. His current 
+research includes hybrid and neural 
+automated reasoning and data fusion. He was 
+the project manager (1997-99) for an ONR 
+MURI grant for Integrated Predictive Diagnostics research 
+for complex machinery. His previous research included 
+signal and image processing, target tracking, and VLSI 
+systems. Dr. Garga was recently awarded the IEEE Third 
+Millennium medal. He is a member of the IEEE, Eta Kappa 
+Nu, and Sigma Xi Research Society. He is currently the 
+Chairman of the Central Pennsylvania chapter of the IEEE 
+Signal Processing Society. 
+Katherine T. McClintic is a Research 
+Assistant in the Condition-Based 
+Maintenance Department at the Penn State 
+Applied Research Laboratory (ARL). Her 
+research interests are in signal processing, 
+pattem recognition, data fusion, and 
+softwarelsystems engineering for condition-based 
+maintenance and underwater acoustics. 
+Robert L. Campbell is a Research Assistant 
+in the Condition-Based Maintenance 
+Department at the Penn State Applied 
+Research Laboratory (ARL). His research 
+interests are in thermal-hydraulic systems, 
+equipment condition monitoring, and 
+modeling of mechanical systems. 
+Chih-Chung Yang is a graduate student in 
+the Electrical Engineering Department at the 
+Pennsylvania State University, where is he 
+currently pursuing the Ph.D. degree. His 
+interests are in signal processing and neural 
+networks. 
+Mitchell S. Lebold is a Associate Research 
+Engineer in the Condition-Based Maintenance 
+Department at the Penn State Applied 
+Research Laboratory (ARL). His research 
+interests are in signal processing, controls, and 
+embedded computer systems for condition- 
+based maintenance of bearing, gear, and 
+turbine machinery systems. 
+Todd A. Hay is an undergraduate student at 
+Penn State University currently pursuing his 
+BSEE degree and a minor in Mathematics. 
+He is working part-time at the Applied 
+Research Lab. Mr. Hay's interests there 
+include pattern recognition and neural 
+networks. He enjoys backpacking and mountain biking in 
+his free time. 
+Carl S. Byington is a Professional Engineer 
+and the Department Head of the Condition- 
+Based Maintenance Department at the Penn 
+State Applied Research Laboratory (ARL). 
+His interests include failure diagnostics, 
+mechanical/fluid systems modeling, system 
+design analysis, and optimization methods. He is the lead 
+engineer and principal investigator on several projects on 
+predictive failure diagnostics technology for mechanical and 
+electrochemical systems. Previously he conducted research 
+on design and testing of thermal, mechanical and fluid 
+power systems, including high-speed propulsion research 
+(NASA Langley, 1988-90) and advanced thermal 
+powerplants for underwater vehicle ( A m ,  1991-95). He is 
+a member of ASME, ASM, STLE, and SAE professional 
+societies. 
+6-2969 

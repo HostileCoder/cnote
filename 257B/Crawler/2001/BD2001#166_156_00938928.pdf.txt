@@ -1,0 +1,465 @@
+A Stabilized Adaptive Appearance Changes Model for 3D Head Tracking 
+Zoran Zivkovic, Ferdinand van der Heijden 
+Laboratory for Measurement and Instrumentation 
+Faculty of Electrical Engineering, University of Twente 
+PO. Box 21 7,7500 AE Enschede, The Netherlands 
+{Z. Zivkovic, FvanderHeijden) @el. utwente. nl 
+Abstract 
+A simple method is presented for 3 0  head pose esti- 
+mation and tracking in monocular image sequences. A 
+generic geometric model is used. The initialization con- 
+sists of aligning the perspective projection of the geomet- 
+ric model with the subjects head in the initial image. Affer 
+the initialization, the gray levels from the initial image are 
+mapped onto the visible side of the head model to form a tex- 
+tured object. Only a limited number ofpoints on the object 
+is used allowing real-time performance even on low-end 
+computers. The appearance changes caused by movement 
+in the complex light conditions of a real scene present a big 
+problem forfitting the textured model to the data from new 
+images. Having in mind real human-computer interfaces we 
+propose a simple adaptive appearance changes model that 
+is updated by the measurements from the new images. To 
+stabilize the model we constrain it to some neighborhood of 
+the initial gray values. The neighborhood is defined using 
+some simple heuristics. 
+1. Introduction 
+The reconstruction of 3D position and orientation of ob- 
+jects in monocular image sequences is an important task in 
+the computer vision society. This paper concentrates on 3D 
+human head traclung. The applications we have in mind 
+are: model-based coding for video conferencing, view sta- 
+bilization for face expression recognition and various pos- 
+sible human-computer interface applications. Anyway, the 
+approach proposed here can be applied in general for rigid 
+object tracking in 3D. 
+In the initialization procedure we align our generic geo- 
+metric head model with the observed subject’s head. This 
+can be done manually, or automatically by using some other 
+algorithm. For new images in the sequence, tracking con- 
+sists of estimating the human head pose with respect to this 
+initial pose. Because of the perspective projection of stan- 
+dard cameras it is possible to estimate the 3D pose from the 
+2D image data. We use an initially aligned generic geomet- 
+ric 3D head model. Therefore, as described later, the 3D 
+pose is estimated only up to a scaling factor. However, this 
+is of no importance for the applications we are considering. 
+The paper is organized as follows. Related work is pre- 
+sented in the next section. Then the geometric part of our 
+model based approach is described. The adaptive radiomet- 
+ric model is presented in section 6. Finally, the whole al- 
+gorithm is described and some experimental results are dis- 
+cussed. 
+2. Related work 
+One of the big problems in tracking algorithms is the 
+object appearance change caused by movement under real- 
+istic light conditions. These effects are usually very hard to 
+model. In almost all realistic situations light conditions are 
+complex and unknown. 
+Many 3D head tracking methods start from tracking 
+some distinctive feature points on the head (for example 
+eyes, nose, mouth comers etc.) in the 2D image plane[ 1 11. 
+The appearance changes caused by movement in realistic 
+light conditions are addressed by choosing appropriate sim- 
+ilarity norms for tracking the selected feature points. A 
+generic 3D model is then fitted to these 2D measurement 
+to estimate the 3D head pose. The biggest drawback is that 
+features can be lost because of occlusions or some other not 
+modeled effects. Knowledge about the 3D object geometry 
+can be used to predict feature point occlusion and to recover 
+it if it appears again. An attempt is reported in [lo] where 
+they also used the 2D feature trajectories in a structure from 
+motion algorithm to update the generic 3D model geometry. 
+Another way is to use the generic 3D model geometry 
+directly. This is usually done by forming a textured 3D head 
+model using the initial image [l]. This textured model is 
+then fitted to the data from the new images. We also use the 
+textured 3D model in this paper. The novelty is that only a 
+175 
+0-7695-1074-4/01 $10.00 0 2001 IEEE 
+limited number of points on the object is used to allow fast 
+implementation. 
+In practice, because of complex light conditions, head 
+movements introduce large changes in the texture of the pre- 
+viously described textured 3D head model. An approach is 
+to form a large image database of the object under various 
+light conditions. Then a model should be constructed from 
+the data. This is usually done by finding a representative or- 
+thogonal linear subspace using principal component analy- 
+sis (PCA) [ 121 [9]. This subspace is used to represent the 
+whole database (all possible appearances of the object when 
+it moves in realistic light conditions). How much is a new 
+image ”face like” is calculated by measuring the distance 
+from this subspace. This ”brute force” method needs a long 
+and hard to perform preparation procedure, which is highly 
+unpractical for real user interface applications. A textured 
+cylindrical model with PCA appearance changes modeling 
+is presented in [7]. We search here for other simpler and 
+more appropriate solutions. In a typical situation we have 
+only one image of the object - the initial image. Then, us- 
+ing some heuristics we define some neighborhood around 
+the initial gray values to constrain possible object appear- 
+ance changes. 
+No big appearance changes are expected for small move- 
+ments between two consecutive images. We then try to use 
+the gray levels from the new images to update the 3D ob- 
+jects texture. This is somewhat similar to the methods that 
+use opticalflow (movement of gray level patterns in the im- 
+ages) as their input [3]. Because of error accumulation these 
+methods were not able to deal with longer image sequences. 
+Figure 1. The Geometric Model 
+where integration is done over the whole image area and 
+qpresents the estimated pose parameters. Here, model(q3 
+presents the model generated image and currentimage is 
+the current image from the camera. 
+In practice, it is not feasible to have the complete model 
+of the imaging process. Therefore, we are bound to use a 
+number of approximations. We divide the model into two 
+parts: a geometric part and a radiometric part. These two 
+parts are described in the next sections. 
+h 
+Some solutions were proposed trying to prevent this drift 
+away [8] [ 131. Our method constrains the texture appear- 
+ance to the neighborhood of the initial values and in this 
+way prevents the drift away. 
+d. The geometric model 
+There are various ways to describe the geometry of 3D 
+objects [2]. We use a triangular mesh, the common repre- 
+3. Model based approach sentation supported by fast graphics hardware. The mesh we use (Figure 1) is generated as an attempt to represent the 
+3D geometry of a human head. 
+Let Zobj , i  = [ xOb.,,i ~ , , b j , ~  z&j,i IT present the po- 
+coordinate system. This position, of course, depends on the 
+We use a model-based approach where we try to find the 
+parameters we want to estimate are contained in the vector: 
+best fit Of the to the images in the sequence’ The sition ofa fixed point i on the object’s surface in the camera 
+head pose Z U b j , i  = Z0bj,i(q3. For simplicity of notation we 
+We assume that the camera is calibrated. Therefore we 
+of the camera lens system that projects the 3D point Zobj , i  
+to the 2D image plane point zim,i . If the camera doesn’t 
+introduce any distortions we have: 
+< = [ a  Y CY P T I T  (1) will further often omit f. 
+where z, y, z describe the position and CY, P,  y are the Euler 
+nate system. 
+If we don’t take into account the previous history of the 
+head movement and we consider all the image pixel mea- 
+angles describing the head orientation in the camera coordi- the perspective projection Zim,i = p ( Z u b j , i )  
+surements equally important, the problem can be formu- 
+lated as follows: r 1 
+h r <= argmin( (model($ - _ -  ... .. ~ ~, ,~ ,  
+where f presents the focal length of the camera lens. 
+176 
+A generic geometric human head model is used. The 
+size of the subject's head is unknown and we don't want to 
+complicate the initialization procedure. Therefore, the ini- 
+tial position (contained in fo) is known only up to a scaling 
+factor. As a consequence 3D head position is estimated only 
+up to the scaling factor. As mentioned before, this doesn't 
+present a problem for the applications we are considering. 
+5. Problem definition 
+We define a set of test points on the object &bj, i .  For our 
+triangular mesh model we choose the centers of the triangles 
+in the mesh as shown in Figure 1. Our proposal is to check 
+the fit of the model only at these object defined points and 
+not to try to reconstruct the image. This can heavily reduce 
+the amount of data to be processed and speed up the traclung 
+algorithm. Therefore, our problem (2) for the IC-th image 
+can be redefined as: 
+i 
+i 
+where the summing is done over all test points. Here, 
+M k ( i )  presents the model-predicted gray value to be ob- 
+served when Zob3,Z is projected to the image plane and 
+I k ( P ( & b j , i ) )  1s the actual observed value at that position 
+in the current image. We search for the pose parameters $k 
+that give the best fit. 
+The measurements are weighted by: 
+A point i$bj,i corresponds to a triangular patch z of the 
+object surface as defined by the generic geometric model. 
+The size of the patch is denoted by A( i ) .  The current normal 
+of the patch is described by n'obj,i = n'obj,i ( & ) .  In total, the 
+weight w(i ,  & )  presents the visible size of the triangular 
+patch i. Note that occlusion by other triangular patches is 
+not included in this model. However we don't expect such 
+situations to occur often. 
+Because of many not modeled effects some measure- 
+ments can contain unexpectedly high errors. Therefore, in- 
+stead of the standard quadratic norm we use the less sensi- 
+tive Geman & McClure robust error norm: 
+Here, 
+ment is considered as an outlier [4]. 
+controls the difference beyond which a measure- 
+6. The radiometric model 
+The radiometric model describes which gray value 
+Mk(i)  is expected to be observed in the IC-th image when 
+object point x o b j , z  is projected onto the image plane. In gen- 
+eral this depends on the local surface radiometric properties, 
+local surface orientation and light conditions. Approximate 
+radiometric models exist [6] and theoretically M k  (i) should 
+then be written as: M k ( 2 ,  &bj , z (&) ,  & ) .  However, the lo- 
+cal surface properties are unknown. Also the lighting con- 
+ditions in real scenes are very complex in general and we 
+are forced to use a number of approximations. 
+6.1. Approximate radiometric models 
+After initial alignment of the 3D object with the first im- 
+age (IC = 0) in the sequence we can obtain the values Mo(i) 
+for the test points & , j , i  visible for that head model pose: 
+where the CO presents the parameters selected to align the 
+generic model with the subjects head in the initial image. 
+The simplest approximate model is the so called constant 
+brightness assumption that predicts the gray value in the k- 
+th image as: 
+This model is correct for Lambertian surfaces and with 
+only ambient light present, which is far from realistic. A 
+simple relaxation is to allow global brightness changes by 
+adding a constant a to all points gray values. Further ap- 
+proximation is to include linear brightness changes in the 
+image plane over the object.[5]. This crude model can be 
+written as: 
+Mk"(i)  = Mo(i) + a + [ b c ] . Zi i , , ,  (9) 
+where we have a dot product of the vector [ b c ] and im- 
+age projection of the i-th object point, vector Zi im, i .  The 
+parameters a ,  b, c should be estimated for each new image 
+IC. 
+We use this additive model to describe some global illu- 
+mination changes. Although this model does not need any 
+preparation procedure, the changes in the appearance of the 
+human face are to complex to be well approximated in this 
+way. We introduce an adaptive model in the next section 
+which allows floating around this model. 
+177 
+M 
+IS 
+IO 
+5 
+MP 
+5 
+-10 
+-IS 
+-20 
+-50 -45 4 -35 -30 -25 -20 -IS -IO -5 MkL 5 10 IS 20 25 30 35 40 45 50 
+Figure 2. Function 7(&)  for p = 0.0004 
+6.2. Adaptive radiometric model 
+For small object movements between two consecutive 
+images we don't expect large changes in appearance and 
+the constant brightness model can still be used. Then, an 
+adaptive model can be formed. After model fitting on the 
+new image using the constant brightness assumption be- 
+tween two images, the measurements from the new image 
+can be used to update the model. The predicted value for 
+the next k + 1-th image becomes: 
+M,,, adaptive (i) = Midaptive(i) + a: . (innovation) (10) 
+.-- 
+innovation = I,+(p(&bj,i(t,))) - Midaptive(i) ( I  1) 
+here constant Q encodes our assumption that the gray value 
+is not supposed to change rapidly by taking into account the 
+previous values with exponentially decreasing weights (1 st 
+order AR filtering). With this kind of innovation we have 
+the error accumulation problem but now low-pass filtered. 
+For CY = 1 this is similar to some optical flow approaches, 
+and for CY = 0 we get the constant brightness assumption 
+model. 
+The initially obtained values Mo(i) contain the gray val- 
+ues for certain head pose and illumination. We can try to use 
+this measurements too to form the innovation. A crude ap- 
+proximation of the appearance changes from this initial val- 
+ues is the linear model described by (9). Our assumption is 
+that the gray values are not going far away from this model. 
+We incorporate this in the innovation by using the follow- 
+ing combination of the current measurement I k  (p(&,j,i)) 
+and linear model M'Z"(i) which is based on the initial mea- 
+surements MO (i) : 
+The function 7 compresses the measured values 
+11, (p(&bj,i)) to some neighborhood of the simple model 
+M k n  (i)  as presented in Figure 2. This is controlled by the 
+constant p. Note that this h c t i o n  has actually the form of 
+the derivative (injluencefunction) of the robust norm intro- 
+duced in (6) .  
+Finally we define our adaptive model with: 
+innovation = q(Ik(p(&, j , i ) ) )  - Mk(i)  (13) 
+This simple model encodes our two assumptions. First, 
+the gray values are not changing rapidly, controlled by the 
+parameter CY. Second, we approximate changes from the ini- 
+tial values MO (i) by a linear model M p  (i) and assume that 
+the gray values remain in the neighborhood of this simple 
+model , controlled by the parameter p. Only initial align- 
+ment of the 3D model is needed to form the model. 
+7. Algorithm 
+For each new image we have to find the optimal head 
+pose vector 2 according to (4). We already need the initial 
+alignment of the 3D model. Afterwards, we assume that 
+there are no large changes in head pose between two suc- 
+cessive images and for each new image we use the previous 
+head pose as the starting position. Than we search for the 
+nearest local minimum using Gauss-Newton iterative pro- 
+cedure. For determining image derivatives we use Gaussian 
+kernels. Our measurements are also done with Gaussian 
+blurred image at the same scale. 
+Note that (4) has also the weights w(i ,  &) described by 
+(5) that depend on the current pose &. For simplicity, we 
+don't include this in derivatives for the Gauss-Newton iter- 
+ative procedure. Anyway, this is included in the line search 
+part after we determine the search direction. Also, the ro- 
+bust norm is included only as a weight factor in every iter- 
+ation forming in total an iteratively reweighted least square 
+(IRLS) minimization procedure. 
+Further, the parameters a,  b, c for the linear approximate 
+radiometric model could also be estimated. This could be 
+done together with 6 For simplicity we do this separately. 
+Since (9) is linear with respect to its parameters this is done 
+in a single iteration. The same weights w(i ,  &) described 
+by (5) and the same robust norm (6) are used. 
+Finally the whole algorithm can be described as follows: 
+1. initialization 
+input: initial image IO and pose 47, 
+output: initial texture Mo(i) 
+0 obtain Mo(i) for the visible points according to 
+the initial pose 
+2. tracking - 
+178 
+input: current image Ik , current texture A4k (i) and pre- 
+dicted pose Zk(= fk-1 in our case, we don’t use any 
+temporal model for head movement in this paper) 
+outpuf: & + 1 ( 9 , T k , & + 1  = fk 
+0 constant brightness assumption, find optimal & 
+fit the approximate linear model, find a, b, c 
+0 update model, according to (1 0) and (12) 
+according to (4) 
+8. Experiments 
+Various experiments were conducted. Our unoptimized 
+test version of the algorithm was able to work at standard 
+PAL 25 frameslsecond even on a low-end Pentium Celeron 
+5OOMHz. The time needed for an IFUS algorithm iteration 
+was less than 1 Oms. We used three iterations per image and 
+the rest of the time was used for visualization. A cheap 
+web camera is used that gives 320x240 pixel images with a 
+large amount of noise. Using few images of known objects 
+we approximately determined the camera focal length in a 
+simple experiment. The camera pixels are assumed to be 
+squares. Smoothing and differentiation is done with Gaus- 
+sian kernels (with standard deviation =2). For the robust 
+norm ~7 = 100 is used. 
+A demonstrational version of the algorithm can be down- 
+loaded at: http: //www.mi .el .utwente.nl 
+/ z z z  /HeadTracking /index.htm 
+8.1. Experiment 1 
+To illustrate the operation of the adaptive model we con- 
+structed an experiment where the subject has rotated his 
+head parallel the image plane (roll rotation) and than re- 
+mained in that position. We wanted to investigate only the 
+influence of the appearance changes. This kind of move- 
+ment is chosen because it doesn’t suffer from the geometric 
+model errors. The light conditions were chosen to be not 
+too difficult (no specular reflections and only small global 
+brightness changes). For better comparison instead of the 
+linear approximate model MLin (2) in (1 2) we used only the 
+constant brightness model Mcb( i ) .  The adaptive algorithm 
+(here only around Mcb(z) )  for a = 0.3 and p = 0.0004 
+could handle the changes but they were to big for the pure 
+constant brightness approach (a = 0 ) which diverged af- 
+ter some time. It was also quite instable before it diverged 
+(see Figure 3). For parameters a = 1 and ,B = 0 the adap- 
+tive model can drift away similar to some optical flow ap- 
+proaches. As it  can be observed in Figure 3, after this short 
+movement the model was already not fitting the target prop- 
+erly. 
+8.2. Experiment 2 
+We conducted a series of experiments in typical office 
+conditions at various locations. Some captures from the 
+tests are presented in Figure 4. Difficult light conditions 
+caused large appearance changes. The movements were of 
+normal speed. Rapid movements can also be handled ex- 
+cept for large out the plane rotations (pitch and jaw rota- 
+tions). Out the plane rotations of up to approximately 35 
+degrees can be handled. This, however, depends on the 
+camera focal length and object -camera distance. Web cam- 
+eras have usually very small focal length and for this angle 
+we could almost see only one half of the head (see the fig- 
+ures). For the parameters a and p we always used a = 0.3 
+and p = 0.0004 and that appeared to work good for vari- 
+ous situations. In hture we plan to obtain ground truth data 
+in order to investigate the precision of the algorithm and the 
+influence of the parameters a and p. For the moment the re- 
+sults were checked only visually by backprojecting the 3D 
+mesh head model over the images. For bigger a the tracker 
+relied too much on the new measurements and tended to 
+float away sooner. The parameter ,O describes how much the 
+appearance can change. Too small p (big changes possible) 
+allows the model to float away with time. At least for the 
+initial pose (initial image) we would like to have the neigh- 
+borhood defined by p small enough that the model can not 
+float away. This can then be used as a criterion for choosing 
+an appropriate p. 
+9. Conclusions and further work 
+A real-time 3D head trachng algorithm is presented. 
+A simple heuristic model is used to describe the appear- 
+ance changes caused by movement in realistic light condi- 
+tions. The algorithm was able to operate in various real- 
+istic conditions using cheap low-end equipment. Together 
+with an automatic initialization procedure and reinitializa- 
+tion when the target is lost, the algorithm seems to be a 
+promising solution for a number of applications. The algo- 
+rithm heavily relies on the initial image. Therefore, small 
+movements around the initial head pose were handled the 
+best. However, for many human-computer interaction ap- 
+plications this would be exactly the way the system would 
+be used. 
+Evaluating the system using the ”ground truth” data is 
+our next step. Automatic initialization and reinitialization 
+should be realized. The algorithm relies on the generic ge- 
+ometric head model that is not appropriate for all the faces. 
+Automatically adapting the geometry to new faces would 
+greatly improve the algorithm. 
+179 
+frame 0 frame 300 (a = l,p = 0)  (a  = 0)  (a  = 0.3, ,B = 0.0004) 
+References 
+(a  = l , p  = 0)  (a = 0 )  
+IM MO im IUI na i i o  im m ZUI ~m 
+frame 
+m i m  im 
+(a  = 0.3, p = 0.0004) 
+Figure 3. Adaptive model and estimated angle y (roll rotation) 
+[ 1 I] C. Tomasi and J. Shi. Good features to track. In Proceedings 
+of IEEE Con$ on Computer Vision and Pattern Recognition, 
+pages 593400, 1994. 
+[ 121 M. Turk and A. Pentland. Eigenfaces for recognition. Jour- 
+nul of Cognitive Neuroscience, 3( I), 199 1. 
+[ 131 Y. Zhang and C. Kambhamettu. Robust 3d head tracking un- 
+der partial occlusion. In Proceedings ofFourth IEEE Inter- 
+national Conference on Automatic Face and Gesture Recog- 
+nition, 2000. 
+[ I ]  I. E. Amo Schodl, Antonio Haro. Head tracking using a 
+textured polygonal model. In Proceedings of Workrhop on 
+Perceptual User Interfaces, November 1998. 
+[2] N. Badler, C. Phillips, and B. Webber. Simulating Humans: 
+Computer Graphics Animation and Control. Oxford Univer- 
+sity Press, 1993. 
+131 S .  Basu, I. Essa, and A. Pentland. Motion regularization for 
+model-based head tracking. In Proceedings of Intl. Con$ on 
+Pattern Recognition, 1996. 
+[4] M .  Black and P. Anandan. The robust estimation of multi- 
+ple motions: Parametric and piecewise-smooth flow fields. 
+Comput. vis. Image Understanding, 63( 1):75-104, 1996. 
+[SI M. Black, D. J. Fleet, and Y.Yacoob. Robustly estimating 
+changes in image appearance. Comput. Vis. Image Under- 
+standing, 78( 1):8-3 1, 2000. 
+[6] P. Bui-Thong. Illumination for computergenerated pictures. 
+Communications of the ACM, 18(6), 1975. 
+[7] M. L. Cascia, S. Sclaroff, and V. Athitsos. Fast, reliable head 
+tracking under varying illumination: An approach based on 
+registration of texture-mapped 3d models. ZEEE Transac- 
+tions on PAM, 22(4):322-336,2000. 
+Deformable modes-based 
+shape and motion analysis from images using motion resid- 
+ual error. In Proceedings of ICCV, pages 113-1 19, 1998. 
+[9] P. Hallinan. A low-dimensional lighting representation of 
+human faces for arbitrary lighting conditions. In Proceed- 
+ings of Computer vision and Pattern Recognition, pages 
+995-999, 1994. 
+[IO] T. Jebara and A. Pentland. Parametrized structure from mo- 
+tion for 3d adaptive feedback tracking of faces. In Proceed- 
+ings of Computer Vision and Pattern Recognition, 1997. 
+[8] D. DeCarlo and D. Metaxas. 
+180 
+Figure 4. Real time tracking 
+181 
+

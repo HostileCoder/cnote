@@ -1,0 +1,612 @@
+ISSCC 2003 / SESSION 13 / 40Gb/s COMMUNICATION ICS / PAPER 13.5
+13.5 An SFI-5 Compliant 16:4 Multiplexer for 
+OC-768 Systems
+Min Xu, Saied Benyamin, Xiaomin Si, Wayne Wong, Derek Shaeffer,
+Hai Tao, Arvin Shahani, Vincent Condito, Adrian Ong, Maurice Tarsia
+Big Bear Networks, Sunnyvale, CA  
+There is an increasing interest in OC-768 systems that transmit
+data at speeds of 40-43 Gb/s due to its ability to reduce the cost-
+per-bit of transmitted data. In the transmit direction of a Serdes-
+Framer-Interface Level 5 (SFI-5) compliant OC-768 system, six-
+teen channels of NRZ 2.5Gb/s current-mode logic (CML) electri-
+cal data are multiplexed into a signal at 40-43Gb/s. A 17th chan-
+nel is used to deskew data on the 16 channels[1]. To reduce the
+cross talk, this transmitter is partitioned into two devices: 1) an
+SFI-5 compliant 16:4 multiplexer (MUX) that recovers the input
+data, aligns the 16 channels according to the information in the
+17th channel and multiplexes the 16 x 2.5Gb/s data into 4
+streams of 10Gb/s data; and 2) a 4:1 MUX/CMU (reported in
+paper 13.4). This paper focuses on the 16:4 MUX implemented in
+a 0.18µm 120GHz fT SiGe BiCMOS process [2].
+The block diagram of the 16:4 chip is shown in Fig. 13.5.1. It
+comprises 17 input lanes, a digital deskew logic block, and a
+128:4 MUX. Each input lane comprises an input buffer, a delay-
+locked-loop (DLL) and a 1:8 demultiplexer (DEMUX). Since the
+differential peak-to-peak amplitude of the 2.5Gb/s data inputs
+can vary from 0.175V to 1V[4], input buffers are used to ampli-
+fy/limit the input data to the emitter-coupled logic (ECL) level
+and also provide the required 1.2V termination. 
+The SFI-5 compliant 2.5Gb/s data, corrupted by low-frequency
+wander and high-frequency jitter, are recovered by the DLL
+which also adjusts the rising edge of the 2.5GHz clock to the data
+eye center. Conventional voltage-controlled delay line (VCDL)
+DLLs have finite delays, and therefore, suffer from limited lock
+range. Noise transients or leakage in the duration of long
+sequences of 1s or 0s data can lead to a condition in which the
+loop has exhausted its locking range. The dual loop architecture
+in Figure 13.5.2 is adopted to overcome this limitation. The cali-
+bration loop is a conventional VCDL which ensures its line delay
+is half of the 2.5GHz clock period across process, temperature
+and supply voltage variation. The eight identical delay cells with
+differential topology generate eight clock phases spanning 0O to
+157.5O through positive taps, and the other eight phases span-
+ning 180O to 337.5O through the complement taps. This comple-
+mentary architecture reduces the power of the delay line by a
+factor of 2. A bang-bang rather than a linear-phase detector is
+chosen in order to reduce the phase offset caused by the leakage
+current from the charge pump; the penalty paid is a slightly
+increased bang-bang jitter of 2 ps peak to peak. Sharing a cali-
+bration loop between every two adjacent DLLs reduces the cali-
+bration- loop power dissipation by a factor of 2. 
+The main loop is a digital loop. After comparing the phase rela-
+tionship between the input data and the clock, the main loop
+adjusts the choice of the clock phase so that the clock rising edge
+is at the center of the data eye. In this architecture, because a
+finite-state machine (FSM) controls the selection of the phase,
+the output clock phase can be easily rotated to provide unlimit-
+ed (modulo 2π) phase shift capability, as in a phase-locked loop
+(PLL). However, this dual loop DLL excludes the problems of sta-
+bility and phase-error accumulation commonly associated with a
+conventional VCO-based PLL[3]. Another advantage of this dig-
+ital DLL architecture is that long sequences of continuous 1s or
+0s at the input will not cause phase drift as in an analog loop due
+to charge pump leakage.
+Figure 13.5.3 shows the block diagram of the deskew block. The
+2.488Gb/s input data lanes in the SFI-5 compliant device can
+have skew with respect to each other as well as relative and
+absolute wander. The function of this block is to deskew the 16
+data lanes using the deskew channel (DSC) [1] and absorb any
+wander before they are combined into four 10Gb/s lanes. The cir-
+cuit can compensate for 11b of static skew and 21b of dynamic
+wander/jitter. The deskew circuit receives 17 lanes (16 data plus
+DSC) of 2.5Gb/s data on 312.5Mb/s byte-wide paths as provided
+by the 1:8 DEMUX block. Each lane's data has arbitrary bit
+alignment within a byte. The bit-aligner subcircuit aligns the
+data at byte boundaries. The data then enters the First-in/First-
+out (FIFO), which serves two purposes: the FIFO transfers all 17
+data lanes which have individual clocks to a common clock
+domain derived from the 5GHz clock as well as absorb any wan-
+der in the data lanes with respect to each other or the common
+transmit clock. The deskew logic then uses the byte delays to line
+up the data and passes them to the 128:4 MUX block. 
+Figure 13.5.4 shows the block diagram of the 128:4 MUX which
+consists of 4 parallel 32:1 MUX blocks and a clock divider which
+generates 2.5, 1.25GHz and 622.5-MHz clocks from the off-chip
+5GHz clock. Each of the 32:1 MUXs is comprised of a bank of 2:1
+MUXs in a tree-type structure, and the 2:1 MUX is based on a 5-
+latch structure. The 128 x 312.5Mb/s single-ended full-rail
+CMOS data from the deskew logic are multiplexed into 4
+streams of data at 10Gb/s. CMOS to ECL converters (C2E) are
+placed at the 32:8 CMOS MUX outputs, where the data rate is
+1.25Gb/s. 
+The 16:4 MUX was co-packaged with the 4:1 MUX in a custom
+package and achieved an error-free operation with 231-1 PRBS
+input data for over 12 hours, at which point the measurement
+was terminated. The 622.5MHz output clock sent to the framer
+achieves an rms jitter of 2.15ps. Figure 13.5.5 presents the mea-
+sured jitter tolerance at 2.488Gb/s, which meets the SxI-5 speci-
+fication[4]. The input sensitivity is measured as better than
+100mV differential peak-to-peak, and the chip achieves error-
+free operation with the speed of the input data varying from 36
+Gb/s to 43 Gb/s. The last two results are limited by measurement
+equipments. Figure 13.5.6 summarizes the measurement results
+and Fig. 13.5.7 shows the chip micrograph.
+Acknowledgments
+The authors thank Jason Cancio, Ron Patterson, Ken Yee, Qinghung Lee,
+J.P. Mattia, Riza Santoro, Long Yuan Lee, David Wong for their invaluable
+assistance and support for this work. 
+References
+[1] Peter Dartnell, “Serdes Framer Interface Level 5 (SFI-5):
+Implementation Agreement for 40 Gb/s Interface for Physical Layer
+Devices,”  OIF 2001. 145.10,  Optical Internetworking Forum,  June 5,
+2002.
+[2] A. Joseph et al., “A 0.18-µm BiCMOS technology featuring 120/100
+GHz (fT/fMAX) HBT and ASIC-compatible CMOS suing copper interconnect,”
+in Proc. IEEE Bipolar/BiCMOS Circuits and Technology Meeting,  pp.143-
+146, 2001.
+[3] Stefanos Sidiropoulos, “High Performance Inter-chip Signalling,”
+Ph.D. thesis, Stanford University, 1998.
+[4] Thomas Palkert, “SxI-5: Electrical Characteristics for 2.488-3.125 Gb/s
+Parallel Interfaces,” OIF 2001. 149.13, Optical Internetworking Forum,
+June 5, 2002.
+•  2003 IEEE International Solid-State Circuits Conference 0-7803-7707-9/03/$17.00                     ©2003 IEEE
+ISSCC 2003 / February 11, 2003 / Salon 7 / 3:45 PM
+13
+Figure 13.5.1: Block diagram of the 16:4 multiplexer. Figure 13.5.2: The dual-loop DLL and the delay cell.
+Figure 13.5.3: Block diagram of the deskew logic.
+Figure 13.5.5: Jitter tolerance curve of the 16:4 MUX. Figure 13.5.6: Summary of the chip performance.
+Figure 13.5.4: Block diagram of the 128:4 multiplexer.
+
+
+
+ !
+"
+
+
+
+#
+
+
+$
+
+
+
+
+%"
+
+
+
+
+ !
+"
+
+
+
+
+ !
+"
+&
+'
+(
+
+'
+&
+
+
+
+
+
+
+
+
+
+
+
+)
+&
+
+*
+
++
+%
+, %
+, %
+, 	%
+-
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	%
+- .,
+%"
+&/
+01
+01.
+
+-
+/
+
+.3
+.3
+4
+
+
+#
+
+
+3
+
+4
+
+
+#
+
+
+3
+
+4
+
+
+#
+
+"
+3
+
+4
+
+
+#
+
+"
+3
+
+
+
+4##
+54 / &-
+4 
+ 
+
+#
+
+
+6*
+!
+5
+5 7 !!
+/
+5 7 !!
+5 7 !!
+7 !!
+5 7 !!
+5
+&/
+01
+01
+01
+01.
+50
+50
+50
+50.
+#$
+32:1 Mux
+"
+-81
+)/-2+
+312.5Mb/s 1.25Gb/s
+10 Gb/s/%'
+/
+ 
+32
+8
+'%/
+/
+  5 GHz
+622.5 MHz
+	%-
+4x10 Gbs
+32
+32
+32
+32
+	%"
+-81
+)/-7&+
+	%-
+	%-
+	%-
+	
+
+
+
+	
+
+
+
+
+
+  
+
+
+	  
+
+
+
+!"#$
+
+""%&
+
+
+	##
+	'&
+
+
+( 
+
+'
+) 
+*
++# ,+ -.&
+
+( 
+
+') 
+
+ 
+	/
+0	/
+
++12,34
+
+"++5.65.",54 3 
+
+7%.++%.% .  
+4 %/
+
+$384 &"7#µ"#- 9 4-
+'9
+/
+•  2003 IEEE International Solid-State Circuits Conference 0-7803-7707-9/03/$17.00                     ©2003 IEEE
+13
+•  2003 IEEE International Solid-State Circuits Conference 0-7803-7707-9/03/$17.00                     ©2003 IEEE
+Figure 13.5.7: Chip micrograph.
+ 	 	
+ 	 	
+
+
+
+
+
+•  2003 IEEE International Solid-State Circuits Conference 0-7803-7707-9/03/$17.00                     ©2003 IEEE
+
+
+
+ !
+"
+
+
+
+#
+
+
+$
+
+
+
+
+%"
+
+
+
+
+ !
+"
+
+
+
+
+ !
+"
+&
+'
+(
+
+'
+&
+
+
+
+
+
+
+
+
+
+
+
+)
+&
+
+*
+
++
+%
+, %
+, %
+, 	%
+-
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	%
+- .,
+%"
+&/
+01
+01.
+Figure 13.5.1: Block diagram of the 16:4 multiplexer.
+•  2003 IEEE International Solid-State Circuits Conference 0-7803-7707-9/03/$17.00                     ©2003 IEEE
+
+-
+/
+
+.3
+.3
+4
+
+
+#
+
+
+3
+
+4
+
+
+#
+
+
+3
+
+4
+
+
+#
+
+"
+3
+
+4
+
+
+#
+
+"
+3
+
+
+
+4##
+54 / &-
+4 
+ 
+
+#
+
+
+6*
+!
+Figure 13.5.2: The dual-loop DLL and the delay cell.
+•  2003 IEEE International Solid-State Circuits Conference 0-7803-7707-9/03/$17.00                     ©2003 IEEE
+Figure 13.5.3: Block diagram of the deskew logic.
+5
+5 7 !!
+/
+5 7 !!
+5 7 !!
+7 !!
+5 7 !!
+5
+&/
+01
+01
+01
+01.
+50
+50
+50
+50.
+•  2003 IEEE International Solid-State Circuits Conference 0-7803-7707-9/03/$17.00                     ©2003 IEEE
+#$
+32:1 Mux
+"
+-81
+)/-2+
+312.5Mb/s 1.25Gb/s
+10 Gb/s/%'
+/
+ 
+32
+8
+'%/
+/
+  5 GHz
+622.5 MHz
+	%-
+4x10 Gbs
+32
+32
+32
+32
+	%"
+-81
+)/-7&+
+	%-
+	%-
+	%-
+Figure 13.5.4: Block diagram of the 128:4 multiplexer.
+•  2003 IEEE International Solid-State Circuits Conference 0-7803-7707-9/03/$17.00                     ©2003 IEEE
+Figure 13.5.5: Jitter tolerance curve of the 16:4 MUX.
+•  2003 IEEE International Solid-State Circuits Conference 0-7803-7707-9/03/$17.00                     ©2003 IEEE
+Figure 13.5.6: Summary of the chip performance.
+	
+
+
+
+	
+
+
+
+
+
+  
+
+
+	  
+
+
+
+!"#$
+
+""%&
+
+
+	##
+	'&
+
+
+( 
+
+'
+) 
+*
++# ,+ -.&
+
+( 
+
+') 
+
+ 
+	/
+0	/
+
++12,34
+
+"++5.65.",54 3 
+
+7%.++%.% .  
+4 %/
+
+$384 &"7#µ"#- 9 4-
+'9
+/
+•  2003 IEEE International Solid-State Circuits Conference 0-7803-7707-9/03/$17.00                     ©2003 IEEE
+ 	 	
+ 	 	
+
+
+
+
+
+Figure 13.5.7: Chip micrograph.

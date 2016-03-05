@@ -1,0 +1,372 @@
+Ultrashort 
+Trajectory Estimation for 
+Baseline Acoustic Positioning Systems 
+Vincent Ricordel t, SCbastien Paris t and Jan Opderbecke $ 
+t SIS/Signal - ISITV 
+UniversitC de Toulon et du Var 
+AV. Georges Pompidou, BP56 
+83 162 La Valette du Var Cedex (France) 
+Fax: (+33) 4 94 14 25 98 
+ricordel@univ-tln.fr, paris@isitv.univ-tln.fr 
+$ Institut Franpis de Recherche pour 1'Exploitation de la Mer (IFREMER) 
+Centre de Toulon, Zone Portuaire du BrCgaillon, BP330 
+83500 La Seyne-sur-Mer Cedex (France) 
+Fax: (+33) 4 94 87 83 07 
+opderbecke@ ifremer.fr 
+Abstract-The purpose of the paper is to describe an auto- 
+matic estimation method of an underwater vehicle trajectory 
+from ultrashort baseline system measurements. The standard 
+Viterbi algorithm is then used to find the most likely trajectory 
+of the dynamic system observed through the noisy measure- 
+ments with a model of nonconstant speed as state variable. 
+A decoupled trajectory is achieved by considering separately 
+each coordinate of the point. Aberrant measurements are au- 
+tomatically discarded. For very long trajectory, a temporal 
+window is shifted along the data set, and an automatic adjust- 
+ment of the algorithm parameter is performed. 
+I 
+11 
+III 
+Iv 
+v 
+VI 
+TABLE OF CONTENTS 
+Introduction 1 
+Method 1 
+Statistical modeling 2 
+Temporal windows and overlapping 3 
+Automatic adjustment of the parameters 4 
+Conclusion 4 
+I. INTRODUCTION 
+The French research institute for exploitation of the sea 
+(IFREMER) has developed a new deep-sea positioning sys- 
+tem (POSIDONIA) for its underwater vehicles (W). This ul- 
+trashort baseline system (USBL) is composed by an acoustic 
+vessel-born localization system and sensors measuring vessel 
+position, heading and attitude. The latter are used to trans- 
+form the acoustic UV position into earth related coordinates. 
+The UV is localized down to 6000m. Because of the different 
+sources of measurement error that contribute to the overall 
+positioning error, the accuracy is about 30m and false alarms 
+occur [l] (see figure 7). Our research is then focused on 
+the automatic estimation of the UV trajectory from the pre- 
+recorded USBL measurements. 
+0-7803-6599-2/01/$10.00 @ 2001 IEEE 
+11. METHOD 
+The standard Viterbi algorithm [2] allows us to find 
+the most likely trajectory of the dynamic system 'observed 
+through the noisy measurements. 
+The problem of optimum estimation [3] is briefly formulated 
+with reference to figure 1 as follows; the system state xk at k 
+th sampling instant is such as: 
+X k  = f ( X k - - l , l ) k ) .  
+xk depends on the state at the previous sampling instant and 
+on a state noise v k .  The relationship between the measure- 
+ment and the system state is given by: 
+m k  = h ( x k , n k ) ,  
+where m k  is the measurement at kth sampling instant cor- 
+rupted by the noise n k .  At the initialization, the measurement 
+set h f k  = {mo, ml, . . . , m k }  and p ( z 0 )  the a priori proba- 
+bility density function (pdf) of the initial state are given. 
+The problem is to find the sequence of states or trajectory 
+X I ,  = { x o , x 1 ,  . . . , Xk that maximizes the a posteriori con- 
+ditional pdf p (  X I ,  Ih f k  . The solution or modal trajectory is 
+such as: 
+Z k  arg max ( p ( x k  I M ~ ) ) .  
+Dynamic programming allows us to construct a wise algo- 
+rithm. Starting from the fact that: 
+x k  
+and introducing for each possible value of $1, the quantity: 
+we end up with the classic recursion: 
+Let ? k - l ( Z k )  the value of x,+-l that maximizes (1). The re- 
+sulting algorithm proceeds in three steps: 
+0 an initialization by defining I(x0) = p ( x o ) ;  
+4-1791 
+a forward procedure with, at each sampling instant i, the 
+calculation of I ( Q )  from mi, equation (1) and ?i-l(xi) ob- 
+tained at the previous iteration. The iterative procedure is 
+repeated until the lcth instant is reached; 
+the modal trajectory is found by tracing backward a stage 
+at a time using the function & ( & + I ) .  
+- I nk Signal-Generating process f0 xk FE 
+111. STATISTICAL MODELING 
+A. Monodimensional model 
+the kth sampling instant: 
+Each position measurement is a three dimensional point, at 
+Considering only one dimension, a model with nonconstant 
+speed as state variable is used: 
+where Tk, ,  indicates the position and V k , ,  the nonconstant 
+speed. It obeys the following state equation: 
+where A t k  is the non constant time interval between the two 
+successive measurements m k - 1  and m k ,  E is a constant, and 
+v k , ,  the Gaussian state noise such as: 
+The choice of speed depends on A t k :  
+1. if A t k  5 5s, a choice among nine values is done: 
+vx = [-4,. . . , -1 ,O,  1,. . . ,4IT; 
+2. if A t k  > 5s, fifteen values are available: 
+v, = [-7,. . . , - l , O ,  1,. . . , 7IT. 
+At the initialization A t 0  is supposed to be equal to 5s and we 
+choose: 
+2 0 =  [ A  : I  [ y > x - 5 ]  + [ ; ] v o , x .  
+B. Transition probabilities 
+defined as follows: 
+The transition pdf from the Xk-1  state to the X k  state is 
+P ( X k / 3 : k - l )  = K d ( r k , x  - r k - l , x  - A t k v k - 1 . x )  x 
+where K is a normalization constant and d() the Kronecker 
+symbol. We denote: 
+The most probable transitions give an advantage to small ac- 
+celerations or decelerations, because the expected trajectory 
+must be simooth. At the initialization: 
+1 
+P ( X 0 )  = 9. 
+C. Measurement likelihood 
+ture [4] defined as: 
+This pdf can be written as the uniform-Gaussian mix- 
+where 0, is the standard deviation of the measurement noise, 
+U ,  the measurement domain and P, deinotes the probability 
+for a measurement to be correct (typicallly P, = 0.7). 
+When the gap between the measurement m k  , and the po- 
+sition rk,:c is small, the likelihood is high (sek figure 2). If 
+I m k , ,  - rk,,l is greater than half of the domain U,, the like- 
+lihood equals zero so the aberrant measurement m k , ,  is kept 
+away. It implies two consequences: 
+a jump appears in the trajectory at the k th instant (see fig- 
+ure 3); 
+the sum ( A t k  + At,+,) will be useld to determinate the 
+next state. 
+The algorithm manages with consecutive jumps. In such a 
+case the time interval to determinate the current state is the 
+sum of thie successive time intervals from the first aberrant 
+measurement. 
+D. viterbi recursive equation 
+is equivallent to recursively define I ( X ~ )  by: 
+Note that because of equations (2), (3) and (4), equation (1) 
+In practioe we use: 
+with E = 0.125 and 0 1  = 0.125-l. When handling with a 
+very large set of data, the calculation of equation (5) suffers 
+4 - 1 7 9 2  
+014 - 
+012 . 
+0 1  - 
+008 - 
+006 - 
+0 -  
+0 
+5 
+0 
+0 
+1 - 
+mx- rx 
+Fig. 2 
+Measurement probability with the typical values U ,  = 65, 
+ox = 1 and P, = 0.7 
+m o , x  - 5 - 
+m 0 , y  - 5 
+m ~ , ~  - 1.25 
+1 
+1 
+0.25 - 
+from underflow numerical problem. A solution consists in 
+scaling I ( X k )  [ 5 ] :  
++ 
+where: 
+T ( X k )  = 
+-; j 110,X’ 
+E 
+_ E  
+E. Tridimensional model 
+The equation of the 3D state model is: 
+T 
+x k  [ r k , x , r k , y ,  r k , z ,  v k , z ,  v k , y ,  v k , z ]  , 
+The state equation follows: 
+At the initialization we have: 
+r i  o o 5 
+0 1 0 0  
+0 0 1 0  
+0 0 0 1  
+0 0 0 0  
+xo = 
+I 
+k-4 k-3 k-2 k-1 k 
+t-----+ 
+A tk 
+Fig. 3 
+Backtracking procedure of the Viterbi algorithm: the points 
+symbolise the system states and the lines the random paths. 
+The measurements at the ( k  - 3) and ( k  - 2) sampling 
+states are aberrant and a jump is done. 
+A decoupled 3D trajectory is achieved namely at each sam- 
+pling time the three coordinates of the point r k  are esti- 
+mated separately using for each of them the monodimen- 
+sional model described previously. Nevertheless, if a jump 
+occurs when estimating a coordinate, this jump is forced on 
+the two other point coordinates. The algorithm parameter set 
+to adjust is finally: 
+s = ~ ~ x , ~ y , ~ z , ~ z , ~ y , ~ z ) .  
+Iv. TEMPORAL WINDOWS AND OVERLAPPING 
+Because of the very large amount of data and in order 
+to reduce the computing cost, it is preferable to estimate a 
+piece-wise trajectory instead of process straight one only long 
+track [6].  Figure (4) shows how a window of T measurements 
+is shifted along the data set (typically T = 50). 
+As figure (5) illustrates it, after the backtracking stage of the 
+4-1793 
+Viterbi algorithm, the possible tracks differ only in the last 
+sampling instants of a temporal window. We take advantage 
+of this propriety to overlap the trajectories, considering a win- 
+dow: 
+the point, from which the 3D trajectory is split, is detected; 
+all of the possible tracks from this point are stored; 
+the next trajectory estimation is initialized using this group 
+of tracks. 
+T measurements 
+4-- 
+t 
+__* 
+I I I I I I 
+I 
+I I  
+initialization initialization 
+by overlapping 
+Fig. 4 
+Temporal windows and overlapping. 
+I 
+rxr"r Y 
+I b ' io0 io0  io0 io0 iooo 
+t 
+Fig. 5 
+Trajectory estimation in one dimension with 200 
+measurements ( S  = { (T, = 2, U ,  = 60)). A zoom in the end 
+of the trajectory is shown. The estimated track is thick. 
+v. AUTOMATIC ADJUSTMENT OF THE 
+PARAMETERS 
+The result of figures (5) and (S), where the measurements 
+are very noisy, shows the robustness of OUT method but the 
+estimated tracks are short. When processing a very large set 
+of data, it is necessary to adjust locally the parameter set S 
+of each .window in order to avoid any break in the track. To 
+overcome this drawback an heuristic process is designed that 
+aims to ;idjust automatically the parameter set SE of each 2th 
+window. Figure 6 illustrates the algorithm principles: 
+1. at the beginning a set S* of typicall parameters is chosen 
+and: 
+2. when estimating sequentially the trajectory, a break occurs 
+in the lth window (namely all the measurements of the win- 
+dow are aberrant), considering the previous (I - 1)th window: 
+(a) the number of jumps for each dimension is counted; 
+(b) is modified by reducing os: or/and cry or/and (T, 
+corresponding to the coordinate(s) wil h the jump maximum 
+number. The goal is to penalize the measurements spread. 
+(c) the trajectory of the ( I  - 1)th window is estimated again 
+with the new set of parameters Sl-1. 
+3. the trajectory estimation of the Zth window is achieved 
+with Sl. If a break occurs again, go to 2 and continue to 
+modify S1-1. 
+This algorithm for the automatic parameter adjustment is not 
+expensive because in practice a break occurs rarely and, in 
+this case, each iteration implies the new trajectory estimation 
+for only two temporal windows. 
+The experimental result shown on figure 7 illustrates the effi- 
+ciency and robustness of our algorithm: the measurement set 
+contains 1600 samples, and the whole trajectory is automati- 
+cally estimated for different choices of the temporal window 
+size T (for instance T = 30,50 or 100 measurements). We 
+used 
+Sl = S*,Yl. 
+s* = { ( T ~  = uY = 2,0, = 2.5, 
+U ,  = uY = 60, u : ~  = 30). 
+t 
+__f 
+T measurements 
+I 
+I 
+I 
+I 
+I 
+7 v I 
+,]Traj;tory with  = o - ( 1 - 1 ) ;  0.5 I
+Trajectory I I 
+I I - - - - - -  
+Fig. 6 
+Proce:ss for an automatic adjustment of the parameters. 
+VI. CONCLUSION 
+The work presented in this paper concerns the problem of 
+estimating of an underwater vehicle trajectory from ultrashort 
+baseline system measurements. 
+Using the Viterbi algorithm, we have constructed an original 
+4-1794 
+method with a nonconstant speed state model, a jump pos- 
+sibility in the track, a scaled metric, temporal windows with 
+overlapping, and an automatic adjustment of the parameters. 
+The algorithm is robust w.r.t false alarms and the amount of 
+calculus is real time compatible. 
+REFERENCES 
+[l]  J. Opderbecke, “At-sea calibration of a usbl undenva- 
+ter vehicule positioning system,” in Proc. of the IEEE 
+Oceans’97. Halifax, 1997. 
+[2] G.D. Forney, “The viterbi algorithm,” Proc. of the ZEEE, 
+vol. 61, no. 3, pp. 268-278, March 1973. 
+[3] R.E. Larson and J. Peschon, “A dynamic programming 
+approach to trajectory estimations,” IEEE Transactions 
+on Automatic Control, pp. 537-540, July 1966. 
+[4] C. Jauffret and Y. Bar-Shalom, “Target motion analysis 
+in the presence of false a lms ,”  Joumal of Acoustical 
+Society of America, vol. 94, no. 3, September 1993. 
+[5] S .  Paris, Extraction automatique de pistes fre‘quentielles 
+en sonar passifpar chaines de Markov cache‘es, Ph.D. 
+thesis, UniversitC de Toulon et du Var, November 2000. 
+“Some im- 
+provements in speech recognition algorithms based on 
+hmm,” in Proc. of Intemational Conference on Acoustics, 
+Speech, and Signal Processing ICASSP. Albuquerque, 
+[6] A. Kriouile, J.F. Mari, and J.P. Haton, 
+USA, April 1990, pp. 545-548. 
+Vincent Ricordel was born in 1967. He 
+received the Ph.D. degree in Signal Pro- 
+cessing and Telecommunication from the 
+University of Rennes, France, in 1996. 
+He now holds an assistant professor posi- 
+tion at the University of Toulon, France. 
+His research interests include video cod- 
+ing, trajectory estimation and image se- 
+quence analysis. 
+SCbastien Paris was born in 1973. He 
+received the Ph.D. in Optic, Signal and 
+Image from the University of Toulon, 
+France, in 2000. He now holds an tem- 
+porary assistant professor position at the 
+University of Toulon, France. His re- 
+search interests include statistical signal 
+processing, estimation and detection us- 
+ing HMM. 
+Jan Opderbecke was born in 1963. He 
+received the Diploma in electrical engi- 
+neering from the Technical University of 
+Braunschweig, Germany, in 1990, and 
+the PhD at Ecole Normale Supkrieure de 
+Cachan, France, in 1994. He now holds 
+a research engineer position at the french 
+institute for research on the exploitation 
+of the sea (Ifremer) in Toulon, France. 
+His research interests include sienal and ” 
+image processing applications related to underwater vehicle 
+navigation and seabed mapping. Among his work is the fully 
+automatic integrated navigation system of Ifremer’s manned 
+submersible Nautile and the visual mosaicking system of the 
+remote operated vehicle Victor 6000. 
+4-1795 
+Fig. 7 
+The data from the underwater vehicle. The estimated track is thick. 
+‘X 
+t 
+I ~ 100 200 300 400 
+t 
+800 
+400 
+rz T 
+I , 100 200 300 400 
+t 
+Fig. 8 
+Trajectory estimation in 3 dimensions with 100 measurements (S  = {a, == ay = 1.5, (T, = 2, U ,  = 60, uy = 65, U, = 30)). 
+Two temporal windows of T = 50 measurements are usled. The estimated track is thick. 
+4 - 1 7 9 6  

@@ -1,0 +1,841 @@
+Optimal Subclass Discovery for Discriminant Analysis
+Manli Zhu and Aleix M. Mart´ınez
+Depart. of Electrical and Computer Engineering
+The Ohio State University
+{zhum, aleix}@ece.osu.edu
+Abstract
+Discriminant Analysis (DA) has had a big inﬂu-
+ence in many scientiﬁc disciplines. Unfortunately, DA
+algorithms need to make assumptions on the type of
+data available and, therefore, are not applicable ev-
+erywhere. For example, when the data of each class
+can be represented by a single Gaussian and these
+share a common covariance matrix, Linear Discrimi-
+nant Analysis (LDA) is a good option. In other cases,
+other DA approaches may be preferred. And, unfor-
+tunately, there still exist applications where no DA al-
+gorithm will correctly represent reality and, therefore,
+unsupervised techniques, such as Principal Components
+Analysis (PCA), may perform better. This paper ﬁrst
+presents a theoretical study to deﬁne when and (most
+importantly) why DA techniques fail (Section 2). This
+is then used to create a new DA algorithm that can
+adapt to the training data available (Sections 2 and 3).
+The ﬁrst main component of our solution is to design
+a method to automatically discover the optimal set of
+subclasses in each class. We will show that when this is
+achieved, optimal results can be obtained. The second
+main component of our algorithm is given by our the-
+oretical study which deﬁnes a way to rapidly select the
+optimal number of subclasses. We present experimental
+results on two applications (object categorization and
+face recognition) and show that our method is always
+comparable or superior to LDA, Direct LDA (DLDA),
+Nonparametric DA (NDA) and PCA.
+1 Introduction: The importance of sub-
+class divisions
+Discriminant Analysis (DA) plays a central role in
+many research areas in science and engineering. For
+example, DA has been used to reduce the dimension-
+ality of high-dimensional feature spaces to viewable 2-
+dimensional spaces. In economics, psychology, neuro-
+science and bioinformatics, DA has helped scientists
+to unravel useful information from otherwise meaning-
+less feature spaces. And, of course, in computer vision,
+DA has been successfully used in many applications
+[16, 5, 2, 15, 6].
+One of the most used DA algorithms is Linear Dis-
+criminant Analysis (LDA) [7, 15]. LDA is a simple
+algorithm that can be used for both classiﬁcation and
+dimensionality reduction. In either case, LDA attempts
+to minimize the Bayes error by selecting those feature
+vectors v which maximize |v
+T SB v|
+|vT SW v| , where SB mea-
+sures the variance between the class means, and SW
+represents the variance of the samples in the same class.
+Unfortunately, LDA (as well as other DA tech-
+niques) is obviously not guaranteed to work where the
+assumptions of the method do not hold. In such cases,
+unsupervised techniques, such as Principal Component
+Analysis (PCA), can outperform LDA and other DA
+approaches [14, 3, 18, 9]. For example, in some cases
+the data of our problem can be modelled using a single
+Gaussian, whereas the underlying distributions of each
+class cannot. In these cases, we usually prefer PCA
+over LDA. Should the classes correspond to linearly
+separable Gaussian distributions, LDA would generally
+be preferred. In Fig. 1(a), we show a classical ex-
+ample where LDA yields a more desirable result than
+PCA. Fig. 1(b) shows an example where PCA outper-
+forms LDA. This discrepancy is further supported by
+results obtained in real applications. For example, we
+will show that PCA is preferred over several DA algo-
+rithms in an object categorization problem, while DA
+techniques are generally preferred in face recognition
+applications [16, 5, 2].
+In this paper, we show that the drawback of DA
+techniques can be solved by dividing each of the classes
+into an adequate number of subclasses. This is illus-
+trated in the examples shown in Fig. 1(a-b). In (a)
+optimal results are obtained when each class is rep-
+resented using a single Gaussian. In (b) the optimal
+result is obtained when one of the classes is subdivided
+into two Gaussians.
+Once each class has been subdivided by its most con-
+venient number of subclasses, we can eﬃciently reduce
+the original space by obtaining the basis vectors of the
+covariance matrix of the subclass means. Following the
+traditional notion in discriminant analysis, we will refer
+Proceedings of the 2004 IEEE Computer Society Conference on Computer Vision and Pattern Recognition Workshops (CVPRW’04) 
+1063-6919/04 $ 20.00 IEEE 
+−10 −8 −6 −4 −2 0 2 4 6 8 10
+−8
+−6
+−4
+−2
+0
+2
+4
+6
+8
+LDA &
+Eq.(1) with H=2
+PCA
+class 1 
+class 2 
+Bayes classifier 
+−8 −6 −4 −2 0 2 4 6 8
+−8
+−6
+−4
+−2
+0
+2
+4
+6
+8
+LDA
+        PCA &
+Eq.(1) with H=3 
+class 1 
+class 2 
+(a) (b)
+Figure 1. In (a) LDA outperforms PCA. In this example, Eq. (1) gives identical results to LDA when H = 2. In (b)
+PCA produces a most desirable result. Eq. (1) obtains the same results when one of the classes is subdivided into two
+subclasses, i.e. H = 3.
+to this covariance matrix as the between-subclass scat-
+ter matrix, ΣB =
+∑H
+h=1 ph(µh − µ)(µh − µ)T , where
+H is the total number of subclasses, ph is the prior of
+subclass h, µ is the global mean, and µh is the mean of
+subclass h. Note that when each class is represented by
+a single subclass, ΣB = SB . The discriminant vectors
+can now be obtained by solving the following general-
+ized eigenvalue decomposition problem [12]:
+ΣBV = ΣXVΛ , (1)
+where ΣX is the covariance matrix of the data, V =
+{v1, . . . ,vH} is the eigenvector matrix, and Λ =
+diag (λ1, . . . , λH) is the eigenvalue matrix.
+In Section 2, we study the behavior of Eq. (1) for
+diﬀerent values of H. This will lead us to deﬁne where
+and why DA techniques fail. Based on these results, we
+will build a new method, Subclass Discriminant Anal-
+ysis (SDA), in Sections 2 and 3. Section 4 presents our
+experimental results. We conclude in Section 5.
+2 Subclass Divisions
+In Fig. 1, we showed that Eq. (1) can (obviously)
+give identical results to those of LDA (when H = C).
+We will now show that, under some circumstances, the
+results of Eq. (1) parallel those of PCA. This latest
+result will show that when the ith eigenvector of ΣB
+is identical to the jth eigenvector of ΣX , the results of
+Eq. (1) (as well as the results of LDA and other DA
+algorithms) can become unstable.
+2.1 Different values of H
+The question we need to answer is the following. Is
+there a division of the classes into H subclasses for
+which the eigenvectors of ΣB are similar to those of
+PCA? In Proposition 1 we will show that this can be the
+case, and we will deﬁne the relationship between these
+two results. We will show that, in most cases, several
+of the eigenvectors of LDA parallel those of PCA and
+that, in such cases, the results of Eq. (1) can become
+unstable (Theorem 1). The importance of our ﬁnding
+is that this is a general problem of DA and that we
+propose a method to solve it.
+To show the relationship between PCA and Eq. (1),
+we will ﬁrst need to prove a couple of results (Lemmas
+1 and 2).
+Lemma 1: If ΣX and ΣB have identical eigenvec-
+tors but ΣX = ΣB (i.e., diﬀerent eigenvalues), then the
+eigenvectors of PCA, U, are related to those of Eq. (1),
+V, by V = UM, where M is the eigenvector matrix of(
+Λ−1X ΛB
+)
+M = MΛ ,
+ΛB is the eigenvalue matrix of ΣBU = UΛB , and ΛX
+is the eigenvalue matrix of the PCA equation, ΣXU =
+UΛX .
+Proof: When ΣB and ΣX have proportional eigen-
+vectors, we can assume that both share a common
+eigenvector matrix, U = {u1,u2, . . . ,up}, but have
+diﬀerent eigenvalue matrices, ΛB and ΛX . Multiplying
+each of the equations above by UT , we obtain:
+ΣB = UΛBUT , and ΣX = UΛXUT .
+Substituting the above result in Eq. (1) we obtain
+UΛBUTV = UΛXUTVΛ
+ΛB(UTV) = ΛX(UTV)Λ
+(
+Λ−1X ΛB
+)
+M = MΛ, (2)
+where M = UTV, which is the same as V = UM. 
+Lemma 2: Let ΛB = diag(λB1 , λB2 , . . . , λBp), and
+ΛX = diag(λX1 , λX2 , . . . , λXp) in Eq. (2), then:
+Proceedings of the 2004 IEEE Computer Society Conference on Computer Vision and Pattern Recognition Workshops (CVPRW’04) 
+1063-6919/04 $ 20.00 IEEE 
+• if λB1λX1 ≥
+λB2
+λX2
+≥ . . . ,≥ λBpλXp ⇒ V = {u1, . . . ,up}.
+• if λB1λX1 ≤
+λB2
+λX2
+≤ . . . ,≤ λBpλXp ⇒ V = {up, . . . ,u1}.
+Proof. If λB1λX1 ≥
+λB2
+λX2
+≥ . . . ,≥ λBpλXp , Eq. (2) has the
+obvious solution M = I, and therefore V = UM =
+{u1, . . . ,up}.
+When λB1λX1 ≤
+λB2
+λX2
+≤ . . . ,≤ λBpλXp , we obtain
+M =
+
+
+0 0 . . . 1
+...
+...
+. . .
+...
+0 1 . . . 0
+1 0 . . . 0
+
+ ,
+and, therefore V = UM = {up, . . . ,u1}. 
+We can now use Lemmas 1 and 2 to prove the fol-
+lowing.
+Proposition 1: Assume ΣX and ΣB have identical
+eigenvectors but ΣX = ΣB (i.e., diﬀerent eigenvalues),
+then the ith eigenvector of Eq. (1), vi, is identical to
+the jth eigenvector of PCA, uj, when
+λBj
+λXj
+is the ith
+largest among λB1λX1 ,
+λB2
+λX2
+, . . . ,
+λBp
+λXp
+.
+Proposition 1 gives the relationship between the
+eigenvectors of Eq. (1) and those of PCA. In fact, we
+can show that when the ith eigenvector of ΣB and the
+jth eigenvector of ΣX (j ≤ i) are the same, the results
+obtained using Eq. (1) will depend on the ratio between
+the eigenvalues of ΣB and ΣX . Unfortunately, when
+this happens, there is no way of knowing which option
+is best for classiﬁcation that given by ΣX or that of ΣB.
+Fig. 2 illustrates this problem. In Fig. 2(a), we have
+three classes, each represented by a single Gaussian.
+We note that in this example, the ﬁrst eigenvector of
+ΣX and ΣB are the same, e1. The problem this poses
+is the following. When using Eq. (1) to reduce the
+dimensionality of our feature space to one, we want to
+select a vector that has large variance according to ΣB
+but small variance according to ΣX . As we can see in
+Fig. 2(a), ΣB would select e1 as a solution, whereas
+ΣX would discourage the use of e1. In our example,
+ΣX has a larger variance along e1 than ΣB does, and,
+therefore, Eq. (1) will select e2, which is an undesirable
+solution.
+Fig. 2(b) shows a diﬀerent arrangement of the three
+classes. In this case, ΣX and ΣB are also in conﬂict,
+but the result of Eq. (1) is correct. This means that,
+when there is a conﬂict between the eigenvectors of ΣB
+and those of ΣX , the results of Eq. (1) may or may not
+be correct.
+Theorem 1: When the ith eigenvector of ΣB is
+equal to one of the ﬁrst i eigenvectors of ΣX , the basis
+(discriminant) vectors given by Eq. (1) are not guar-
+anteed to minimize the Bayes error for the given distri-
+butions.
+The relevance of Theorem 1 is in that it deﬁnes the
+problem posed by the classical formulation of discrim-
+inant analysis. A classical and obvious way to mini-
+mize the problem posed by Eq. (1) is to compute the
+eigenvectors of ΣB and ΣX separately. Since ΣB has a
+smaller number of vectors than ΣX , we can ﬁrst com-
+pute those eigenvectors of ΣB which are
+ΣBU = UΛB , (3)
+then compute the eigenvectors V of Eq. (1) by means
+of the following procedure [9, 17]:
+Z = UΛ−1/2B (4)
+Y = ZT ΣX Z
+YVY = VYΛY
+V = Λ−1/2Y VY
+TZT .
+Although this algorithm may minimize the problem
+stated in Theorem 1 it does not solve it entirely. This
+is the reason LDA and other DA approaches fail even
+when the data corresponds to linearly separable Gaus-
+sian distributions.
+In this paper we deﬁne a new approach to correctly
+address this problem. Our method is based on the
+results of Theorem 1 which state that the larger the
+number of conﬂicts, K, the higher the probability of
+obtaining an incorrect projection matrix with Eq. (1).
+A natural way to address this problem is thus given
+by those divisions of the classes into H subclasses for
+which this number of conﬂicts, K, is minimized.
+Let K be the number of eigenvectors of ΣX that are
+along the same direction as the eigenvectors of ΣB . We
+could compute this as follows. Set K = 0, then:
+1. for i=1 to number of eigenvectors of ΣB .
+2. for j=1 to i.
+If ui ≈ wj then K = K + 1;
+Yet, a more accurate way of calculating the value of
+K is given by the following equation
+K =
+nB∑
+i=1
+i∑
+j=1
+(cosθi,j)
+2 =
+nB∑
+i=1
+i∑
+j=1
+(
+uTi wj
+)2
+, (5)
+where nB is the number of eigenvectors of ΣB , θi,j is
+the angle between the eigenvectors ui and wj , ui is the
+ith eigenvectors of ΣB , and wj is the jth eigenvector of
+Σx.
+Note that Eq. (5) only considers the ﬁrst i eigenvec-
+tors of ΣX , because when Eq. (1) works properly the
+ith eigenvector ΣB is (in general) in accordance (i.e.,
+same direction) to one of the last eigenvectors of ΣX .
+Proceedings of the 2004 IEEE Computer Society Conference on Computer Vision and Pattern Recognition Workshops (CVPRW’04) 
+1063-6919/04 $ 20.00 IEEE 
+−10 −8 −6 −4 −2 0 2 4 6 8 10
+−10
+−8
+−6
+−4
+−2
+0
+2
+4
+6
+8
+10
+Class 2 Class 1 Class 3 
+ΣX
+ΣB
+e1
+e2
+−10 −8 −6 −4 −2 0 2 4 6 8 10
+−10
+−8
+−6
+−4
+−2
+0
+2
+4
+6
+8
+10
+Class 1 
+Class 2 
+Class 3 
+e2
+e1ΣB
+ΣX
+(a) (b)
+Figure 2. In (a) the results of Eq. (1) are incorrect. In (b) the results are correct.
+Another way to estimate the correctness of our solu-
+tion, would be to incorporate the ratio of the eigen-
+vectors that agree (i.e., those having similar direction).
+This would give the following criteria to be maximized
+DH =
+nB(H)∑
+i=1
+nX∑
+j=1
+λB(H)i
+λXj
+(
+uTi wj
+)2
+, (6)
+where nX and nB(H) are the number of eigenvectors of
+ΣX and ΣB when the data is divided into H subclasses
+and λB(H)i is the i
+th eigenvalue of ΣB .
+In fact, this new criteria is equivalent to our original
+criteria tr
+(
+Σ−1X ΣB
+)
+. Therefore, maximizing Eq. (6) is
+equivalent to ﬁnd that subspace given by Eq. (1) which
+maximizes the trace of the two scatter matrices.
+Theorem 2: The tr
+(
+Σ−1X ΣB
+)
+is equal to
+nB(H)∑
+i=1
+nX∑
+j=1
+λB(H)i
+λXj
+(
+uTi wj
+)2
+. (7)
+Since, in general, the best results of Eq. (1) will be
+given by the data divisions, H = j, for which Dj ≥ Di,
+∀i, we will select that division which maximizes DH .
+As an alternative, we could use Eq. (5). We return
+to this in Section 3.2. The proof of Theorem 2 can be
+found in [19].
+2.2 Selecting the priors: improving the recogni-
+tion of similar classes
+In general the priors used to compute ΣB are ph =
+nh/n, where ph is the prior of subclass h, nh is the
+number of samples in subclass h, and n is the total
+number of samples.
+However, when the total number of subclasses (H)
+is large, there will generally be a group of subclasses
+closer to each other and, hence, more susceptible to
+classiﬁcation error. It is thus convenient to increase the
+value of the priors of those subclasses that are close to
+others and decrease the priors of those that are far from
+every other subclass.
+An elegant way to achieve this is by using a weight-
+ing factor that measures the diﬃculty of classifying
+each pair of subclasses, (i, j). We can do that using
+the following between-subclass scatter matrix
+Σ˜B
+def
+=
+H∑
+i=1
+H∑
+j=1
+j =i
+pij(µi − µj)(µi − µj)T , (8)
+where pij is the weight assigned to the pair of subclasses
+(i, j), and µi is the mean of subclass i. An important
+advantage of Eq. (8) is that it allows us to boost the
+discriminant power of those subclasses that are closer to
+each other by increasing the value of the corresponding
+weights, pij .
+Since ΣX needs to be equal to Σ˜B +SW , we have to
+redeﬁne our covariance as
+Σ˜X
+def
+= Σ˜B + SW , (9)
+where SW =
+∑C
+i=1
+∑ni
+j=1(xij − µi)(xij − µi)T , and xij
+is the jth sample of class i. The deﬁnition above, Eq.
+(9), is necessary to make the results of discriminant
+analysis stable (see Theorem 3 below).
+The eigenvectors and eigenvalues of our reduced
+space can now be obtained by solving the generalized
+eigenvalue decomposition problem
+Σ˜BV = Σ˜XVΛ . (10)
+We can now give higher values to the weights of those
+pair of classes (i, j) that are closer to each other. A
+common way to do this, is by means of a monotonically
+decreasing function of the form
+pij =
+ni
+n
+((µi − µj)(µi − µj)T )−a,
+Proceedings of the 2004 IEEE Computer Society Conference on Computer Vision and Pattern Recognition Workshops (CVPRW’04) 
+1063-6919/04 $ 20.00 IEEE 
+where a is generally selected so that pij drops faster
+than (µi−µj)(µi−µj)T [13]. In our case, this number
+is a = 2.
+It is important to see that the results given by
+Eq. (10) are still proportional to those of LDA when
+H = C and the weights are pij = nin (i.e., we have
+the classical priors used by LDA). We also assume
+E[µi µTj ] = E[µi]E[µj ]; i.e., knowing the mean of class
+i does not give information of the mean of class j.
+Theorem 3: When H = C and pij = nin , the eigen-
+vectors of Eq. (10) are the same as those of LDA,
+except for a diﬀerence in scaling given by
+λi =
+2(C − 1)γi
+1 + 2(C − 1)γi ,
+where λi are the eigenvalues of Eq. (10), and γi are the
+eigenvalues of LDA.
+Proof. We write our equations as
+SBwi = γiSWwi, Σ˜Bui = δiSWui,
+Σ˜Bvi = λiΣ˜Xvi .
+Since Σ˜X = Σ˜B + SW and Σ˜BU = SWU∆, we can
+now write
+Σ˜Bui =
+δi
+1 + δi
+Σ˜Xui, λi =
+δi
+δi + 1
+.
+When pij = nin ,H = C and ni = nj , we have
+Σ˜B =
+H∑
+i=1
+H∑
+j=1
+ni
+n
+(µi − µj)T (µi − µj) (11)
+=
+H∑
+i=1
+H∑
+j=1
+ni
+n
+[(µi − µ)− (µj − µ)]T [(µi − µ)− (µj − µ)]
+= 2
+H∑
+j=1
+SB − 2
+H∑
+i=1
+ni
+n
+(µi − µ)T (µi − µ)
+= 2(C − 1)SB .
+And, rearranging terms Σ˜BU = SWU∆ can be written
+as 2(C − 1)SBU = SWU∆, which is the same as
+SBui =
+δi
+2(C − 1)SWui, γi =
+δi
+2(C − 1) .
+Combining these results, we get
+λi =
+2(C − 1)γi
+1 + 2(C − 1)γi . (12)
+
+This result guarantees that Eq. (10) will at least
+be as good as LDA. Should the results be superior for
+other values of H, we will obviously obtain better dis-
+criminant spaces.
+3 Subclass Discriminant Analysis
+In the section above, we showed that one can achieve
+optimal feature extraction and classiﬁcation results by
+simply dividing each of the classes into an adequate
+number of subclasses, H. To accomplish this though,
+one needs to solve two problem. The ﬁrst one is to
+ﬁnd (“discover”) the subclasses of each class that best
+divide the data. The second problem is that of selecting
+the partition which gives optimal classiﬁcation results.
+For computational reasons, it is quite obvious that
+we cannot test every possible division of n samples into
+H subclasses for every possible value of H. However,
+when these subclasses are assumed to correspond to
+Gaussian distributions, it is reasonable to expect the
+samples of each subclass to be close to each other. The
+method described below takes advantage of this fact to
+reduce the computational burden of our approach. We
+will also use the results of Theorem 2 to select that
+value of H for which we expect better discrimination.
+3.1 NN clustering
+This simple procedure (Nearest Neighbor-based)
+sorts the vectors of each class, xi,1, . . . ,xi,nc (where nc
+is the number of samples in class c), as follows. xi,1 and
+xi,nc are the two most distant feature vectors of class
+i (i.e., the Euclidean distance between these two vec-
+tors is the largest: argmaxj,k‖xi,j − xi,k‖). xi,2 is the
+closest feature vector to xi,1; and xi,nc−1 is the closest
+to xi,nc . In general, xi,j is the j − 1th feature vector
+closest to xi,1, and xi,nc−j is the j
+th closest to xi,nc .
+The procedure described above is useful when H is
+larger than C. For example, if H = 2C, then each
+class is divided into two groups (i.e., two subclasses).
+This is suitable for those cases where i) the underlying
+distribution of each of the classes is not Gaussian, but
+can be represented as a combination of two or more
+Gaussians, or ii) the classes are not separable, but the
+subclasses are.
+Obviously, there are many ways in which the data of
+each class can be divided into subclasses. For computa-
+tional eﬃciency, we will assume that each subclass has
+the same number of samples. We have, nonetheless, ex-
+perimented with the K-means clustering algorithm and
+the nonparametric valley-seeking algorithm of Koontz
+and Fukunaga [9] where this restriction does not apply.
+The classiﬁcation results obtained with these two meth-
+ods were, however, comparable; yet the computational
+cost was higher. Based on this observation, we have de-
+cided to work with the NN approach described in this
+section. Note that other algorithms, such as mixture
+models, could not generally be eﬃciently used because,
+in many cases, we would not have enough training sam-
+ples per class to successfully run such algorithms.
+Proceedings of the 2004 IEEE Computer Society Conference on Computer Vision and Pattern Recognition Workshops (CVPRW’04) 
+1063-6919/04 $ 20.00 IEEE 
+3.2 Optimal value of H
+Finally, we need to deﬁne a way to choose the opti-
+mal value of H. To do this, we will use the result given
+in Theorem 2 and select that value of H that minimizes
+DH . Note, however, that the larger the value of H, the
+larger the number of eigenvectors in ΣB . To prevent
+our algorithm to be bias toward those representations
+with larger values of H, we will normalized our results
+by the number of eigenvalues used. A solution to this
+problem is to normalize the eigenvalues such that they
+sum up to one. Our optimal number of classes, Ho, is
+then given by
+Ho = argmaxh D˜H , (13)
+where D˜H is
+D˜H =
+nB(H)∑
+i=1
+nX∑
+j=1
+λ˜B(H)i
+λXj
+(
+uTi wj
+)2
+, (14)
+and λ˜B(H)i are the normalized eigenvalues of ΣB such
+that
+nB(H)∑
+i=1
+λ˜B(h)i = 1.
+4 Experimental Results
+DA approaches have been largely applied to the clas-
+siﬁcation of images of objects. We will now show how
+our algorithm applies to two particular problems: a)
+object categorization, and b) face recognition. We will
+compare our results to LDA, Direct LDA (DLDA) [17],
+Nonparametric DA (NDA) [9], and PCA.
+4.1 Object categorization
+A classical problem in computer vision is to classify
+a set of objects into a group of known categories (e.g.,
+apples, cars, etc.).
+In our experiments, we have used the ETH-80
+database which contains several images of the follow-
+ing categories: apples, pears, cars, cows, horses, dogs,
+tomatoes, and cups [11]. Each category includes the
+images of ten objects (e.g., ten diﬀerent pears) pho-
+tographed at a total of 41 orientations. This gives us a
+total of 410 images per category. Four images of four
+diﬀerent cows are shown in Fig. 3(a-d).
+Feature-based classiﬁcation
+In this approach, we ﬁrst obtain the silhouette of the
+object (i.e., the contour that separates the object from
+the background), Fig. 3(f). We then compute the cen-
+troid of this silhouette and, ﬁnally, calculate the length
+of equally separated lines that connect the centroid
+with the silhouette; see Fig. 3(g). In our experiments
+we obtain a total of 300 distances, which gives us a
+feature space of 300 dimensions.
+We now use our method (SDA) as well as LDA,
+DLDA, NDA, and PCA to ﬁrst reduce the dimensional-
+ity of our feature space. Then, we use the nearest neigh-
+bor algorithm for classiﬁcation in these reduced spaces.
+To test the classiﬁcation accuracy of each method, we
+used the leave-one-object out test. To do this, we use 79
+of the 80 objects for training and one for testing. Since
+there are obviously 80 ways in which we can leave one
+object out, we repeated the test eighty times and com-
+puted the mean and standard deviation. The results
+are summarized in Fig. 4(a).
+Since we used the leave-one-object out for testing,
+the value of Ho varied each time. The average value of
+Ho was 72, which means we would have an average of
+about 45 samples per subclass.
+4.2 Face recognition
+In this experiment, we used the AR-face database
+[14]. The AR-face database consists of frontal-view
+face images of over 100 people. Each person was pho-
+tographed under diﬀerent lighting conditions and dis-
+tinct facial expressions, and some images have partial
+occlusions (sunglasses or scarf). A total of 13 images
+were taken in each sessions for a total of two sessions;
+i.e., 26 images per person. These sessions were sepa-
+rated by an interval of two weeks.
+We used the ﬁrst 13 images (corresponding to the
+ﬁrst session) of 100 randomly selected individuals for
+training; i.e., 1, 300 training images. The 13 images of
+the second session (for the same people) were used for
+testing. This problem is known as the recognition of
+duplicates in the face recognition literature.
+Appearance-based classiﬁcation
+We now use an appearance-based approach for recog-
+nition. We ﬁrst crop the face part of the image and
+then resize all images to a standard image size of 17 by
+12 pixels, which yields a 204-dimensional feature space.
+During the cropping process we align all faces to have
+a common position for the eyes and mouth (since this
+has been shown to improve accuracy).
+The results obtained using our algorithm (SDA) as
+well as those of LDA, DLDA, NDA and PCA are shown
+in Fig. 4(c). In this case Ho = 300.
+5 Discussion and Conclusions
+We have theoretically shown that to optimally sep-
+arate classes, one needs to ﬁrst subdivide the sample
+of each class into an adequate number of subclasses.
+Our result is supported by intuitive ideas (see Fig. 1)
+Proceedings of the 2004 IEEE Computer Society Conference on Computer Vision and Pattern Recognition Workshops (CVPRW’04) 
+1063-6919/04 $ 20.00 IEEE 
+(a) (b) (c) (d) (e) (f) (g)
+Figure 3. (a-d) Four examples of four diﬀerent cows as seen from the same viewing angle. (f) The silhouette of the
+cow shown in (e). (g) Each line measures the distance from the centroid to several points in the silhouette.
+(a) (b)
+Figure 4. (a) Results of the categorization problem using the feature-based approach. (b) Face recognition results
+using an appearance-based approach.
+and by our experimental results shown above. An ad-
+ditional advantage of SDA is that it allows to compute
+a larger number of eigenvectors than most DA algo-
+rithms, because the rank of ΣB is usually larger than
+the rank of SB . We have also shown that PCA will out-
+perform most DA techniques in some applications, but
+not SDA. However, other unsupervised techniques such
+as ICA (Independent Components Analysis) [10, 1] may
+be superior to our SDA algorithm as deﬁned above. We
+can nonetheless address this problem by incorporating
+higher-moments in our formulation
+5.1 Higher-moments
+Fig. 5 shows a classical example where ICA [1] and
+other techniques such as SAVE [4] outperform PCA.
+In this example, LDA could not be computed because
+the global mean and the class means are the same; i.e.
+SB = 0. It should also be clear by now that if each
+of the classes is not subdivided into two or more sub-
+classes, our previous equation, Eq. (10), would have
+the same shortcomings as LDA. When each class is,
+however, subdivided into subclasses, SDA will output
+a result similar to PCA. In this case, the results of SDA
+is unfortunately incorrect.
+To correctly address this problem, we need to ex-
+tend our previous equation to include higher moments
+of the data. We can achieve this by exchanging the
+between-subclass scatter matrix, ΣB , with a more ad-
+equate matrix such as
+Σρ =
+H∑
+h=1
+ph (E[Σh]− Σh)2 , (15)
+where Σh is the covariance matrix of subclass h and
+E[X] is the expected vector of X (i.e. mean). This
+would extend the use of SDA to those applications
+where PCA and DA techniques do not perform well.
+Our current eﬀorts are along these directions.
+5.2 Conclusions
+DA approaches have proven to be useful in many ar-
+eas of research. Unfortunately, due to the assumptions
+embedded in their formulation, DA approaches fail in
+many applications. In this contribution, we have ﬁrst
+studied the limitations and drawbacks of the classical
+equation of DA and then proposed a new algorithm
+to overcome these problems. Our experimental results
+conﬁrm our claims. In three recognition experiments,
+the results of our algorithm were either superior or com-
+parable to other DA approaches (e.g., LDA, DLDA and
+NDA) and to unsupervised techniques (e.g., PCA). Ex-
+tensions of this approach to include higher-moments of
+the data are currently underway.
+Proceedings of the 2004 IEEE Computer Society Conference on Computer Vision and Pattern Recognition Workshops (CVPRW’04) 
+1063-6919/04 $ 20.00 IEEE 
+(a) (b)
+Figure 5. In this example, we have two classes, each corresponding to a Gaussian distribution. The two Gaussians
+cross each other at their mean, and are only separated by a small angle. ICA and SAVE are able to detect the cross
+structure of the two classes. SDA would also be able to obtained this information if we used Eq (15) in place of ΣB .
+Acknowledgments
+We would like to thank the reviewers for their con-
+structive comments. This research was partially sup-
+ported by NIH.
+References
+[1] M.S. Bartlett, “Face Image Analysis by Unsupervised
+Learning,” Kluwer International Series on Engineering
+and Computer Science, Vol. 612, Kluwer Academic, 2001.
+[2] P.N. Belhumeur, J.P. Hespanha and D.J. Kriegman,
+“Eigenfaces vs. Fisherfaces: Recognition Using Class
+Speciﬁc Linear Projection,” IEEE Trans. on Pattern
+Analysis and Machine Intelligence 19(7):711-720, 1997.
+[3] R. Beveridge, K. She, B. Draper, G. Givens, “A Non-
+parametric Statistical Comparison of Principal Compo-
+nent and Linear Discriminant Subspaces for Face Recog-
+nition,” In Proc. Computer Vision and Pattern Recogni-
+tion, Kauai, HI, pp. I:535-542, 2001.
+[4] R.D. Cook and S. Weisberg, “Sliced Inverse Regres-
+sion for Dimensionality Reduction: Comment,” J. Am.
+Statistical Soc. 86(414):328-332, 1991.
+[5] K. Etemad and R. Chellapa, “Discriminant Analysis for
+Recognition of Human Face Images,” Journal of Optical
+Society of American A 14(8):1724-1733, 1997.
+[6] W.J. Ewans and G.R. Grant, “Statistical Methods in
+Bioinformatics,” Springer-Verlag, 2001.
+[7] R.A. Fisher, “The Statistical Utilization of Multiple
+Measurements,” Annals of Eugenics, 8:376-386, 1938.
+[8] J.H. Friedman, “Regularized Discriminant Analysis,” J.
+Am. Statistical Assoc. 84, 165-175, 1989.
+[9] K. Fukunaga, “Introduction to Statistical Pattern
+Recognition (2nd edition),” Academic Press, 1990.
+[10] C. Jutten and J. Herault,, “Blind Separation of Sources
+I: An adaptive algorithm based on neuromimetic archi-
+tecture,” Signal Processing 24(1):1-10, 1991.
+[11] B. Leibe and B. Schiele, “Analyzing Appearance and
+Contour Based Methods for Object Categorization,” In
+Proc. IEEE Computer Vision and Pattern Recognition,
+Madison (WI), June 2003.
+[12] J. Li, “Sliced Inverse Regression for Dimensionality
+Reduction,” J. Am. Stat. Soc. 86(414):316-327, 1991.
+[13] R. Lotlikar and R. Kothari, “Fractional-Step Dimen-
+sionality reduction,” IEEE Trans. on Pattern Analysis
+and Machine Intelligence 22(6):623-627, 2000.
+[14] A.M. Mart´ınez and A.C. Kak, “PCA versus LDA,”
+IEEE Trans. Pattern Analysis and Machine Intelligence
+23(2):228-233, 2001.
+[15] C.R. Rao, “Prediction of Future Observation in
+Growth Curve Models,” Stat. Science 2:434-471, 1987.
+[16] D.L. Swets and J.J. Weng, “Using Discriminant Eigen-
+features for Image Retrieval,” IEEE Trans. on Pattern
+Analysis and Machine Intelligence 18(8):831-836, 1996.
+[17] H. Yu and J. Yang, “A direct LDA algorithm for high-
+dimensional data – with applications to face recognition,”
+Pattern Recognition 34:2067-2070, 2001.
+[18] M. Zhu, A.M. Martinez and H. Tan, “Template-based
+Recognition of Sitting Postures,” In Proc. IEEE Work-
+shop on Computer Vision and Pattern Recognition for
+Human-Computer Interaction, Madison (WI), 2003.
+[19] M. Zhu and A.M. Martinez, “An Introduction to Sub-
+class Discriminant Analysis,” OSU Tech. Rep., 2004.
+Proceedings of the 2004 IEEE Computer Society Conference on Computer Vision and Pattern Recognition Workshops (CVPRW’04) 
+1063-6919/04 $ 20.00 IEEE 

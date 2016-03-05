@@ -1,0 +1,413 @@
+An Experiments Using JGN v6 at Tottori University of Environmental Studies 
+Masakazu Imai 
+Tottori University of Environmental Studies 
+Wakabadaki-kita, Tottori, Tottori, Japan 
+imai@kankyo-u.ac.jp 
+Ray Atarashi 
+Internet Initiative Japan 
+Kanda Jinbo-cho, Chiyoda-ku, Tokyo, Japan 
+ray@iijlab.net 
+Abstract 
+The limitation of IPv4 becomes a big problem. To 
+resolve the problems, IPv6 is proposed and now growing. 
+Various projects, such as WIDE project and TAO are 
+making big efforts to promote IPv6. Tottori University of 
+Environmental Studies (TUES) met the problem of IPv4. 
+Though using IPv6 should be a good solution to the 
+problem, there were some problems when we used IPv6 
+on JGN. We tried to transfer data of archaeological 
+photographs from Tokyo to Tottori. The amount of the 
+data is more than 75GB. The other application is to find 
+the activity of web pages on the IPv6 Internet. We will 
+describe the details in this paper. In shortly, the problems 
+we met were similar to problems that we experienced with 
+IPv4 network about fifteen years ago. 
+1. Introduction 
+The limitation of IPv4 becomes a big problem. As 
+many readers know, lack of address is one of the most 
+serious problems especially in Asian countries. IPv6 has 
+been proposed to resolve the problems that IPv4 have. 
+The detail of IPv6 is still discussing and implementing 
+though the basics were already implemented. In these 
+years, there are number of efforts to construct the IPv6 
+Internet. In Japan, WIDE project operates 6bone-JP and 
+the IPv6 internet exchange. From 1999, 
+Telecommunications Advancement Organization (TAO) 
+began to operate Japan Gigabit Network (JGN). There are 
+number of access points, at least one access point for a 
+prefecture. From 2001, JGN began to accept IPv6 traffic. 
+This situation makes IPv6 research easy for research 
+institutes. 
+Tottori University of Environmental Studies (TUES) 
+was established in 2001. All students are undergraduates. 
+There is a plan to establish a graduate school in the near 
+future. As TUES is a young university, the university is 
+now equipping with things needed for researches. We 
+prepared the IPv4 Internet Connection by an ISP. We met 
+the lack of IPv4 address. We could not prepare IPv4 
+address for all students and faculties. At TUES, all 
+students have their own note PCs as teaching materials. 
+As the number of students for one grade is more than 320, 
+we need more than one and half thousands of IP address. 
+This situation was a big motivation for us to use IPv6. 
+Fortunately, we got a chance to use JGN and we 
+investigate the IPv6 network from two points of view. 
+One is that of file transferring. The other is that of web 
+accessing. We will describe the details of our result in this 
+paper. 
+In the rest of this section, we describe the outline of 
+IPv6 connection at TUES. TUES was connected to JGN 
+in October 2002 to proceed researches related to IPv6. 
+JGN has an access point at Tottori University with the 
+interface of OC-3. The distance between TUES and 
+Tottori University is about 10km. The speed of the access 
+line is 100Mbps, Fast Ethernet. The campus network of 
+TUES is based on IPv4. We constructed a new network 
+only for IPv6. This means that the new network uses only 
+IPv6. Computers connected the new network should use 
+IPv6. If a computer has only one network interface, the 
+computer should use network services via IPv6 including 
+DNS. 
+The authors used this network to study the 
+effectiveness of IPv6 network. First, we transferred a big 
+volume of image data. Secondary, we investigated web 
+accessibility in the IPv6 Internet in Japan. 
+2. Details of transferred data 
+In this section, we describe what kind of data we 
+transferred. The authors are also studying metadata of 
+archaeological photographs to preserve in digital format. 
+Figure 1  An example of photographs 
+Proceedings of the 2004 International Symposium on Applications and the Internet Workshops (SAINTW’04) 
+0-7695-2050-2/04 $20.00 © 2004 IEEE
+An archaeologist took many photographs of historical 
+sites, ruins and relics. Taking photographs of such things 
+is very important because distributions of relics 
+sometimes tell archaeologists meaningful information. To 
+make comparative study between historical sites, 
+archaeologists compare photographs of historical sites. 
+Thus circulation of such photographs is very important. 
+We digitized a volume of photographs of historical sites 
+for our study. As the authors work in Tottori and Tokyo, 
+we have to have same digital data of the photographs. 
+Originally, the data were only in Tokyo. We transferred 
+the data from Tokyo to Tottori via IPv6 Internet. The 
+volume of the photographs is more than 75GB. Figure 1 
+shows an example of the photographs. We placed an 
+order with a company for the digitization of photographs. 
+3. File Transfer Tool 
+Generally, transferring the data from Tokyo to 
+Tottori, FTP program is appropriate. However, there were 
+some problems about firewall, protocol, and file transfer 
+system for using FTP program. In this section, we 
+summarize these problems and describe a tool, WebDAV 
+(World Wide Web Distributed Authoring and 
+Versioning) that we adopted. 
+3.1 Environment and problems 
+The problems about file transfer from Tokyo to 
+Tottori are below: 
+1. Reliability of the network 
+2. Kanji characters in file name 
+3. Firewall policy of the organization 
+4. To use IPv6 application 
+The reason why FTP program is not useful to 
+transfer the data was that the network was not reliable for 
+sending flood of data, as described in section 3.2. Though 
+network managers attempted to fix the network problems, 
+the quality of stability was not enough to keep 
+transferring large data using FTP program. FTP program 
+dose not have facilities to re-try and re-send when a 
+network replies error such as time-out, packet loss, etc. If 
+FTP connection is finished with network error as we send 
+a file, we have to send again the file from the beginning. 
+Additionally, FTP program dose not detect whether a file 
+is transferred completely or not in a directory, when we 
+use wild card to point files in program argument. It makes 
+hard to manage about 5 thousands file transfer, because 
+we have to check whether each file for is send correctly.  
+As a matter of fact, FTP program was finished by error at 
+intervals of a few minutes. Thus, other useful file transfer 
+tool is required to send large size a large amount of files.   
+The other problem is that the files are named using 
+Japanese SJIS code to encode kanji characters. FTP 
+program cannot transfer Kanji character, two-byte 
+character file name sometime.  It was not possible to 
+convert over 5-thousand file name. And converted fine 
+name has less information that original name, because 
+Kanji character is ideogram. Japanese Kanji characters 
+have a lot of information in one character. For example, 
+“Kurayoshi-Iseki” needs 8 bytes to write by Kanji 
+character, though same meaning alphabetical word 
+“Kurayoshi historical site” uses twenty-three bytes. These 
+digitized photographs were originally taken at Japanese 
+historical site. Thus, the photographs are arranged and 
+stored using Japanese historical name and kanji. These 
+kind of Japanese names are familiar with Japanese 
+archaeologist. It was strongly required to keep Kanji 
+character file name. 
+Recently, firewall policy of the organization limits 
+to use application to keep security. FTP program packets 
+are prohibited to send from Tokyo to Tottori. Since HTTP 
+packets are admitted to transfer, file transfer program 
+using HTTP is needed.  
+The most important challenge is that TUES has IPv6 
+address only. A few program was implemented for IPv6, 
+however, we had to select a program carefully, because 
+some programs need the environment that is supported 
+IPv4 and IPv6. 
+3.2 WebDAV as file transfer tool 
+To solve these problems, we adopted WebDAV [1] 
+program. WebDAV is “Web-based Distributed Authoring 
+and Versioning”. It is a set of extensions to the HTTP 
+protocol that allows users to collaboratively edit and 
+manage files on remote web servers. WebDAV is 
+implemented as a part of apache 2. Apache 2 also 
+supports IPv6. There is a patch for supporting Japanese 
+Kanji characters in file name. 
+We built WebDAV server on FreeBSD at TUES, 
+and WebDAV clients on Windows XP at Tokyo. In 
+Tokyo, we have two network access points to send data. 
+One is from IIJ broadband network, about 33Mbps, the 
+other is from ADSL network, about 0.5Mbps, shown as 
+Figure 2. When we connect using WebDAV client to 
+WebDAV server though http, we can move and copy 
+remote files on the local machine. It is easy to move file 
+from Tokyo to TUES, since WebDAV provides folder 
+like GUI tool to handle files as if we move file in local 
+directory. WebDAV manages to file transfer when 
+network condition is unreliable. However, since 
+sometimes WebDAV reported error to transfer file, we 
+had to check whether a file is transferred completely. In 
+next section, we describe network condition. 
+Proceedings of the 2004 International Symposium on Applications and the Internet Workshops (SAINTW’04) 
+0-7695-2050-2/04 $20.00 © 2004 IEEE
+4. Network condition 
+Network managers that operate JGN IPv6 network 
+were expert and they had much experience to operate 
+IPv4 network. However, in present, it seems that there are 
+some problems to operate IPv6 network. Since we are not 
+network manager and cannot solve and/or analyze 
+problems, we can report network condition from user 
+point of view. 
+4.1 Datalink problem 
+Observed problem is that FTP program is finished 
+abnormally while data is transferred. Since PING 
+command did not report an error, Datalink is doubted to 
+have some troubles. In the backbone, some errors were 
+detected in a wide area Ethernet line. On the end point, 
+ADSL access line was disconnected sometimes. A 
+network operator fixed both problems, instantly. Quality 
+of network were improved, however, network connection 
+was not stable yet.  
+4.2 Routing problems 
+Trouble of routing configuration occurred twice 
+while we transferred photograph data for two months. 
+First time, it was observed packet loss because 
+TRACEROUTE command replied fine routing 
+information. Since TUES found they could not access and 
+reach some WWW server, router configuration was 
+detected.  
+Second time, TUES was not discovered and 
+connected from Tokyo one day. TRACEROUTE said 
+routing information was not right from Tokyo to Tottori. 
+It became clear that configuration in the router was 
+mistaken when router was replaced.  
+This kind of miss operation shows that IPv6 network 
+operation has not maturity enough compare with IPv4 
+network. Experiments of operating IPv6 network on JGN 
+must be very fruitful to develop and deploy IPv6.  
+4.3 Continuous data stream 
+We could not solve trouble that packets are reachable 
+to the server using PING and TRACEROUTE command, 
+but FTP and WebDAV session often disconnected. Since 
+the amount of transferred data is 75GB, data packets 
+continue to flow for a long time. It is not clear that which 
+component caused this problem. Problems must be caused 
+not only by network configuration and equipment but also 
+end system. We used FreeBSD for WebDAV server and 
+Windows XP for WebDAV client. IPv6 protocol stack 
+and applications are developing at this time. A lot of IPv6 
+experiments collaborate with real application might 
+accelerate to develop and deploy IPv6 network.
+5. Web Hosts on IPv6 
+AT TUES, there are two campus-networks. One is 
+based on IPv4, and the other is based on IPv6. No part of 
+campus-network accepts both IPv4 and IPv6 at the same 
+time. TUES is connected to the Internet via commercial 
+ISP with IPv4 and connected to the Internet via JGN with 
+IPv6. Figure 3 illustrates this situation. 
+At this point, only 128 IPv4-addresses are assigned 
+to TUES. On the other hand, all students have their own 
+note PC as his/her teaching materials. Off course, students 
+use the Internet via campus-network. They use e-mail, 
+web browsing and some other internet services. To 
+provide internet services such as web browsing, we use 
+the NAPT and local address of IPv4 to connect the note 
+PC of students simultaneously. To use the bandwidth of a 
+line to the ISP, we use an http proxy server. Though 
+TUES has IPv6 connection to the 6bone, only limited 
+persons can access to the IPv6 network directly. IPv6 
+network is still in experience. 
+WebDAV  
+Server 
+TUES 
+IPv6 Internet 
+Figure2  Network and server environment  
+Tokyo 
+WebDAV 
+Client on 
+broadband 
+33Mbps 
+0.5Mbps 
+JGN 
+(IPv6)
+TUES 
+ISP 
+(IPv4)
+Figure 3  Internet Connection at TUES 
+Proceedings of the 2004 International Symposium on Applications and the Internet Workshops (SAINTW’04) 
+0-7695-2050-2/04 $20.00 © 2004 IEEE
+Similar to many universities, most of traffic at 
+TUES is for access to web pages. If we have an 
+appropriate proxy server that uses IPv6 connection as 
+well as IPv4, we can improve the efficiency. We made 
+efforts to find out such kind of http proxy server. The 
+proxy server has to satisfy a following condition: the 
+proxy server accesses via IPv6 if a host is IPv6 reachable. 
+We found that there is no proxy server that satisfies our 
+condition. We also found that it’s easy to modify 
+wwwoffle[2] to meet with our request. The modification 
+was only several lines or around. As wwwoffle is 
+designed for personal use, the program has no capabilities 
+to serve for many requests from many clients. We used 
+the software with some clients. The program works well. 
+Using modified wwwoffle, clients on the IPv4 
+campus network can access to the hosts on the IPv6 
+Internet. If a host is connected to both IPv4 Internet and 
+IPv6 Internet, our modified wwwoffle retrieves web 
+contents of the host via IPv6 instead of IPv4. One of 
+objectives of the modified wwwoffle is to make IPv4 
+clients easy access to IPv6 web hosts. Figure 4 shows the 
+role of the proxy. 
+Using this mechanism, we can increase traffic of 
+IPv6 and decrease that of IPv4. It is easy to understand 
+that our modified wwwoffle increase the traffic of IPv6. 
+But how much the program increases the traffic? The 
+answer should be “It depends on the number of web hosts 
+on the IPv6 network.” Who knows the number of web 
+hosts on the IPv6 Internet? It is very difficult to answer 
+this question. But, it is easy to know some of the web 
+hosts on the IPv6 Internet if we add some codes to our 
+modified wwwoffle. Table 1 shows the hostnames 
+detected by our program. A couple of faculty of TUES 
+used our modified wwwoffle as a proxy server for their 
+web browser from September 2003.  
+There are 46 sites in Table 1. We can see the names 
+of IPv6 related projects, ISPs, companies. The number of 
+sites is not big. Is the number of IPv6 ready-sites so 
+small? To find the answer, we made access to official 
+web pages of Japanese universities. At universities, many 
+researchers are working. The possibility having web page 
+on the IPv6 Internet is higher than other organizations. In 
+Japan, it is easy to get a list of URL of universities. These 
+two points are the reasons why we chose Japanese 
+universities. As a list of official web pages, we used 
+http://www.yozemi.ac.jp/daigaku/. (This page is written 
+in Japanese.) Using this page, we made access to official 
+web pages of universities and found that only three 
+universities have IPv6 address for their sites. More than 
+400 universities do not have IPv6 address for their 
+IPv6 Internet 
+Clients Proxy 
+server
+IPv4 Internet 
+Figure 4  The role of our proxy 
+Table 1 Hosts, which have IPv6 address
+2003.9.11 6bone.informatik.uni-leipzig.de 
+2003.9.11 altavista.ipv6.digital.com 
+2003.9.11 contents.pr.v6pc.jp 
+2003.9.22 ftp.netbsd.org 
+2003.9.11 ipv6.research.microsoft.com 
+2003.9.19 mirrors.bieringer.de 
+2003.9.11 ngi.spawar.navy.mil 
+2003.9.11 ny6ix.net 
+2003.10.10 squid.internet2.edu 
+2003.9.17 tiis.hitachi.co.jp 
+2003.10.1 turtle.sfc.wide.ad.jp 
+2003.10.1 v6start.net 
+2003.9.18 winpcap.polito.it 
+2003.9.11 www.6bone.net 
+2003.9.19 www.6tap.net 
+2003.10.30 www.allbsd.org 
+2003.9.19 www.bieringer.de 
+2003.9.19 www.deepspace6.net 
+2003.10.1 www.freebit.com 
+2003.9.11 www.hitachi.co.jp 
+2003.9.12 www.hokudai.ac.jp 
+2003.9.11 www.iij.ad.jp 
+2003.9.11 www.ipv6.org 
+2003.9.19 www.ipv6forum.com 
+2003.9.11 www.ipv6style.jp 
+2003.10.22 www.jp.freebsd.org 
+2003.9.19 www.jp.ipv6.org 
+2003.9.11 www.kame.net 
+2003.9.12 www.koeki-u.ac.jp 
+2003.9.11 www.linux-ipv6.org 
+2003.9.11 www.netbsd.org 
+2003.9.12 www.nihon-u.ac.jp 
+2003.9.11 www.ocn.v6.ntt.net 
+2003.9.19 www.odn.ne.jp 
+2003.9.30 www.poweredcom.net 
+2003.10.1 www.sfc.wide.ad.jp 
+2003.9.19 www.sinet.ad.jp 
+2003.9.19 www.tahi.org 
+2003.9.19 www.tdoi.org 
+2003.10.8 www.v6.hitachi.co.jp 
+2003.9.11 www.v6.kddi.com 
+2003.9.19 www.v6.linux.or.jp 
+2003.9.26 www.v6.ntt.net 
+2003.9.19 www.v6.wide.ad.jp 
+2003.9.11 www.v6pc.jp 
+2003.9.19 www.wide.ad.jp 
+Proceedings of the 2004 International Symposium on Applications and the Internet Workshops (SAINTW’04) 
+0-7695-2050-2/04 $20.00 © 2004 IEEE
+official web sites!! Additionally, only one university 
+provides their official web page via IPv6. Though the rest 
+universities have IPv6 address for their official sites, we 
+could not reach the sites. In fact, only one Japanese 
+university provides their official web pages via IPv6.  
+From the point of view of users, there is no 
+motivation to use IPv6 if the user cannot retrieve any 
+information from IPv6 Internet. If we want IPv6 to be 
+more popular, we have to make much more web pages on 
+the IPv6 Internet. 
+6. Conclusion 
+In this paper, we described experiments done at 
+Tottori University of Environmental Studies using JGN 
+v6. We transferred a large size of image data from Tokyo 
+to Tottori. Though we tried to use FTP first, we met 
+various difficulties. To avoid the problems, we used 
+WebDAV and succeeded to transfer the data. We also 
+investigated the actual situation of Web sites on the IPv6 
+Internet. What we experienced during our research is very 
+similar to the situation of IPv4 Internet of fifteen years 
+ago. It may take a little more time IPv6 to be popular. The 
+authors hope that IPv6 network became more popular 
+than IPv4 network in the near future. A lot of experiments 
+of both IPv6 application and operating IPv6 network on 
+JGN should accelerate to develop and deploy IPv6 
+network. 
+Acknowledgements 
+This research is supported by WIDE project, NTT 
+East and JGNv6 Operation Members. Prof. Tadashi 
+Katata allowed us to use his photographs of historical 
+sites. Part of this research is supported by 
+Telecommunications Advancement Organization of Japan 
+(TAO, Project No.: JGN-G14005), and Academic Funds 
+of Tottori Prefecture for Environmental Studies. The 
+authors gratefully thank to them. 
+References
+[1] WebDAV, http://www.webdav.org/ 
+[2] wwwoffle, http://www.gedanken.demon.co.uk/ 
+wwwoffle/ 
+Proceedings of the 2004 International Symposium on Applications and the Internet Workshops (SAINTW’04) 
+0-7695-2050-2/04 $20.00 © 2004 IEEE

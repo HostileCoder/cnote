@@ -1,0 +1,807 @@
+Dynamic Bandwidth Allocation in a Satellite 
+Communication Network 
+Thomas V. Huynh and David C. Gillen 
+Lockheed Martin Management & Data Systems 
+3200 Zanker Rd. 
+San Jose, CA 95 124 
+t.huynh@lmco. com 
+408-473-5623 
+Abstract - Common multimedia applications such as 
+interacting computing, bulk transfers (e.g., http sessions), 
+video conferencing, and video on demand all require large 
+bandwidth and resources for high-quality transmission. 
+Since satellite communications networks offer wide earth 
+coverage, high-bandwidth, and star topologies suited for 
+such broadcast/multicast applications, extension of 
+terrestrial networks to include satellite communication links 
+becomes attractive. Asynchronous transfer mode ( A m ,  a 
+technology that has promised to revolutionize satellite 
+communications, enables efficient transmission of 
+multimedia traffic with different quality-of-service (QoS) 
+requirements. Demand-Assignment Multiple-Access 
+(DAMA) protocol, a channel access method, is important in 
+system capacity and QoS provisioning. Our work deals 
+with ATM satellite communications networks employing 
+DAMA, whose algorithm must be efficient and robust. Its 
+efficiency ensures a fast response to a connection's demand 
+for bandwidth. Its robustness ensures satisfaction of the 
+connection's required QoS and its integrity under 
+unpredictable traffic burstiness. 
+Computational practicality dictates that only heuristic 
+DAMA algorithms be implemented in an ATM satellite 
+communications system. But these heuristic algorithms need 
+be validated and benchmarked before they are fielded. In 
+this work, we employ the orthogonal array experiment (or 
+the Taguchi method) to allocate bandwidth in a satellite 
+communications network. We also validate and benchmark 
+the Taguchi assignments with the results obtained by 
+mathematical optimization. This benchmarking process 
+allows us to quantitatively assess the performance of our 
+approach and is recommended to be employed when 
+developing heuristic algorithms. The close agreement 
+between the results produced by the orthogonal array 
+experiment method and the conventional integer 
+programming solution methods underscores the feasibility of 
+the orthogonal array experiment approach. 
+TABLE OF CONTENTS 
+1. "IRODUCTION 
+2. 
+3. 
+4. 
+5.  COMPARISON OF RECWLTS 
+DAMA ASSIG"T PROBLEM AS 4 NONLINEAR MIXED 
+INTEGER PROGRAM 
+SOLUTION TO THE LINEARIZED M  ASSIGNMENT 
+SOLUTION BY ORTHOGONAL W Y  EXPERIMENTS 
+PROBLEM 
+6. CONCLUSION 
+1. INTRODUCTION 
+Common multimedia applications such as interacting 
+,computing, bulk transfers (e.g., h#p sessions), video 
+conferencing, and video on demand all require large 
+bandwidths and resources for high-quality transmission. 
+Since satellite communications networks offer wide earth 
+coverage, high-bandwidth, and star topologies suited for 
+such broadcastlmulticast applications, extension of 
+terrestrial networks to include satellite communication links 
+becomes attractive. Asynchronous transfer mode (ATM), a 
+technology that has promised to revolutionize satellite 
+communications, enables efficient transmission of 
+multimedia traffic with different quality-of-service (QoS) 
+requirements [2]. Bandwidth allocation on demand must 
+dynamically maintain a reasonable balance between link 
+utilization and QoS parameters like CLR (cell loss), CTD 
+(cell delay), and CDV uitter) [l]. Demand-Assignment 
+Multiple-Access (DAMA) protocol, a channel access 
+method, is important in system capacity and QoS 
+provisioning. Our work deals with ATM satellite 
+communications networks employing DAMA, whose 
+algorithm must be efficient and robust. Its efficiency 
+ensures a fast response to a connection's demand for 
+bandwidth. Its robustness ensures satisfaction of the 
+connection's required QoS and its integrity under 
+unpredictable traffic burstiness. 
+Computational practicality dictates that only heuristic 
+DAMA algorithms be implemented in an ATM satellite 
+communications system. In order to accurately assess their 
+3-1221 
+performance, these heuristic algorithms should be validated 
+and benchmarked before the system is deployed. There are 
+several ways to validate and benchmark such algorithms - 
+simulation or comparison against an optimization approach. 
+Since Simulation is often expensive, optimization appears to 
+be a preferred option. For any such a system to be deployed 
+with a heuristic DAMA algorithm, we propose that an 
+optimal solution be generated to validate and benchmark it. 
+But optimization approaches present two challenging 
+problems: (1) mathematical problem formulation and (2) 
+solution approaches to the resulting mathematical 
+optimization problem. 
+The problem of bandwidth allocation on demand involves 
+maximizing satisfaction of requests for bandwidth (i.e., RF 
+channels and TDMA timeslots) from connections while 
+meeting certain transmission and capacity constraints, 
+maintaining fairness, and minimizing cell delay variation. 
+In this paper we formulate the allocation of bandwidth on 
+demand in an ATM satellite communications system as a 
+nonlinear mixed integer assignment problem and elucidate 
+the fine points of formulating such a problem. We then 
+solve the nonlinear mixed integer assignment problem using 
+the orthogonal array experiment approach, also kncim as the 
+Taguchi method used in quality control [6, 71. To validate 
+the Taguchi results with optimization, we first linearize the 
+nonlinear mixed integer assignment problem and then solve 
+the resulting linear mixed integer assignment problem using 
+the commercial software tools known as AMPL and CPLEX 
+[SI. The use of the linear integer programming solution 
+tools, AMPL and CPLEX, requires linearization of the 
+nonlinear problem. 
+The use of specially constructed tables known as orthogonal 
+ar rays  for designing robust products and processes was 
+originally developed by G. Taguchi in Japan in the 1950s 
+and 1960s. References 6 to 8 contain a detailed description 
+of the Taguchi method. Our work here extends the 
+exploratory work reported in [5] ,  a novel application of 
+orthogonal array experiments to assignment problems. Its 
+extension is elaborated later in this paper. 
+The scope of this paper is to elucidate the maihematical 
+formulalion of the DAMA assignment problem as a 
+nonlinear mixed integer program (NLMIP) and to 
+emphasize the mechanics of applying the Taguchi method to 
+solve the DAMA assignment problem. We therefore 
+contine our discussion of the Taguchi method to the DAMA 
+assignment problem at hand, without delving into all the 
+statistical background and details of the Taguchi method as 
+it applies to quality control. 
+Our goals in this paper are: 
+Discuss the mathematical formulation of the DAMA 
+assignment problem. 
+0 Explain and illustrate our exploratory work in extending 
+the orthogonal array experiment alpproach to solving the 
+DAMA assignment problem. 
+Compare the results obtained with our approach to 
+those generated by optimization. 
+Emphasize the necessity and value of validating and 
+benchmarking of DAMA assignment algorithms with 
+optimization. 
+e 
+0 
+The resit of the paper is organized as follows. In Section 2 
+we define the problem of bandwidth assignment, i.e., the 
+DAMA assignment problem, and formulate it as an NLMIP. 
+We linearize the nonlinear DAMA problem in Section 3 in 
+order to' solve the resulting linearized problem with Ah4PL 
+and CPIXX. In Section 4 we solve the DAMA assignment 
+problem using the orthogonal array experiment method. 
+Section 5 compares the results obtained with the orthogonal 
+array experiments and to those generated by AMPL and 
+CPLEX. Section 6 contains some concluding remarks. 
+2. D A W  ASSIGNMENT PROBLEM AS A 
+NONLINEAR MIXED INTEGER PROGRAMMING 
+PROBLEM 
+As shown in Fig. 1, a generic satellite communications 
+network consists of subscriber terminals (STs), a network 
+controller (NC), and satellites. The network controller, the 
+central control for the network, manages the uplink 
+bandwidth allocation to all STs. Since all STs share a 
+common pool of bandwidth, the NC must be responsible for 
+allocating bandwidth to the STs, and hence the DAMA 
+assignment algorithm must therefore reside at the NC. Any 
+other components of a DApvlA algorithm may reside at the 
+STs. In this paper we address only the DAMA assignment 
+problem. 
+Each ATM service category has a certain priority level. A 
+request for bandwidth specifies the m j i u m  and maximum 
+numbers of slots needed for each priority level. The 
+assignment algorithm is invoked when there are requests for 
+bandwidth fiom the STs. Of course, the local conditions at 
+each ST precipitate such requests. For example, a request 
+for additional bandwidth is made when an ST needs to 
+establish a new ATM connection. 
+Likewise, a request for a reduction in bandwidth is made 
+when connections are torn down. Also, when transmit queue 
+lengths and instantaneous arrival rates change, requests for 
+bandwidth updates are sent to the IVC. The assignment 
+algorithm allocates available bandwidth (channels and time 
+slots) to satisfy the requests fiom the: STs, collected at the 
+beginning of each assignment cycle. In other words, the 
+assignment algorithm responds to a collection of requests at 
+a time. It allocates available bandwidth to this collection of 
+requests, while satisfying certain transmission and capacity 
+constraints. These constraints are described below. 
+3-1222 
+GBNCC 
+I S T  3 
+Fig. 1. A Generic Satellite Communications Network' 
+In addition to maximizing the satisfaction of each request, 
+the assignment algorithm must also minimize the cell delay 
+variation (CDV) and maintain fairness among the STs. In 
+our view, faimess among the STs may be achieved by 
+" k i n g  the differences in the percentage satisfaction 
+levels of each ST. CDV is minimized by equally 
+distributing the assigned time slots across a frame. 
+Let I denote the set of subscribers terminals (ST), J the set 
+traffic (or service) priority levels, K the set of channels 
+(frequencies), and L the set of time slots (or just slots) in a 
+channel. Except where noted, i, j ,  k, and I hereinafter 
+represent elements of the sets I, J, K, and L, respectively. 
+VARZABLES 
+Let the "sandwich" variables, lbj and ubj denote the lower 
+bound and upper bound, respectively, on the percentage 
+satisfaction level of each request with priority j .  The 
+percentage satisfaction level is the ratio of the total number 
+of slots allocated above the minimum number of requested 
+slots to the difference between the maximum and minimum 
+numbers of requested slots. It is expressed mathematically 
+in (7). 
+PARAMETERS 
+We now introduce the so-called availability, capacity, and 
+sizing parameters -- au, cb and min, and max,, respectively. 
+The binary availability parameter, aH, specifies the unused 
+or open time slots in all channels and is defmed according to 
+1, if time slot 1 in channel k is available 
+0, otherwise akl = 
+The capacity parameter, ck, is the number of available slots 
+in channel k. The sizing parameters, min, and max,, denote 
+the minimum and maximum numbers of slots requested by 
+ST i at priorityj. Also, let ch,, denote the maximum 
+number of channels that can be assigned to an ST. 
+CONSTRAINTS 
+An ST can transmit only on one frequency (channel) during 
+a time slot; that is, 
+We now introduce the so-called packing, sizing, channel, x lk ]  I 1 Vi ,  I .  (1) 
+and spacing variables -- x , ~ ,  z,, Ylk, and , respectively. k 
+The binary (0,l) packing vdable, xIu, represents the 
+assignment of slots and channels to an ST and are defined by only one ST cm be assigned to an czwdable time slot; that 
+is, 
+1, if ST i is assigned slot I in channel k c xlkl 5 akl  v k , l .  (2) 
+0, otherwise I 
+Since the number of slots per channel assigned to an ST 
+cannot exceed the number of slots available in the channel, 
+we have 
+{ X l k l  = 
+The integer sizing variable, z,, specifies the number of slots 
+assigned to satisfy requests from ST i for traffic with priority 
+j .  The binary channel variable, yjk, represents the number of 
+channels assigned to ST i and is defined by (3) 
+1, if ST i is assigned any slots in channel k 
+This constraint couples the packing Xik] and channel 
+Y i k  variables. 
+The binary spacing variable will12 is defined by 
+Also, since the number of channels assigned to an ST cannot 
+exceed ch-, we have 
+1 ,  if ST i uses both slots ZI andZ2, but no slots in between 
+0, otherwise c v i k  5 ch,, vi. (4) 
+k 
+= 
+The total number of slots packed into the channels assigned 
+to an ST must be equal to the number of slots needed to 
+satisfy requests with all priorities; that is 
+' Visio, developed by Visio Corporation, and EXTEND, 
+developed by Imagine That, were used to create this network 
+cartoon. 
+3-1223 
+This constraint couples the packing xjk]  and sizing zv 
+variable:;. 
+The size of each assignment must be within the range of 
+requested time slots; that is, 
+Within ia priority level, the percentage satisfaction levels 
+among all STs should be as close to equal as possible. To 
+achieve this, we impose 
+and we " i z e  the difference between the bounds, 
+explicitly shown in the objective function below. 
+Finally, the definition of the spacing variables willlz above 
+suggest this nonlinear constraint 
+Clearly, if ST i is not assigned slot I j ,  then the first term in 
+the product in (8) becomes zero. If ST i is not assigned slot 
+I, then the second term in the product becomes zero. If ST i 
+is assigned any slots between II and 12, then the third term 
+becomes zero. 
+OBIECTIVE FUNCTION 
+We now introduce the nonlinear objective function 
++ i l , c ( u b j  - lb j ) .  
+i 
+The first component within .the absolute: value, 
+will12(12 - I l ) ,  represents the distance (i.e., the number of 
+slots) between the slots I j  and I, assigned to ST i. The 
+second component is the optimal distance between any two 
+assigned slots if Di slots are assigned to ST i , where Di is 
+the average of the minimum and maximum number of slots 
+requested by ST i; that is 
+I Vi. 
+2 
+D, = 
+As defined, D, ensures that extreme distances are not 
+chosen. We must mention that, unless the objective function 
+need not be linearized, the selection of D, may require 
+further investigation. For instance, one may choose 
+D, = I : x , k l  , but such a selection increases the degree of 
+nonlinearly of the objective function and linearization will 
+drastically increase the dimension of the optimization 
+problem. Minimizing the negative of the sum of the zv 
+variables is equivalent to maximizing ihe supported demand. 
+Minimizing the sum of the difference of ub, and lb, in effect 
+forces the satisfaction level for each ST (as defined in the 
+constraint (7)) to be a close to equal as, possible. 
+k,1 
+Finally, the weights a. , ax, and ;1, allows an adjustment of 
+the contribution of each of the three components to the 
+objective function. Their values are chosen such that 
+ao+ax-b4 = I .  
+The complete nonlinear mixed integer program is thus: 
+Miniminme (9) subject to the constraints (1) - (8). 
+We now linearize the NLMIP problem and solve the 
+resulting linear MIP problem using AMPL and CPLEX. 
+3. SOLUTION TO THE LINEARIZED AMA 
+ASSIGNMENT PROBLEM 
+The objective function in (9) is nonlinear because it contains 
+the nonlinear term w ~ ~ , ~ ~  defined in (8). Therefore, we need 
+to linearize the objective function in order to employ the 
+commercial optimization tool AMPL and CPLEX [SI. We 
+introduce the variable 
+1, if ST i uses slot 1 in any channel 
+0, otht:rwise = F xikl = { 
+Note that the constraint in (1) renders vi! a binary variable. 
+Using a standard technique [9, 101 for linearizing the 
+product of two binary variables while taking into account the 
+definition of wil,+, and its feasibility, we obtain from (8) 
+and 
+3-1224 
+Appendix A contains the derivation of (10) and (11). The 
+nonlinearly of (10) necessitates the introduction of another 
+binary variable, uilr , defined as uill' = vilvil, and the 
+following two constraints 
+vi] +vi/'  2 2u,, Vi, l  < I' (12) 
+vil + vile - 1 5 uillo Vi,l < I' (13) 
+The constraint in (10) now becomes 
+where M is some sufficiently large integer. 
+To remove the absolute value in the objective function (9) 
+we add two sets of non-negative variables, piil12 and qill12 ,
+and the following constraint set 
+If the difference inside the absolute value in (9) is a positive 
+number, then piil12 takes that number while qill12 is zero. If 
+the difference inside the absolute value is a negative 
+number, then qiili2 takes that number while piil12 is zero. 
+We remove the last term fiom (15), which involves the 
+priority levels, because its inclusion requires a large 
+orthogonal array that is not available to us at the moment. 
+The objective function (15) then becomes 
+The linear h4lP problem is thus: Minimize (16) while 
+satisfying the constraints (1)- (7), (1 1)-(14). 
+4. SOLUTION BY ORTHOGONAL ARRAY 
+EXPERIMENTS 
+The approach discussed in this section is based on and 
+extended fiom [SI, which explores the applicability of the 
+orthogonal array experiments (or the Taguchi method) to 
+solve assignment problems. 
+We need the following information in order to formulate a 
+DAMA assignment problem: the size of a network, the 
+transmission and capacity constraints, the bandwidth 
+demand imposed on it, and the state of the network at the 
+time of assignment. The cardinality of the sets I, K, and L 
+determines the size of the network. The maximum number 
+of channels used by an ST and the ST transmission 
+restriction are the transmission and capacity constraints. 
+The number of available channels and slots defines the state 
+of the network. The minimum and maximum numbers of 
+slots requested by the STs constitute the bandwidth demand. 
+For illustration and comparison, we choose 11 = 3, IKI = 4, 
+ILI = 10, and chaw= 2. Since a maximum bandwidth 
+allocation is considered more important than optimal 
+spacing of assignments, the objective function in (16) will 
+be evaluated with lo = 0.1 and Ax = 0.9. The traffic 
+demand will be randomized; the detail of the randomization 
+is discussed in Section 5. 
+THE ORTHOGONAL RRAY EXPERLME~T 
+R A. Fisher first introduced factorial design of experiments 
+in the 1920s. For a f i l l  factorial design the number of 
+possible conditions or experiments is Lm , where m is the 
+number of factors and L is the number of levels for each 
+factor. Taguchi's partial factorial design requires only a 
+smaller number of unique factorAeve1 combinations 
+captured in a table called an orthogonal array. As shown 
+later by the orthogonal array used in this work, all 
+combinations of levels occur an equal number of times in 
+every pair of columns of an orthogonal array. This 
+combinatorial property ensures the orthogonality property 
+[6]; all columns of the array are thus orthogonal to each 
+other. 
+Definition of Factors and Levels 
+A key step in designing orthogonal array experiments is 
+defining the factors and their levels [6]. There is no 
+systematic way to define factors and levels for problems 
+treated in this paper. Care should be exercised to choose 
+factors and levels appropriately so as to take advantage of 
+the established orthogonal arrays and so as to minimize the 
+dimensions of the arrays (that is, the number of columns) 
+151. 
+Unlike the problem treated in [5 ] ,  the problem at hand 
+indicates two tiers of assignment: STs to channels and STs 
+to time slots in the assigned channels. Since each channel 
+has 10 time slots and there are 4 channels, the total number 
+of time slots is 40. Since each time slot (also a factor) can 
+be assigned to only one ST, each time slot has three levels: 1 
+for ST1,2 for ST 2, and 3 for ST 3. 
+A SPECIFIC DAMA ASSIGNUENT PROBLEM The Orthogonal Array Experimental Design 
+3-1225 
+At the outset, for the problem at hand, an experiment is 
+neither a computer simulation nor a laboratory experiment 
+with hardware; rather, it is the computation of the objective 
+function associated with a trial allocation of the time slots 
+(and hence channels) to the STs. 
+The full factorial experiment for the problem at hand would 
+require 340 or 1.2~10'~experiments. It would be 
+impractical to run such an exorbitant number of 
+experiments. The use of orthogonal arrays reduces the 
+number of experiments drastically. 
+Taguchi and Wu [7] have constructed a number of 
+orthogonal arrays, which can be conveniently used for 
+experiment design. As pointed out in [ 5 ] ,  the nature of an 
+assignment problem of interest dictatw the selection of the 
+factors and their levels and orthogonal arrays. For the 
+problem considered here, we employ the orthogonal array 
+L,,(340) in Table 1 for the 40 factors (i.e., time slots) with 
+three levels (again corresponding to the three STs). The 40 
+columns of the array correspond to thc: 40 slots. The values 
+that go into all the columns correspond to the number of 
+STs, namely, 1, 2 and 3. There are thus at most 81 
+experiments or conditions or trials to carry out. 
+Table 1. The Orthogonal Army L,,(340) 
+Table 2. 
+i 15 -33.9 42 
+5 16 -33.9 43 
+The Responses of 81 Trials from a Monte Carlo 
+Run 
+-33.7 69 -34.9 
+-35.4 70 -34.6 
+’ 9 I -33.5 I 36 1-34.8 I 63 1-33.6 I 
+1 26 1 -33.9 1 33 I -34.9 
+‘ 27 I -34.3 I 54 I -34.5 
+j 10 I -33.9 I 37 I -33.9 I 64 I -33.7 
+I 11 1-34.1 I 38 I -34 I 65 1-345 
+80 I -33.7 
+81 I -34.4 
+12 I -34 I 39 I -33.7 I 66 I -34.4 
+j 13 I -33.8 I 40 I -34.3 I 67 I -34 
+14 I -34.3 I 41 I -34.4 I 68 I -345 I 
+Experimental Procedure 
+A computer program was written in C and run on a PC to 
+read the orthogonal arrays in Table 1 and the input data such 
+as the size and state of the network, the traffic demand, and 
+the operational constraint parameters. The values of the 
+objective function, calculated for each row or trial, are 
+called the responses in the Taguchi parlance. These 
+responses, tabulated in Table 2, are then analyzed by the 
+computer program. 
+Data Analysis 
+As in [5] ,  the data analysis performed here consists of the 
+so-called standard analysis outlined by Taguchi [6] and the 
+extension of it to handle optimization problems with 
+constraints. The extension is necessary, because the 
+standard approach does not consider constraints. The 
+purpose of the data analysis is to study the main effects of 
+each of the factors (slots) in order to identify the optimal 
+condition [6].  The main effects indicate the general trend of 
+the influence of the factors; that is the effect of a factor on 
+the objective function when it goes from one level to 
+another. The analysis of the main effects involves the 
+calculation of the averages for the levels of all factors. We 
+describe the data analysis next. 
+Let u(r, c) denote the level of the cth column (slot or factor) 
+in the rth row (trial, experiment, or condition), <(.)the 
+response (i.e., the objective function) of the rth row. Each 
+column corresponds to a particular channel and a particular 
+slot, i.e., c is a function of k and I. In this example, since 
+four channels each have 10 slots, 
+c(k, I) = 10(k - 1) +I, k = 1 ,..., 4, I = 1 ,..., 10 . Then the average 
+performance (i.e., the objective function) of the cth factor 
+(slot) at the ath level, denoted by ( f c a ) ,  is calculated 
+according to 
+In the expression above, qca ,  the number of rows or trials 
+or experiments in which the cth slot is assigned to the ath 
+ST, is given by 
+where the value of N ,  , the number of experiments or rows 
+in the orthogonal array, is 81. Also, . 
+1, if a(r, c) = a 
+0, otherwise 
+6(a(r, +a)= 
+Note that 
+Since the quality characteristic* for the problem at hand is 
+“the smaller the better” performance (the overall objective 
+function), the levels of the factors are identified according to 
+the minimum average response. In this work, we implement 
+the standard Taguchi data analysis differently; instead of 
+using ( f c i  ) = min (fca ) to assign the cth column (i.e., some 
+channel k and some slot I )  to the ith ST, we form an ordered 
+set which contains the average responses (fca) ranked 
+from the smallest to the largest value and make assignments 
+from the set. Table 3 contains a typical ordered set of the 
+responses from a Monte Carlo run. 
+9 ca = N , independent of c. 
+a E I  
+acl  
+~n the quality control parlance 
+3-1227 
+Table 3.. A Typical Ordered Set of the Responses from a 
+Monte Carlo Run 
+Since c is a known function of the channel-slot pair (51) , 
+and, again, for the problem at hand, 
+c(k, I) = 1 O( k - 1) + I, k = 1 ,..., 4, I = l,.. . ,lo , can now 
+transform an assignment of ST i to a channel-slot pair (kJ) 
+to the usual assignment variablex, . In the absence of 
+constraints, these two ways of implementing the standard 
+Taguchi analysis are equivalent, in tht: sense that they yield 
+an identical final allocation. Appendix B contains the proof 
+of this assertion. Our implementation enhances the chance 
+of satistying the requested minimum time slot constraint as 
+long as feasible solutions exist. 
+we 
+Incorporation of Constraints 
+The constraints are handled in a specific manner. First of 
+all, the rninimum number of slots requested by the STs must 
+be satisfied (the minimum part of coinstraint (6)). Starting 
+with the smallest value of the ordered set, denoted by Q, , 
+we map its elements to assignments x , ~  that satis@ fmt the 
+constraint (2) and then the constraint (4), until C x,kl = - I for all ic I .  Clearly, the elements of Q, 
+that are successfully mapped to the total of the minimum 
+numbers, of requested slots need not be consecutive. Let 
+@‘=Q,-Q,,,, where@,, is the set of all the average 
+responses that correspond to the al1oc:ation of the minimum 
+numbers of slots requested by the STs. If no such 
+Q, , exists, then the Taguchi approach provides no feasible 
+solution to the DAMA assignment problem. 
+k,l 
+The set Q,’ remains an ordered set. Again, starting with the 
+smallest value of the ordered set Q, ’ . we map the elements 
+of CO’ to assignments x , ~  that satisfy the constraints (2) and 
+(4), respectively, until C x,w 5 lzlix I for all ic I (the 
+maximum part of constraint (6)). The final DAMA 
+assignment is thus obtained, for which the objective function 
+is then calculated. 
+k,] 
+5 .  COMPARISON OF IQSULTS 
+We conduct a Monte Carlo analysis to compare the 
+performance of the orthogonal array e:xperiment approach to 
+that of the optimization method. It involves repeating the 
+orthogonal experiments and running the optinktation code 
+1000 times, and each time the state of the network and the 
+bandwidth demand are randomized as follows. 
+The minimum number of slots requested by each ST is 
+uniformly distributed between one and five. 
+The maximum number of slots requested by each ST is 
+ten for all runs. 
+0 The number of unavailable slots per channel is 
+2-1 238 
+Table 4. A Comparison of DAMA Assignments by Orthogonal Array Experiments and Optimization 
+RUn 
+3 
+Solution Objective 0P-q 
+Dama Assignment Results 
+Methad 1 FunctionValue lD"rl 
+-21.5 
+-17.5 
+-16.7 
+uniformly distributed between one and six. 
+The location of these unavailable slots in each channel 
+is also uniformly distributed between one and ten. 
+0 
+For the purposes of illustration, we show the results of only 
+three Monte Carlo runs in Table 4. Since assignment 
+problems of this kind are known to have multiple optimal 
+solutions, we need to compare only the values of the 
+objective function obtained from the orthogonal array 
+experiments and the mathematical optimization. In addition 
+to the values of the objective function, Table 4 contains also 
+the DAMA assignments and the extent of departure from 
+optimality. The slots in Table 4 marked with x are 
+unavailable at the time of assignment, while those with 0 
+remain unassigned. The slots marked with 1, 2, and 3 are 
+assigned to ST 1, 2, 3, respectively. As shown, Run 1 
+corresponds to no departure (best case) from optimality, Run 
+2 13% departure (average case), and Run 3 41% (the worst 
+case). 
+The Monte Carlo analysis indicates that our approach yields 
+near-optimal assignments. The values of the objective 
+3-1229 
+function obtained with our approach are, on average, 87% of 
+the values produced by the optimization method. In other 
+words, our approach achieves, on average, a 13% departure 
+from optimality. While Run 3 in Table 4 is intended to 
+convey the least optimal result of all the runs, its probability 
+of occurrence is only 0.1% (Fig. 2). That is not surprising, 
+because more than 80% of optimality is achieved at more 
+than 90% of the time. Moreover, the standard deviation of 
+the relative percentage difference of the value of the 
+objective: functions is rather small (6.8). Furthermore, an 
+independent performance metric, defined [ 121 by 
+where pidenotes the ratio of the Taguchi allocation of the 
+slots to the optimal number of slots for ST i, indicates that 
+the Taguchi allocation is, on average, 96% of the optimal 
+allocation 
+180 
+160 
+100 
+90 * 
+80 E 
+20 1 i 
+0 
+Fig. 2 Histogram and Relative Cumulative Frequencies 
+of Degree of Optimality Achieved 
+Based on the Monte Carlo results, the way the constraints 
+are hand]-ed thus appear to be effective; the orthogonal array 
+experiment method appears to be an appropriate solution 
+technique for multi-dimensional assignment problems of this 
+kind. Additionally, the short runtime of the orthogonal array 
+experiment method makes it suitable for real-time bandwidth 
+allocation in a satellite communications network. 
+6. CONCLUSION 
+As in [5], our exploratory work here establishes the 
+applicability of the orthogonal array experiment (or the 
+Taguchi method) to allocate bandwidth in a satellite 
+commurications network and to this class of assignment 
+problems. An advantage offered by our approach is that it 
+does not call for linearization of the nonlinear integer 
+programming problems. The orthogonal array experiment 
+approaclh allows us to solve a nonlinear integer- 
+programming problem directly, by carrying out the smallest 
+possible number of experiments and determining the 
+solution from the responses of the experiments. To preserve 
+the orthogonality, the constraints are riot incorporated in an 
+experiment. Their satisfaction is examined after the result 
+(allocation) is obtained. The close agreement between the 
+results produced by the orthogonal array experiment method 
+and the conventional integer programming solution methods 
+for the ]problem at hand underscores the feasibility of this 
+approach. In addition, it is very efficient; its runtime is 
+extremelly short as compared to that of AMPL and CPLEX. 
+While we believe that the orthogonal array experiment 
+approach may be implemented far real-time DAMA 
+assignment, further research is still needed to find the best 
+approach to applying the orthogonal array experiment to this 
+type of multi-dimensional assignment problems. For 
+example, our constraint handling technique may need 
+refinement when, in particular, the experiments produce 
+equal responses. Also, as mentioned before in the 
+mathematical formulation of the assignment problem, the 
+selection of 0, needs further investigation. 
+Finally, we also validated and benchmarked the Taguchi 
+assignments with the results obtained by the mathematical 
+optimization using AMPL and CPLEX. We recommend this 
+process (i.e., optimization) be employed as a validation and 
+benchmarking tool when developing real-time heuristic 
+DAMA algorithms. The benefits of such benchmarking 
+process are: (i) ad hoc assessment of the performance of a 
+heuristic, algorithm is avoided and, hence, confidence in the 
+algorithm is increased; and (ii) a quantitative conclusion can 
+be made about the sufficiency of the performance of a 
+heuristic: algorithm. The latter benefit aids in determining 
+when further development or improvement of an algorithm 
+is no longer necessary. 
+REFERENCES 
+[l] S .  K. Biswas and Rauf Izmailov, ‘Besign of a Fair 
+Bandwidth Allocation Policy for VIBR TrafEc in ATM 
+Networks, ” IEEEACM Trans. Networking, Vol. 8, NO. 2, 
+212-223, April 2000. 
+3-1230 
+[2] D. McDysan and D. Spohn, ATM Theory and 
+Applications, McGraw-Hill, 1999. 
+[3] A. Bendell, J. Disney, and W. A. Pridmore, Editors, 
+Taguchi Methods, Applications in World Indusw, IFS 
+Publications/Springer-Verlag, 1989. 
+[4] T. W. Pao, M. S. Phadke, and C. S. Sherrerd, 
+“Computer Response Time Optimization Using Orthogonal 
+Array Experiments,” Taguchi Methods, Applications in 
+World Industry, IFS Publications/Springer-Verlag, 1989. 
+[5] T. V. Huynh, “Optimal File Allocation in a Distributed 
+Computer Network by Orthogonal Array Experiments,” 
+1997 IEEE Aerospace Applications Conference Proceedings, 
+Vol. 4, 105-114, February 1-8, 1997. 
+[6] R Roy, A Primer on the Taguchi Method, Van Nostrand 
+Reinhold, 1990. 
+[7] G. Taguchi, “Off-line and On-line Quality Control 
+Systems,’ Intemational Confwence on Quality Control, 
+Tokyo, Japan, 1978. 
+[SI R. Fourer et al., AMFL: A Modeling Language for 
+Mathematical Programming, Duxbury Press, 1993. 
+[9] W. W. Chu, “Optimal File Allocation in a Multiple 
+Computer System, ” IEEE Trans. On Computers, Oct. 1969. 
+[lo] T. V. Huynh and J. J. Kohfeld, “Optimal Functional 
+Allocation in a Tactical BWC3I System,” 1994 Symposium 
+on Command and Control Research and Decision Aids, 
+Monterey, CA, June 21-23, 1994 
+[ 1 11 M. Minoux, Mathematical Programming: Theory and 
+Algorithms, Wiley, 1986. 
+[12] R Jain, The Art of Computer Systems Performance 
+Analysis, John Wiley & Sons, New York, 1991. 
+APPENDIXA 
+In this Appendix we derive (10) and (1 1) from (8) in the 
+main text. With the introduction of the variable vi] defined 
+in the main text, (8) becomes 
+If the term [Q(l-vi1)) were absent from (Al), the 
+standard technique [9, 101 for linearizing the product of two 
+binary variables would yield 
+vi/, + vi/, - 1 I willl, Vi, Il < 1, 
+To account for its presence we modify (A2) and (A3) as 
+follows: 
+1, -1 
+v. + vi,, - 1+ Vi] I wi/ll* 
+1’1 [ I=1,+1 ] 
+where M is some sufficiently large integer. 
+Vi,ll < I 2  (A4) 
+Vi,ll < 1, (A5) 
+To justify the modifications, consider the following 
+example, which is unrelated to the cases studied here. 
+I ( 1  ( 2  ( 3  ( 4  15 ( 6  ( 7  1s ( 9  110 ( 1 1  ( 1 2  
+vi/ 10 10 ( 1  10 ( 0  11 10 l o  11 10 ( 0  ( 1  
+With the two non-consecutive slots assigned to ST i namely, 
+1, = 3 and l2 = 9, (A4) becomes l+122wi3, +--1 , 
+which implies wi3, 10. Also, (A5) becomes 
+1+1-(1+1) 5 Wi3, , which implies 0 I wi39 . 
+Consequently, wi39 = 0 ,  which is the correct result. 
+1 
+M 
+The constraints (A4) and (A5) thus seem to linearize of (8) 
+in the main text. However, one subtle problem still exists. 
+Consider the case in which I, = 2 and I, = 4 .  Clearly (A4) 
+becomes 0 + 0 2 2wiz4 + -. 1, which can’t be satisfied for 
+any value of wj24. To rectify this unfeasibility, we modify 
+(A4) as follows: 
+1 
+M 
+The constraints (A6) and (A5) are, respectively, the 
+con?raint (10) and ( 1 1) in the main text. 
+3-1231 
+APPENDIX B 
+To satisfy the "the smaller the better" quality characteristics 
+the usual implementation of the Taguchi analysis of the 
+responses uses ( f c l  ) = min (fc, ) , for all factors c (i.e., 
+some channel k and some slot I), to determine a complete 
+assignment of STs to channels and slots. In our 
+implementation, we form an ordered set, which contains the 
+average responses (fc, ) ranked from the smallest to the 
+largest value, and assignments are made as we traverse the 
+set in the direction of increasing (f,, ) . We now prove the 
+claim that, in the absence of constraints, the assignments of 
+STs to channels and slots resulting from our implementation 
+are identical to those generated by the usual Taguchi 
+implementation. 
+,€I 
+The transformation from K x L to the set of columnsc , 
+defined by c(k,I)+LI(k-l)+I,k=l,  ..., IKI ,I=l ,  ... ¶ I L l ,  
+maps ( j r c a )  to a function qakl which takes the value of 
+(fca ) for a E I . We now form an ordered set 
+ranked fiom the smallest value to the largest value: 
+of 
+where a,,k,,and I m i n @ Z k ,  takevaluesin I , K , a n d  
+L ,respectively,and m =1,2,3,...,111~1KIxIL,l. 
+In 111111 
+Now, consider channel k, and slot I, . As we traverse @ 
+in the direction of increasing values of 4: it , , we obtain 
+the following subset, corresponding to the ( k , ,  I, )- 
+combination, 
+"8 m m  
+in which the superscripts have been reordered. The 
+minimum element in this example is @A,kolo , which implies 
+that slot I, in channel k, is assigned to ST a, . 
+The inverse of the (k,l) H c -transformation above then 
+maps @ k,l, to 
+Dr. Tona Huynli is a Technical 
+Consultant with Advanced Network 
+Solution Group, Lockheed Martin 
+Management & Data Systems, San 
+Jose, CA. During his tenure at 
+Lockheed Martin, he has engaged in 
+research in computer network 
+perfomance, computer timing 
+control, bandwidth allocation, .... I 
+heuristic algorithms, nonlinear estimation, perturbation 
+theory, diflerential equations, and optimization. He has 
+also developed and led development of simulations of 
+satellite surveillance networks, and battle 
+management/command, control, and communications 
+(BMC3) systems. Dr. Huynh is al:so a lecturer in the 
+Mathematics and Computer Science department at San Jose 
+State University. He obtained simultaneously a BS in 
+Chemical Engineering and a BA in Applied Mathematics 
+@om UC' Berkeley and an MS and a PhD in Physicsji-om 
+UCLA. 
+David Gillen'is a System Engineer 
+with Advanced Network Solution 
+Group, Lockheed Martin 
+Management & Data Systems, San 
+Jose, CA4. During his tenure at 
+Lockheed Martin, he has engaged in 
+research in bandwidth allocation, 
+IP and ATM network performance 
+analysis, optimization, heuristic 
+algorithm development, and computer system fault detection 
+and isolation. Prior to joining Lockheed Martin, he worked 
+at the National Security Agency as an operations research 
+analyst. He obtained a BA in Mathematics f iom 
+Southwestern University and an A B  in Mathematical 
+Sciences ji-om Clemson UniversiQ. 
+According to the usual Taguchi implementation, 
+(f,,,, ) .= 2 (fc,, ) implies that slot I, in channel k, are 
+assigned to ST a, where ( f c O , ) c  F . The same 
+assignment is thus obtained. This completes the prclof. 
+3-1232 

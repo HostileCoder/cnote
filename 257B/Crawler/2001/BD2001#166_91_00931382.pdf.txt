@@ -1,0 +1,786 @@
+A High Frame Rate CCD Camera with Region-of-Interest 
+Capability 
+Steve P. Monacos, Angel A. Portillo, William Liu, James W. Alexander, Gerard0 G. Ortiz 
+Jet Propulsion Laboratory 
+California Institute of Technology 
+4800 Oak Grove Drive 
+Pasadena, CA 91109-8099, MS 300-123 
+Steve.P.Monacos@pl.nasa.gov 
+8 18-354-91 61 
+Abstract-This paper presents the design and preliminary 
+results of a custom high-speed CCD camera utilizing a 
+Texas Instruments TC237 CCD imager chip with sub-frame 
+window read out. The camera interfaces to a C40 digital 
+signal processor (DSP), which is used to issue commands 
+and read images from the camera. The camera design 
+consists of a two-card set including the CCD imager card 
+and the focal plane array (FPA) interface card. The CCD 
+imager card contains the level translator and buffer circuitry 
+for the CCD strobe lines, the TC237 CCD imager chip and a 
+pair of analog signal processor chips, each with a 10-bit 
+analog-ta-digital converter. The analog signal processor is a 
+TLV987 with correlated double sampling (CDS) and serial 
+programming capability to set amplifier gain, pixel bias 
+level and background level illumination to name a few. The 
+second card contains a pair of field programmable gate 
+mays (FPGA) used to interface the CCD imager card to the 
+C40. The goal of this camera development is to provide a 
+high-quality, high-speed camera as part of the tracking 
+apparatus for a free-space optical communications terminal. 
+Preliminary data suggests fiame rates of 6KHz for 8x8 sub- 
+windows in the current testbed with 7-bit pixel resolution. 
+Refinements in camera and testbed operation target 
+performance goals of 17MZ for 8x8 sub-windows with 10- 
+bit pixel resolution. 
+Table of Contents - 
+1. INTRODUCTION 
+2. TES~EDSETW 
+3. TC237 CAMEM DESIGN 
+3.1 TC237 CCD Card 
+3.2 FPA Interface Card 
+4.1 C40 DSP Software Commands 
+4. SOFTWARE CONTROL 
+5. TIMING DETAILS AND IMAGNG FOR SUB-WLNDOW 
+READOUT 
+5.1 Timing Parameters 
+5.2 Calculated Readout Timing for Two Sub- 
+5.3 Preliminary Results for a Single Sub-window 
+Windows 
+6 .  CONCLUSIONS 
+I 
+0-7803-6599-2/01/$10.00 Q 2001 IEEE 
+1. INTRODUCTION 
+Implementation of a free-space optical communications link 
+requires a tracking apparatus to acquire and track an 
+incoming laser beacon for reliable link operation. The 
+pointing accuracy of the tracking apparatus is determined by 
+link parameters including the required link bit rate and bit 
+error rate (BER), link geometry, transmission media and 
+beacon characteristics to name a few [l]. To achieve the 
+necessary pointing accuracy requires a camera capable of 
+region-of-interest (i.e. sub-window) read out rates up to 
+several Kilo Hertz with greater than eight bits of resolution 
+per pixel [ 13. 
+Commercially available cameras are well suited to 
+applications requiring full-frame, large form factor video 
+streams or sub-window readout for still-frame image 
+capture. Commercial cameras are not designed for the 
+combination of single fiame and high-speed streaming video 
+with sub-window image capture and greater than eight bits 
+of resolution per pixel. Development of a custom camera 
+fills this void. 
+The remainder of this paper is organized as follows. Section 
+2 describes the testbed used to debug camera operation and 
+collect data for preliminary analysis. Section 3 describes 
+detailed camera design and operation. Section 4 details the 
+software control for the camera. Section 5 discusses sub- 
+window timing details and preliminary results of images 
+taken by the camera. Section 6 provides concluding remarks 
+and a road map of additional activities to enhance camera 
+performance. 
+2. TESTBED SETUP 
+The testbed used to evaluate camera operation and 
+performance is shown in Fig 1. This configuration includes 
+two processors and the custom electronics consisting of the 
+global bus interface logic and the TC237 CCD camera. The 
+global bus interface contains the logic for the address 
+decoder, handshake mechanism and data path buffers to 
+access the camera via the global bus port of the C40 
+processor. The CCD camera receives and acknowledges 
+3-1513 
+commands from the C40 and returns pixel data when so 
+requested. 
+The PC host runs a graphical user interface used to send 
+commands and receive telemetry from the C40. This 
+communication is via the ISA bus of the host PC. The PC 
+host is not directly involved in the real-time command and 
+control of the CCD camera. 
+This testbed is part of a legacy system used for 
+demonstrating acquisition and tracking of a laser be.acon for 
+a he-space optical communications terminal. The camera 
+design was functionally split into an interface card and CCD 
+card, This configuration allows for rapid evaluation of the 
+CCD card in the legacy system by designing the CCD 
+interface card to adhere to the existing camera interface. 
+Insertion of the CCD camera into a next-generation 
+acquisition and tracking platform will allow for increased 
+throughput by leveraging the CCD card with an enhanced 
+design of the current FPA interface card. 
+connections for the card. The CCD card includes regulator 
+circuitry, level translators and buffers, a TC237 imager and 
+two TLV987 signal processors to provide TTL 
+compatibility for all input and output signals on the card. 
+The TC237 CCD sensor and TLV987 signal processors are 
+the primary components of the CCD cad. 
+The TC;!37 is a CCD imager with an image area of 680 
+pixels per line and 500 lines [3]. The active image area of 
+the CCD is 658 pixels per line and 496 lines and contains all 
+exposed pixels during scene capture [3]. There are 
+additionally 22 pixels per line and four additional lines of 
+dark pixels, which make up the remainder of the image area 
+and are used for background level calibration [31. 
+Operation of the imager requires trimferring the charge 
+from the image area to the storage area of the device [3], 
+[4]. Readout of the pixel data is accomplished by a parallel 
+load of a line of pixel data into one of the shift registers and 
+serially clocking the pixels out [3], [4]. Two lines of pixels 
+ISA Bus I 
+Figure 1 - TC237 testbed. 
+3. TC237 CAMERA DESIGN 
+The CCD camera consists of the FPA interface card and 
+TC237 CCD card as shown in Fig. 1 above. This 
+organization allows for optimizing the CCD card while 
+maintaining a flexible architecture for communicating with 
+the camera. 
+The current design of the camera is release 1.0 and is 
+defined in [2]. This version of the camera outputs one serial 
+pixel stream of width eight bits per pixel. Release 2.0 of the 
+camera is the next major release. It will output two 
+simultaneous pixel streams of 10 bits width per pixel to 
+double the achievable pixel output rate and increase the 
+dynamic range per pixel while maintaining the same system 
+clock rate for the TC237. This paper focuses on the details 
+of release 1.0. 
+3.1 TC237 CCD Card - Figure 2 is a detailed block 
+diagram of the TC237 CCD card and shows the interface 
+can be read out simultaneously by performing two shifr: 
+register load operations before beginning serial read out [3]., 
+~41. 
+The TLV987 is a user programmable signal processor 
+specifically designed for accepting and processing analog 
+CCD pixel data and generating a IO-bit binary 
+representation of the filtered data [5].  The internal registers 
+of the device come up in a default configuration after power 
+up or a reset operation [SI. The device operation can be 
+customized by over writing the default values in thesle 
+registers via a three-wire serial interface as described in [5]. 
+The CCD card has a total of eight power planes. The TC237 
+and associated driver circuitry requires one analog and four 
+digital power planes. The TLV987 requires one analog 
+plane and two digital planes. These: planes are powered by 
++7 vollt and +25 volt supplies. The CCD card has the option 
+to use one each of these supplies or lhvo +7 volt and two +25 
+3-1514 
+Figure 2 - TC237 CCD Board 
+volt supplies to power the analog and digital power planes 
+from separate supplies. The card is currently powered by 
+single +7 volt and +25 volt supplies. 
+The CCD card requires two ground planes for the digital 
+and analog grounds of the TLV987. The TC237 substrate is 
+connected to the analog ground plane. Interconnection of the 
+digital and analog ground planes is via a low resistance, 
+22OuH inductor. A design option was also put into place for 
+direct connection of these ground planes should the default 
+configuration result in noisy pixel data. 
+Operation of the CCD card requires supplying the various 
+strobe signals to the TC237 imager as described in [3], [4]. 
+There are four basic operations which can be performed: 
+refresh; image area clear; parallel load from the storage area 
+to a shift register; and serial shift out of the data. The first 
+two operations are combined into a single operation in 
+release 1.0, where the refiesh operation is immediately 
+followed by the image area clear. The last two operations 
+can be used in combination to scroll through lines of the 
+image and read out lines of interest. This functionality 
+allows for viewing regions of interest while minimizing the 
+time needed to reach the region of interest. 
+The TLV987 is an analog signal processor with a 10-bit 
+analog-to-digital converter (ADC) at the output. It has a 
+total of nine registers for customizing device operation [5].  
+With the exception of the gain block, the TLV987 is used in 
+the default mode as described in [ 5 ] .  Preliminary test results 
+presented in section 5 used a gain of approximately 6 dB for 
+the gain block. 
+3.2 FPA Intei$ace Card -This section describes the interface 
+between the TC237 camera and the global bus interface 
+logic. This functionality is implemented in the FPA 
+interface card. Figure 3 shows a block diagram of this card 
+and its associated control and data lines. 
+In release 1.0, the FPA interface card consists of two Lattice 
+1048E FPGAs, which are used to provide timing and control 
+signals to the TC237 and TLV987s and read back digitized 
+pixel data from one of the TLV987s. The two FPGAs are 
+organized as an outbound controller for TC237 timing. and 
+control and TLV987 programming, and an inbound 
+controller for TLV987 timing and pixel read back. 
+Operation of the camera is accomplished by two different 
+mechanisms. The fvst is a memory write operation by the 
+C40 DSP and is used to download commands to the camera. 
+Commands can be used to perform an immediate action or 
+to initialize registers in the CCD camera. The second 
+mechanism is a request-acknowledge handshake used to 
+perform an immediate action with the camera. The action is 
+initiated by a request strobe from the C40 followed by an 
+acknowledge strobe from the FPA interface card. The 
+subsequent action is defined by the state of the interface 
+card from a “power on reset” or from a command(s) sent to 
+the card after power up. 
+The outbound controller logic includes a command 
+interpreter, line and column counters and CCD control 
+logic. The command interpreter is a finite state machine 
+used to field commands fiom the C40 DSP. The command 
+interpreter is architecturally defined to allow for two, four 
+and six byte commands. Two-byte commands perform 
+immediate actions. Four-byte commands are used to 
+initialize registers in the FPA interface card. Six-byte 
+commands are used to load registers in the TLV987s on the 
+CCD card. Only two-byte commands are used in release 1.0. 
+Four and six-byte commands will be implemented in release 
+2.0. 
+3-1515 
+In release 1.0, the only command allowed is to assert or 
+negate a refresh flag used to implement a'refresh operation 
+in the CCD. A refresh is defined as transferring all 500 lines 
+of pixel data from the image area in the TC237 to the 
+storage area of the CCD [4]. Upon completion of this 
+transfer, a clear pulse is automatically applied to the image 
+area of the CCD to remove any residual charge. This 
+operation requires sending a command to assert the refresh 
+flag followed by issuing a request to the camera. 
+Line dump and pixel readout operations require sending a 
+command to negate the refresh flag followed by a request to 
+the camera. A line dump operation is distinguished from a 
+pixel readout operation by the timing of the next request 
+pulse after acknowledgement for the current request. If the 
+next request occurs within one micro-second after 
+acknowledgement, then the current line will be dumped. If 
+the next request occurs beyond one micro-second, then 
+some OB all of the current line will be sent out serially. A 
+line readout in progress can be terminated before the end of 
+the line by asserting the request line if no additional pixel 
+data is required. 
+When SL line of pixels is being read out from the CCD, the 
+inbound controller is used to provide timing signals for 
+operation of the TLV987 signal processor. The inbound 
+controller operates the strobe lines for the correlated double 
+sampler (CDS) in the TLV987. The inbound controller 
+additioi~ally provides timing signals for background level 
+sampling, the blanking period of a line and the clock for the 
+TLV987 internal 10-bit ADC. 
+This controller has a 10-bit data path for the ADC output of 
+each ofthe TLV987s. Release 1.0 of this controller discards 
+the digitized pixel data fiom one of the TLV987s. The two 
+least si&icant bits of the digitized pixel data from the 
+second TLV987 are also discarded. The eight most 
+significant bits of the pixel data, a line valid signal and a 
+pixel clock are supplied to the global bus interface logic in 
+Fig. 1. The global bus interface logic stores the pixel data in 
+a first-in-first-out (FIFO) buffer, which is subsequently read 
+by the C40 DSP. 
+4. SOFTWARE CONTROL 
+Operator control of the CCD camera is via two s o h a r e  
+processes running on two processors. These processors are 
+shown in Fig. 4 as the host PC and C!40 DSP. The host PC 
+runs the graphical user interface (GUI) and allows the user 
+to cormnand the C40 to access and operate the TC237 CCD 
+card and FPA interface card. The DSP software contains the 
+CCD driver code used to perform refresh, line dump and 
+line readout operations as described in section 3.2. 
+User C o m m a n d s  
+C 4 0  D S P  
+C C D  D R I V E R  
+A c k n o w l e d g e /  
+P ixe l  Data 
+Cam era Control  fl, I,F ~ I [ P e l  Data 
+Figure 4 - TC237  CCD Camera Software 
+Architecture 
+Commands to the TC237 CCD camera are via the global 
+bus of the C40 DSP. The CCD camera responds by sending 
+pixel (data back to the DSP software. The GUI software then 
+T C 2 3 7  C C D  
+3-1516 
+collects all image data in a predefined file format for off- 
+line processing. 
+The GUI and C40 software perform three basic operations 
+in sequence to readout sub-windowed images from TC237 
+Camera. These operations consist of refresh, sub-window 
+pixel readout, and image storage. A refresh operation moves 
+the exposed pixels in the CCD image area to the storage 
+area of the CCD for pixel readout. The sub-window readout 
+operation reads out the individual windows from the camera 
+by scrolling and dumping unwanted lines, and indexing over 
+unwanted pixels within lines of interest one line at a time. 
+The image storage operation stores the sub-window pixels 
+of interest into memory on the DSP card. 
+4.1 C40 DSP Software Commands - Release 1.0 of the 
+software supports frame rate control, image-logging 
+capabilities, and selection of window size and location for 
+up to two sub-windows. Frame rate control is implemented 
+by a single programmable timer interrupt to initiate the 
+sequence of operations discussed below. The image logging 
+and window parameter control functions are implemented as 
+interrupt driven processes. The interrupt is generated by the 
+CCD camera after a refresh operation and is fielded by the 
+C40 DSP driver. 
+There are several low-level commands in the repertoire of 
+the C40 driver used to implement the above functions: 
+refresh, line dump, line scroll and column index. These 
+operations are facilitated with a memory-mapped register in 
+the global bus interface logic in Fig. 1 called the CCD read- 
+Mite register. A C40 write to this register generates a 
+request to the camera. A C40 read from this register reads 
+out a pixel fiom a first-in-first-out (FIFO) buffer, which 
+stores CCD pixel data until the C40 can retrieve it. 
+The refresh command sets the FPA interface to a non- 
+readout mode by setting the refresh flag in the FPA 
+interface. The C40 initiates a transfer of the exposed pixels 
+to the CCD storage area by writing to the CCD read-write 
+register in the global bus interface logic. No pixel data is 
+read back by the C40 for this command. 
+The line dump command transfers a line of pixels from the 
+CCD storage area to the serial shift register of the CCD. 
+This command clears the current shift register contents and 
+places a new line of pixel data into the CCD shift register. 
+The timing of the next write command to the CCD read- 
+write register, as detailed in section 3.2, determines whether 
+a line dump command has been requested. 
+The scroll command is a higher level function used to scroll 
+through unwanted lines of pixels. One or more line dump 
+commands are issued to the FPA interface until the line of 
+interest is reached. This command stops one line prior to the 
+first line in the sub-window. 
+The column index command performs pixel indexing so that 
+only the pixels within the sub-window are passed, on a per 
+line basis, from the CCD serial shift register to the FIFO and 
+C40. The pixels indexed are read out of the CCD shift 
+register but are not stored in the FIFO. For this command 
+the CCD read-write register is set to the integer number of 
+pixels that will be indexed or dumped by the C40 Software. 
+The integer value is then used by the global bus interface 
+logic for pixel indexing. 
+Window readout is another higher level command and is 
+performed by using the scroll and column index commands 
+to reach the sub-window, then transfer the desired pixels 
+fiom the storage area in the CCD to C40 memory. The 
+global bus interface transfers full lines of pixels, one line at 
+a time, to the FIFO in the global bus interface. The C40 
+software reads out the sub-window pixels on a per line basis 
+for each window. 
+Pixel readout from the CCD storage area is performed for 
+the two-window case as follows. First scroll to the line 
+location of the top of the first window. Command the 
+camera to load a new line of pixels into the global bus 
+interface data buffer. Index over to the first pixel of the first 
+window using the column index command. Readout the first 
+line of pixels for the first window from the data buffer and 
+store it to C40 memory. Repeat these steps until all pixels 
+for the first window have been stored. Scroll to the top of 
+second window and repeat these steps until all pixels for the 
+second window have been stored. The overlapping of 
+window coordinates are not allowed in release 1.0 of the 
+software. 
+Exposure Control defines the amount of time the CCD 
+image area spends collecting charge for a particular image. 
+The existing setup begins exposing the next fiame when the 
+refresh command has completed. The Camera continually 
+exposes the image area of the CCD at the frame update rate 
+and transfers the exposed pixels to the storage area. This 
+was done to prevent excess charge build up on the exposed 
+pixel area on the CCD Sensor. 
+The refresh command is performed once every fiame update 
+time and results in an exposure time which is approximately 
+equivalent to the frame update time. Better exposure control 
+is not possible with the current testbed. Release 2.0 will 
+allow exposure lengths independent of fiame rate. This 
+version of the software will have additional support for the 
+TC237 CCD such as reading and writing to the FPA 
+interface card registers to name a few. 
+. 
+The CCD driver software implements two important 
+functions for characterization of the camera known as take 
+image and frame transfer. The take image function allows 
+the user to take continuous still images by performing 
+multiple frame transfers, pixel readout, and storage 
+commands. The images are then displayed on the host PC 
+screen as 8-bit gray-level bit map images. The take image 
+feature allows diagnostic capability during scene setups. 
+The frame transfer function allows real-time gathering of 
+CCD pixel data at programmable fiame rates. Data output is 
+3-1517 
+stored in an ASCII text file. First Window Scroll Time - time required to scroll to the 
+storage airea of the first line of the first window 
+5. TIMING DETAILS AND IMAGING FOR SUB- 
+WINDOW READOUT 
+Read out of a sub-window consists of three fundamental 
+operations. They include a refresh operation, CjCrolling 
+through the image until the sub-window is reached and 
+reading the pixels which are in the sub-window. The time 
+required to read out a sub-window is defined as the sum of 
+the refresh time, the scroll time and the window read time. 
+The request and acknowledge signals, discussed in section 
+3.2, are used to initiate the three operations for frame read 
+out as shown in Fig. 5. The signal, ABSP, is a flag 
+generated by the FPA interface card to perform <a refiesh 
+operation. It denotes the duration of the refresh olperation. 
+The scroll time is dependent on the request-acknowledge 
+cycle time and the number of lines to be scrollled. The 
+window read time is additionally dependent on the 
+horizontal location and size of the sub-window within the 
+field of view (FOV) [2]. 
+Inter-Window Scroll Time - time required to scroll to the 
+storage area of the first line of the second window 
+Row Resid Time First Window - time required to read one 
+line of pixel data for the first window 
+Window Read Time Second Window - time required to 
+read N lEnes of pixel data for the second window 
+Row Read Time Second Window - time required to read 
+one line of pixel data for the second window 
+Window Read Time Second Window - time required to 
+read N lines of pixel data for the second window 
+5.2 Calculated Readout Timing for Two Sub-windows - 
+This section presents calculated frame rates for two sub- 
+windows. Table 1 displays calculated window frame rates 
+for two sub-windows within the selected regions of the 
+C40 Request 
+Camera 
+Acknowledge -1
+Camera 
+Line Valid 
+2 --- 
+Refresh Time Time Window Read Time 
+Figure 5 - Sub-window Read Out Timing 
+Image integration time is accounted as follows. Image 
+integration begins with the image area clear pulse and ends 
+with the onset of the refresh operation. The integration time 
+is the reciprocal of the frame rate minus the refresh time. By 
+setting the integration time equal to the sum of the scroll 
+plus window read times, we define the maximum frame rate 
+for given scroll and window read times. 
+5.1 Timing Parameters - The time required to read two NxN 
+sub-windows out of the CCD is defined by the time needed 
+to scroll through unwanted lines and pixels and reiad pixels 
+in the sub-window. N represents the number of pixels on a 
+side of the sub-window. The parameters of interest are listed 
+below. 
+Refresh Time - time to transfer the image area to the storage 
+area in the TC237 
+TC237 FOV. The FOV is defined to include both imaging 
+pixels aind covered pixels, used for black level calibration, 
+and is 6130 pixels per line by 500 lines per frame [3]. 
+The TC237 is assumed to operate at rates of 10 MHZ or 20 
+M H z  for both serial pixel output rate and line transfer rate 
+during si refresh operation. The pixel readout rate fiom the 
+FIFO bxlffer to the C40 is approximately 4 MHz for the 
+legacy testbed. 
+The operating scenario is to extract ‘two 8x8 sub-windows 
+within a. 128x128 region of the CCD FOV (columns 2 & 4) 
+and twa, 8x8 sub-windows within a 256x256 region of the 
+CCD PDV (columns 3 & 5). The 128x128 and 256x256 
+regions include the first line and column of pixels of the 
+CCD FOV. Pixel read out begins with the first line and first 
+column of the TC237 FOV. 
+3-1518 
+Readout Operation 128x1 28 
+1 OMHz 
+Dixel rate 
+256x256 128x1 28 256x256 
+1 OMHz 20 MHz 20 MHz 
+Dixel rate oixel rate oixel rate 
+Refresh Time (pS) 
+First Window Scroll Time (e) 
+Inter-Window Scroll Time (pS) 
+Row Read Time First Window (pS) 
+Window Read time First Window (pS) 
+Row Read Time Second Window (@) 
+In this table, the refiesh time is the time needed to transfer 
+all 500 lines from the image area to the storage area. The 
+scroll time is the time required to shift out unwanted lines 
+from the CCD storage area until the first line of the first 
+sub-window is reached. The inter-window scroll time is the 
+time needed to scroll through lines between the last line of 
+the first sub-window and the first line of the second sub- 
+window. The row and window read times are the times 
+required to read out a single row and all rows of a sub- 
+window respectively. The fiame rate is the reciprocal of the 
+sum of the fiame, scroll and window read times. 
+50 50 25 25 
+52 116 26 58 
+2.5 2.5 1.3 1.3 
+13.8 26.6 7.9 14.3 
+110.4 212.8 63.2 114.4 
+13.8 26.6 7.9 14.3 
+The sub-windows are vertically aligned and separated by 
+five lines of pixels. For all cases, the sub-windows are 
+constrained to be no closer than two pixels from the edge of 
+the 128x128 or 256x256 regions. Within this constraint, the 
+windows are located such that the maximum number line 
+scroll and pixel dump operations are needed to reach the 
+two sub-windows. 
+Window Read Time Second Window 
+Frame time (pS) 
+Frames per Second 
+(*) 
+The total frame time is found by summing the refresh time, 
+scroll times, and the time to read the two sub-windows. As 
+can be seen fiom the last row in table 1, frame rates up to 
+3075 and 1683 frames per second are achievable using 10 
+MHz pixel and line transfer rates for 128x128 and 256x256 
+regions respectively. The 20 MHz pixel and line transfer 
+rates produce frame rates of 5596 and 3194. The integration 
+time for each case is found by subtracting the refresh time 
+kom the frame time. 
+110.4 212.8 63.2 114.4 
+325.3 594.1 178.7 313.1 
+3075 1683 5596 3194 
+5.3 Preliminaiy Results for a Single Sub-Window - 
+Preliminary results indicate that the camera can read 8x8 
+sub-windows at a maximum fiame rate of 6 KHz. This rate 
+is for 10 MNZ pixel and line transfer rates. The 8x8 sub- 
+window is positioned in the second line and column of the 
+CCD FOV. 
+Table 2 illustrates three scenarios for camera operation and 
+the achievable frame rates for these cases. The integration 
+time is as defined above. All three cases assume only one 
+sub-window within the CCD FOV. The beginning of the 
+sub-window is located at the second line and second column 
+in the frame and is eight pixels across by eight pixels high. 
+The imager system clock, which defines both the parallel 
+line transfer rate and the serial pixel rate of the CCD, is 10 
+M H z  or 15 MHz. 
+The first scenario defines the maximum theoretical frame 
+rate for the camera with a 10 M H Z  imager system clock. 
+These numbers are based on simulations of the FPA 
+interface card logic and exhibit a frame rate of 17KHz. 
+There is no overhead for the legacy testbed, shown in Fig. 1, 
+for this case. 
+The second scenario is based on measured performance of 
+the camera in the testbed. A 10 MHz imager system clock is 
+also used for this case. As can be seen in table 2, an 
+additional 300usec delay is incurred with respect to the 
+theoretical case for a line request. The measured row read 
+time is 14.5usec, which includes lusec f0r.a line request, 
+lusec for read out of pixels from the CCD and an additional 
+12.5usec to transfer the pixels across the global bus 
+interface logic into C40 memory. The maximum achievable 
+frame rate is 6KHz for this case. 
+The third scenario is targeted for release 2.0 of the camera 
+and assumes a 15MHz imager system clock with 
+simultaneous serial pixel data from both outputs of the 
+TC237 CCD. The line request, scroll, row read and window 
+read times include the over head for the legacy testbed as 
+measured in the second scenario. These times are smaller 
+compared to the second scenario because of the higher clock 
+speed and dual pixel readout for this case. As table 2 shows, 
+this scenario can achieve greater than 11 KHz frame rates 
+for a 50% increase in the system clock. 
+The minimum fiame rate for an 8x8 sub-window within a 
+256x256 region of the CCD FOV occurs if the sub-window 
+is moved to the diagonally opposite comer of the region. 
+This scenario requires 246 additional line scroll operations 
+to reach the first line of the sub-window. For all lines 
+contained in the sub-window, 246 additional pixels per l i e  
+are read out in order to reach the first column of the sub- 
+window. The calculated ftame rates for these three scenarios 
+are shown in table 3. 
+3-1519 
+Readout Operation 
+Refresh Time (pS) 
+First Window Scroll Time (pS) 
+Window Read time First Window (pS) 
+Row Read Time First Window (e) 
+Frame Uime (pS) 
+Frames per Second 
+Theoretical Release 1.0 Release 2.0 
+10 NlHz 10 MH:z 15 MHz 
+50 50 33.3 
+0.7 1 0.8 
+1.0 14.5 13.9 
+8 116 55.7 
+58.7 167 89.8 
+17035 5988 11 135 
+As can be seen in this table, fiame rates of approlximately 
+1.6 KHz are achievable for release 1.0. The theoretical case 
+at 10 MHz is approximately 2.3KHz. Release 2.0 should be 
+able to achieve fiame rates approaching 3 KHz far similar 
+timing in transferring pixel data to the C40. 
+Readout Operation Theoretical Release 1 .O 
+10 MHz 10 MHz 
+Refresh Time (pS) 50 50 
+First Window Scroll Time (pS) 171.5 245 
+Row Read Time First Window (e) 25.4 38.9 
+Window Read time First Window (@) 203.2 311.2 
+Frame time (pS) 424.7 606.2 
+Frames Der Second 2354 1649 
+This methodology for collecting a sub-window was used to 
+capture the image shown in Fig. 6. This figure shows a 
+128x128 image taken with the CCD camera and the 
+histogram for this image. The horizontal axis of the 
+histogram represents pixel intensity with an 8-bit dynamic 
+range and the vertical axis is the number of pixels with a 
+particular intensity value. This image was taken with an 
+approximate gain of two for in the TLV987 and a 10 msec 
+integration time. The integration time was defined by setting 
+the fiame rate to 100 Hz. 
+Release 2.0 
+15 MHz 
+33.3 
+187.8 
+30.2 
+120.8 
+342 
+2923 
+operation. As can be seen fiom this image, the pixel 
+intensities are distributed over half 'of the 8-bit dynamic 
+range. From this image, we see that the ADC dynamic range 
+is too large for the given image intensity and gain setting in 
+the TLV987. A better match to the ADC dynamic range is 
+achievable by increasing the gain setting in the TLV987. 
+More work is needed to configure the TLV987 before 
+quantitative characterization of camera images can be done. 
+Figure 7 shows a rough signal versus time plot for a 
+TLV98'7 gain of two, leading to the estimate of about 400 
+signal electrons per digital number (EN), basecl on detector 
+full well capacity. The TLV987 gain was set too low for this 
+plot; near-term modifications will be made to allow 
+changing the gain, and then characterizing the detector noise 
+and linearity, along with the spatial uniformity and residual 
+image amlysis. 
+This image was taken to get a basic assessment of camera 
+Figure 6 - 128x128 Image fiom CCD Camera 
+3-1520 
+DN versus exposure 1 DN(40elDN) 
+Est Exp. hration (MO) 
+Figure 7 - Exposure time versus pixel DN 
+6. CONCLUSIONS 
+This paper presents a camera design based on the Texas 
+Instruments TC237 CCD imager chip. The motivation in 
+designing a custom camera is to achieve sub-window 
+imaging capability for frame rates of several kilohertz with 
+10-bits of resolution per pixel as part of the tracking 
+apparatus for a free-space optical communications link. 
+Preliminary results for the camera exhibit frame rates up to 
+6KHz for a single 8x8 sub-window within the FOV of the 
+CCD imager chip with 7-bits of resolution per pixel. These 
+results are for release 1.0 of the camera, which was designed 
+to interface with a legacy testbed for evaluation purposes of 
+the camera. 
+Future work involves characterization of the optical 
+qualities of the camera. The TLV987 parameters, including 
+bias calibration and black-level control to name a few, are 
+currently set to the device defaults with the gain of the 
+device being hardwired to a single setting. In order to 
+characterize the optical qualities of the camera, additional 
+logic is needed to program the TLV987 registers. This work 
+will be done in the coming weeks to define the optical 
+properties and required improvements to meet the needs for 
+a fiee-space optical communications terminal. 
+Release 2.0 of the camera will aim to increase the pixel rate 
+fiom the camera to 30 mega-pixels per second and increase 
+the pixel dynamic range to 10 bits. The increase in pixel rate 
+will be achieved by increasing the camera system clock to 
+15 h4Hz and utilizing both pixel output ports of the TC237 
+CCD. Improvements in the pixel dynamic range require 
+additional adjustments to the CCD control signals fiom the 
+FPA interface card. Such adjustments may include 
+modifications to both the sequence and timing of the TC237 
+control signals to improve clearing and transfer of charge 
+within the CCD. 
+This camera development provides a necessary component 
+for an optical communications terminal. The outcome of this 
+work will determine the limitations of this camera design, 
+the suitability of the TC237 imager chip for optical tracking 
+applications and define how best to operate the camera for 
+different scenarios. It will provide a road map to address any 
+deficiencies found with this implementation and suggest 
+possible avenues for future implementations. 
+Acknowledgments 
+The authors of this work wish to thank Ichiro Fujii of Texas 
+Instruments for his helpful comments and insights 
+concerning the operation of the TC237 imager. 
+The research described in this paper was carried out at the 
+Jet Propulsion Laboratory, California Institute of 
+Technology, under a contract with the National Aeronautics 
+and Space Administration. 
+REFERENCES 
+[l] C. Chen, J. W. Alexander, et. al., “System Requirements 
+for a Deep Space Optical Transceiver,” in Free-Space Laser 
+Communication Technologies XI, G. Stephen Mecherle, 
+Editor, Proceedings of the SPIE Vol. 3615, pp. 142-152 
+(1999). 
+[2] A. Portillo, S. Monacos, “TC237 CCD Sensor Camera 
+Design Specification for the Optical Communications 
+Demonstrator Acquisition, Tracking , and Pointing 
+Subsystem”, JPL internal document, October 19,2000. 
+[3] Texas Instruments, “680x500 Pixel CCD Image Sensor 
+TC237”, June 1996. 
+[4] Texas Instruments, “TC237 Timing of Frame Transfer 
+CCD Image Sensor”, June 1996. 
+[5] Texas Instruments, “3-V 10-Bit 27 MSPS Area CCD 
+Sensor Signal Processor TLV987”, September 1999. 
+Arts Degree from Pasadena City College (valedictorian), the 
+Bachelors (Magna Cum Lauda) and Masters degrees ffom 
+3-1521 
+the University of California, Los Angeles, and the Engineers 
+and Doctor of Philosophy degrees from the University of 
+Southern Califomia, all in electrical engineering. He joined 
+the Jet Propulsion Laboratory in 1982 after receiving the 
+bachelors degree and continued with graduate school 
+while working at JPL. His experience includes work in the 
+areas of' high-speed optical communication networks, 
+guided and free-space optical communication links, optical 
+tracking systems, embedded control systems, FPGAIASIC 
+design, communication systems and board-level hardware 
+design, analysis and implementation. He has authoredlco- 
+authored 12 publications in these areas and holds two 
+patents with a third patent pending in the area of optical 
+communication schemes. His research interests include 
+optical networking schemes and real-time embedded control 
+systems. 
+University of Texas at El Paso in 1995 with i i  B.S. in 
+Computer Engineering. He received an M.S. degree in 
+Computer Engineering from The University of Texas at El 
+Paso in 1997, while assisting in research activities in the 
+area of Image Processing. He is currently a member of the 
+technical staff of the Digital Signal Processing Research 
+Group of the Communications Systems and Research 
+Section at the Jet Propulsion Laboratory in Pasadena, 
+California. His research interests include, computer vision, 
+real-time systems, and computer architecture. 
+Mellon University with a B.S. 6 Computer Science. l%s 
+primary course work involved Operating Systems, 
+Networks, Artificial Intelligence and Machine Learning. He 
+is currently involved in Acquisition, Tracking and Pointing 
+for deep space optical communications and the Amopsheric 
+Visibility Monitoring program at the Jet Propulsion 
+Laboratory. 
+James .dlexander received an A. B. fiom U.C. Berkeley and 
+an M. A. and C. Phil fiom UCLA. Since 1983 he has been 
+heavily involved at JPL in star tracker and scanner testing, 
+analysis, requirements, scene simulation, calibration, 
+algorithm design and implementation for missions such as 
+the high precision Astro-1 shuttle experiment, Mars 
+Pathfinder, Cassini and Europa spacecraft. Additionally, for 
+several years he has been involved in pointing acquisition 
+and tracking subsystems for deep space optical 
+communications systems. He has authored or co-authored 
+over 15 publications in star tracker testing, performance and 
+analysis, as well as several in optical communication 
+acquisition and tracking. 
+('86) degree from UCLA and the M.S. ('93) and Ph. D. ('97) 
+degrees in Opto-electronics from the University of New 
+Mexico, Albuquerque, NM. After UCLA, he worked at the 
+Jet Propulsion Laboratory developing millimeter-wave 
+cryogenically-cooled Low Noise Receivers for JPL's Deep 
+Space Network. In 1991, he was awarded a NASA Doctoral 
+Fellowslhip to pursue graduate work at the University of 
+New Mexico. While at UNM he falcused on developing 
+high-speed optical communications. His thesis work was the 
+successlul development of a Twavelenglh division 
+multiplexed (WDM) vertical-cavity surface-emitting laser 
+(VCSEL) array monolithically integrated with wavelength 
+matched WDM resonant-cavity enhanced photo-detectors. 
+This yielded an opto-electronic conununication fabric to 
+enable over 20 channels of high-speed computer backbone 
+inter-connects from a simple fabrication technique. In 1997 
+he joined the Free-Space Optical Communication Group at 
+JPL. He is currently active in many aspects of the fkee-space 
+optical link: system engineering, acquisition, tracking and 
+pointing technology, efficient space lasers, and ultra- 
+sensitive receiver development. He has just completed 
+design of an ultra-sensitive large-area opto-electronic 
+receivm for Mars missions and is currently Task Lead for 
+researclh and development of the Acquisition, 'Tracking and 
+Pointing Sub-system for free-space optical communication 
+terminals. He has authored over 20 refereed papers, articles 
+and conference presentations. 
+3-1522 

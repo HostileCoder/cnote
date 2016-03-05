@@ -1,0 +1,513 @@
+ADraw: A novel social network visualization tool
+ with attribute-based layout and coloring
+ Zhenwen Wang, Weidong Xiao, Bin Ge, Hao Xu
+ Science and Technology on Information Systems Engineering Laboratory
+ National University of Defense Technology
+ Changsha, China
+ Email: wang zhen wen@163.com
+ Abstract—Visualization is an important tool for social network
+ analysis. Traditional visualization tools only take account into
+ the links in the networks when displaying them. However,
+ social networks are inherently attached to abundant attribute
+ information. In order to display their attribute information, a
+ novel visualization tool with attribute-based layout and coloring is
+ developed in this paper. The core of this tool are two algorithms:
+ one for node layout and the other for node coloring. These two
+ algorithms are designed based on the principle of making the
+ nodes with same attribute values closer in the diagram. The
+ experiments on synthetic networks and real-world networks show
+ that this tool can return more reasonable visualization.
+ Keywords-Network visualization; Social network; Layout; Col-
+ oring;
+ I. INTRODUCTION
+ Social networks are constructed from relational data and
+ can represent the relationships between social actors such as
+ individuals or organizations. In the past few decades, they
+ have been attracted considerable interest in many research
+ fields, from sociology and behavior sciences to physics and
+ computer sciences. Much of the interest focuses on analyzing
+ the patterns of the relationships represented in social networks
+ and revealing the latent information behind them. Visualization
+ is an important tool to gain an insight into social networks and
+ can be helpful for social network analysis. From the beginning
+ of the study, it is recognized that it is hard to understand a
+ social network by looking at statistics tables. To this end, many
+ visualization methods have been proposed, including matrix-
+ based representations and node-link diagrams [1]. Because it
+ is easy for a ordinary user to understand a node-link diagram,
+ where nodes represent the actors and links the relationships
+ between them, it becomes the de facto standard of social
+ networks visualization [2].
+ Besides the relationships between social actors, social net-
+ works usually have abundant attribute attributes about actors,
+ such as their communities and profile attributes [1]. A good
+ visualization of social networks should represent as much
+ attribute information as possible in a node-link diagram. Many
+ previous visualization tools visualize the attributes of nodes
+ using graphics properties such as color, size and shape [2].
+ As we know, the diagrams, in which similar things are put
+ together, will greatly facilitate observation and analyzing.
+ Therefore, in many cases, only such geometric properties are
+ not sufficient for observation and analysis. To overcome it,
+ many layout algorithms are designed to calculate the layout of
+ nodes using node attributes, such as the class-based layout in
+ GOlorize [3]. Although these existing algorithms can highlight
+ node attributes by making the nodes with the same attributes
+ closer, they cannot provide satisfying layout and coloring for
+ the nodes which have multiple attribute values. In the previous
+ algorithms, the nodes with multi-valued attributes do not lie in
+ between the nodes with corresponding single-valued attributes
+ and the coloring cannot represent the multiple values of their
+ attributes. To aid them, a new visualization tool, which is
+ called ADraw, is developed in this paper.
+ Besides grouping the nodes of the same attribute values
+ and using pie charts to represent the nodes with multi-valued
+ attributes, the node-link diagrams produced by ADraw should
+ be captured by two additional criteria: the nodes with multi-
+ valued attributes ought to lie in between the node groups
+ with corresponding single-valued attributes, and the arcs of
+ the sectors in the pie charts should be orientated toward the
+ node groups with corresponding single-valued attributes as
+ exactly as possible. In order to satisfy these criteria, two new
+ algorithms are proposed in this paper, one for node layout and
+ the other for node coloring. The experiments show that ADraw
+ can return more reasonable visualization on the networks with
+ multi-valued attributes.
+ II. RELATED WORK
+ The techniques that are related to this paper include two
+ parts: node layout algorithms and node attribute visualization.
+ A. Related work on node layout algorithms
+ Layout algorithms are used to calculate the positions of
+ nodes, which make the final graphs satisfy some criteria
+ such as aesthetical pleasure. Force-directed algorithms are the
+ main approach to this end. The first force directed algorithm
+ proposed by Eades maps a graph to a mechanical system where
+ vertices are steel rings and edges the springs [4]. The force be-
+ tween adjacent vertices is produced by the logarithmic strength
+ spring while nonadjacent vertices have the repulsive force of
+ inverse square law. According to these forces, vertices will
+ be moved. When the mechanical system achieves a minimal
+ energy state, the final positions of vertices are established.
+ FR algorithm [5] improved the layout algorithm of Eades
+ 2013 IEEE International Conference on Big Data
+ 978-1-4799-1293-3/13/$31.00 ©2013 IEEE 25
+by redefining attractive and repulsive forces according to the
+ strength between atomic particles. KK algorithm [6] improved
+ the spring model of Eades by defining the forces between
+ any pair of vertices using the linear strength springs. Because
+ it is easy to realize these algorithms and they can produce
+ aesthetically pleasing graphs, force-directed algorithms are
+ widely used in many visualization tools such as Vizster [7]
+ and SocialAction [8].
+ Although force-directed algorithms work well for node
+ layout, they only exploit the edges between nodes to calculate
+ the positions of nodes and cannot group the nodes with the
+ same attribute values. Therefore, ADraw needs to use both
+ edges and node attributes to produce diagrams. Fortunately,
+ many existing layout algorithms can provide some examples
+ in which node attributes are used to calculate node layout.
+ Yingxin Wu and Masahiro Takatsuk extend the KK algorithm
+ by combining graph distances with attribute similarities to
+ make nodes with similar attributes closer [9]. Noack utilizes
+ node-repulsion LinLog energy model and edge-repulsion Lin-
+ Log energy model to compute node layout, in which the more
+ densely connected nodes are closer to each other [10]. To
+ make nodes of similar attributes closer, Peng Wu improves
+ the KK algorithm by redefine the idea length between two
+ nodes based on the shortest path, attribute similarity, and group
+ distance [11]. Vizster [7] computes the node layout using
+ the extended FR algorithm, in which the extra-community
+ edges have weaker spring forces. These algorithms use node
+ attributes to calculate node layout and make similar nodes
+ closer in the diagrams, but they do not consider the nodes
+ with multi-valued attributes.
+ Besides single-valued attributes such as marriage status
+ and age, there are some multi-valued attributes whose values
+ can be the combination of several candidate values, such
+ as communities and interests of an actor. For example, in
+ Table I, the interest of the node N3 has multiple attribute
+ values. To our best knowledge, GOlorize [3], which is a graph
+ layout plug-in of Cytoscape [12] which is a software platform
+ for analyzing complex networks, is the only software that
+ can handle the nodes with multi-valued attributes. GOlorize
+ extends the FR algorithm by adding virtual nodes and edges
+ based on the attributes of nodes. However, the graphs produced
+ by GOlorize do not satisfy the criteria: the nodes with multi-
+ valued attributes ought to lie in between the node groups with
+ corresponding single-valued attributes. In this paper, a new
+ node layout algorithm is developed to meet this criteria while
+ make the nodes of the same attribute value closer.
+ B. Related work on node attribute visualization
+ The coloring is one of the most common methods which are
+ used to represent the node attributes in network visualization.
+ In Vizster[7], attributes are visualized using ”X-Ray” mode
+ which exploits different colors to represent different attribute
+ values. In the visualization of the science collaboration net-
+ work [13], the coloring of the nodes denotes which department
+ the professors belong to. When the attribute values are contin-
+ uous, the size of nodes is also a good manner to represent the
+ node attribute. For example, in the visualization of IRC arc’s
+ [14], the size of the node represents the number of outgoing
+ references of the corresponding user. In addition to color and
+ size, the shape of nodes is also used to represent the attribute
+ values of nodes in network visualization such as Gephi [15].
+ When attributes have multiple values, size and shape of
+ nodes cannot represent their all values in a diagram. This paper
+ focuses on social network visualization and the actors of social
+ networks may possess some attribute which have multiple
+ values. It is requested that the produced diagrams can represent
+ as much attribute information as possible. Therefore, in this
+ paper, color is used to represent the node attributes and the
+ nodes with multi-valued attributes are colored as the pie charts.
+ The way of coloring nodes as pie charts has been used to
+ represent the attributes of nodes in previous visualization such
+ as GOlorize [3]. GOlorize uses a uniform appearance when
+ drawing the pie charts which have the same attribute values.
+ However, it is more reasonable that the pie charts of different
+ positions have different appearance to make the sectors of pie
+ charts closer to the nodes with the corresponding color. In this
+ paper, a new node coloring algorithm is developed to meet this
+ request.
+ III. VISUALIZING NETWORKS WITH ATTRIBUTE-BASED
+ LAYOUT AND COLORING
+ The core of ADraw are two algorithms, one for node layout
+ and the other for node coloring. In this section, these two
+ algorithms are described in detail.
+ A. Node layout algorithm
+ Layout algorithms are used to calculate the positions of
+ nodes in graphs. Traditional layout algorithms only use the
+ edges to calculate them and their produced layout can satisfy
+ some aesthetical criteria such as symmetry. In social networks,
+ nodes usually have some attributes. It will facilitate analyzing
+ social networks when the nodes with similar attribute values
+ are placed closer in the graphs. To capture this goal, the layout
+ algorithm developed here determines the positions of nodes
+ based on the edges and the attribute values of nodes. In this
+ way, the produced layout can place the nodes with similar
+ attribute values closer while satisfying the aesthetical criteria.
+ This new layout algorithm includes the following five
+ phases:
+ 1) For each attribute value, a virtual node is added to
+ the original network. If an original node has the single
+ attribute value that is equal to the corresponding attribute
+ value of the virtual node, a virtual edge is added between
+ the original node and the virtual node. For the example
+ in Table I, each actor is described using a node and the
+ interest of each actor can be viewed as the attribute of
+ the node. The node N7 and N10 have more than one
+ interest. Therefore, they are the nodes with multi-valued
+ attributes. Because there are four interest items in Table
+ I, four virtual nodes need to be added. Consequently,
+ twelve virtual edges have to be added. For instance, the
+ 26
+virtual node representing the attribute value ”Tourism”
+ will be connected to the node N1 with a virtual edge.
+ 2) The FR layout algorithm [5] is applied to the new
+ network produced by the last phase. To make the nodes
+ with the same attribute value closer, the scope within
+ which they lie in should be determined. The positions
+ of the virtual nodes are used as the central positions
+ of the scope. Consequently, the approximate scopes of
+ the nodes with same attribute values can be determined
+ using the positions of the virtual nodes which are
+ calculated in this step. This step make the final layout do
+ not only determined by the edges but also the attribute
+ values of the nodes.
+ 3) The combination of the attribute values is defined as the
+ new attribute value. This new attribute value can be used
+ as the attribute value of the nodes with the multi-valued
+ attribute. For example, the combination of ”Movie” and
+ ”Music” is the attribute value of the node N7 in Table I.
+ By defining the new attribute value ”C” which equal to
+ the combination of ”Movie” and ”Music”, the attribute
+ value of the node N7 can be described by ”C”. For each
+ new defined attribute value, the corresponding virtual
+ node and edges are added using the manner described
+ in the phase of 1).
+ 4) For each virtual node that describes the combination
+ of the original attribute values, a new network is con-
+ structed using the following way: an edge is added to
+ connect the virtual node to another virtual node which
+ describes one of the original single attribute values in the
+ combination. Fixing the positions of the virtual nodes
+ describing the original single attribute value, the KK
+ layout algorithm [6] is applied to this new network.
+ The purpose of this step is to determine the positions
+ of the virtual nodes which describe the combination of
+ the original attribute values. The KK layout algorithm
+ can make sure that the virtual nodes describing the com-
+ bination of the original attribute values lie in between
+ the virtual nodes describing the corresponding original
+ single attribute values.
+ 5) Fixing the positions of all virtual nodes, the FR layout
+ algorithm is applied to the network obtained in the phase
+ 3. As a result, the positions of the nodes in the original
+ network can be determined.
+ B. Node coloring algorithm
+ In a node-link diagram, the attribute values of the nodes
+ are usually represented using their color. When a node has
+ multiple attribute values, it is hard to visualize its all attribute
+ values using a single color. To aid it, the node with multi-
+ valued attribute is represented using a pie chart in this paper.
+ Each sector of the pie chart denotes an attribute value of the
+ node. In order to conform to the principle that the nodes with
+ the same attribute values are grouped near each other, the
+ sectors should be placed near those nodes which are filled
+ by the same color. To capture this goal, the arc of the sector
+ should be orientated toward the nodes filled with the same
+ TABLE I: A simple example of the attribute values of the
+ nodes.
+ Node ID Actor name Interest
+ N1 Jim Tourism
+ N2 Lucy Tourism
+ N3 Michelle Music
+ N4 Jack Computer game
+ N5 John Computer game
+ N6 Steve Movie
+ N7 Stephen Movie; Music
+ N8 David Movie
+ N9 Peter Music
+ N10 Leslie Movie; Music
+ Fig. 1: The pie charts which represent the node with multi-
+ valued attributes. The pie chart in (b) is an idea pie chart.
+ color. In order to draw such pie charts for the nodes, the idea
+ pie chart of the node is first defined.
+ Assume that a node has m attribute values. The pie chart
+ can be called the idea pie chart of the node, if it satisfies the
+ following two conditions:
+ 1) This pie chart is composed by m sectors, each of which
+ represents an attribute value. The different color of the
+ sectors denote the different attribute values.
+ 2) The area between the extension lines of two radii of
+ each sector contains the nodes which are filled with the
+ same color of the sector.
+ For example, the pie chart in Figure 1(b) is an idea pie chart
+ and the one in Figure 1(a) not. For the convenient description,
+ the angle ? in Figure 1(b) is called the offset angle of the
+ sector filled with the blue color.
+ Because the arc degree of each sector is known, the pie
+ chart can be determined by the offset angles of all sectors.
+ For example, the pie chart in Figure 2(a) can be identified if
+ the offset angles {?i}4i=1 are known. Therefore, the problem
+ 27
+Fig. 2: A example for drawing a pie chart. The nodes 1, 2, 3
+ and 4 denote the virtual nodes of corresponding color.
+ of drawing the pie charts is changed to that of calculating the
+ offset angles.
+ For each sector, a line is drawn between the central point
+ of the pie chart and that of the corresponding virtual node.
+ Because the positions of the pie charts and the virtual nodes
+ are known, the angle between the line and the horizontal line
+ can be calculated. For example, the angle {?i}4i=1 in Figure
+ 2(b) can be calculated using the positions of the pie chart and
+ the four virtual nodes. For the pie chart with m sectors, all
+ sectors are sorted by their angles {?i}mi=1 in descending order.
+ Let {bi}mi=1 denote the sectors in this order. For example, in
+ Figure 2, {bi}4i=1 is equal to {2, 1, 3, 4} according to the angle{?i}4i=1 in Figure 2(b).
+ If we have the value of any ?i, the values of {?i}4i=1 can be
+ calculated using the order {bi}4i=1 and the arc degree {?i}4i=1
+ in Figure 2(c). Therefore, the core problem is how to calculate
+ the offset angles {?i}mi=1 using {?i}mi=1 and {?i}mi=1.
+ In order to draw an idea pie chart with m sectors, the offset
+ angles of the sectors should satisfy the following restriction:
+ {
+ ?bi + ?bi ≥ ?bi ≥ ?bi 1 ≤ i ≤ m
+ ?bi+1 = ?bi + ?bi 1 ≤ i ≤ m? 1
+ , (1)
+ where bi is an integer in the range [1,m] and denotes the i’th
+ sector in the order of all sectors.
+ TABLE II: The edges in the synthetic network.
+ Edge ID Node ID Node ID
+ E1 N1 N2
+ E2 N2 N3
+ E3 N3 N4
+ E4 N4 N5
+ E5 N5 N6
+ E6 N6 N7
+ E7 N6 N8
+ E8 N6 N9
+ E9 N6 N10
+ E10 N6 N1
+ Eq.(1) can be easily transformed to another form:{ (?b1 +∑ij=1 ?bj ? ?bi)(?bi ? ?b1 ?∑i?1j=1 ?bj ) ≥ 0
+ 1 ≤ i ≤ m . (2)
+ The solution of the inequalities in Eq.(2) may never exist.
+ In that case, ?b1 cannot be sometimes obtained if directly
+ solving these inequalities. In order to ensure the existence of
+ the solution, we use the Eq.(3) to solve ?b1 when the solution
+ of Eq.(2) is non-existent.
+ ?b1 = argmaxa
+ m∑
+ i=1
+ (a+
+ i∑
+ j=1
+ ?bj ? ?bi)(?bi ? a?
+ i?1∑
+ j=1
+ ?bj ). (3)
+ Solving Eq.(3), we can get
+ ?b1 =
+ ∑m
+ i=1(
+ ∑i
+ j=1 ?bj +
+ ∑i?1
+ j=1 ?bj ? 2?bi)
+ 2m
+ . (4)
+ With ?b1 , we can calculate the offset angles of all sectors.
+ Consequently, the (approximately) idea pie chart can be drawn.
+ IV. APPLICATION
+ In this section, ADraw is first applied on the synthetic
+ network to exam its ability. Then, the results on some real
+ world social networks will be demonstrated.
+ A. Results on the synthetic network
+ The synthetic network is composed by the ten nodes in
+ Table I. Since Table I only provides the attributes of the nodes,
+ it is necessary to add edges for these nodes. The ten edges in
+ Table II are added here to generate the synthetic network with
+ the ten nodes.
+ The result on this synthetic network is shown in Figure 3
+ (c). For comparison, the results returned by FR and GOlorize
+ are also shown in Figure 3. According to Figure 3 (a), FR
+ satisfies three aesthetical criteria: ”symmetry”, ”the same edge
+ length” and ”even vertex distribution”, but it does not visualize
+ the attributes of the nodes. GOlorize adds the criterion that
+ the nodes with the same attribute values ought to be closer.
+ However, GOlorize does not consider the specificity of the
+ nodes with multi-valued attributes when coloring and placing
+ them. For example, the coloring and placement of the node 7
+ in Figure 3 (b) are not satisfying. ADraw aid this drawback
+ by placing the nodes with multi-valued attributes between the
+ 28
+(a)
+ (b)
+ (c)
+ Fig. 3: Results on the synthetic network with ten nodes. (a) is
+ the result of FR. (b) is that of GOlorize. (c) is that of ADraw.
+ ones with corresponding single-valued attributes. As a result,
+ the node 7 and the node 10 are both placed between the blue
+ nodes and the orange ones in Figure 3 (c).
+ The above experimental results show that the graph drawn
+ by ADraw is more reasonable than those of FR and GOlorize
+ when the networks have the nodes with multi-valued attributes.
+ B. Results on real-world networks
+ We apply ADraw to some real-world networks and the
+ results will be demonstrated in this section. The information
+ about these real-world networks are shown in Table III. These
+ datasets are all classical social network data. They are widely
+ used in the network research.
+ In these experiments, the communities of the nodes are
+ viewed as the attributes of the nodes. Communities are one of
+ the most characters which are revealed in the study of network
+ science. Many community detection algorithms are developed
+ to extract the communities of the nodes from networks.
+ For each network in Table III, the LFM [19] algorithm is
+ first exploited to calculate the communities of their nodes.
+ TABLE III: The real-world datasets.
+ Name Number of nodes Number of edges
+ Karate[16] 34 78
+ Dolphins[17] 62 159
+ Netscience[13] 1589 2742
+ Blog[18] 3982 6803
+ Then, the networks and the communities are feed on ADraw to
+ produce the visualization of the network with the communities.
+ 1) Karate network. This is constructed using the social
+ interactions among the 34 members of the karate club
+ in a university of USA. The result is shown in Figure 4.
+ 2) Dolphins network. This network is composed by 62
+ dolphins in New Zealand. The edges are established by
+ the interactions among these dolphins. Therefore, it is a
+ dolphin social network. The result is shown in Figure 5.
+ 3) Netscience network. The nodes of this network are the
+ researchers who study on network science. This network
+ is constructed by adding an edge between two nodes if
+ the corresponding researchers are coauthors. Therefore,
+ it is a social network about science collaboration. The
+ result is shown in Figure 6.
+ 4) Blog network. This network is constructed using the
+ some communication interaction on the MSN (windows
+ live). The result is shown in Figure 7.
+ These experimental results show that ADraw conforms to
+ the principle ”the nodes with the same attribute values are
+ closer” when coloring and placing the nodes. For those nodes
+ with multi-valued attributes, ADraw can automatically place
+ them between the nodes with corresponding single-valued
+ attribute. Human are accustomed to place the objects with
+ the same class together and the ones with the mixing class
+ between the pure classes. Therefore, this drawing strategy of
+ ADraw is more reasonable and useful.
+ V. CONCLUSION
+ A novel visualization tool for social networks, ADraw, is
+ introduced. ADraw is able to visualize the attribute values of
+ nodes while displaying the topology of networks. The core of
+ ADraw is two algorithms: one for node layout and the other
+ for node coloring. These two algorithms both conform to the
+ principle ”the nodes with the same attribute values are placed
+ closer”. The experimental results on synthetic and real-world
+ networks show that ADraw can draw reasonable graphs for
+ the networks whose nodes have multi-valued attributes.
+ ACKNOWLEDGMENT
+ The work is supported by the Natural Science Foundation
+ of China (No. 61303062, No. 61302144).
+ REFERENCES
+ [1] I.-X. Chen and C.-Z. Yang, “Visualization of social networks,” Hand-
+ book of Social Network Technologies and Applications, vol. 5(27), pp.
+ 586–610, 2007.
+ [2] C. D. Correa and K.-L. Ma, “Visualization social networks,” Social
+ Network Data Analytics, vol. 2(11), pp. 307–326, 2011.
+ 29
+Fig. 4: Karate network drawn by ADraw.
+ Fig. 5: Dolphins network drawn by ADraw.
+ [3] O. Garcia, C. Saveanu, M. Cline, M. Fromont-Racine, A. Jacquier,
+ B. Schwikowski, and T. Aittokallio, “Golorize: A cytoscape plug-in for
+ network visualization with gene ontology-based layout and coloring,”
+ Bioinformatics, vol. 23(3), p. 394C396, 2007.
+ [4] P. Eades, “A heuristic for graph drawing,” Congressus Numerantium,
+ vol. 42, pp. 149–160, 1984.
+ [5] T. Fruchterman and E. Reingold, “Graph drawing by force-directed
+ placement,” software-practice and experience, vol. 21(11), pp. 1129–
+ 1164, 1991.
+ [6] T. Kamada and S. Kawai, “An algorithm for drawing general undirected
+ graphs,” Information Processing Letter, vol. 31, pp. 7–15, 1989.
+ [7] J. Heer and . D. Boyd. Vizster: Visualizing online social networks. In
+ Proceedings of the 2005 IEEE Information Visualization Conference (In-
+ foVis05), “Vizster: Visualizing online social networks,” In Proceedings
+ of the 2005 IEEE Information Visualization Conference (InfoVis05),
+ 2005.
+ [8] P. A and S. R, “Balancing systematic and flexible exploration of social
+ networks,” IEEE Transactions on Visualization and Computer Graphics,
+ vol. 12(5), pp. 693–700, 2006.
+ [9] Y. Wu and M. Takatsuka, “Visualizing multivariate networks: A hybrid
+ approach,” IEEE Pacific Visualisation Symposium, 2008.
+ [10] A. Noack, “Energy models for graph clustering,” Journal of graph
+ algorithms and applications, vol. 11(2), pp. 453–480, 2007.
+ [11] P. Wu and S. Li, “Layout algorithm suitable for structural analysis and
+ visualization of social network,” Journal of Software, vol. 22(10), pp.
+ 2467–2475, 2011.
+ [12] P. Shannon, A. Markiel, O. Ozier, N. Baliga, J. Wang, D. Ramage,
+ N. Amin, B. Schwikowski, and T. Ideker, “Cytoscape: a software en-
+ vironment for integrated models of biomolecular interaction networks,”
+ Genome Research, vol. 13, pp. 2498–504, 2003.
+ [13] M. E. J. Newman, “Finding community structure in networks using the
+ eigenvectors of matrices,” Preprint physics/0605087, 2006.
+ [14] M. Dittus, “Irc arcs: Communication behaviou,”
+ http://mardoen.textdriven.com/irc arcs/. September 2006.
+ [15] Gephi, http://gephi.org.
+ [16] W. W. Zachary, “An information flow model for conflict and fission in
+ small groups,” Journal of Anthropological Research, vol. 33, pp. 452–
+ 473, 1977.
+ [17] D. Lusseau, K. Schneider, and e. O. J. Boisseau, “The bottlenose dolphin
+ community of doubtful sound features a large proportion of long-lasting
+ associations,” Behavioral Ecology and Sociobiology, vol. 54, pp. 396–
+ 405, 2003.
+ [18] S. Gregory, “An algorithm to find overlapping community structure in
+ networks,” Lecture Notes Compute Science, vol. 91, p. 4702, 2007.
+ [19] A. Lancichinetti, S. Fortunato, and J. Kertsz, “Detecting the overlap-
+ ping and hierarchical community structure of complex networks,” New
+ Journal of Physics, vol. 11, p. 033015, 2009.
+ 30
+Fig. 6: Netscience network drawn by ADraw.
+ 31
+Fig. 7: Blog network drawn by ADraw.
+ 32

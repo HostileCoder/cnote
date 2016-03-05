@@ -1,0 +1,642 @@
+Automated Event Classification for Multi-Gigabyte per 
+Day Data Streams’ 
+Donald S. Frankel, Kevin .J. Tibbetts 
+Photon Research Associates, Inc., 1320 Centre St., Suite 201, Newton, MA 02459,617-527-0054 
+Capt. David L. Cowan 
+National Air Intelligence CenterDXMI, 41 80 Watson Way, WPAFB, OH 
+Abstract-Multiband and hyperspectral scanning and staring 
+remote sensors can generate dozens of gigabytes of data each 
+week. Manually searching through so much data for short- 
+lived, transient events is prohibitively expensive. The goal of 
+our data exploitation program is to develop real-time 
+processing algorithms to identify and classify such events for 
+data streams of this magnitude. In this paper we describe a 
+Bayes classifier that can assign identified events to known 
+broad categories and can designate a confidence for correct 
+classification based on the measurement conditions. Events 
+that do not fit known categories are marked for the analyst’s 
+attention. We have developed a graphical user interface to 
+allow an analyst to process large numbers of events at a time. 
+Our data exploitation program has developed classifiers in 
+addition to those discussed here. When classifiers working in 
+parallel disagree on the assignment of an event to a category, 
+some means is needed to decide which to choose. To make 
+the decision, we have .devised a “Committee of Experts” 
+approach that arrives at a final classification by taking into 
+account the confidence of the individual classifiers under the 
+given measurement conditions. 
+TABLE OF CONTENTS 
+TABLE OF CONTENTS .................................................. 1 
+1.0 INTRODUCTION ....................................................... 1 
+2.0 APPROACH ................................................................. 2 
+2.1 CLASSIFICATION E G INE ............................................ 2 
+2.2 CLASSIFICATION ......................................................... 2 
+2.3 MULTI-DIMENSIONAL C ASSIFICATION ...................... 3 
+2.4 BAYES IS OPTIMAL, IF.. ............................................. 3 
+2.5 PRIMER‘S GRAPHICAL USERINTERFACE .................. 3 
+3.0 PRIMER FEATURES ................................................. 4 
+4.0 RESULTS ..................................................................... 4 
+4.2 LONGER DURATION EVENTS CLASSIFIED WITH SHORTER 
+EVENTS ............................................................................. 4 
+5.0 FUTURE WORK ......................................................... 5 
+6.0 CONCLUSIONS .......................................................... 6 
+7.0 REFERENCES ............................................................. 6 
+8.0 BIOGRAPHY ............................................................... 7 
+4.1 BRIEF TRANSIENTS ..................................................... 4 
+1 .O INTRODUCTION 
+Remote sensors create a massive data stream. A class of 
+multispectral, fast fi-aming, staring, non-imaging sensors can 
+collect hundreds of events per day. Analysis of so much data 
+is a daunting task, requiring much skilled labor and often 
+results in valuable data going unexamined for long periods of 
+time. The needs of the users of remotely sensed data are 
+entirely the opposite. As sensors become more capable, the 
+users of the data demand interpreted results with ever-shorter 
+latency. Systems are needed that can transform raw data into 
+user messages on time scales from a few minutes to a few 
+seconds. Furthermore, many facilities that process remote 
+sensing data undergo personnel turnovers at regular intervals. 
+It is important for such facilities to capture the experienced 
+analyst’s expertise for use by new personnel. 
+One approach to addressing these needs is to create a 
+software system that serves as a bulk filter for known events. 
+The filter would assign events to known event classes. It 
+might also recognize collects that are just noise, flag events 
+that do not fit into known classes, and provide summaries of 
+the number of events of each type collected. In this way, 
+single event classification would become the first step in 
+analysis of the larger events of which the single events 
+comprise. A system to perform rapid, single event analyses, 
+called BERT (Brief Event Recognition and Typing) [l], is 
+currently being developed by several independent 
+collaborating investigators. BERT will include classifier 
+algorithms embodying several different approaches. Each 
+version of BERT will be tested at a remote sensing facility. 
+An additional system, described below, will reconcile 
+disagreements among the classifiers. We call the additional 
+system a “Committee of Experts” (CoE) [2] .  The BERT 
+system will be hosted initially in a remote sensing reporting 
+system. 
+A host of numerical classification schemes have been 
+investigated over the course of many years [3]. Previously we 
+have used a neural network approach with supervised 
+learning to perform classification or prediction in a number 
+of problem domains [4-91. The neural network approach has 
+been highly successful in these cases, including remote 
+0-7803-6599-2/01/%10.00 0 2001 IEEE 
+4-1945 
+sensing event classification [ 10-141. Other investigators have 
+developed alternative approaches to this remote sensing 
+classification problem, as have we. One group has developed 
+a feature-based approach with a set of if-then rules to classify 
+events [15, 191. This could be considered an expert system 
+approach. Another investigator has used a Bayes classifier 
+whose class boundaries are explicitly set by the user [16, 171. 
+This can be thought of as a Bayes rule classifier with 
+supervised learning. The purpose of this paper is to report on 
+results using a self-organizing (unsupervised) Bayes 
+classifier technique for rapid classification of transient 
+events. “!j.elf-organizing” means that the system creates its 
+own classes based on the distribution of the measurements of 
+each parameter and the measurement’s expected uncertainty. 
+The goal of the effort is to develop a layered recognition 
+system fcir these transient events in which the first layer 
+provides the most general identification of the event, while 
+successive layers provide increasingly fine-grained 
+discrimination. The rest of the paper describes our technical 
+approach, its user features, the results obtained, and our 
+conclusions and recommendations for future development. 
+2.0 APPROACH 
+2.1 Classtfication Engine 
+Classification of unknown objects usually involves 
+comparison with known objects. A number of mefhods for 
+making such comparisons have been developed over the 
+years. Many of these methods are “statistical”, in the sense 
+that they explicitly recognize that even known objects 
+belonging to the same class are not all identical. Rather, there 
+is variability in the objects’ properties, even if they are 
+manufactured items. In the statistical classifiers, the 
+variability is expressed by a “distribution”, which 
+sum mar in:^ the fraction of known objects whose property 
+values lie within some range of values. Histograms are a 
+familiar approximate representation of these distributions. 
+For example, consider the data shown in Figure 1. Here we 
+see two intensity measurements of an event as a function of 
+time, one plotted in red, the other in blue. For simplicity, let 
+us consider just the maximum intensity as a “descriptor” of 
+the data. We cannot expect that all events of the same type 
+would have identical intensities, even if they were created 
+with that intent, which they are not. Rather, if we could 
+measure the intensity of a large number of events of two 
+different size classes, their intensity would vary, forming a 
+distribution that might resemble the hypothetical distributions 
+shown in Figure 2. 
+In Figure 2, the peak intensity value of Large events is 
+distributed according to the red curve, while Small events 
+generate the green curve. The horizontal axis is the peak 
+intensity, while the vertical axis is the relative fraction of the 
+events having the corresponding peak intensity. In this 
+example, the relative widths of the distributions indicate that 
+the peak intensity of Large events is far more variable than 
+that of Small events. Moreover, the most likely peak intensity 
+for Large events (-5) is greater than that of Small events 
+~ 
+4-1946 
+(-1). We can say with a high degree of confidence that the 
+two most likely peak intensities of the distributions are 
+different. Furthermore, if a great nunnber of events were 
+observed, we would be able to say with high confidence that 
+events of two sizes occurred. 
+field Te5l July 1998 
+Time 
+Figure 1. Plot of intensity versus time For two measurement 
+systems observing the same event. 
+U 8 0.6 
+I .-  (U 
+0 0.4 i 
+Z : Event with peak 
+I 
+assified as “large” i -
+4 6 8 10 12 
+Peak intensity (arb. units) 
+0 
+Figure 2. Hypothetical distributions of the peak intensity of 
+two size classes of one type of event. Note that there is 
+overlap of the distributions, implying that some large events 
+will be calnfused with small events if peak intensity alone is 
+used as the basis for tliscrimination. 
+2.2 Classification 
+But the task of a classifier is to assign each new single 
+measurement to a class. For example, the vertical arrow and 
+dashed line in Figure 2 symbolize a new measurement whose 
+peak intensity is near 2.5. What can we say about the size of 
+event that produced this new measurement? 
+We cannot be definitive, because some events of either size 
+have this peak intensity. The best we can do is to estimate 
+which is the most likelv size for this event. The distribution 
+curves illlistrated in Figure 2 give us an important piece of 
+information, namely the fraction of events of each size that 
+produce the measured intensity. This quantity is symbolized 
+Po( I i), the probability of the measurement X, given that it is 
+derived from class i, where i = 1 or 2 for large or small 
+events, respectively. For the case illustrated in Figure 2, we 
+can see that p(x I 1)> P(x 12). But what we want to 
+estimate is p(i 1 x) the probability that the event belongs to 
+class i, given the measurement, X. These two quantities are 
+not the same thing. The Bayes Rule allows us to relate the 
+latter probability to the former if some additional information 
+is available. 
+That other information used by a Bayes Rule classifier is the 
+likelihood that there are Large events to be observed. This is 
+often referred to as the "prior" probability. In the previous 
+example, Large events might be rare in the area of 
+observation. This fact would affect our estimate of the 
+probability that the new measurement was a Large event. The 
+effect is very direct: to estimate the probability that our 
+measurement of 2.5 was caused by a Large event, we first 
+multiply the fraction of Large events having this peak 
+intensity by the fiaction of all events that are Large. Let us 
+call this result PI. We have then P, = P(x I 1) x P(1). 
+We apply this procedure to all of the possible event types that 
+could have produced our measurement. The Bayes Rule then 
+says that the likelihood that the event was a Large event is PI 
+divided by the sum of all terms like PI for each of the n event 
+types, i.e.: 
+Likelihood that event is a Large event = 
+n 
+P ( l I X ) = P , t p i  
+i= 1 
+This procedure may be repeated for all n classes being 
+considered, the denominator being the same in each case. 
+The classification step then simply assigns the event to the 
+class, i, having the largest value of P(i I x). A further test 
+should be applied however, because the largest probability 
+could still be very small. A small probability might indicate 
+that the event belongs to an unknown class. 
+2.3 Multi-dimensional Classijkation 
+The Bayes Rule approach can be easily extended to cases in 
+which several measurements are made on each event. 
+Referring to Figure 1, the integrated area of the measured 
+waveform (shown in color) could be used in addition to the 
+peak value. The resulting probability distribution is then 
+three-dimensional. Figure 3 shows contours of equal 
+probability for these distributions. Additional measurements 
+are often very helpful in making class assignments. Figure 3 
+shows that even though the one-dimensional distributions are 
+strongly overlapped, the two dimensional distributions are 
+only weakly overlapped. 
+2.4 Bayes is Optimal, if.... 
+It can be shown that a classifier constructed fiom Bayes Rule 
+as described above is optimal in that it makes fewer wrong 
+classifications than any other approach. Why then are other 
+classifiers often used? The answer is that the assumptions 
+underlying the Bayes Rule are seldom satisfied in practice. 
+The distributions of the measured parameters must be 
+estimated from sparse data and are often inaccurate. Often, 
+not even the functional form of the distribution is known. 
+Furthermore, the prior probability distribution is almost never 
+known. For this reason, equal prior probabilities are often 
+assumed. The Bayes Rule classifier then simplifies to finding 
+the highest value of P(x I i). 
+' (training) ,,/r 
+Peak intensity 
+Figure 3. Contours of equal probability for 2-D distributions 
+of two sizes of events. 
+Figure 2 illustrates one of the unfortunate facts of life: classes 
+we like to think of as distinct often overlap when we try to 
+quantify them with remote sensing measurements. 
+Furthermore, we might be in the unenviable situation in 
+which the quantities we are able to measure have little direct 
+connection with the property that defines the classes. 
+Imagine, if you will, trying to classify an organism as male or 
+female if we were allowed to measure only its mass. 
+Measurement conditions also make a difference. Imagine 
+further that we don't know for sure how many organisms are 
+being weighed, nor whether they have one foot on the scale 
+and the other on the floor. 
+2.5 PRIMER'S Graphical User Interface 
+4-1947 
+Despite these difficulties, we have developed a Bayes 
+classifier called PRIMER to provide a rapid, first-cut analysis 
+capability for remotely sensed data. PRIMER'S graphical user 
+interface (GUI) allows the user to process individual collect 
+files, entire directories, or files from a list of file names. The 
+latter feature is convenient when collects matching a user's 
+criteria have been identified using a database application we 
+have developed. The GUI supports ingesting files in all of the 
+time vs. intensity formats used for the sensor. Buttons and 
+dialogs allow the user to choose the signal duration to use, 
+the upper limit of computer time to use, and several data 
+processing options. Once the user has made these processing 
+choices, PRIMER displays thumbnail plots of all of the 
+selected data. The Bayes classification engine currently used 
+by PRIMER viz. Autoclass, was developed by NASA [18, 
+191. PRIMER creates all of the input files required by 
+Autoclass and displays the results either in text or graphical 
+format. 
+3.0 PRIMER FEATURES 
+PRIMER is an unsupervised classifier; i.e. it can find its own 
+classes based on the distribution of the measurements of the 
+events and the estimated measurement uncertainty. The 
+models developed can then be used to classify new data. 
+PRIMER uses Gaussian data distribution models, either with 
+or without allowing missing data values. Since the sensor is 
+capable of many different sampling rates, the data are re- 
+sampled onto a common time grid. Intensities can be 
+normalized or used as is. 
+We have made no attempt as yet to develop feature detectors 
+given the appearance of the remotely collected signals. 
+Indeed, the events in each class strongly resemble each other 
+and differ from those in other classes. The most salient 
+features seemed to he peak intensity and duration. The class 
+labels entered in the second column of Table 1 were coined 
+by one of the author:; (DSF) and are reasonably descriptive of 
+the events in each class. 
+Table 1. PRIMER analysis results of a field test conducted in 
+1998 of small, medium, and large events. Class 
+characteriizations, e.g. “Tinyhhort” were invented by one of 
+the authors and are descriptive of the original data in each of 
+the classes found by PRIMER. 
+that would provide attributes for PRIMER to use in 
+classification. Instead, we have adopted a straightforward 
+approach in which such features are included implicitly. Each 
+measurement time sample is treated as an event attribute. 
+PRIMER then uses the data samples directly to produce its 
+classifications. Principal component analysis can be applied 
+prior to PRIMER analysis to reduce the dimensionality of the 
+data if desired, although this may not be convenient in daily 
+use. We have used principal components, but have found that 
+the results have been very similar to those obtained using the 
+original measurements. 
+The events of interest may last anywhere from a few seconds 
+to several minutes. Because we use the data samples rather 
+than attributes such as peak intensity or rise time, it is crucial 
+to have a method for aligning the signals in a reproducible 
+way. Two methods are now available in PRIMER. The first 
+is to align the events at their first sample. This method is 
+sensitive to the degree of skill with which the sensor’s data 
+were processed before PRIMER’S analysis. The other is to 
+align the signals at their peak intensity sample. When an 
+event is shorter than the user’s chosen duration, the input is 
+padded with “missing data” values. Another way of lo’oking at the data is given in Figure 4, 
+which shows a principal component plot of the field test data. 
+In Figure 4, Types 2, 3, and 4 correspond to the “small,” 
+“medium,” and “large” classes in Table 1. This is a case like 
+that mentioned above; we can not measure the quantity that 
+defines o’ur classes. Instead, we can 01dY observe a quantity 
+that iS an unintended side effect O f  what distinguishes the 
+classes. Besides that, we have litlle Control over the 
+conditions that applied when the evenis occurred. As Figure 
+4 shows., we can e:xPect overlap of the classes as Well as 
+OUtlierS, i.e. items that are far removed from Others Of any 
+class. This picture is consistent with the PRIMER results 
+shown in Table 1. 
+4.2 Longer duration atentS classiJed With shorter eVentS 
+4.0 RESULTS 
+4. I Brief Transients 
+The first test of PRIMER used remote sensing data collected 
+a field test conducted in 1998. Twelve small, three 
+medim, and thee large events were observed in desert soil 
+T~~ sensor configuations were used to observe the 
+events. The results obtained by PRIMER indicated that the 
+remotely sensed event data more properly belonged in nine 
+classes rather than three. 
+The results are summarized in Table 1. The classes found by 
+PRIMER do not comespond to medim, arid large”, 
+which are the “true” classes. Indeed, “small” events-are 
+found in five different classes for each sensor configuration. 
+Similar results are obtained for the “medium” and “large” 
+events. Looked at in another way, we find several classes that 
+contain events from more than one of the “me” size classes. 
+To further test the usefulness of the PRIMER approach, we 
+then tumled our attention to classifying signals of other types 
+of event:s. Our aim in this case was to be comprehensive, 
+including as many events as possible: into broadly defined 
+Classes ,4 and B. In  addition to “small, medium, and large” 
+4-1948 
+PRIMER. Generally speaking, Class B events are much more 
+variable in duration than Class A. Class B events can be 
+about as long as Class A events, or they can be as much as 
+100 times longer. Nevertheless, this frrst test was restricted to 
+the same brief time period used in the analysis of the well- 
+documented Class A events described in Table 1. This choice 
+simplified comparison with the previous results, but more 
+importantly it allowed us to assess the degree to which these 
+data can be used to generate rapid recognition and messaging 
+for users desiring near-real time results. To assess how much 
+information could be derived just from the shape of the 
+signals; thus avoiding any calibration or atmospheric 
+transmission uncertainty, the signals were normalized by 
+dividing each by its largest value. Furthermore, the 
+classification was done without regard to the sensor 
+configuration. A later test will exploit the calibrated data. 
+I 
+Figure 4. Principal component plot of remote sensing data of 
+three sizes of event: Type 2 is small, Type 3 is medium, and 
+Type 4 is large. Note that on these two axes there is overlap 
+of all of the sue groups, plus an outlier. 
+True Class 
+Consistent with the previous test set, PRIMER found 
+nineteen classes rather than two. Such a result is not 
+unreasonable in this case, since Classes A and B are broadly 
+defined, and the ensemble of Class A and Class B events 
+derived from a considerable number of sources. When 
+PRIMER’S classes were examined, the majority of them were 
+dominated by either Class A or B. This result permits the 
+output to be mapped easily into Class A or B provided that 
+we add a layer of post-processing logic to combine the 
+classes found by PRIMER appropriately. The output to the 
+user includes the uncertainty in the class assignment. 
+Found A 
+Class B 
+In cases where PRIMER’S classes contain a mix of Class A 
+and Class B events, PRIMER’S output is the probability of 
+being Class A or B. Lacking a true “prior” distribution, we 
+estimate the probability from the fraction of A and B events 
+in the training set. For the purpose of assessing PRIMER’S 
+reliability, however, it is useful to label each of the found 
+A B YO correct 
+75 25 75% 
+10 166 94% 
+classes as being either A or B. Observations can then be 
+scored as either correctly or incorrectly assigned. The results 
+for this data set are shown in Table 2. The fraction of correct 
+classifications is well above the threshold expected from a 
+useful bulk filter classifier of these data. This is remarkable 
+considering that only the first five seconds of normalized 
+data have been used. 
+Table 2. Results of PRIMER classification of 276 remotely 
+sensed events are displayed in a contingency matrix. 
+Normalized data aligned at the first sample were used 
+without regard to sensor configuration. The events are 
+categorized into broad classes A and B for purposes of 
+evaluating classifier performance accuracy. Diagonal 
+elements (bold) are correctly classified, while off-diagonal 
+events have been misclassified. The “true” class of several 
+“misclassified events is in fact doubtful, implying that 
+classifier accuracy may be better than indicated. 
+The maximum amount of computation time allowed for 
+developing a new statistical model is a user-controlled 
+parameter. Using a Sun Ultra1 computer, generally 2 hours 
+were allowed to create the class models described here. 
+When a satisfactory model has already been developed and is 
+suitable for new data, classifying one hundred new files 
+requires a few seconds. 
+5.0 FUTURE WORK 
+The results shown in Figure 4 and summarized in Table 1 
+indicate that discrimination of small, medium, and large Type 
+A events cannot be done reliably under the conditions of the 
+field test. We recommend that the events be observed against 
+other types of terrain and under other circumstances. Even 
+though “small, medium, and large” events might not be 
+discriminated, it is possible that other useful information 
+could be extracted. 
+So far, all of our results have been obtained using the first 
+five seconds of each data collect. The logical next step will 
+be to apply PRIMER to classification of Class B events using 
+longer durations. It will probably be advantageous to 
+introduce a preprocessing step in which collects are stratified 
+into a few separate groups based on their duration. Separate 
+models would be used for each duration group. This 
+approach would be the first step in developing a real-time 
+classifier that updates and improves the confidence of its 
+output as an event progresses. Other simple extensions of the 
+current work include exploiting the calibrated intensity 
+measurements rather than using normalized data and 
+performing peak alignment. 
+As discussed in the introduction, PRIMER is intended for use 
+as a component of the BERT system. BERT will incorporate 
+several classification and discrimination algorithms. Several 
+4-1949 
+are already in development, while others may emerge later. 
+Having multiple classifiers will simply be redundant rather 
+-than advantageous if they all make the same mistakes. Our 
+hope is that some classifiers will perform better than others 
+under sonme circumstances and for some types of events. 
+The CoE system will be needed to resolve disagreements 
+among classifiers. Figure 5 depicts the architecture of the 
+BERT system including the CoE. Its “open” architecture 
+allows additional algorithms to be introduced in the future as 
+needed. Sensor data and collection condition data are 
+ingested by the BERT classifier algorithms. Collection 
+condition data and classifier outputs are ingested by the CoE. 
+As part of this effort, an interface control document (ICD) 
+will be developed in consultation with the other current 
+BERT algorithm developers. The ICD will assure that the 
+algorithm outputs will be uniform and readable by the CoE. 
+Figure 5. Schematic diagram of the BERT system including 
+the Committee of Experts (CoE) functioning within the 
+remote sensing reporting system. The remote sensing 
+reporting system supports the input data, the operation of the 
+various BERT classifiers, the graphical user interface (GUI), 
+and the production of text reports that will be formatted for 
+user messaging systems. A common interface for the 
+classifiers assures uniform output formats and facilitates 
+input to ithe CoE. The CoE consists of a processor that 
+reconciles conflicting classifier output and an easily updated 
+Confidence Matrix used by the processor. 
+The CoE consists of both an algorithmic processor and a 
+“Confidence Matrix” file. While the algorithm processor will 
+not necessarily be modifiable in the field, the Confidence 
+Matrix can be updated and will be easily replaceable as more 
+experience is gained in the performance of BERT algorithms, 
+or when algorithms are added. The Confidence Matrix 
+reflects tlhe reliability of each classifier’s output under the 
+given dat,a collectiori conditions. The CoE uses this matrix to 
+estimate the conl3de:nce level of each classifier and choose 
+the most reliable as the fmal classification. The output of the 
+CoE is tlhe classification of the even1 and the confidence 
+associated with the classification given the measurement 
+conditions and the classifier technologies used. 
+6.0 CONCLUSIONS 
+PRIMER’S results demonstrate the consistency of the 
+intuitive ]picture that emerges from visual inspection of the 
+data on one hand and a statistical analysis of these data on the 
+other. This result gives us confidence that PRIMER can be 
+used effectively as a classifier of remote sensing data. 
+On the strength of the results shown in Table 1 and Figure 4, 
+we conclude that small, medium, and large events of this type 
+cannot be characterized reliably by remote sensing under the 
+desert soil circumstances of the test protocol. This result is a 
+consequence of the nature of the events rather than a failing 
+of the remote sensor or classification technique. PRIMER 
+grouped ithe events in much the same way that a human 
+analyst would, based solely on the observations. It is 
+probably more worthwhile to observe these events in 
+different terrain or under other conditions, to see if some 
+useful information can be inferred even if the “small, 
+medium, or large” distinction cannot. 
+The results shown in Table 2 are for events that differ from 
+each other by more than just size. Unlike the discrimination 
+task discussed above, the results presented in Table 2 indicate 
+that PRIMER can classify remotely sensed data when the 
+data support it. This result is all the mo’re encouraging when 
+we recall that only the fxst five seconds of normalized data 
+have been used. PRXMER is clearly ready to be used on 
+additional types of remote sensing eveints using longer data 
+segments. 
+’7.0 REFERENCES 
+111 SPORT Kickofl meeting notes, EJ #98-64, classified 
+report. 
+[2] See, for example, V. Tresp, M. Taniguchi, “Combining 
+Estimators Using Non-Constant Weighting Functions,” 
+Advances in Neurul Information Processing Systems 7, 
+Cambridge: MIT Press, 1995. 
+[3] See for example, K. Varmuza, “Lecture Notes in 
+Chemistry, vol. 21,” Pattern Recognition in Chemistry, New 
+York: SpIinger Verlag, 1980, and K. FLkunaga, Introduction 
+to Statistical Pattein Recognition, New York: Academic 
+Press, 1972. 
+[4] D. Frankel, S. Frankel, B. Binder, R F. Vogt, 
+“Application of Neural Networks to Flow Cytometry Data 
+Analysis :and Real-Time Cell Classification,” Cytometry, 23, 
+p.290, 19!J6. 
+4-1950 
+[5] D.S. Frankel, M.R Loken, G.T: Stelzer, K.E. Shults, C.B. 
+Bagwell, “Neural Network Frequency Distribution Analysis 
+of Flow Cytometric Data for Normal and Leukemic Human 
+Bone Marrow,” Cytomety, Supplement 7, p.46, 1994. 
+[6] D.S. Frankel, M.R. Loken, G.T Stelzer, and K.E. Shults, 
+“Neural Network Analysis Of Flow Cytometric Data For 
+Normal And Leukemic Human Bone Marrow.” Cytomev, 
+Supplement 6, p.44, 1991. 
+[7] D. S. Frankel, S. L. Frankel, “Real Time Neural Network 
+for Flow ’ Cytometry Analysis,” Cytometry, Supplement 5, 
+p.63, 1991. 
+[SI D, Frankel, I. Schiller, J. S. Draper, and A. A. Barnes, Jr., 
+“Use of Neural Networks to Predict Lightning at Kennedy 
+Space Center,” Proceedings of the IJCNN ’91, Seattle, WA, 
+June 1991. 
+[9] D. S. Frankel, R. J. Olson, S. L. Frankel, and S. W. 
+Chisholm, “Use of a Neural Network Computer System for 
+Analysis of Flow Cytometric Data of Phytoplankton 
+Populations,” Cytometiy, 10:540-550, 1989. 
+[ 101 D. Frankel, KI #97-69, classified report 
+[ 1 13 D. Frankel and D. Sene, IRIS Targets, Backgrounds, and 
+Discrimination Symposium, 1998, classified paper. 
+[12] D. Frankel, KI #98-94, classified report. 
+[13] D. Frankel, M. Hanson, K. Tibbetts, R. Wohlers, D. 
+McKay, KI #99-63, classified paper. 
+[14] D. Frankel, J. S. Draper, H. E. Evans, R. L. Cody, W. T. 
+Caldwell, National Military Sensing Symposium, November, 
+1999, classified paper. 
+[15] Ritter, A. Weisberg, T. Slusarchyk, J. Lisowski, B. 
+Hibbeln, “Transient Event Characterization,” 1999 IEEE 
+Aerospace Conference Proceedings, March, 1999. 
+[[16] S. Hagerty, C. Hilliard and A. Haralson, “Real-time 
+Discrimination of Battlefield Ordnance Using Remote 
+Sensing Data,” 2000 IEEE Aerospace Conference 
+Proceedings, March, 2000. 
+[17] S. P. Hagerty, K. B. Ansari, A. E. Haralson, J. S. Draper, 
+K. Blankenship, “Comparison of Correlation, Distance, and 
+Bayes Classifiers for the Near Real-Time Discrimination of 
+Battlefield Ordnance,” I999 IEEE Aerospace Conference 
+Proceedings, March, 1999. 
+[18] R Hanson, J. Stutz, P. Cheeseman, “Bayesian 
+Classification Theory,” NASA Technical Report FIA-90- 12- 
+7-01, NASA Ames Research Center, Artificial Intelligence 
+Branch, May 1991. 
+[ 191 P. Cheeseman, J. Stutz, “Bayesian Classification 
+(Autoclass): Theory and Results,” Advances in Knowledge 
+Discovery and Data Mining, Usama M. Fayyad, Gregory 
+Piatetsky-Shapiro, Padhraic Smyth, Ramasamy Uthurusamy, 
+Eds. AAAI PressMT Press. 1996. 
+[20] A.B. Ritter, T.J. Slusarchyk, J.J. Lisowski, B.A. Hibbeln, 
+”Enhancement and Assessment of a Transient Event 
+Characterization Algorithm,” 2000 IEEE Aerospace Conference 
+Proceedings, March 18-25,2000 
+8.0 BIOGRAPHY 
+Dr. Donald Frankel, Senior Scientist 
+Manager at Photon Research 
+Associates, has more than 20 years of 
+experience in the area of analyzing 
+data under government sponsorship. 
+He plays a key role in developing 
+technologies to exploit COBRA BRASS 
+orithms based on neural networks and 
+Bayes cIassiJiers for rapidly recognizing a variety of militaT 
+targets. He was thefivst to demonstrate ranging to a boosting 
+missile from space using MPR techniques. Dr. Frankel is 
+currently the Project Manager for PRA’s M S I N T  work in 
+support of the National Air Intelligence Center. Dr. Frankel 
+pioneered the application of neural network techniques to a 
+variety of classijkation and prediction problems, including a 
+lightning predictor for Kennedy Space Center, a predictor of 
+off-flavors in farm-raised catfish, and a classi$er of 
+phytoplankton and blood cells, respectively, using optical 
+measurements from flow cytometers. As part of these 
+projects, he designed a data acquisition system and 
+developed software for performing the cell classifications in 
+real time. He has a BA in Chemistyfrom Haverford College 
+and received his PhD in Physical Chemistry from MIT in 
+I9 74. 
+Kevin Tibbetts, an engineer at 
+Photon Research Associates for two 
+years, is involved in writing and 
+developing code for IMPRESS, PRA’S 
+Monocular Passive Ranging ( W R )  
+software written in IDL code and 
+PRIMER, an earIy ID software which 
+provides a rapid scheme for analyzing 
+sensor data and offers accurate missile and bomb 
+identijkation. In addition, Mr. Tibbetts is processing and 
+analyzing the intensity data for Low Intensity Conflict 
+analysis, a project reporting, tracking and analyzing specific 
+ordnance event collects from a new sensor. Mr. Tibbetts 
+received his BS in Engineering Physics in May of 1998from 
+the University of Maine. While attending the University of 
+Maine he worked at the Laboratory for Surface Science and 
+Technology on campus as an Engineer Assistant. 
+Capt. David L. Cowan, National Air Intelligence 
+Center/DXMJ, graduated from the University of North 
+Texas with a Bachelor’s in Human Resource Management in 
+December 1994. He was Commissioned, Distinguished 
+Graduate, through Air Force ROTC in August 1995. Since 
+then his assignments have included Goodfellow AFB Sep 95 - 
+Jun 96: Intelligence School Student, ElmendorfAFB Jul96 - 
+Aug 99; I1 AF Intelligence Watch Of$cer, I1 AHAlaska 
+NORAD .RegiodAlaska Command Special Security OfJicer. 
+Since On' 99 he has served at Wright-Patterson AFB as the 
+Thermal IR Program Manager and COBRA BRASS Program 
+Manager 
+4-1952 

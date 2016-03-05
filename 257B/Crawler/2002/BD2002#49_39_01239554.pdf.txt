@@ -1,0 +1,430 @@
+       
+ 
+ 
+Abstract-- This paper describes design strategies and algorithms 
+which have been developed for visualization, registration, Volume of 
+Interest (VoI) definition and measurements on multimodality single 
+subject head and neck CT, MR, PET and surgical tumor specimen 
+images. This work was part of a project that measured the usefulness 
+of MR and PET images in three-dimensional radiotherapy treatment 
+planning which was originally based only on CT images. The VoIs, 
+which could be defined on any of the registered volume, were 
+exported with the CT images to the treatment planning system, using 
+DICOM. The major problem was the handling of large datasets with 
+big differences in FOV and voxel sizes. We used object-oriented 
+design and C++ programming language to develop object classes and 
+methods for efficient data management. We used the eXtensible 
+Markup Language (XML) standard to save the registration 
+transformers and the VoIs. The registered volumes were resliced on 
+the fly for visualization or VoI statistical information computing. 
+Therefore, we avoided creation of large resliced dataset files. We used 
+the new classes to extend two existing applications: interactive 
+registration and RoI drawing. The paper describes: (i) the data 
+handling problems, (ii) the developed objects relationship and 
+methods and (iii) the two applications. 
+I. INTRODUCTION 
+N  conformal radiotherapy of head and neck tumors, 
+treatment planning is performed on CT images. CT images 
+provide information on the electronic density of the tissue, 
+which is used, for the computation of the dose distribution. 
+However, the low muscular contrast of CT images limits the 
+accurate delineation of tumor volumes especially in the oral 
+cavity, oropharynx and the nasopharynx regions. MR appears 
+more accurate in those regions. Beside CT and MR anatomical 
+images, PET functional images might bring additional 
+information in the treatment planning. The use of MR and PET 
+                                                           
+Manuscript received November 13, 2002. 
+ 
+(1) Université Catholique de Louvain, PET Laboratory, Louvain-La-Neuve, 
+Belgium.  
+(2) Université Catholique de Louvain, St-Luc Hospital, Radiation 
+Oncology Dept., Brussels, Belgium.  
+(3) Université Catholique de Louvain, St-Luc Hospital, Nuclear Medicine 
+Dept., Brussels, Belgium.  
+ 
+images requires a validation through a “gold standard” which is 
+actually surgical tumor specimen reconstructed in three 
+dimensions. After spatial alignment of the different modalities, 
+delineation of target and non-target volumes can be done on 
+the most accurate or the most reproducible modalities. They 
+can then be copied on registered CT slices in order to be 
+processed for treatment planning. 
+II. DATA ACQUISITION 
+CT images were acquired on a Marconi CT TWIN scanner in 
+helicoïdal mode: typically 117 slices of 512x512 pixels with 
+0.70x0.70 mm² pixel size, pitch 0.7,  2.5 mm slice spacing. MR 
+images were acquired at 1.5 T on a Philips Gyroscan in 2D 
+mode: 50 slices of 256x256 pixels with 1.17x1.17 mm² pixel 
+size and 3.5 mm slice thickness with no inter-slice gap. PET 
+images were acquired as two bed positions covering the head 
+and neck region with 25 mm bed overlap in 3D mode on a 
+CTI/Siemens ECAT 961HR using F-18-FDG and C-11-
+Methionine tracers. Each bed position was reconstructed as 47 
+slices of 128x128 pixels with 1.72x1.72 mm² pixel size and 
+3.125 mm separation. The 94 slices of the two bed positions 
+were then assembled in one volume of 87 slices by merging the 
+overlap slices. CT, MR and PET images were acquired using a 
+flat table top and immobilization mask to allow image 
+registration using a rigid body model. In addition, surgery was 
+performed on several patients and removed surgical specimens 
+were frozen, sliced and digitized on a color flat bed scanner as 
+TIFF images with 150dpi resolution (0.17x0.17mm² pixelsize) 
+and 1.875mm thickness. The digitized images, called 
+“macroscopy”, were realigned to correct slice positioning on 
+the flat bed scanner using Zeiss KS400 software and then 
+assembled into one raw RGB data file to make a volume. An 
+Interfile header containing the volume dimension, voxel size 
+and data type was associated to this data file. Interfile keys 
+were extended with a RGB data type, which has 3 bytes 
+corresponding to the red, green and blue intensities. The 
+resulting macroscopy volumes was considered as the “gold 
+standard” imaging technique to characterize the tumor volume 
+delineated on CT, MR and PET scans. 
+The software developed for this project allowed the user to: 
+1. Spatially register macroscopy, MR, and PET 
+volumes to CT reference, 
+Head and neck multimodality volumes 
+visualization methods. 
+Mérence Sibomana (1), J-F Daisne (2), Anne Bol (1), Max Lonneux (3), Vincent Grégoire (2) and Christian 
+Michel (1), member, IEEE 
+ 
+I
+0-7803-7636-6/03/$17.00 ©2003 IEEE. 1282
+ 2. Define VoIs by drawing or thresholding on any of 
+the registered images and export CT Images with 
+VoI to the Helax-TMS treatment planning 
+system. 
+ 
+III. FILE FORMAT AND VOLUME ASSEMBLING 
+CT and MR images were sent from the acquisition 
+workstations to the registration workstation using DICOM. The 
+registration workstation was a Compaq SP700 (single Intel 
+Pentium III Xeon 550Mhz CPU, 512MB RAM) running Linux 
+RedHat 7. We used the CTN [1] “simple_storage” reception 
+program which stores each received DICOM image into a CT 
+or a MR directory according to its modality. The DICOM 
+information model is organized into four levels (fig. 1). 
+DICOM images are slices and all slices belonging to a same 
+volume were grouped into one DICOM series. We used the 
+ECAT format [2] to save all series (volume) slices into a single 
+file. The ECAT format was adapted to encapsulate DICOM 
+headers, which was restituted when exporting CT images and 
+VoI to the radiotherapy treatment planning system. We 
+developed a reading procedure, which assembles the volume 
+using slice location contained in DICOM header. It supports 
+different slice thickness in one volume, allowing the use of 
+thinner slices in regions of highest interest. Practically, the 
+procedure searches the area with the smallest thickness, keeps 
+original slices of this area and uses linear interpolation to 
+compute the other volume slices using the same thickness. 
+ 
+Fig. 1.  DICOM Information Model 
+IV. VISUALIZATION 
+ 
+An orthogonal viewer allowing the display of axial, coronal 
+and sagittal slices at a given volume position is commonly used 
+for visualization of three-dimensional image [3]. In addition, 
+different algorithms have been developed for brain image 
+surface and volume rendering [5-7], useful for neuronavigation 
+and neurosurgery. Surface display can be linked to the 
+orthogonal viewer to delineate brain sulci [5]. Most of the 
+existing registration and visualization software has been 
+developed for brain volumes, which are reformatted to have the 
+same voxel size and matrix dimension. Reslicing different 
+modalities to a common voxel size should use the smallest 
+voxel size to avoid degradation of high-resolution modalities 
+such as CT or MR as compared to PET. This reslicing could 
+generate a larger dataset, which is a waste of disk and memory 
+space. For example, the reslicing of the macroscopy image 
+using the CT FOV and macroscopy voxelsize would produce a 
+2GB volume from an original 83MB volume. We have 
+developed an orthogonal viewer (iv_align) and a VoI drawing 
+(VolQuant) by adding new algorithms and design strategies in 
+existing applications [3-4] to deal with: (i) voxel size and FOV 
+differences, (ii) RGB datatype. 
+We used a virtual volume concept “VolumeView”, a 
+lightweight object without matrix data to deal with voxel and 
+FOV size differences (fig. 2). A VolumeView is linked to the 
+real volume from which it extracts data (slice, voxel value) 
+when needed. A Volume object encapsulates a MatrixData data 
+structure, which contains the raw data. A VolumeView has 
+attributes (FOV, voxel size, color LUT and transformation) 
+which may be changed at any time. VolumeViews have a 
+common FOV (reference) and their positions are determined 
+by aligning the loaded volume centers (fig. 3). 
+VolumeViews slices are computed by applying an affine 
+transformer T=W.C.R.Z.D which is composed of: 
+W: volume scaling to isotropic voxel size 1x1x1 mm³, 
+C: volume centering in the reference FOV, 
+R: optional transformer, 
+Z: optional zoom at a specified 3D position, 
+D: scaling from 1x1x1 mm³ to current voxel size. 
+Scale and rotation transformations are centered on the common 
+center. 
+The slice computation operation signatures are: 
+MatrixData *VolumeView::get_slice( 
+Direction orthogonal, float position, enum interpolation_method) 
+MatrixData *VolumeView::get_color_slice( 
+Direction orthogonal, float position, enum interp_method) 
+MatrixData *Volume::get_slice( 
+Direction orthogonal, float position, Transformer, float zoomcenter[3], 
+float zoomfactor, float fov[3], float voxelsize[3], enum interpation_method) 
+VolumeView::get_slice operation computes the slice on the fly 
+using Volume::get_slice operation with the current 
+transformer, zoom and FOV attributes. 
+ VolumeView::get_color_slice operation calls get_slice and 
+applies the current color LUT to make a colored slice with the 
+RGB datatype. 
+ 
+  
+Fig. 2. VolumeView and real Volume relationship 
+0-7803-7636-6/03/$17.00 ©2003 IEEE. 1283
+  
+Fig.3. FOV alignment of typical CT, MR, PET and macroscopy images in coronal orientation. 
+We have added a specialized VolumeView subclass Fusion 
+(fig. 4a) to support online volume fusion (fig. 4b). A Fusion 
+object is related to two other VolumeViews (which could be 
+Fusion objects themselves) with a merge coefficient factor (w) 
+within the ]0,1[ range. 
+Fusion::get_slice operation calls get_color_slice for each fused 
+modality and merges the two slices using the formula [r,g,b] = 
+[w*r1+(1-w)*r2, w*g1+(1-w)*g2, w*b1+(1-w)*b2]. 
+Fusion changes when any fused VolumeView is changed 
+(transformer, LUT 
+ 
+ 
+ 
+Fig.4a. Fusion Class Diagram 
+ 
+Fig. 4b: sagittal slice of registered CT and PET Volume 
+V. IV_ALIGN: INTERACTIVE REGISTRATION 
+Although automatic registration algorithms [8-10] have been 
+successfully used for brain MR-PET images, the user always 
+needs to verify the result accuracy with a visualization tool. 
+Therefore, we have developed the iv_align tool, which uses the 
+iso-contours exchange technique [11] and allows interactive 
+registration as well. Iv_align has been successfully used as an 
+interactive registration tool outside the brain, particularly for 
+MR/PET head and neck images [12] where we could 
+demonstrate an accuracy ranging from +/- 1.1 to +/- 5.1 mm for 
+95% of MR-CT and PET-CT registration [14]. 
+Iv_align displays orthogonal slices of loaded volumes into 
+separate windows and provides a transformation GUI to apply 
+a rigid body transformer on a selected volume. Iso-contours 
+can be defined on any of the displayed volumes and projected 
+to any other one. The transformer interface allows the user; 
+either to apply the transformation step by step using buttons, or 
+directly enter the translation and/or rotation values. 
+Due to reslicing problems, as previously explained, 
+automatic programs can not be easily applied on volumes with 
+large differences in voxel and FOV sizes. None of the 
+automatic programs supports macroscopy volumes with voxel 
+value coded as RGB. On the other hand, it has been shown 
+[13] that optimized user interface can outperform automated 
+techniques. For these reasons, we have modified iv_align to 
+deal with different FOV, resolution and RGB datatype using 
+VolumeView and Fusion classes described above. We added a 
+3D zoom to allow the display of the macroscopy volumes and 
+the corresponding region of the acquired image (fig. 5). The 
+zoom can also be used to focus on a region of interest (e.g. 
+zoom factor 2 centered on the tumor on fig. 6). Online fusion is 
+also provided for presentation and as an alternative to the iso-
+contour technique. Indeed, the user can use the fusion to guide 
+the registration process and verify its accuracy [16]. We have 
+used the eXtensible Markup Language (XML) to save 
+registration results (VolumeView) into small text file. We used 
+expat [19] XML parser C library to read VolumeView into 
+iv_align and VolQuant. The XML file contains original 
+filename, CT reference FOV and voxel size, and 
+transformation as shown below: 
+<DataSet ID="DataSet.1" 
+filename="a-2_mr_T1.i" transformer="-11,-41,42,2,0,0" 
+FOV="360,360,292" VOXELSIZE="0.7,0.7,2.5" > 
+</DataSet> 
+0-7803-7636-6/03/$17.00 ©2003 IEEE. 1284
+  
+Fig. 5: Surgical specimen and CT registration with zoom in 
+the macro FOV. 
+VI. VOLQUANT: VOLUME QUANTIFICATION 
+ 
+VolQuant provides a graphic user interface for VoI 
+definition and quantification. VolQuant is based on Mediman 
+[3]. A Mediman study contains a set of MedImage (axial 
+slices) which are organized into lists. A Mediman Object of 
+Interest “OoI” (Line, Region) belongs to the MedImage where 
+it has been drawn. A number and a name identify a RoI. A 
+VolQuant study contains a set of registered datasets (using 
+iv_align) and a global set of RoIs. A dataset contains one (CT, 
+MR or PET static volume) or many (dynamic PET) registered 
+VolumeViews. VolQuant RoIs are defined in mm coordinates 
+within the common VolumeViews FOV and are sorted by 
+name. A VoI is implicitly defined as a set of RoIs with the 
+same name. VolQuant supplies VoI geometric and statistical 
+information (volume, average, and standard deviation, 
+minimum and maximum values).  
+VolQuant provides three viewers (fig. 6.): tiled, orthogonal 
+and zoomed viewer. The tiled viewer displays consecutive 
+slices in one of the orthogonal dimension starting from the 
+current three-dimensional position. The user defines RoI either 
+by drawing or by using thresholds in any of the three viewers. 
+However, all RoIs belonging to the same VoI must be drawn in 
+the same orientation. The zoomed viewer displays a selected 
+slice in a separate large window (e.g. 768x768) for easier RoI 
+drawing. Threshold based VoI are defined in two steps: (i) the 
+user sets the threshold value and (ii) applies the threshold using 
+three-dimensional region growing. 
+We have implemented a semi-automated thresholding 
+method for PET volume to provide an objective tumor VoI 
+definition. The method is based on results obtained using 
+phantom scans in 3D-mode [17].  The phantom was a cylinder 
+containing different spheres of known sizes. The cylinder was 
+filled with low FDG concentration as background and the 
+spheres were filled with a high FDG concentration to simulate 
+tumors. The FDG concentration was successively changed to 
+simulate different tumor to background ratio (TTBR). The 
+results shown the relationship: threshold=A+B/TTBR where A 
+and B depend on image reconstruction method and smoothing. 
+The semi-automated VoI segmentation method uses two RoIs 
+drawn by the user: one in the background and the other in the 
+tumor area. These RoIs are used to compute an initial TTBR 
+and its corresponding threshold. TTBR is estimated as the 
+mean value of the neighbors of the maximum pixel in the 
+tumor RoI divided by the mean value of the background RoI. 
+The initial threshold is then used to extract an initial VoI using 
+three-dimensional region growing, starting from the maximum 
+pixel in the initial RoI. To avoid the dependency on the initial 
+RoI, the initial VoI is used to compute final TTBR and 
+threshold used to extract the final VoI. 
+VolQuant saves VolumeViews and VoIs into one single file 
+in XML format.  
+VolQuant supplies a Helax-TMS export facility, which 
+converts CT back to DICOM slices enriched with RoIs 
+(intersection with defined VoI). The export method extracts 
+original CT slices from ECAT with encapsulated DICOM 
+header single file, computes its intersection for each defined 
+VoI and creates a DICOM files containing RoIs. 
+ 
+ 
+Fig. 6: VolQuant tiled and orthogonal navigation windows with a VoI defined on PET using 
+thresholding. 
+ 
+0-7803-7636-6/03/$17.00 ©2003 IEEE. 1285
+ VII. DISCUSSION 
+ 
+We described design strategies and algorithms which have 
+been developed to deal with head and neck multimodality 
+complexity, particularly the voxel and FOV size differences. 
+We have developed new concepts which may be reused in 
+other three-dimensional image visualization applications: (i) 
+VolumeView to replace reslicing and save memory space, (ii) 
+online fusion by combining VolumeViews, (iii) three-
+dimensional zoom to allow the comparison of macroscopy 
+digitized surgery specimen or to get focus on a region of 
+interest. We used XML, a standard text format which is (i) 
+extensible (object properties can be added without breaking 
+backward document compatibility), (ii) open 
+(iv_align/VolQuant documents may be used or generated by 
+other applications). 
+Although manual registration is a priori considered as time 
+consuming and user dependent, it has been shown [11-15] that 
+the influence of subjectivity is negligible in term of standard 
+deviation compared to image resolution (point-spread FWHM 
+of the image). Automatic registration methods have the 
+advantage that they can be included in scripts for repeated 
+processing such as activation studies. However, they impose 
+statistical dependency between corresponding voxels in volume 
+being registered [7-8]; otherwise, volumes should be edited in 
+order to keep only the region covered on both modalities. On 
+the other hand, iterative maximization may converge to local 
+minima and the user must supply initial transformation, making 
+the registration process difficult and user dependent. We have 
+optimized iv_align interactivity with dynamic transformation 
+so that the registration process may take less than 1 minute and 
+can be routinely used for inter-modality image inspection for 
+clinical use. Future work should be done to: (i) provide a 
+refinement automatic step to reduce user dependency and (ii) 
+include non-rigid transformer which can be accurately used, for 
+scans acquired without immobilization mask. 
+Most of existing RoI drawing tools use only axial slices and 
+can make the outline of some organs difficult. VolQuant is a 
+powerful RoI drawing tool that can be used on any of the 
+orthogonal slices. VolQuant uses XML to save into a single file 
+RoI and image information, demonstrating the usefulness of 
+XML for medical image analysis. 
+ 
+. 
+VIII. REFERENCES 
+[1] Mallinckrodt Institute of Radiology(MIR) and Radiological Society of 
+North America(RSNA), Central Test Node software for demonstrating 
+DICOM connectivity, 1993-1997 
+[2] M. Sibomana, A. Coppens, A. Bol and C.Michel. C library and utilities 
+to handle ECAT, Interfile and Analyze datasets. ECAT Users Meeting, 
+Stockholm, 1996. Available: ftp://ftp.topo.ucl.ac.be/ecat 
+[3] M. Sibomana, A. Coppens, A. Bol, A. De Volder, M. Lonneux, C. 
+Michel, et al, Volumic Image Analysis Application Bundle for Unix 
+Workstations, IEEE Medical Imaging Conference, San Francisco 
+October 21-28 1995 
+[4] A. Coppens, M. Sibomana, A. Bol, C. Michel, MEDIMAN: An object 
+Oriented Programming Approach for Medical Image Analysis, IEEE 
+Trans.Nucl. Sci. 40,4 (1993) 
+[5] C. Michel, M. Sibomana, A. Coppens, A. Bol, C. Grandin, A. De 
+Volder, et al, Interactive Delineation of Brain Sulci and their merging 
+into functional PET images, IEEE Medical Imaging Conference, San 
+Francisco October 21-28 1995 
+[6]  K. J. Zuiderveld, A. H. J. Koning, J. B. Antoine, F. J. R. Appleman and 
+M. A. Viergever, Multimodality visualization of medical volume data, 
+Comput. & Graphics, Vol. 20, No. 6, pp.775-791,1996 
+[7] B. Diallo, F. Dolidon, J. M. Travere, B. Mazoyer, VoxelLine: a software 
+program for 3D real-time visualization of biomedical images, 
+Computerized Medical Imaging and Graphics, Vol. 22, pp. 275-289, 
+1998 
+[8] R. P. Woods, J. C. Mazziotta, S. R. Cherry. MRI-PET registration with 
+automated algorithm. Journal of Computer Assisted Tomography 
+1993;17:536-546. 
+[9] F. Maes, A. Colligon, D. Vandermeulen, G. Marchal, and P. Suetens, 
+Multimodality Image Registration by Maximization of Mutual 
+Information, IEEE Transactions On Medical Imaging, Vol? 16, NO. 2, 
+pp. 187,198, 1997. 
+[10] J. Ostuni, R. Levin, J. Frank, C. DeCarli, Correspondance of Closest 
+Gradient Voxels – a robust registration algorithm, Journal of MRI, Vol. 
+7, pp. 410-415, 1997 
+[11] U. Pietrzyk, K. Herholz, G. Fink G, et al. An interactive technique for 
+three dimensional image registration; validation for PET, SPECT, MRI 
+and CT brain studies. The journal of Nuclear Medecine, vol.35, 
+pp.2011-2018,1994 
+[12] M. Lonneux, V. Grégoire, T. Duprez, M. Sibomana, S. Pauwels, C. 
+Michel, et al. 18-F-fluorodeoxyglucose positron emission tomography 
+(PET-FDG) and magnetic resonance (MR) image coregistration in head 
+and neck cancer. 4th international conference on Head and Neck cancer, 
+Toronto, 1996. 
+[13] T. Pflugger, C. Vollmar, A. Wismüler, S. Dresel, F. Berger, P. Suntheim 
+, Quantitative Comparison of automated and interactive methods for 
+MRI-SPECT image registration of the brain based on 3-dimensional 
+calculation of error. The journal of Nuclear Medicine, vol.41, pp.1823-
+1829, 2000 
+[14] J-F. Daisne, G. Cosnard, M. Lonneux, M. Sibomana, C. Michel, V. 
+Gregoire, et al, Use of MRI and PET imaging in conformal radiotherapy 
+treatment planning of head and neck tumors, Radiother. Oncol., 60 
+(suppl; 2) : S29, 2001 
+[15] J-F. Daisne, T. Duprez, M. Sibomana, M. Lonneux, G. Cosnard, V. 
+Grégoire, et al. Impact of Computed Tomography (CT), Magnetic 
+Resonance (MR) and Positron Emission Tomography with 
+fluorodeoxyglucose (FDG-PET) image coregistration on GTV 
+delineation in head and neck squamous cell carcinoma (HNSCC). 
+Radiother. Oncol., 64 (suppl. 1): S25, 2002. 
+[16] N.M. Alpert, D. Berdichevsky, Z. Levin, E.D. Morris, and A.J. 
+Fischman, Improved Methods for Image Registration, NEUROIMAGE 
+3, p.10-18, 1996 
+[17]  J-F. Daisne, M. Lonneux, M. Sibomana, A. Bol, T. Doumont, V. 
+Grégoire. Three-dimensional (3D) semi-automated segmentation of 
+FDG-PET images: influence of reconstruction algorithms on volumetric 
+accuracy.  Eur J Nucl Med 2002;29(S1):S350. 
+[18] Y. E. Erdi, O. Mawlawi, S. M. Larson, M. Imbriaco, H. Yeung, R. Finn, 
+et al, Segmentation of Lung Lesion Volume by Adaptative Positron 
+Emission Tomography Image Thresholding,  Sixth Conference on 
+Radionimmunodetection and Radioimmunotherapy of Cancer, 
+CANCER Supplement,.vol. 80, 2055-2509, 1997 
+[19] Thai Open Source Software Center Ltd, expat – XML parser toolkit 
+ 
+0-7803-7636-6/03/$17.00 ©2003 IEEE. 1286

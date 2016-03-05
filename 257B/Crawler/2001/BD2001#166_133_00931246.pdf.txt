@@ -1,0 +1,571 @@
+Gray-box Approach to Fault Diagnosis of 
+Dynamical Systems12 
+Michail Zak 
+Jet Propulsion Laboratory 
+4800 Oak Grove Drive 
+Pasadena, CA 91 109 
+Mich ail.hk@i ~ 1 .  nasi. gov 
+818-393-5351 
+Han Park 
+Jet Propulsion Laboratory 
+4800 Oak Grove Drive 
+Pasadena, CA 91 109 
+Han.Cr.l’ark~‘ig1 .ndsi.Eov 
+8 18-354-8564 
+Abstract-Model-based fault diagnosis has become an 
+important approach for diagnosis of dynamical systems. By 
+comparing the observed sensor values with those of the 
+predicted values by the model, e.g., the residual, the health 
+of the system can be assessed. However, because of 
+modeling errors, sensor noise, disturbances, etc., direct 
+comparison between observed and predicted values can be 
+difficult. 
+In effort to address this problem, we present a new method 
+called the gray-box method. It is called a “gray-box” 
+because a deterministic model of system, i.e., “white box,” is 
+used to filter the data and generate a residual, while a 
+stochastic model, i.e., “black-box” is used to describe the 
+residual. Instead of setting a threshold on the residual, the 
+residual is modeled by a three-tier stochastic model. The 
+linear and non-linear components of the residual are 
+described by an auto-regressive process, and a time-delay 
+feed-forward neural network, respectively. The last 
+component, the noise, is characterized by its moments. 
+The stochastic model provides a complete description of the 
+residual, and the faults can be detected by monitoring the 
+parameters of the auto-regressive model, the weights of the 
+neural network, and the moments of noise. The method is 
+robust to system modeling errors and is applicable to both 
+linear and non-linear systems. 
+TABLE OF CONTENTS 
+1. INTRODUCTION 
+2. GRAY-BOX METHOD 
+3. RESIDUAL GENERATION 
+4. R E S I D U ~  MODELING 
+5. MODEL FITTING 
+6. ANOMALY DETECTION 
+7. CONCLUSION 
+1. INTRODUCTION 
+Fault diagnosis is an important element in realizing truly 
+autonomous vehicles. Reliable information about the 
+operational health of the vehicle is crucial for proper 
+mission planning and on-board intelligent decision making. 
+To fully assess the vehicle health, the diagnostic system 
+must have comprehensive ability to sense not failures, but 
+impending failures, and operational difficulties. While fixed 
+thresholds, i.e., traditional redlines, may be sufficient for 
+simple steady-state systems, more sophisticated diagnosis 
+techniques are needed for unsteady operations and detection 
+of incipient faults. 
+The natural starting point for a more sophisticated diagnosis 
+is the model of the system. Fortunately, many systems, such 
+as aircraft, spacecraft, gas turbine engines, hydraulic 
+systems, etc., usually have well-developed dynamic models. 
+The most straightforward application of the model for 
+diagnosis is to compare the observed sensor readings to 
+those predicted by a model. If the difference between the 
+observed and the predicted values, i.e., residual, is greater 
+than some set threshold value, an anomaly has occurred. In 
+practice, however, it is not straightforward to compare the 
+observed and predicted values because the quality of the 
+model may vary and noise may be present. If the model is 
+inaccurate or has insufficient detail, the predicted values 
+may differ greatly from those of the actual system. Some 
+deviations are unavoidable since there is no theoretical 
+description for the phenomenon. For example, secondary 
+effects such as friction, thermal effects, sensor noise, etc., 
+0-7803-6599-2/01/$10.00 Q 2001 IEEE 
+Updated September 15,2000 
+2-669 
+may not have simple model descriptions. In other cases, the 
+model can be purposely coarse, i.e., has insufficient detail, 
+to facilitate real-time computations. 
+Residual 
+r(t) = x * ( t ) - i * ( t )  
+In effort to mitigate the problem of comparing observed and 
+predicted values, many different approaches have been 
+developed to generate robust residuals and/or thresholds for 
+anomalies. A comprehensive overview of model-based fault 
+diagnosis is found in Chen and Patton [l]. These methods 
+include adaptive threshold methods, observer-based 
+approaches, parity relation methods, parameter estimation 
+methods, and statistical testing methods. 
+f- 
+In adaptive threshold methods, the threshold on the 
+difference between the observed and predicted value is 
+varied continuously as a function of time [2]. The method is 
+passive in the sense that no effort is made to design a robust 
+residual [ 11. The unknown input observer (UIO) and parity 
+relation methods are active since the residual is made to be 
+robust to known disturbances and modeling errors. The 
+residual is sensitive to only unknown disturbances that are 
+likely to be anomalies or faults in the system. The drawback 
+of these methods is that the structure of the input 
+disturbances and modeling error must be known. In 
+addition, the methods are applicable to mostly linear 
+systems. The parameter estimation methods use system 
+identification techniques to identify changes in the model 
+parameters of the dynamical system. The advantage of this 
+method is that the implementation is straightforward, and it 
+can deal with non-linear systems. The disadvantage is that 
+a large amount of computational power may be required to 
+estimate all of the parameters in the model. Finally, 
+statistical testing methods use statistical techniques such as 
+weighted sum-squared residual (WSSR), x2 testing, 
+sequential probability ratio testing (SPRT), generalized 
+likelihood ratio (GLR), etc., to differentiate between normal 
+noise and anomalous sensor values. The disadvantage of 
+this method is that the residual is assumed to be a zero-mean 
+white noise process with known covariance matrix. The 
+residual in many cases may not be describable in this 
+manner. 
+2. GRAY-BOX METHOD 
+In an effort to improve model-based fault diagnosis, we 
+propose a new approach called the gray-box method. It is 
+called a “gray-box’’ because it incorporates both a “black- 
+box,” i.e., stochastic model and a “white-box,” i.e., 
+deterministic model. It is a hybrid model incorporating 
+elements fiom residual-based methods and parametric- 
+estimation methods. It is similar to adaptive-threshold 
+methods in that a residual is generated without any regard 
+for robust residual generation. However, instead of 
+examining the amplitude of the residual as in the case of the 
+adaptive threshold methods, the structure, i.e. model 
+parameters, of the residual is examined. The residual 
+generation is our “white-box.” The residual is modeled 
+using techniques similar to the parametric estimation 
+methods. The method is distinct from the standard 
+parametric estimation method in that the system 
+identification is carried out on the residual, not the system 
+variables directly. The residual is parameterized, not the full 
+system. In our terminology, the parameter estimation 
+method is a “black-box.” 
+A block diagram of the gray-box method is shown in Figure 
+1. After filtering the deterministic components using the 
+model of the system, the residual is separated into its linear, 
+non-linear, and noise components and is fitted to stochastic 
+models. The parameters to the linear, non-linear, and noise 
+models completely describe the residual. The gray-box has 
+several advantages. First, the full model is employed rather 
+than only the model structure as in the case of standard 
+parametric estimation methods. Thus the gray-box takes full 
+advantage of the information about system. Second, the 
+gray-box method can be made robust to modeling errors 
+which can be taken care of during residual modeling. The 
+model of the residual can also describe many mode led  
+phenomena in the original model. Finally, the method is 
+applicable to both linear and non-linear systems. 
+disturbance(t) 
+1 
+- I 
+Figure 1. The gray-box approach to modeling residual. 
+3. RESIDUAL GENERATION 
+Any theoretical dynamical model includes two types of 
+components: those which describe the phenomena directly 
+associated with the primary function of the system (such as 
+the effect of torque exerted on the turbine shaft on rotor 
+speed), and those which represent secondary effects (such as 
+fXctiona1 losses, heat losses, etc.). The first type of 
+component is usually well-understood and possesses a 
+deterministic analytical structure, and therefore its behavior 
+is fully predictable. On the other hand, the second type may 
+2 - 6 7 0  
+be understood only on a much more complex level of 
+description (including molecular level) and cannot be simply 
+incorporated into a theoretical model. In fact, some 
+components may be poorly understood and lack any 
+analytical description, e.g., viscosity of water in micro- 
+gravity. Therefore, the first step in the gray-box approach is 
+to filter out the contributions that are modeled, i.e., the 
+components of the first type, and focus on the components 
+of the second type whose theoretical prediction is 
+inadequate. 
+The residual generation is as follows. Let us assume that the 
+theoretical model is represented by a system of differential 
+equations: 
+where x(t) is the state variable vector, u(t) is the known 
+input, and f is the known theoretical relationship following 
+from conservation laws of mechanics, thermodynamics, etc. 
+The last term, y(t), represents components which lack 
+theoretical descriptions, are too complex, or are the result of 
+modeling errors. These can include sensor noise, unknown 
+input to the system, friction in bearings, material viscosity, 
+and other secondary effects such as torsional oscillations of 
+the shaft, flutter in the turbine and compressor blades, 
+incomplete fuel combustion, etc. 
+The estimate of the system is accomplished by substituting 
+the observed sensor data for the evolution of the state 
+variables, x*(t), and input, u(t). Hence: 
+x*( t )  = f(x*(t),u(t)). (2) 
+The residual, 
+is generated by subtracting the solution of (2), %* ( t )  , 
+which is generated by using the observed state variables, 
+x*(t), from the solution of (1). Hence the original theoretical 
+model is the filter. 
+In general, the residual can be treated as another realization 
+of some stochastic process. If the theoretical model (1) is 
+accurate, accounts for most physical effects, and the 
+observed state variables are accurate, then the residual, Ir(t)l, 
+will be very small, i.e., 
+(4) 
+and either a fmed or an adaptive threshold can be assigned 
+as criteria for anomalous behavior. If the system is linear, 
+and the structure of y(t) is known, a more sophisticated UIO 
+(unknown input observer) filter [I]  can be constructed to 
+make the residual more robust to modeling errors and 
+disturbances. However, in our gray-box approach, the 
+simple form of (3) is preferred over the more robust 
+residuals since the residual is to be modeled. If the residual 
+is too robust, the characteristic structure of y(t) will become 
+hidden. 
+As an example, consider the simplest gas turbine plant 
+consisting of a turbine 1, a compressor 2, and a combustion 
+chamber 3. (Figure 2.) 
+t I I P2,Tz I P3,T3 
+I I Pi.Ti 
+Figure 2. Schematic of gas turbine plant. 
+Ignoring the thermal inertia of the combustion chamber, one 
+can write the following dynamic equation for the angular 
+velocity, w, of the shaft. 
+dw 
+J - dt = MI (w , p) - M ,  ( w )  - M ,  ( t )  , ( 5 )  
+where J is the moment of inertia of the turbo-compressor (1 
+- 2) in the axis of rotation, MI is the turning moment 
+generated by the turbine, M2 is the resistive moment applied 
+by the compressor, bearings, etc., on the shaft, p is the rate 
+of fuel burned inside the combustion chamber, and Mr(t) is 
+the random moment applied by effects such as torsional 
+vibration of the shaft, blade flutter in the compressor and 
+turbine, propagation of pressure pulses along the pipelines, 
+heat loss, seal leaks, etc. 
+The conditions for stability of the solutions of Eq. (5) are: 
+x < o ,  = > 0 ,  
+aw aw 
+a 
+aw 
+or ,  - (MI -M,)<O. ( 6 )  
+Consequently, if one linearizes Eq. ( 5 )  with respect to a 
+steady-state regime where the rate of fuel burn is constant, 
+i.e, 
+2-671 
+p = po = const., (7) 
+Eq. (5) can be reduced to the form: 
+T(t) represents a stochastic force, and Eq. (8) is a Langevin 
+equation whose formal solution is: 
+subject to the initial condition: 
+This solution is the only information which can be obtained 
+from the sensor data. The first term in Eq. (11) is fully 
+deterministic and represents all of the theoretical knowledge 
+about the plant. The second term includes the stochastic 
+force (10) and is stochastic. Hence, the stochastic process 
+described by Eq. (11) represents only a part of the sensor 
+data. Substituting the measured sensor data, w*, into the 
+theoretical model (8), the original stochastic force is 
+immediately exposed as the inverse solution: 
+Eq. (11) shows that the more stable the model, i.e., 
+the larger the value of y, the less the stochastic force, r(t), 
+contributes to the sensor data since: 
+(14) 
+In other words, for highly stable dynamical models, the 
+stochastic forces become deeply hidden in the sensor data. 
+However, using the theoretical model as a filter damps the 
+deterministic components and amplifies the stochastic 
+components. This effect of damping of deterministic and 
+amplification of unknown components, i.e, sensor noise, 
+modeling errors, etc., is important if the residual is to be 
+modeled properly. 
+4. RESIDUAL MODELING 
+For the model of the residual, we start with a traditional 
+description of sensor data given in the form of a time series 
+which describes the evolution of an underlying dynamical 
+system. It will be assumed that this time series can not be 
+approximated by a simple analytical expression and is not 
+periodic. In another words, for an observer, the future 
+values of the time series are not fully correlated with the past 
+ones, and therefore, they are apprehended as random. Such 
+time series can be considered as a realization of an 
+underlying stochastic process which can be described only 
+in terms of probability distributions. However, any 
+information about this distribution can not be obtained from 
+a simple realization of a stochastic process unless this 
+process is stationary. Then the ensemble average can be 
+replaced by the time average. An assumption about the 
+stationarity of the underlying stochastic process would 
+exclude from consideration such important components of 
+the dynamical process as linear and polynomial trends, or 
+harmonic oscillations. Thus a method is needed to deal with 
+non-stationary processes. 
+Our approach to building a dynamical model of the residual 
+is based upon progress in three independent fields: nonlinear 
+dynamics, theory of stochastic processes, and artificial 
+neural networks. From the field of nonlinear dynamics, 
+based upon the Takens theorem [3], any dynamical system 
+which converges to an attractor of a lower (than original) 
+dimensionality can be simulated with a prescribed accuracy 
+by the time-delay equation: 
+X ( t )  = F(X(t - T) ,X( t  - 2 T ) ,  ..., X ( t  - mT)), (15) 
+where x(t) is a given time series, such as a variable in the 
+residual vector, r(t), and z , a constant, is the time delay. 
+It was proven that the solution to Eq. (15) subject to 
+appropriate initial conditions converges to the original time 
+series: 
+if in in Eq. ( 15) is sufficiently large. 
+However, the function F, as well as the constant z and m, 
+are not specified by this theorem, and the most "damaging" 
+limitation of the model (15) is that the original time series 
+must be stationary since it represents an attractor. This 
+means that for non-stationary time series the solution to (15) 
+may not converge to (16) at all. Actually this limitation has 
+deeper roots and is linked to the problem of stability of the 
+model (15). 
+Before [3], a different approach [4] to the same problem was 
+developed in the statistic community. A discrete-time 
+stochastic process can be approximated by a linear 
+2-672 
+autoregressive model: 
+x( t )  = a,x(t - 1) + a,x(t - 2) + ... 
+2 (17) + a,(t - n)  + z(t)as n + 00 
+where ai are constants, and z(t) represents the contribution 
+from white noise. 
+As shown by [7], any zero-mean purely non-deterministic 
+stationary process x(t) possesses a linear representation as in 
+(17) with a: < 00 , i.e., the condition of the stationarity. 
+In order to apply Eq. (17), the time series (16) must be 
+decomposed into its stationary and non-stationary 
+components. To “stationarize” the original time series, 
+certain transformations of (16) are required. These types of 
+transformations follow from the fact that the conditions of 
+stationarity of the solution to Eq. (17) coincide with the 
+conditions of its stability, i.e., the process is non-stationary 
+when 
+m 
+j=1 
+16,121, (18) 
+where Gi are the roots of the characteristic equation 
+associated with Eq. (1 7). 
+The case lGjl 2 1 is usually excluded from considerations 
+since it corresponds to an exponential instability which is 
+unrealistic in physical systems under observation. However, 
+the case (G, I = 1 is realistic. Real and complex conjugates 
+of Gj incorporate trend and seasonal (periodic) components, 
+respectively, into the time series (16). 
+By applying a difference operator: 
+Vx(t )  = x ( t )  - x(t  - 1) = (1 - B)x(t) ,  (19) 
+where B is defined as the backward shift operator, as many 
+times as required, one can eliminate the trend from the time 
+series: 
+x(t) ,  x(t - I), x(t  - 2) ,... , (20) 
+Similarly, the seasonal components from the time series (20) 
+can be eliminated by applying the seasonal difference 
+operator: 
+V,x( t )  = (1 - B“)x(t) = x ( t )  - x(t  - s) . (21) 
+In most cases, the seasonal differencing (21) should be 
+applied prior to standard differencing (19). 
+Unfortunately, it is not known in advance how many times 
+the operators (19) or (21) should be applied to the original 
+time series (20) for their stationarization. Moreover, in (21) 
+the period s of the seasonal difference operator is also not 
+prescribed. However, several methods have been developed 
+to estimate the order of differentiation [4]. One simple 
+estimate of the number of operations for (20) is minimizing 
+the area under the autocorrelation curve. 
+Once the time series (20) is stationarized, one can apply to 
+them the model (1 5) :  
+are transformed series (20), and Z = 1. M e r  fitting the 
+model (22) to the time series (20), one can return to the old 
+variable x(t) by exploiting the inverse operators (l-B)-l and 
+( 1-Bs)-l* For instance, if the stationarization procedure is 
+performed by the operator (19), then: 
+x ( t )  = x(t - 1) + F([x(t  - 1) - x(t - 2)], 
+* (24) [ ~ ( t  - 2) - ~ ( t  - 3)], ...) 
+Eq. (24) can be utilized for modeling the residual3, 
+predictions of future values of (20), as well as for detection 
+of structural abnormalities. However, despite the fact that 
+Eqs. (22) and (24) may be significantly different, their 
+structures are uniquely defined by the same fwnction F. 
+Therefore, structural abnormalities which cause changes of 
+the function F, can also be detected from Eq. (22) and 
+consequently for that particular purpose the transition to Eq. 
+(24) is not necessary. 
+It should be noted that strictly speaking, the application of 
+the stationarization procedure (19) and (21) to the time 
+series (20) are justified only if the underlying model is linear 
+since the criteria of stationarity for nonlinear equations are 
+more complex than for linear ones in the same way as the 
+criteria of stability are. Nevertheless, there are numerical 
+evidences that even in nonlinear cases, the procedures (19) 
+and (21) are useful in a sense that they significantly reduce 
+the error, i.e., the difference between the simulate and the 
+recorded data if the latter are non-stationary. 
+5. MODEL FITTING 
+The models (22) and (24) which have been selected in the 
+previous section for detection of structural abnormalities in 
+the time series (20), have the following parameters to be 
+The residual r(t) is assumed to be in the form of a discrete-time series. 
+This is a valid assumption given that the gray-box will be implemented on 
+a digital computer. 
+2 - 6 7 3  
+found from (20): the function, F, the time delay, z, the order 
+of time delays, m, the powers, mi, and m2, of the difference 
+(1-B)"l and the seasonal difference (l-BS)m2, and the 
+period s of the seasonal operator. 
+x ( t )  YO) 
++ Stationarization + 
+Residual 
+Linear Model - 
+I .  y Nonlinear 1 E(r)  4 7  Noise Model 
+Neural Network Model 
+I I 
+Figure 3. Description of the residual data. 
+The form of the function F we've selected for the residual is 
+shown in Figure 3. After stationarkation, the linear 
+component is fit using the Yule-Walker Equations [4] which 
+define the auto-regressive parameters ai in (17) via the 
+autocorrelations in (20). If sufficient, the residual left after 
+removal of the linear component, w(t), can be directly 
+analyzed and modeled as noise. 
+If the linear model of the residual leads to poor model 
+fitting, the best tool for fitting the non-linear component of 
+the residual may be a feed-forward neural network which 
+approximates the true extrapolation mapping by a function 
+parameterized by the synaptic weights and thresholds of the 
+network. A rigorous proof [6] states that any continuous 
+function can be approximated by a feed-fomard neural net 
+with only one hidden layer, and thus is selected for fitting 
+the non-linear component after the linear component is 
+removed using equation (17). Hence w(t) is sought in the 
+following standard form of time-delay feed-forward 
+network: 
+z(t)  = o ~ ~ l j o  z w k z ( t  - k z )  , (25) { j=1 I} 
+where W1j and Wjk are constant synaptic weights, o ( X )  = 
+tanh(x) is the sigmoid function. 
+The model fitting procedure is based upon minimization of 
+the mean standard error: 
+E(wlj 9 w j k )  = (26) 
+The error measure (26) consists of two parts: 
+E = E 1  +E2, 
+where E1 represents the contribution of a physical noise, 
+while E2 results from non-optimal choice of the parameters 
+of the model (25). 
+There are two basic sources of random components in El. 
+The first source is chaotic instability of the underlying 
+dynamical system; in principle, this component of E1 is 
+associated with instability of the underlying model, and it 
+can be represented based upon the stabilization principle 
+introduced by [SI. The second source is physical noise, 
+imprecision of the measurements, or human factor such as 
+multi-choice decisions in economical or social systems, or 
+the driving habits in case of the catalytic converter of a car, 
+etc. 
+The last component of E1 cannot be presented by any model 
+based upon classical dynamics, including Eq. (22). 
+However, as shown by [5] ,  there are models based upon a 
+special type of dynamics called terminal, or non-lipschitz- 
+dynamics which can simulate this component. In the 
+simplest case one can assume that E1 represents a variance 
+of a mean zero Gaussian noise. 
+The component E2, in principle, can be eliminated by 
+formal minimization of the error measure (26) with respect 
+to the parameters Wlj, wjk, r, m, ml, m2, and s. Since there is 
+an explicit analytical dependence between E and Wlj,  wjk, 
+the first part of minimization can be performed by applying 
+back-propagation. However, further minimization should 
+include more sophisticated versions of gradient descent 
+since the dependence E(r, m, mi, m2, s) is too complex to 
+be treated analytically. 
+6.  ANOMALY DETECTION 
+As discussed in the previous section, there are two causes 
+for abnormal behavior in the solution to Eq. (25): 1) 
+Changes in external forces or initial conditions (these 
+changes can be measured by Lyapunov stability and 
+associated with operational abnormalities). 2) Changes in 
+the parameters Wlj, Wjk, i.e., changes in the structure of the 
+function F in Eq. (22). (These changes are measured by 
+structural stability and associated with structural 
+abnormalities. They can be linked to the theory of 
+catastrophe). 
+2-674 
+The measure we use for anomaly detection in the non-linear 
+component is: 
+4 =,[(wlj -gj)' + ( W g  -;@)'I. (28) 
+0 0 
+where Wlj and wg , are the nominal, or "healthy" values 
+of the parameters, and Wlj, wij, are their current values. If 
+where E is sufficiently small, then there is no structural 
+abnormality. The advantage of this criterion is in its 
+simplicity. It can be periodically updated, and therefore, the 
+structural "health" of the process can be easily monitored. 
+Similar criteria can be generated for the parameters of the 
+linear component, aj, and the noise component which is 
+modeled by the variance or higher moments. Unfortunately, 
+there is no general method for setting the threshold, E ,  other 
+than experience and heuristic methods. This is a problem 
+faced by all fault diagnosis. 
+7. CONCLUSION 
+In this paper, we present a new method called the gray-box 
+method for model-based system diagnosis. It is a hybrid 
+model incorporating elements fiom residual-based methods 
+and parametric-estimation methods. The residual is 
+generated by filtering the measured state variable with those 
+predicted by the system model. The residual is modeled by 
+a three-tier stochastic model. The linear and non-linear 
+components of the residual are described by an auto- 
+regressive process, and a time-delay feed-forward neural 
+network, respectively. The last component, the noise, is 
+characterized by its moments. 
+The faults are detected by monitoring the parameters of the 
+auto-regressive model, the weights of the neural network, 
+and the moments of noise. The method is applicable to both 
+linear and non-linear systems, and computer simulations are 
+being conducted to validate the method in practice. 
+REFERENCES 
+[l] J. Chen and R. J. Patton, Robust model-based fault diagnosis 
+for dynamic systems, Boston, Massachusetts, Kluwer Academic 
+Publishers, 1999. 
+[3] F. Takens, "Detection Strange Attractors on Turbulence" and 
+"Dynamical Systems and Turbulence," Lecture notes in 
+Mathematics, Vol. 898, Germany, Springer-Verlag, 1980. 
+[4] G. E. P. Box, G. M. Jenkins, G. C. Reinsel, Time Series 
+Analysis, Upper Saddle River, New Jersey, Prentice Hall, 1994. 
+[5] M. Zak, "Postinstability Models in Dynamics", Int. J. of 
+Theoretical Physics, Vol. 33, No. 77, pp. 2215-2218, 1994. 
+[6] J. Hertz, A. JSrough, R. G. Palmer, Introduction to the 
+Theory of Neural Computations, Redwood City, California, 
+Addison-Wesley, 1991. 
+[7] M. 0. Wold, A Study in the Analysis of Stationary Time 
+Series (Second Edition), Sweden, Almqvist and Wiksell, 
+Uppsalla, Sweden, 1954. 
+Michail Zak is a senior research scientist in the 
+Ultracomputing Technologies Research Group at the Jet 
+Propulsion Laboratog California Institute of Technology. 
+He has been with JPL since 1977. His research interests 
+include non-linear dynamical system theory, chaos theory, 
+quantum information processing, neural networks, and 
+complex systems theory. He introduced a new concept - 
+terminal attractors/repellers - in the theory neurodynamics, 
+which signifcantly improved the performance of neural 
+networks in tasks that include global optimization, learning 
+and pattern recognition. Recently he introduced the 
+concept of quantum recurrent nets for computing by 
+quantum simulation which opens a new direction in 
+quantum algorithms. He is the author of over 150 scientific 
+and technical papers, and research monographs. 
+Hun Park is a senior member of the technical stafsin the 
+UItracomputing Technologies Research Group in the 
+Information and Computing Technologies Research Section 
+at the Jet Propulsion Laboratory, California Institute of 
+Technology. He joined JPL in I999 and pegorms research 
+and development of fault detectioddiagnosis algorithms for 
+aircraft and spacecraft systems. He received his B.S. in 
+ME. at the University of California at Berkeley, S.M. in 
+ME. at MT, and Ph.D. in Aeronautics at the California 
+Institute of Technologv. His research interests are in the 
+areas of vehicle health monitoring, signal processing, image 
+processing, pattern recognition, color recognition, 
+quantitative visualization, fluid mechanics, and heat 
+transfer. 
+[2] R N. Clark, "State estimation schemes for instrument fault 
+detection," in R. J. Patton, P. M. Frank, and R. N. Clark (eds), 
+Fault diagnosis in dynamic systems: theory and application, 
+New York, Prentice Hall, pp. 21-45,1989. 
+2-675 

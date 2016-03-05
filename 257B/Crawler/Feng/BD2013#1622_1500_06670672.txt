@@ -1,0 +1,450 @@
+Weight factors optimization for university admission
+ Andrés Torres Martínez
+ Escuela de ingeniera de sistemas y computación
+ Universidad del Valle
+ Cali, Colombia
+ ricardo.torres@correounivalle.edu.co
+ Ángel García Baños
+ Escuela de ingeniera de sistemas y computación
+ Universidad del Valle
+ Cali, Colombia
+ angel.garcia@correounivalle.edu.co
+ Abstract— Universidad  del  Valle  has  an  annual  admission 
+process for Computing Engineering career, based on the scores 
+in  the  state  examination  (ICFES)  obtained  by  the  students 
+graduated  from  high  school.  This  test  is  organized  in  several 
+components (math, language, etc) and every career can give more 
+relevance to a component than the others. Traditionally, in our 
+university the Computing Engineering career has given a very 
+high score to the math component but until now it did not have a 
+theoretical  support.  We  just  thought  Computing  Science  as  a 
+branch of Mathematics and therefore its importance.
+ With  this  work  -for  the  first  time-  it  has  been  analyzed  the 
+correlation among the components of the state examination and 
+the  average  grades  obtained  by  students  in  their  careers,  by 
+means  of  a  genetic  algorithm.  We  got  to  the  big  point  that 
+mathematics are not as important as we thought it was.
+ Keywords—genetic  algorithms,  multivariable  optimization,  
+universitary education
+ I. INTRODUCCIÓN
+ Las pruebas de estado para acceder a la Educación Superior 
+en  Colombia  (ICFES-  SABER  11º)  se  aplican  “con  el 
+propósito de apoyar a las instituciones de educación superior 
+en sus procesos de selección y admisión de estudiantes”1. Son 
+obligatorias desde 1980 y se reestructuraron en los 90’s,  de 
+manera que sirvieran para apoyar procesos de admisión a la 
+educación superior y para ofrecer información sobre la calidad 
+educativa. 
+Las  pruebas  ICFES  Saber  11°.  “evalúan  competencias 
+entendidas  como “saber  hacer  en  contexto”,  lo  cual  implica 
+movilizar  conocimientos y habilidades hacia la actuación en 
+una  situación  concreta.  Las  competencias  se  evalúan  en  el 
+contexto  de  las  disciplinas  que  corresponden  a  las  áreas 
+obligatorias  del  currículo  establecido  en  la  Ley  General  de 
+Educación.”
+ El componente básico de las pruebas incluye las áreas de 
+lenguaje,  matemáticas,  biología,  química,  física,  filosofía, 
+ciencias  sociales  e  inglés  y  el  componente  flexible,  que 
+1 http://www.icfes.gov.co/examenes/saber-  
+11o/antecedentes
+ selecciona el estudiante, puede ser profundización en lenguaje, 
+matemáticas,  biología  o  ciencias  sociales  o  las  pruebas 
+interdisciplinares de medio ambiente o de violencia y sociedad. 
+Cada componente tiene un peso que depende del programa al 
+que se aplica y que, generalmente, se decide en el claustro de 
+profesores de la respectiva escuela.
+ En  este  artículo  se  muestran  los  resultados  de  aplicar 
+técnicas de programación evolutiva sobre datos de desempeño 
+académico y de pruebas ICFES de los estudiantes de Ingeniería 
+de  Sistemas  de  la  Universidad  del  Valle.  Los  datos  de  los 
+estudiantes se obtuvieron de la Oficina de Registro Académico 
+y de Admisiones de la Universidad del Valle.  Un algoritmo 
+genético se implementó para construir un modelo y calcular los 
+pesos de los puntajes que se deberían usar para el ingreso de 
+estudiantes a la carrera de IS. Los nuevos pesos se calculan de 
+modo que los estudiantes que entran a la carrera tengan mayor 
+probabilidad de aprovechar los estudios (esto se mide con la 
+nota promedio de la carrera).
+ El resto del artículo está organizado en cinco secciones. En 
+la sección II, se presentan algunos trabajos relacionados con el 
+uso de algoritmos de optimización en procesos educativos. Las 
+secciones III y IV describen, respectivamente, el problema que 
+se  aborda y el  algoritmo  genético diseñado e  implementado 
+para  solucionarlo.  Finalmente,  en la  sección V se  presentan 
+algunas conclusiones.
+ II. ANTECEDENTES
+ Varios trabajos que usan algoritmos genéticos se han propuesto 
+[1,2] con el objetivo de predecir y clasificar estudiantes con 
+base en los resultados de tareas, actividades y calificaciones en 
+sistemas  de  enseñanza  virtual.  Utilizando  las  ventajas  del 
+ambiente  virtual  para  obtener  métricas  adicionales  a  las 
+tradicionales  logrando  mejorar  el  desempeño general  de  los 
+estudiantes.
+ En  [1]  por  medio  de  un  algoritmo  de  programación 
+genética se intenta predecir si un estudiante tiene posibilidades 
+de  superar  ciertos  cursos,  e  identificar  cuáles  actividades 
+afectan positiva o negativamente su desempeño. El algoritmo 
+genera reglas del tipo IF-THEN, que por su sencillez son útiles 
+para identificar patrones.
+ 2013 XXXIX Latin American Computing Conference (CLEI)
+ 978-1-4799-1340-4/13/$31.00 ©2013 IEEE
+En [2] se utiliza un algoritmo evolutivo para calcular una 
+combinación  adecuada  del  uso  de  seis  clasificadores  para 
+predecir y clasificar un estudiantes con base en la nota final. El 
+algoritmo genético busca los mejores parámetros para aplicar 
+simultáneamente  varios  clasificadores  y  no  se  utiliza  como 
+clasificador.
+ Otro  trabajo  busca la  disminución  de  la  mortalidad 
+académica  encontrando  un  óptimo  en  la  programación  de 
+horarios escolares [3]. La programación se hace teniendo en 
+cuenta los ritmos cognitivos, los cuales recomiendan horarios 
+de acuerdo con las necesidades fisiológicas de los estudiantes, 
+en los que determinados momentos de la jornada subrayan un 
+mayor o menor nivel de atención para el desarrollo de cierto 
+tipo  de  actividades.  Esta  búsqueda  se  realiza  mediante  un 
+algoritmo  genético  donde  se  seleccionan  los  individuos 
+basados en frentes de Pareto y construyendo bloques teniendo 
+en cuenta las múltiples restricciones requeridas como cantidad 
+de estudiantes y salones.
+ Por  otra  parte,  a  nivel  nacional  muchos  estudios  se  han 
+llevado a  cabo con el  propósito  de identificar  variables  que 
+inciden en el desempeño académico. Chica et al. [4] analizan 
+los resultados de  las  pruebas  ICFES Saber  11º  del  segundo 
+semestre de 2009. El estudio tiene en cuenta variables socio-
+ económicas  del  estudiante,  datos  del  plantel  educativo, 
+resultados de desempeño del estudiante en áreas de matemática 
+y  lenguaje  y  como  variable  dependiente  el  resultado  de  las 
+pruebas ICFES de cada estudiante en estas dos áreas. Algunos 
+de  los  resultados  del  estudio  muestran  que  los  hombres 
+obtienen mejores resultados en matemáticas, la edad afecta la 
+ubicación en las categorías ICFES: a mayor edad más probable 
+es  ubicarse  en  el  nivel  bajo  y  el  estrato  es  otra  variable 
+importante. Los estudiantes de estrato 6 tienden a ubicarse en 
+el nivel alto y la formación de los padres influencia también el 
+desempeño. Este último aspecto se incluye también del estudio 
+de Gaviria y Barrientos [5] [6] sobre el desempeño académico 
+de estudiantes de Bogotá. La educación de los padres tiene un 
+importante impacto en el rendimiento académico que a su vez 
+determina la calidad del colegio y el desarrollo de la ciudad. 
+Además,  el  tipo de colegio,  publico o privado,  el  número y 
+formación  de  los  profesores  y  la  infraestructura  del  colegio 
+afectan positivamente el resultado de las pruebas. En [7],  se 
+analizan  resultados  de  pruebas  ICFES para  Medellín  en  los 
+años 2004-2006.  En este  caso,  el  colegio de procedencia es 
+menos importante que las otras variables y las características 
+del colegio afectan más a estudiantes de colegios privados que 
+de públicos.
+ Por su parte, Correa [8] muestra que las características del 
+colegio impactan  de forma importante  en el  desempeño del 
+estudiante de grado once de la ciudad de Cali. El autor trata de 
+determinar  “el  peso  relativo  que  tienen  factores  escolares  e 
+individuales en la determinación del rendimiento medido por la 
+prueba del ICFES”. En [9], Tobón et al. reportan un estudio 
+que analiza el desempeño de los estudiantes en Medellín con 
+base  en  factores  relacionados  con  la  infraestructura  de  la 
+institución y datos de los estudiantes (género, edad, trabaja o 
+no, nivel ICFES, y otras variables socioculturales).
+ En  la  Universidad  del  Valle,  Brand  y  Martínez  [10] 
+analizan el impacto del cursillo de Precálculo en el desempeño 
+de los estudiantes en el curso de Cálculo I. De acuerdo con los 
+resultados, el tipo de colegio de procedencia del estudiante y su 
+nivel  de ICFES en matemáticas  puede influir  también en la 
+aprobación de Cálculo I.
+ El  trabajo  que  aquí  se  presenta  se  diferencia  de  los 
+anteriores trabajos porque trata de determinar los parámetros 
+que  permiten  predecir  cuáles  estudiantes  van  a  tener  mejor 
+desempeño  en  la  carrera  para,  de  esta  manera,  contar  con 
+mayor información para mejorar los criterios de admisión. Es 
+de  esperar  que  de  esta  forma  se  podría  reducir  la  tasa  de 
+deserción y aumentar la tasa de permanencia de los estudiantes 
+en la Universidad.
+ III. PROBLEMA
+ En  el  proceso de  admisiones  a  las  carreras  de  la 
+Universidad del Valle,  el  número de cupos es limitado y la 
+demanda es alta, especialmente en Ingeniería de Sistemas. Por 
+ello  se  hace  una  selección  de  los  mejores  estudiantes.  El 
+criterio que se usó en este trabajo para hacer la selección se 
+relaciona  con  el  mejor  desempeño  académico,  usando 
+concretamente  la  calificación  final  promedio  de  la  carrera. 
+Entonces se dará mayor prioridad a la admisión de estudiantes 
+cuyo desempeño en la carrera (su calificación promedio) vaya 
+a ser mejor.
+ El desempeño es una variable que no se conoce pero que se 
+puede intentar predecir con base en la historia de estudiantes 
+admitidos en el pasado, observando tanto su desempeño en las 
+pruebas  de  estado  como  en  las  calificaciones  obtenidas,  en 
+promedio, en su carrera.
+ En general, en la Universidad del Valle, el mecanismo de 
+admisión a cada carrera consiste (simplificándolo un poco) en 
+ordenar los estudiantes candidatos de acuerdo con pesos que se 
+aplican a cada uno de los componentes del examen de estado 
+(ICFES).  Los  primeros  60  estudiantes  son  admitidos. 
+Actualmente, los pesos de las componentes para la carrera de 
+Ingeniería de Sistemas son:
+ Tabla 1: Pesos específicos de admisión a ingeniería 
+de sistemas en la Universidad del Valle
+ Área Peso actual
+ Biología 10%
+ Matemática 50%
+ Filosofía 5%
+ Física 5%
+ Química 0%
+ Lenguaje 30%
+ Ciencias Sociales 0%
+ Se puede observar el peso relativamente alto que tiene el 
+componente  de Matemática,  con respecto a todas las  demás 
+componentes. Los pesos, para el caso de IS, los definió en el 
+2013 XXXIX Latin American Computing Conference (CLEI)
+2003  el  grupo  de  profesores  que  integran  la  Escuela  de 
+Ingeniería de Sistemas y Computación. La asignación de estos 
+pesos  obedece  más  al  sentido  común:  las  ciencias  de  la 
+computación son una rama de las matemáticas. Por tanto, es de 
+esperar  un  buen  rendimiento  académico  en  la  carrera  para 
+aquellos  estudiantes  que  hayan  tenido  buenas  notas  en  el 
+componente de Matemáticas del examen de estado (ICFES).
+ El  proceso de admisión,  que se  muestra  en la  Figura 1, 
+tiene  como  entrada  a  los  estudiantes  con  sus  puntajes  del 
+examen de estado de bachillerato (ICFES), que se ordenan bajo 
+algún criterio y se seleccionan para permitir ingresar a los 60 
+primeros. Al graduarse lo hacen con una calificación promedio 
+de la  carrera y además realizan otro examen de estado para 
+egresados (ECAES).
+ IV. ALGORITMO GENÉTICO USADO
+ Seleccionar buenos estudiantes se puede formular como un 
+problema de optimización: calcular los pesos óptimos que, al 
+aplicarse  a  los  puntajes  del  examen  de  estado  de  cada 
+estudiante,  predigan  su  desempeño  en  la  carrera  (su 
+calificación promedio).
+ Cada  estudiante  j={1,2,3...}  tiene  calificaciones  en  los 
+componentes del examen de estado (siendo ci la calificación del 
+componente  i-ésimo).  La  función  f(j)  convierte  las 
+calificaciones en un único puntaje.
+ f ( j )=∑ pi?ci ( j )
+ donde pi son los pesos que se quiere calcular. La función e(j) 
+ordena los estudiantes en función de su puntaje f(j), respecto a 
+los demás estudiantes:
+ e ( j,f (1) ,f (2), . ..)??  
+A partir de aquí se escribirá abreviadamente e(j).
+ Así,  e(18)  =  5  significa  que  el  estudiante  18  quedó 
+clasificado en el quinto puesto en la lista de admisiones (sólo 
+los 60 primeros serán efectivamente admitidos).
+ Además,  cada  estudiante  termina  la  carrera  con  una 
+calificación promedio dada por una función g(j) perfectamente 
+conocida para todos los estudiantes ya graduados. Por ejemplo, 
+g(18)  =  26  significa  que  el  mismo  estudiante  de  antes,  el 
+número  18,  quedó  clasificado  en  el  puesto  26  entre  los 
+egresados.
+ Idealmente  los  pesos  óptimos  pi deberían  generar  una 
+función e(j) monotónica en el sentido de que:
+ ? j,k :e ( j )<e (k )?g ( j )<g (k )
+ Es decir, idealmente, un estudiante clasificado en el primer 
+lugar  de  la  lista  de  admisiones,  con  base  en  estos  pesos 
+óptimos,  debería  quedar  en  primer  lugar  en  la  lista  de 
+egresados, considerando su calificación promedio de la carrera. 
+Lo mismo sucede para el segundo, tercero, etc. lugares.
+ Los  pesos  óptimos  se  calcularon  usando  un  algoritmo 
+genético.  Se  trata  de  un  algoritmo  convencional  donde  los 
+cromosomas son vectores de genes,  cada gen es uno de los 
+pesos que se quiere averiguar (implementado por un número 
+flotante),  y  se  emplea selección  por  torneo,  elitismo,  cruce 
+uniforme  con  40%  de  probabilidad,  cruce  promedio 
+(promediando los genes homólogos) con probabilidad del 40% 
+y mutación por suma de ruido gaussiano.
+ En la práctica, la función e(j) no será monotónica, por lo 
+que  se  tendrá  que  calcular  su  desviación  respecto  a  esta 
+idealización.  Esto  conforma  la  función  de  aptitud  de  cada 
+cromosoma.  Para  cada  cromosoma  m,  su  aptitud  se  calcula 
+como el error cuadrático promedio del lugar de orden ocupado 
+según la función g() respecto al predicho según la función e():
+ aptitud (m )=?∑
+ ? j
+ (e ( j )?g ( j ))2
+ Observe  el  signo  negativo:  cuanto  mayor  sea  el  error 
+cuadrático medio, peor es la aptitud (o sea, más negativa); y el 
+valor máximo de la aptitud es cero.
+ Existen,  por  otra  parte,  otras  formas  de  realizar  esta 
+evaluación,  como,  por  ejemplo,  discretizar  los  tramos  de 
+calificaciones en excelente, muy bueno, bueno, regular y malo 
+y buscar la monotonicidad en esta nueva función discretizada.
+ Figura 1: Proceso de Admisión
+ La Oficina de 
+ADMISIONES aplica los 
+pesos a los puntajes de 
+cada componente del 
+ICFES, ordenando 
+descendentemente a los 
+aspirantes
+ D
+ M
+ C
+ A
+ F
+ B
+ ...
+ La Oficina de ADMISIONES 
+selecciona a los 60 primeros 
+para entrar a la Universidad
+ ...A B C D
+ Aspirantes a entrar a la 
+universidad con sus 
+respectivos puntajes de 
+ICFES
+ ...
+ UNIVALLE
+ M
+ A
+ D
+ C
+ ...
+ M
+ C
+ A
+ D
+ ...
+ D
+ M
+ C
+ A
+ ...
+ INGRESO EGRESO ECAES
+ Estudiantes que no entran a la 
+Universidad y que, por tanto, 
+no tenemos información de 
+calificación promedio de 
+egreso, ni de ECAES
+ 2013 XXXIX Latin American Computing Conference (CLEI)
+El algoritmo genético  es  el  núcleo de una aplicación de 
+escritorio llamada IPMPAIS (Indicador de Pesos Mejores para 
+el  Programa  Académico de  Ingeniería de Sistemas), donde el 
+usuario se puede conectar a las bases de datos que contienen 
+las calificaciones y los puntajes del examen de estado de cada 
+estudiante. También puede seleccionar un archivo en formato 
+CSV conteniendo equivalencias  entre  asignaturas (ya  que la 
+carrera ha podido cambiar a lo largo del tiempo). El software 
+permite también realizar este mismo estudio, pero sólo con las 
+calificaciones  de  un  conjunto  restringido  de  asignaturas. 
+También permite realizar el estudio con las calificaciones del 
+examen de estado de egreso de la Universidad (ECAES).
+ V. CONCLUSIONES
+ En el caso concreto de la carrera de Ingeniería de Sistemas 
+de  la  Universidad  del  Valle,  se  dispone  de  datos  de  782 
+estudiantes que ingresaron a la carrera desde el año 2000 al 
+2011.  Sin  embargo,  el  análisis  se  centró  en  los  datos  del 
+periodo 2003 al 2011, para un total de 623 estudiantes, debido 
+a que en el 2003 se realizo una drástica modificación curricular 
+y los datos de años anteriores sólo introducían ruido. También 
+se ignoraron los resultados del ECAES (examen de estado de 
+egreso  de  la  Universidad  )  dado  que  solo  se  dispone  de 
+puntajes de 75 estudiantes, que no son suficientes para sacar 
+ninguna conclusión.
+ El  problema,  como  era  de  esperar,  es  fuertemente 
+multimodal. Existen muchísimas soluciones, con muy variada 
+calidad. Este algoritmo se ejecutó 200 veces, obteniendo cierta 
+variabilidad en  las  soluciones,  tal  y  como  se  muestra  en  la 
+Figura 2 (los posibles pesos de cada componente). Aquí ya se 
+visualiza la poca importancia del componente de Matemáticas 
+del examen de estado, a la hora de predecir el desempeño del 
+estudiante en la carrera. 
+La  mayoría  de  las  soluciones  generan  pesos  óptimos 
+similares a los de la siguiente tabla, que son el resultado de este 
+trabajo.
+ Se puede observar especialmente la poca importancia que 
+tiene el componente de Matemáticas, respecto a los pesos que 
+definidos y que se vienen aplicando hasta ahora.
+ Tabla 2: Pesos recomendados para mejorar el  
+proceso de admisión para ingeniería de sistemas
+ Área Peso óptimo recomendado
+ Biología 16%
+ Matemática 8%
+ Filosofía 15%
+ Física 15%
+ Química 13%
+ Lenguaje 15%
+ Ciencias Sociales 17%
+ VI. TRABAJOS FUTUROS
+ Es  de  gran  interés  aplicar  el  algoritmo  propuesto  en  otras 
+carreras y universidades de Colombia  para descubrir  nuevas 
+tendencias  en  los  resultados  a  nivel  regional  y  nacional  en 
+cuanto a la ingeniería de sistemas y otras carreras. Ademas de 
+realizar las adaptaciones necesarias para la aplicación en otros 
+países.
+ AGRADECIMIENTOS
+ Agradecemos  al  Área  de  Admisiones  y  Registro 
+Académico de la Universidad del Valle, y en particular a Luz 
+Milena Riascos, por proporcionarnos los datos de entrada para 
+este trabajo.
+ REFERENCIAS
+ [1] A..  Zafra,  and  S.  Ventura,  “Predicting  student  grades  in  learning 
+management  systems  with  multiple  instance  genetic  programming”. 
+Educational Data Mining, 2009, pp. 309-319.
+ [2] B. Minaei-Bidgoli, and W. F. Punch, “Using genetic algorithms for data 
+mining optimization in an educational web-based system”. Genetic and 
+Evolutionary Computation GECCO 2003. Springer Berlin Heidelberg. 
+pp. 2252-2263, January 2003.
+ [3] V.  Suarez,  A.  Guerrero,Omar  Castrillon,  “Programación  de  Horarios 
+Escolares basados en Ritmos Cognitivos usando un Algoritmo Genético 
+de Clasificación No-dominada, NSGA-II”. Inf. tecnol. 2013, vol.24, n.1, 
+pp. 103-114. ISSN 0718-0764.
+ [4] S.M. Chica, D.M. Galvis, A. Ramirez, “ Determinantes del Rendimiento 
+Académico  en  Colombia.  Pruebas  ICFES  Saber  11º,  2009”.  Revista  
+Universidad EAFIT,  [S.I], V. 46, Nº 160 pp. 48-72, May 2012, ISSN  
+0129-341X. Disponible en 
+Figura 2: Pesos recomendados de cada 
+componente en 200 ejecuciones del  
+algoritmo.
+ Le
+ ng
+ ua
+ je
+ Ma
+ tem
+ ati
+ ca
+ Cie
+ nc
+ ias
+  so
+ cia
+ les
+ Fil
+ os
+ ofi
+ a
+ Bio
+ log
+ ia
+ Qu
+ im
+ ica
+ Fis
+ ica
+ 0
+ 5
+ 10
+ 15
+ 20
+ 25
+ Pesos (%) de cada componente
+ 2013 XXXIX Latin American Computing Conference (CLEI)
+http://publicaciones.eafit.edu.co/index.php/revista-universidad-
+ eafit/article/view/754/665
+ [5] A.  Gaviria,  J.  Barrientos,  “Calidad  de  la  educación  y  rendimiento 
+académico  en  Bogotá”.  Coyuntura  Social  24,  Fedesarrollo,  2001,  
+pp.111-126.
+ [6] A. Gaviria, J. Barrientos. “Determinantes de la calidad de la educación 
+en Colombia”.  Achivos de Economía, 159, Departamento Nacional de  
+Planeación, Bogotá, 2001, pp. 1-88.
+ [7] J. Barrientos , “Calidad de la Educación pública y logros académico en 
+Medellín  2004-2006.  Una  aproximación  por  regresión  intercuartil”. 
+Lecturas en Economía, 68, Universidad de Antioquia, pp. 121-144
+ [8] J.J.  Correa,  “Determinantes  del  Rendimiento  Educativo  de  los 
+Estudiantes  de  Secundaria  en  Cali:  un  análisis  multinivel”.  Revista  
+Sociedad y Economía, No. 6. pp. 81-105, 2004.
+ [9] D. Tobón, H. Posada, P. Rios, “ Determinants of the Performance of the 
+Schools  in  Medellin  in  the  High-School-Graduation  Year  Test 
+(ICFES)”.  Cuadernos de Administración22(38), Enero-Junio 2009, pp.  
+311-333
+ [10] P. Brand, H..J. Martínez, “ Análisis del impacto de factores del cursillo 
+de Precálculo en la aprobación del curso de Cálculo I”. Informe Final de 
+Investigación, Universidad del Valle, 2013.
+ 2013 XXXIX Latin American Computing Conference (CLEI)

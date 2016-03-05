@@ -1,0 +1,444 @@
+Sequential Monte Carlo Filtering for Multi-Aspect
+Detection/Tracking
+Marcelo G. S. Bruno, Rafael V. de Arauijo and Anton G. Pavlov
+Instituto Tecnologico de Aeronaiutica
+Sao Jose dos Campos, SP 12228-900, Brazil
+e-mail: {bruno,vidal,anton} @ele.ita.br, Phone:+55- 12-3947-6906.
+Abstract-We propose in this paper a mixed-state sequential sition of a potential target of interest. These preliminary esti-
+Monte Carlo (SMC) filter for joint multiframe detection and mates are subsequently associated to a multiframe tracker or,
+tracking of multiaspect targets in cluttered image sequences. alternatively, are discarded as false measurements originat-
+The proposed detector/tracker is a sampling/importance re- ing from clutter. The sequential estimator used for tracking
+sampling (SIR) particle filter that uses resampling according from validated measurements is usually a linearized Kalman-
+to the weights to combat particle degeneracy and also in- Bucy filter (KBf). Although efficient for highly visible tar-
+cludes an additional Metropolis-Hastings (MH) move step to gets, this suboptimal association of correlation detectors and
+avoid particle impoverishment. The dynamic models for tar- KBf trackers has been shown to perform poorly in scenarios
+get motion and target aspect and the statistical model for the of low target-to-clutter ratios [2]. In this paper, we propose
+spatially correlated background clutter are assumed as prior an alternative Bayesian approach that eliminates the prelimi-
+knowledge in the design of the filter. The performance of the nary single frame correlation detector and enables integrated,
+algorithm is investigated using simulated image sequences multiframe detection and tracking taking full advantage of the
+generated from real infrared airbone radar (IRAR) data. knowledge of the dynamic models for target motion and tar-
+get aspect and also incorporating the statistical model for the
+Keywords-Mixed-state particle filters, Markov Chain Monte spatially-correlated clutter background.
+Carlo, Gauss-Markov random fields, multiframe detection,
+multiaspect target tracking. In previous work [3], we proposed a grid-based joint detec-
+tor/tracker assuming discrete-valued hidden Markov models
+(HMMs) for both the target's kinematic state (e.g. position
+TABLE OF CONTENTS and velocity) and the target's aspect state. The HMM-filter
+solution in [3] had the disadvantages, however, of great com-1 INTRODUCTION putational cost and lack of flexibility to capture more complex
+2 THE MODEL target motion. To circumvent these limitations, we allow the
+3 JOINT DETECTOR/TRACKER hidden aspect state of the target in this paper to take values
+only on a finite set IT, but assume that the target's position
+and velocity at each frame are continuous random variables.
+5 SUMMARY
+6 ACKNOWLEDGEMENTS Each symbol in the finite set of values assumed by the tar-
+get's aspect state may be interpreted as a pointer to one possi-
+1. INTRODUCTION ble target template obtained by an affine transformation of the
+target's base image. In order to integrate detection and track-
+We present in this paper an algorithm for joint multiframe de- ing, we extend further the finite alphabet IT to include an addi-
+tection and tracking of multiaspect targets in two-dimensional tional dummy absent target state. The evolution over time of
+(2D) image sequences. We consider the situation when the the kinematic and aspect states is described then by a coupled
+target of interest is obscured by structured clutter and the dynamical model where the probability of transition from one
+clutter-free target aspect changes randomly from frame to aspect state to another between frame n - 1 and frame n is
+frame as a result of rotational motion and/or variations in the dependent on the kinematic state of the target at frame n- 1.
+conditions of observation of the target. Conversely, the probability density function of the kinematic
+state at frame n conditioned on the kinematic state at the pre-
+The conventional contact/association approach to target vious frame is also dependent on the target's aspect changes
+tracking, see e.g. [1], is based on a suboptimal decoupling of between frames n- 1 andn. The observation model consists
+the detection and tracking tasks. Typically, a preliminary sin- Of a nonlinear function that maps a given target centroid po-
+gle frame detection stage uses segmentation, clustering and sition at frame n onto a spatial distribution of pixels centered
+correlation filtering to generate initial estimates ofthe true Po- in the centroid and with intensity that is dependent on the
+_____________ ~~~~~~~~~~current target aspect state. Finally, the time-varying, aspect-
+O-7803-8870-41051$20.OO©2005 IEEE changing target image is superimposed to a structured clut-
+IEEEAC paper # XXX
+1
+ter background whose spatial correlation is captured using a variables/vectors and realizations (samples) of random vari-
+noncausal Gauss-Markov random field (GMrf) model [4], [5]. ables/vectors; the proper interpretation is implied in context.
+The parameters of the GMrf clutter model are estimated on- We use lowercase p to denote probability density functions
+line from the available data using an approximate maximum (pdfs) and uppercase P to denote the probability mass func-
+likelihood algorithm [6]. tion of a discrete random variable. The symbol Pr(A) is used
+to denote the probability of an event A in the or-algebra of the
+With the framework described in the previous paragraph, the sample space.
+detection/tracking problem reduces, from a Bayesian per-
+spective, to computing in a recursive fashion the joint pos- State Variables Let n be a non-negative integer number and
+terior distribution of the target's discrete-valued aspect state let superscript T denote the transpose of a vector or ma-
+and the target's continuous-valued kinematic state at frame n trix. We define the target's kinematic state at frame n as
+conditioned on the observed frames from instant 0 up to in- the four-dimensional vector sn = [imn -'n Yn Yn]T, that col-
+stant n. Due to the nonlinear nature of the observation and lects the positions, Xn and Yn, and the velocities, ±_Cn and Yn,
+possibly motion models, it is however impossible to compute of the target's centroid in a system of 2D Cartesian coordi-
+such posterior distribution analytically. We resort then to a nates (x, y). We model sn as a continuous random vector
+sequential Monte Carlo approach known as particle filtering taking values in X4. Conversely, the target's aspect state at
+[7], [8] also referred to in the computer vision literature as the frame n, denoted Zn, is modeled as a discrete random vari-
+condensation algorithm [9]. able taking values in the finite set I {0, 1, 2, 3 ... K}
+where the event {Zn = O} indicates that no target is present
+In summary, the basic idea in particle filtering is to repre- in the imaged scene at frame n. Each "present target"state i,
+sent the posterior distribution of interest by a set of properly i 1, 2, ... , K, is, on the other hand, a pointer to one pos-
+weighted samples, also known as particles, such that, at each sible template model in a target aspect library accounting for
+instant n, the weighted average of the particles converges (in rotation, scaling and/or shearing of the target's mother tem-
+some statistical sense) to the minimum square error (MMSE) plate.
+estimate of the hidden state vector given the observed frames.
+Using a standard mixed-state importance sampling (IS) strat- Observation Model
+egy [10], we sample the particle population sequentially from
+the (coupled) prior model for target motion and target aspect The raw sensor measurements at instant n are sampled and
+change and then update the weights of the sampled particles pframe. We represent the nth frame then by the L x M matrix
+using the likelihood function that incorporates the target sig-
+nature and background clutter models. A particle resampling Yn = H(s*, Zn) + Vn (1)
+step with replacement according to the sample weights [11],
+[12] is added to control the increase in the variance of the where the matrix Vn represents the background clutter, and
+weights. Finally, we also add a Markov Chain Monte Carlo the matrix H(s , Zn) is the clutter-free target image model,
+(MCMC) [13] move step [14] after resampling to rejuvenate which is a function of the 2D pixel location of the target cen-
+the particle population and prevent particle impoverishment. troid, s* and the target aspect state, Zn. The two-dimensional
+random vector s* takes values on the finite sensor grid L
+This paper is divided into 5 sections. Section 1 is this In- {(r, j) 1 < r < L, 1 < j < M} and is obtained from the
+troduction. Section 2 reviews the models for target motion four-dimensional continuous-valued state vector Sn by mak-
+and target aspect that underly our derivations. We also intro- ing
+duce in Section 2 the observation model and the associated
+likelihood function. In Section 3, we describe the joint de- s*(1) = round( Smn(1)) (2)
+tector/tracker 1. In Section 4, we evaluate the performance 41
+of the proposed filter using simulated infrared airbone radar Sn2(1)
+(IRAR) [15] data. Finally, we summarize in Section 5 the snj2) round( 2) (3)
+contributions of our work.
+where 4, and ,2 are the image resolutions respectively in the
+2. THE MODEL coordinates x and y.
+We introduce in this section the dynamic models for target Clutter-Free Target Model We assume that, any given frame,
+motion and target aspect that underly the derivation of the for any aspect state Zn, the clutter-free image of a target that isjoint detector/tracker in this paper. For simplicity, we re- present is contained in a bounded rectangular region of size
+strict our discussion to the situation when there is atmost one (ui + r5 + 1) x (i~+ i5 + 1). In this notation, ri and r5
+target of interest present in the imaged scene. Throughout denote the maximum vertical pixel distances in the target im-
+the paper, we use lowercase letters to to denote both randomg
+~~~~~~~~~~~agewhen we move away, respectively up and down, from
+the target centroid. Analogously, li, and Is are the maximum1Asimpler version of the algorithm in Section 3, assuming the target is
+always present and suitable for tracking-only, was introduced in reference horizontal pixel distances in the target image when we move[3] away, respectively left and right, from the target centroid.
+2
+For each pixel centroid position sn = (rn, jn) C L, the non- for n > 1. Note that the mixed densities on the left-hand
+linear function H(:,:) in (1) returns a spatial distribution of side of equations (6) and (7) are defined as actual probabil-
+(real-valued) pixel intensities {ak,l(zn)}, -ri < k < r5, ity density functions in the continuous-valued variables and
+-li < 1 < Is, centered at (rn, jn) and dependent on the as- probability mass functions in the discrete random variables,
+pect state Zn. Formally, we write i.e., if s is a continuous random variable taking values in X
+j,z), 1, and z is a discrete random variable taking values in the finite
+H(rn, Sn Zn) = S> ak,1l(zn)E+±k,j+1l (4) set1, then
+1c=-r 1=-1i P(S` z Pr({s . sl} n {z
+where Eg, t is an L x M matrix whose entries are all equal to pS=
+zero, except for the element (g, t) which is equal to 1.
+Aspect Model Based on the observation model, we introduce
+For a given fixed template model Zn i C 1, the coeffi- t a c
+' ~~~the augmented centroid lattice L = {(r,):-r, + I < r <cients {ak,l (i)} in (4) are referred to as the target signature L + ri_ -1 + I < < M + 1i that collects all possible val-
+parameters corresponding to that particular template. The L + -. .+ues of the target centroid osition for which at least one tar-
+signature coefficients are the product of a binary parameter g
+bk, i (Zn) e 13 {O, 1}, that defines the target shape for each get pixel may still lie inside the sensor's image. In the se-
+aspect state, and a real coefficient ak, 1 (Zn) e , that specifies quel, let T be a K x K transition probability matrix such thataspect~~~~~~~~~~~~~~~~~stt,adaraofiin2 R e (i, J') > 0 for any i', =1, 2, . . . , K andthe pixel intensities of the target, again for the various states
+in the alphabet 1. For simplicity, we assume that the pixel K
+intensities and shapes are deterministic and known at each ET(i,j) =1 Vj = 1 ...K.
+frame for a given value of Zn. In particular if Zn takes the i1
+value 0 denoting absence of target, then the function H(:,:) The probability of a change in the target's aspect between
+in (1) reduces to the identically zero matrix OLx M, meaning frames n-1 and n from state j to state i, Pr({z = i}
+the observations consist only of clutter. {rme j}, an) i modeled in thispapernas{Zn- 1 =^ Sn- 1), iS modeled in this paper as
+Remark To write (4), we assumed that the target is sufficiently (i,j)Prj eLnC =j}) i:j=1,...,K
+far from the borders of the image grid so that we do not have L
+to worry about boundary conditions. Boundary effects can be 1 Pr({s CL} snl{znl=j}) i =0;j0
+easily taken into account by changing the summation limits Pa
+accordingly in (4) for centroid locations near the borders. 1 - Pa 0; j 0 .
+(8)
+Clutter Model We describe the 2D spatial correlation of the In (8), the parameter Pa denotes the probability of a new tar-
+background clutter using a noncausal, spatially homogeneous get appearing in the scene once the previous target becomes
+Gauss-Markov random field (GMrf) model [4]. The random absent. By setting Pr({zm i} |{zn 0}, sn)=
+clutter returns at frame n, Vn(r, j)I < r < L, 1 < j < M, pa/K, i= 1, ... , K, we assume that, given that a new target
+are described then by the 2D finite difference equation became present at frame n, there is a uniform probability of
+Vm(r, j) jiv-) + Vn(r + 1 j) that new target assuming any of the K possible aspect states.Vn3(,mVm(r-1 On the other hand, by making
++ /3h [Vn(r, j- 1) + Vn(r, j + 1)] + cmQr, j) (5)
+where E [Vn(r, j) &n(k, 1)] o= 6,-k,j-l1 We use sub- Pr({zn = O {zn-l=)
+script n in the notation for the parameters vc, 13c and 7c to 1 Pr({s* C L} smi, {Zm-i j}), (9)
+emphasize that the clutter parameters may be time-variant and
+change from frame to frame. The assumption of zero-mean we are implicitly assuming that a target may become absent
+clutter implies a pre-processing of the data that subtracts the only if it leaves the image grid.
+mean of the background.
+Motion Model For simplicity, we make an additional assump-
+Target Motion and Aspect Models tion that, unless the aspect state changes from zero (absent
+target state) to a nonzero (present target) state, the distri-
+The random sequence {(sn, Zm)} n > 0 is modeled as bution of the current kinematic state sn conditioned on the
+a first-order hidden Markov model (HMM) specified by a previous kinematic state Sn-1 is independent of the current
+mixed initial probability density function (pdf) and previous aspect states, Zm-l andZ, Specifically, let
+p(so, zo) =p(so) P(zo) (6) f5(sm mn-) be a valid conditional pdf (not necessarily
+Gaussian) and let fo(Sm) be a valid marginal pdf. We make
+and by the mixed transition pdf p(sm Zm, Sn z1Z-l) equal to
+p(sm,zm Smi:Zm 1) =p(sm 2Zm,Smi,:Zm 1) J fO(sm) ifZnm#0Oand zmi- 0 (10)l
+x P(zm |zmil,Smi) (7) fs(sm Sm-i) otherwise.()
+3
+Usually, we make fo (sn) a non-informative prior (e.g., a con- Writing the difference equation (5) in compact matrix nota-
+tinuous uniform pdf). With the assumption of independence tion, it can be shown [4], [5], [6] by the application of the
+between the kinematic and aspect states for present targets, principle of orthogonality that E 1 has a block-tridiagonal
+we also write, for any j 1,.. , K, structure of the form
+Pr({sn L}sLs ,{;z-l =i}) c,nEv l= IL®(IM-3h,mlKM)+KL®(-73v,mIM) (18)
+f f (Sn Sn ) dsn where ® denotes the Kronecker product, Ij is J x J identityJ{snsn*EC} matrix, and KJ is a J x J matrix whose entries Kj(k, 1) = 1
+if k -1 - 1 and are equal to zero otherwise.
+Let AV(s - a, P) denote the multivariable normal function Using the block-banded structure of E-1 in (18), it can be
+of argument s, mean a and covariance matrix P. Without shown that A(sn, z) in (17) may be computed by the expres-
+loss of generality, we assume in this paper that f, (Sn Sn- 1) sion
+represents a linear, white-Gaussian-noise acceleration motion
+[1] on the 2D plane. i.e., =
+A(Sn,) ak,1l(3)d(s* (1)+k, s*j2) +l) (19)
+fs(sn Sn- ) -(Sn FSn- 1,Q) (12) k=-ri l=-li
+where where s(i), i = 1, 2, are obtained respectively from equa-
+tions (2) and (3), and d(r, j) is the output of the differential
+[ 0F Q 0 (13) operator
+d(r,j) Yn(r,j) - , [Yn(rj - 1) + Yn(r,j + 1)]
+Let q be a positive real number and denote by A the sampling - n - 1, j) + Yn(r + 1, j)] (20)
+period. Matrices F and Q in (13) are given then by [1] n
+F A3 A2 1 with Dirichlet (identically zero) boundary conditions. Equa-
+], Q q [A tionA(19) is valid forri+1<sn(1) <L - r, and i +1<
+0 1 tn(2) < M - Is. For centroid positions close to the image
+borders, the summation limits in (19) must be varied accord-
+ingly, as shown in [2].
+Likelihood Function
+Let Yn and h(s*, Zn) be the ID representations respectively Remark: Estimation of Clutter Parameters We assume that
+of the image frame Yr and the clutter free target image the time-varying clutter parameters O3h,n, J3v, and uc,n are
+H(sn, Zn) in (1), obtained by scanning the matrices row by unknown to the tracking filter and must be adaptively esti-
+row and sequentially stacking the scanned rows in a long vec- mated from the image sequence. Ideally, the clutter parame-
+tor. Similarly, let Vsbe the long vector representation of the ters should be jointly estimated with the hidden state variables
+matrix Vn in (5) and let EA F [VnV$nj] denote its associ- sn, and Zn in a Bayesian framework. For computational sim-
+ated covariance matrix. For a GMrf background as in (5), plicity though, we use in this paper a suboptimal approach to
+the likelihood function for a fixed template state Zn = , clutter adaptation where the unknown GMrf parameters cor-
+z C {1, 2, 3, ... ., K} is given by responding to each available sensor frame Yn are assumed
+deterministic and are independently estimated from frame to
+[2A(sn, z)- p(i) 1 frame using a single frame variation of the approximate max-
+P(Yn S, i) =P(Yn ,0):Oexp L 2Cu2n ] imum likelihood (AML) parameter estimation algorithm in-
+(15) troduced in [6]. For a description of the clutter parameter
+where p(z) is a target energy term given by estimation algorithm, we refer the readers to section V in the
+reference [3].
+3. JOINT DETECTOR/TRACKER
+and A(s3, z) is a data-dependent term such that
+We describe in this section the proposed SMC detec-
+p(sn, h)TY(O7,_ )h(s , z) . (17) tor/tracker. We begin the section with a description of the
+importance sampling step. Next, we detail the resampling
+Finally, P(Yn l,0n) in (15) is the likelihood of the absent and MCMC move steps. Finally, we present the multiframe
+target state which reduces to detection test and the kinematic state estimation algorithm.
+P(Y7(2w)LM [det(E)1 1/2 exp(-2 Yn iv Ypn) Sequential Importance Sampling Step
+Given a sequence of observed lexicographed frames
+for all Sn C X4~. {Yi,***, Yn}, our goal is to represent the mixed posterior
+4
+P(S,, Znr Yl:n) at step n by a properly weighted set of par- this paper, we draw at instant n a set of indices
+ticles {s$i), ^^P} 1 j < Np, with associated weights i)) {1, 2, ..., Np} with Pr({i() l})= $f) (21)
+{Wnu' } such that, as Np goes to infinity, the weighted aver-
+ages of the particles converge to the minimum mean-square and build a new particle set {-$O), ^^j) }, j 1,..., Np such
+error (MMSE) estimates of the hidden states under the true that
+posterior distributions. Using p(Sn, Zn Sn-i, Zrn-i) in (7) (it))
+as importance function, a mixed-state sequential importance sn n -$n n
+sampling (SIS) algorithm for the recursive generation of the
+desired properly weighted set is [8], [10] Move Step The resampling step described before helps to
+avoid particle degeneracy, but also leads to an undesirable
+1) Initialization For j 1, . . ., Np loss of particle diversity as resampling may result in multi-
+ple copies of only a few or, in the limit, only one particle.
+* Draw s(j) p(so), and z(0) P(zo). In order to rejuvenate the particle population without altering
+its statistics, we add a Markov Chain Monte Carlo (MCMC)
+* Make w(i) = 1/Np and set n = 1. move step, see [ 14], after the resampling routine. Specifically,0 for I Np let
+2) Importance Sampling For j , . . ., Np (j) (j) (s(i())) j(i)) ((i)) i(i))) (22)
+(S : n) - :n-1 Sn O :n-,: n
+* Draw ^ v P(z, 4/1,lv1nl) according to (8). be the resampled particle trajectories for the kinematic and
+aspect states from instant 0 up to instant n. The resulting tra-
+(j) 0) 0))~(j* Draw S$n) ) p(Sn, ^ sr,), Sn41l) according to (10). jectories (-s}j),n-n n ) are approximately distributed, see [16],
+according to the mixed posterior p(SO:n, ZO:n Yl:n). A possi-
+* Compute the importance weights ble strategy for sequential regeneration of the particle popula-
+tion is to apply, for j 1,. . , Np, a Markov chain transition
+UJ( ) aoc 0) i( S§) ,(i)) 0) kerneln- n n n n 0(n): n0) J.n2) f0) (23)
+which is invariant to the conditional mixture pdf
+using the likelihood function model in Section 2. p ,zr _(j _(j A rvddtatscnai
+P tSn: ~n SO:n- 1: ZO:n- l, Yln) Provided that such invari-
+End-for ance condition is satisfied, the moved sample trajectories
+Remark From a computational point of view, the main ad- (So: n)=sn sn), Z^n- , ^n)
+vantage of the importance sampling solution above over the
+grid-based filter described in [3] is that the grid-based tracker remain (approximately) distributed according to p(SO:n, ZO:nr
+evaluates the likelihood function in the entire discretized state Yl:n). A possible Metropolis-Hastings (MH) [13] strategy to
+space, whereas the importance sampling algorithm requires build a Markov Chain with the desired stationary distribution
+the evaluation of the likelihood function only for each sample is as follows:
+in the current set of particles. Since the number of particles
+is usually smaller than the total number of pixels per frame For j p1,..,
+times the total number of possible target templates, the com-
+putational savings may be significant. * Draw nj)) P(Zn 4n1k,Sn/i ) according to (8).
+Resampling and Move Steps * Draw S0) p(Sn ^ $/1, 41) according to (10).
+The major drawback of raw sequential importance sampling
+as described in the previous subsection is the increase over * Draw u - U([0,1]).
+time in the variance of the weights w7v(i) leading in the limit ( (j))
+to the phenomenon known as "particle degeneracy" [8], i.e., If u < min {1,IP(Y (j )}I then (s$0), ))
+after a few steps, only a small number of particles will have P(Y) I)p ,n
+normalized weights close to one whereas the majority of the Vn nZn )
+particles will have negligible weight. In order to mitigate par- -) j _(j _(j
+ticle degeneracy, we follow the approcah in [11], [12] and Else (Sn/ XZn ) =(S/,xz
+resample from the existing particle population with replace- Cl 1
+ment according to the particle weights so that high-weight * Reset wnJ=N-
+particles are multiplied while low-weight particles are dis-
+carded. Concretely, in the particular application studied in End-for
+5
+Multiframe Detection and Tracking
+Let H1 denote the hypothesis that the target is present at 5
+frame n and, conversely, let Ho denote the hypothesis that 40
+the target is absent. Given the set particles (sY,(j) z$j/v) approx-
+imately distributed according to p(sn Zn |Yi:n) at instant n, e0
+we compute the Monte Carlo estimate Pr({zn = } Yi:n) 80
+Of Pr({n 0}f Yi:n) and apply the minimum probability 2
+of error [17] multiframe detection test
+120 j.025.
+2040 60 80 100 20 0 5 1 0 1 5 2025
+Ho (a) (b)
+Pr*({n = 0} Yi:n) 1- Pr*({;n 0} Yi:n) (24) Figure 1. (a) First frame of the cluttered target sequence,
+H1 PTCR = 10.6 dB, (b) tracking results: actual target position
+('+'), estimated target position ('o').
+to decide whether the target is present or not at frame n. If
+the hypothesis H1 is declared true, the estimate Snjn of the
+target's kinematic state at frame n is computed then using the
+Monte Carlo approximation of E [sn Yi:n, {Zn t 0°}]*
+20
+Particle Update 40
+Finally, we make n = n + 1 and go back to the importance a0
+sampling step to draw a new set of particles ($j)) }
+with updated weights i7$/ . The recursion continues as long
+-
+as there are image data available to be processed.
+120= 25 llll
+4. SIMULATIONRESULTS 20 40 60 80 100 120 b0 5 10 15 20 25(a) (b)
+We study next the performance of the proposed SMC detec- Figure 2. (a) Tenth frame of the cluttered target sequence,
+tor/tracker using simulated image sequences generated from PTCR = 10.6 dB, with target translation, rotation, scaling,
+real infrared airborne radar (IRAR) data. The IRAR intensity and shearing; (b) tracking results: actual target position
+imagery is from the MIT Lincoln Laboratory's database and ('+'), estimated target position ('o').
+was obtained from the Center for Imaging Sciences at Johns
+Hopkins University. To simulate the target, we took an artifi-
+cial template representing a military vehicle and generated a
+library of affine transformations of that template using com- Using Np = 10, 000 particles, we tracked the simulated target
+posite operations of rotation, scaling and shearing. We then over 50 consecutive frames to verify the capability of the al-
+added the artificial target to the background sequence with gorithm: (1) to acquire the target and track it both at the cen-
+the target centroid position changing from frame to frame ac- ter of the grid and near the image's boundaries where parts
+cording to the linear white noise acceleration model in (12), of the target are no longer present in the scene; (2) to de-
+see Section 2. For the target simulations in this paper, we set tect when the target has completely left the image indicating
+A = 0.04 and q = 8. The background clutter for the mov- no false detections at the frames where no target is present;
+ing target sequence was simulated by adding a sequence of and, (3) to detect when a new target enters the image, ac-
+synthetic GMrf samples to a matrix of previously stored local quire it and track it sucessfully. A complete video demo of
+means extracted from the database imagery. The GMrf sam- the operation of the algorithm over 50 frames can be seen at
+ples were synthetized using correlation and prediction error http://www.ele.ita.br/-bruno. In the sequel, we show the de-
+variance parameters estimated from real data. tection/tracking results for a few selected frames.
+In order to simulate the target's aspect dynamics, we initial- Figure l(a) shows the initial frame of the sequence with the
+ized the target template state zo with a randomly-selected target centered in the (quantized) coordinates (65, 23) and su-
+choice from the template library and then changed the aspect perimposed to clutter. The simulated peak target-to-clutter
+over time according to a first-order Markov chain. At any ratio (PTCR) is 10.6 dB. The actual target position (indicated
+given frame, the true aspect of the target is unknown to the by a cross sign, '+') and the estimated position (indicated by a
+tracker. The target pixel intensity is on the other hand time- circle,' o') are shown in Figure 1(b). Next, Figure 2(a) shows
+invariant and known and was set according to a desired low the tenth frame in the image sequence. Note that the target
+level of contrast between the template and the background. from frame 1 has now undergone a random change in aspect
+The initial position of the target is assumed uniformly dis- in addition to translational motion. The tracking results cor-
+tributed in a certain region of the image. responding to frame 10 are shown in Figure 2(b).
+6
+4.5
+~~~~SMC Tracker, PTCR=4.6dB SMC Tracker, PTCR =4.6dB
+4--- One-sigma interval - -One-sigma interval
+3-~~~~~~~~~~~~~~~~~~~~~~~
+0.5-
+40 3~~~~~~~~~~~~~~~~~~~~~~~~~~ 0
+________________________ 0 5x0132 1 5 2
+absenceof targt.acorinae,(bdyeoodinteedverenexrte=2 %5ou o
+60 16 0~~~~~~~~~~~~~~20MneCal ral) TR . B
+exldngtediegnttak-aesow nFiue 5a n
+15- L~~~(b.Th SEvlusi numbe ofpxl-qae r u
+peipse otei1epctv nesgaunetityitr
+80~ ~~~ ~ ~ ~ ~~~~~~~~vl suig14MneCro ras(.. 2 iu h
+Figure 4. (a) Fityfis fram of the clteedtret Rmrn,thispFartclaeapr weuquantFiaed onlymtertak
+scguene; (b) trackingmesults: acltual etargetpsition('+' FinguperforMeancesofate propitonsed malgortm Ineroursinumula-
+estimatetarg t posit,()eetion ('o')indcain tons thxeltqargetdwa correctly dielredpeentbyaizthens multi-
+absence oftarget. coframendtection testrinteovervllg20xn12frames. Fo a complete
+uou2smuatonwth targetras)leaving an entrinthB sen
+In tis prticlar imultion theuditargetverenleavesthehow inscenes5(aatn
+fram 31adn(agebeper)utlfae3. The SMMbSntoucn valdetecion thmbresold pinxthe hypothesaes tst-10- perimpose(2)advarin thatr treshodiv oversigawidertaingeyovalues.
+trakeraccratly etets he nstnt henthetaret isa- Devtlth veryin low falsealarmo triatesthaiwee. 12inupraticeob
+per n hw ofleaarsoe h bettre tamerednt oretrals,zatins) acurte esat,imainothe-dvrOCn crveal
+frame as ilustated n Fiures (a) nd (b wheewezhow iould rhequirecvery largescale Monitea Carosto estimuations Wero
+respectvelyfthlclutte+backgrund-onlothirtysixth fame leaeethatdor futue work
+an1h2 crepodn trckn resultsunertiindicatingor s geinr nthisycocasete
+re-appeas it is)accu-fratel facqied bythe SMCtre talgorthm.r nti atcua ae,w unife nytetak
+Thqefnal, siulTed framedB with th new target arsetpoitin Thigeronventional hcorelatonsiler/Kalgrtman fIteurasoiation
+Figure 4(b)showsinthorespondingtua tarackin resultso forthe severelmtargtionsinosituationsofrlowtarget-to-clutterurtio.
+estimatedargetposiionVingfane altertinatiessvequntall2xMont Crarlo.(SMC algorilthm
+In order to have aquantitative assessment ofthdrcigee-ta ealsjitemutiopeframeadeetioneand ltrackng andofully
+formnceweran Mote arl simlaton ith 20 nde inorpormuatesoth sihtatisticalemodels for etaretroion,targsete
+pednth til.Weueigan1,0particleslburloeremasecttanocltte.the target'saeh cntadetiaearcieprtn caspecterstate atOCechurame
+thaethe pakdntarget-t-lter atioar utol4.6adB toases The per- was mntodeledna a dieteto trandomdvaiabl thathptaksesvalest
+formanckeroacrthel algoristhm insituantiohnsofhetavily obscure in4 afnit setyiof thargt thempolat modesoversawdernely thetar-es
+(sealthy targets.ow The propsedalrsMCvetracer, opseratingoer guet's pstionanverylwflocit weare modeles contwreinuoustic ran-
+20frames,a diveusrgted in 6ioutrof 120 tralsbgiving an appoxi tandom nouvariabls.Inorderatntgates detection andheROtrcking,
+mandthedivergesodncerterofk5n% Thesumeandsquaren erro (MisEwaelaeinatrfodue anuraditonar umyapcksaetatrpe
+frthet positiontha bestmainderrorsd Finalnumbwernofpiels sqarged setdthbeneo aStagetAtRYierme hpta
+re-apeas, t iaccratly cquredby te SC agorth 7
+correlation of the background clutter was described using a sity propagation for visual tracking," International Jour-
+noncausal Gauss-Markov random field (GMRf) model. nal of Computer Vision, vol.28, n. l, pp. 5-28, 1998.
+[10] M. Isard and A. Blake, "A mixed-state condensation
+The proposed detector/tracker in this paper is a mixed-state tracrdw.taoatic model-switc Poceedion
+sampling/importance resampling (SIR) filter enhanced with ofaher6thInteratio ConerencingComuerinsi
+a Metropolis-Hastings move step to avoide sample impover- ofthe 107-112.
+ishment. Simulation results with synthetic images generated 1998, pp. 107-112.
+from real infrared airborne radar (IRAR) data show that, bar- [11] N. J. Gordon, D. J. Salmond, and C. Ewing, "Bayesian
+ring an approximately 5 % divergence rate, the mixed-state state estimation for tracking and guidance using the
+SIR filter operating with 10,000 particles shows good track- bootstrap filter", Journal ofGuidance, Control, and Dy-
+ing performance in situations of heavily obscured targets and namics, vol.18, n.6, pp. 1434-1443, 1995.
+dense clutter. [12] J. S. Liu and R. Chen, "Blind deconvolution via sequen-
+6. ACKNOWLEDGEMENTS tial imputations," Journal of the American Statistical
+Association, 90(430), pp. 567-576, 1995.
+The work of the second and third authors was supported
+by CAPES, Brazil. The work of the first author was par- [13] C. P. Robert and G. Casella, Monte Carlo Statistical
+tially supported by a previous grant from FAPESP, Sao Paulo, Methods, Springer Texts in Statistics, Springer-Verlag
+Brazil, under process number 98/13409-2. New York, Inc., 1999.
+[14] W. R. Gilks and C. Berzuini,"Following a moving target
+REFERENCES
+-
+Monte Carlo inference for dynamic Bayesian models,"
+J. R. Statist. Soc. B, vol.63, pp. 127-146, 2001.
+[1] Y. Bar-Shalom and X. Li, Multitarget-Multisensor
+Tracking: Principles and Techniques. YBS, Storrs, CT, [15] J. K. Bounds, The Infrared Airbone Radar Sensor
+1995. Suite, RLE Technical Report No. 610, Cambridge, Mas-
+sachusetts, December 1996.[2] M. G. S. Bruno and J. M. F. Moura, "Multiframe de-
+tection/tracking in clutter: optimal performance," IEEE [16] J. S. Liu, R. Chen, and T. Logvinenko,"A theoretical
+Transactions on Aerospace and Electronic Systems, framework for sequential importance sampling with re-
+vol.37, n.3, pp. 925-946, July 2001. sampling," Chapter 11 in Sequential Monte Carlo Meth-
+ods in Practice, A. Doucet, J. F. G. Freitas, e N. J. Gor-[3] M. G. S. Bruno, "Bayesian methods for multiaspect tar- . ' J.
+get tracking in image sequences," IEEE Transactions don, Editores. New York: Springer-Verlag, 2001.
+on Signal Processing, vol. 52, n.7, pp. 1848-1861, July [17] L. Scharf, Statistical Signal Processing: Detection, Es-
+2004. timation, and Time Series Analysis, Addison-Wesley,
+[4] J. M. F. Moura and N. Balram,"Recursive Structure of 1992.
+Noncausal Gauss Markov Random Fields," IEEE Trans.
+on Inf Theory IT-38(2), pp. 334-354, March 1992.
+[5] J. M. F. Moura and M. G. S. Bruno, "DCT/DST
+and Gauss-Markov fields: conditions for equivalence,"
+IEEE Transactions on Signal Processing, vol.46, n.9, pp
+2571-2574, September 1998.
+[6] J. M. F. Moura and N. Balram, "Noncausal Gauss-
+Markov random fields: parameter structure and esti- Marcelo G. S. Bruno received the Ph.D.
+mation," IEEE Transactions on Information Theory, IT degree in Electrical and Computer En-
+39(4), pp. 1333-1355, July 1993. gineeringfrom Carnegie Mellon Univer-
+[7] A. Doucet, J. F. G. Freitas, and N. J. Gordon, "An in- sity in 1998. Currently, he is an Assis-
+troduction to sequential Monte Carlo methods," in Se- tant Professor at Instituto Tecnolo'gico
+quential Monte Carlo Methods in Practice, A. Doucet, de Aeronautica, Sao Jose' dos Campos,
+J. F. G. Freitas, and N. J. Gordon, Editors. New York: Brazil. His research interests include
+Springer-Verlag, 2001. hidden Markov Models, Bayesian net-
+works, Markov random fields, sequen-[8] M. S. Arulampalam, S. Maskell, N. Gordon and tilMneCromhdsMakvhin oteal,ad
+T. Clapp, "A tutorial on particle filters for on- thi aplcain in tage deeto an rcin,cmu
+line nolinearnon-Gausian Byesian rackin," IEE nications, machine learning, image processing, computer vi-
+Trans.~~~~~~onSina Prcsig'oS, ,p.1418 sion, and robotics. Dr. Bruno IS a member of several IEEE
+February 2002. societies and currently serves as an Associate Editor for the
+[9] M. Isard and A. Blake, "Condensation - conditional den- IEEE Signal Processing Letters.
+8
+Rafael Vidal de Araujo received a B.S.
+degree in electrical engineering from
+Instituto Tecnolo'gico de Aeronautica
+(ITA), Sao Jose' dos Campos, Brazil, in
+2002 and is currently pursuing an M.S.
+degree in electrical engineering also at
+ITA. His research interests include tar-
+get detection and tracking, digital im-
+age processing, adaptive filtering, and
+stochastic control.
+............................. i.i=i... ...... ........Anton G. Pavlov received the B.S.a I I .M I
+degree and, shortly thereafter, the Spe-
+cialist title in electrical engineeringfrom
+Karkov Military University, Kharkov,
+Ukraine, in 2001. In 2004, he re-
+ceived the M.S. degree in electrical
+engineering from Instituto Tecnologico
+de Aeronautica, Sao Jose' dos Campos,
+Brazil, where he is currently pursuing a Ph.D. degree, also in
+electrical engineering. His research interests are on proba-
+bilistic inference in Bayesian networks and sequential Monte
+Carlo methods. Mr Pavlov is a student member of the IEEE.
+9

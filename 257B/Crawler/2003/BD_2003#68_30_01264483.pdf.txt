@@ -1,0 +1,392 @@
+Proceedings of the Second International Conference on Machine Learning and Cybernetics, Xi’an, 2-5 November 2003 
+AN EFFICIENT CLUSTERING ALGORITHM 
+YU-FANG ZHANG, JIA-LI MAO, ZHONG-YANG XIONG 
+Department of Computer Science, Chongqing University, Chongqing, 400044, China 
+E-MAIL: zhangyf@cqu.edu.cn 
+Abstract: 
+Clustering analysis plays an important role in scientific 
+research and commercial application. K-means algorithm is a 
+widely used partition method in clustering. As the dataset’s 
+scale increases rapidly, it is dimcult to use K-meansand deal 
+with massive data. An improved K-means algorithm is 
+presented. It can avoid getting into locally optimal solution in 
+some degree, and reduce the probability of dividing one big 
+cluster into two or more ones owing to the adoption of 
+squared-error criterion. The experiments demonstrate that 
+the improved K-means is more stable and more accurate. 
+Keywords: 
+criterion 
+Clustering; the K-means Algorithm; Squared-error 
+1 Introduction 
+Cluster analysis, an important technology in data 
+mining, is an effective method of analyzing and 
+discovering useful information fiom numerous data. 
+Cluster algorithm groups the data into classes or clusters so 
+that objects within a cluster have high similarity in 
+comparison to one another, but are very dissimilar to 
+objects in other clusters [‘I. Dissimilarities are assessed 
+based on the attribute values describing the objects. Often, 
+distance measures are used. As a branch of statistics and an 
+example of unsupervised learning, clustering provides us an 
+exact and subtle analysis tool from the mathematic view. 
+K-means algorithm [1,2331 belongs to a popular 
+partition method in cluster analysis. The most widely used 
+clustering error criterion is squared-error criterion, it can be 
+defined as 
+where J ,  is the sum of square-error for all objects in 
+the database, xk is the point in space representing a given 
+object, and m is the mean of cluster cj . 
+Adopting the squared-error criterion, K-means works 
+well when the clusters are compact clouds that are rather 
+well separated from one another and are not suitable for 
+discovering clusters with nonconvex shapes or clusters of 
+very different size [‘I. For attempting to minimize the 
+square-emor criterion, it will divide the objects in one 
+cluster into two or more clusters. In addition to that, when 
+applying this square-error criterion to evaluate the 
+clustering results, the optimal cluster corresponds to the 
+extremum. Since the objective function has many local 
+minimal values [41, if the results of initialization is exactly 
+near the local minimal point, the algorithm will terminate at 
+a local optimum. So, random selecting initial cluster center 
+is easy to get in the local optimum not the entire optimal. 
+For overcoming that square-error criterion is hard to 
+distinguish the big difference among the clusters, one 
+technique has been developed which is based on 
+representative point-based technique [51. Besides, there are 
+various approaches to solving the problem that the 
+perfmnance of algorithm heavily depends on the initial 
+starting conditions: the simplest one is repetition with 
+different random selections 16]; some algorithms also 
+employ simulation anneal techni ue to avoid getting into 
+local optimal [71; In literature Bradley and Fayyad 
+present an iterative refinement approach for sampling 
+dataset many times and clustering twice to get the optimal 
+initial values of cluster center. The idea is that multiple 
+sub-samples are drawn from the dataset clustered 
+independently, then these solutions are clustered again 
+respectively, the refined initial center is then chosen as the 
+solution having minimal distortion over all solutions. 
+Aiming at the dependency to initial conditions and the 
+limitation of K-means algorithm that applies the 
+square-error criterion to measure the quality of clustering, 
+this paper presents a new improved K-means algorithm that 
+is based on effective techniques of multi-sampling and 
+once-clustering to search the optimal initial values of 
+cluster centers. Our experimental results demonstrate the 
+new algorithm can obtain better stability and excel the 
+original K-means in clustering results. 
+0-7803-7865-2/03/$17.00 02003 IEEE 
+261 
+Proceedings of the Second International Conference on Machine Learning and Cybernetics, Wan, 2-5 November 2003 
+2 Original K-means Clustering 
+In this section, we britfly describe the original 
+Algorithm: Original K-means(% k), S={X&,- -;xn]. 
+Input: The number of clusters K and a dataset 
+Output: A set of k clusters C j  that minimize the 
+Begin 
+m =  1; 
+initialize k prototypes 
+llarbitrarily choose k objects as the initial centers. 
+Repeat , .  
+K-means algorithm. 
+containing n objects (Xi). 
+squared$error criterion 
+Z j ,  j E [l,K]; 
+for i=l to n do 
+begin 
+for j=l to k do 
+compute D(x;, z j )  =Ixi - z j  I ; - .  ~, 
+if D(x; , z~)= min(D(X;,~~)} 
+then X i  E cj ; 
+end;ll(re)assign each object to the cluster based on the 
+mean 7.. 
+2 k 
+if m=l thenJ,(m)= c l X i  -zjl ; 
+j=l XieCj 
+m = m + l ;  
+for j=l to k do 
+. n .  
+ri . i=l 
+’. ; 
+ll(re)calculate the mean value of the objects for each 
+clustel: 
+11 compute the error function. 
+u n t i l J c ( m ) - J c ( m - l ) <  5 
+End. 
+The computational complexity of original K-means 
+algorithm is O(ndk), where n is the total number of 
+objects, k is the number of clusters, and d is the dimensions 
+of datasets. 
+3 Improved K-means Algorithm 
+3.1 Idea of Improved K-means Algorithm 
+Original K-means algorithm choose k points as initial 
+clustering centers, different points may obtain different 
+solutions. In order to diminish the sensitivity of initial point 
+choice, we employ a mediod [I1, which is the most centrally 
+located object in a cluster, to obtain better initial centers. 
+The demand of stochastic sampling is naturally bias 
+the sample to nearly represent the original dataset, that is to 
+say, samples drawn from dataset can’t cause distortion and 
+can reflect original data’s distribution. The example of 
+original data set is depicted on the left of figure 1, while 
+sampling resultes are shown on the right of figure 1. 
+I - - . .  
+Figure 1 Dataset and sub-sample 
+Comparing two solutions generated by clustering 
+sample drawn from the original dataset and itself using 
+K-means respectively, the location of clustering centroids 
+o f  these two are almost similar. So, the sample-based 
+method is applicable to refine initial conditions [*I. In order 
+to lessen the influence of sample on choosing initial 
+starting points, following procedures are employed. First, 
+drawing multiple sub-samples (say J) from original dataset 
+( the size of each sub-sample is not more than the 
+capability of the memory, and the s u m  for the size of J 
+sub-samples is as close as possible to the size of original 
+dataset) . Second, use K-means for each sub-sample and 
+producing a group of mediods respectively. Finally, 
+comparing J solutions and choosing one group having 
+minimal value of square-error function as the refined initial 
+points. 
+To avoid dividing one big cluster into two or more 
+ones for adopting square-error criterion, we assume the 
+number of clustering is K’ ( K  > K, K’ depends on the 
+balance of clustering quality and time). In general, bigger 
+K’ can expand searching area of solution space, and reduce 
+the situation that there are not any initial value near some 
+extremum. Subsequently, re-clustering the dataset through 
+K-means with the chosen initial conditions would produce 
+K’ mediods, then merging K’ clusters (which are nearest 
+clusters) until the number of clusters reduced to k. 
+262 
+P 
+Proceedings of the Second International Conference on Machine Learning and Cybernetics, Wan, 2-5 November 2003 
+3.2 Description of Improved K-means Algorithm 
+Algorithm: Improved K-means@, k), S={x,,%,- ;xn}. 
+Input: The number of clusters K ’ ( K ’  > K )  and a 
+Output: A set of k clusters (Cj ) that minimize the 
+Begin 
+Multiple sub-samples {SI,  S2, . . . , Sj }; 
+for m=l to j do 
+K-mean&, K’ ); //executing k-means, 
+I/ produce K’ clusters and j groups. 
+dataset containing n objects (Xi). 
+squared-error criterion 
+2 
+choose min{J,} as the refined initial points 
+z j ,  j E [ l , ~ ’ ] ;  
+K-means( S, K’ ); 
+//executing k-means again with chosen initial 
+Repeat 
+Combining two near clusters into one cluster, and 
+recalculate the new center generated by two centers 
+merged. 
+Until the number of clusters reduces into k //Merging 
+End. 
+Improved algorithm works on very small samples 
+compared with whole dataset and needs significantly less 
+iteration. For very large dataset, the cost of initial sampling 
+is negligible in the whole algorithm. The computational 
+cost of improved K-means mainly includes: the time 
+clustering whole dataset with the searched initial centers to 
+produce K’: clusters (O(nd)), and the time merging K’ 
+clusters into K clusters O(nd(k’ - k)) . So the 
+computational complexity of improved algorithm is 
+O(ndk‘ ). 
+//producing K’  mediods. 
+(K’ +K) 
+4 Experimental Results 
+4.1 Results on Simulation Datasets 
+In order to verify the validity of the improved 
+algorithm, experiments about original K-means and 
+improved algorithm on several datasets are made. All 
+experimental results are executed on the computer with PI11 
+-733 and 256M RAM, adopted language is Visual C++, and 
+the standard of convergence is set as: 
+J,(I+1)-Jc(1)<1E-6 . In the first experiment on 
+simulation datasets, the parameters we chosen are: 
+K’=2.33K and J=lO. 
+Dataset of three Gaussians (clusters) in two 
+dimensions are chosen. The calculated means [12] of three 
+clusters are [0.06925, 0.159481, [l, 0.006621 and [0.13510, 
+0.871751. Fig.2 depicts the distribution of simulation data 
+set. 
+Figure 2 The distribution of data. 
+The correctness and precision of clustering results 
+between original K-means and the improved K-means 
+algorithm are examined. Two algorithms have been 
+executed 15 times (the same input dataset but different 
+order at each run). There are 12 times to appear local 
+optimum when using original K-means. While running 
+improved algorithm in the same situation, almost all times 
+the stable solution can be gained. The centers produced by 
+two algorithms see Tab. 1. 
+Table 1 Clustering centers produced by two algorithms 
+Centers produced by duste{ original K-means 
+0.0890498, 
+0.0 135099, 
+.169279 1 (0.256684,0.0139827) 
+I 3 I (0.00569571.0.303756) I (1.0,00661817) 1 
+Comparing Figure 2 and Table 1, if the data’s 
+distribution is asymmetric, especially, when clusters have 
+great difference in their shape and size, original K-means 
+algorithm will divide one big cluster into small pieces. This 
+is because original K-means algorithm selects initial 
+clustering centers randomly, and the clustering solution 
+heavily depends on the initial starting conditions. 
+Furthermore, experimental result indicates that the solution 
+of original K-means algorithm is related to the order of 
+input data. 
+While improved algorithm that adopting the same 
+square-error criterion as judging standard, we choose K’ 
+(K’ = 2.33k) centers and merge into K clusters finally. The 
+results demonstrate that not only make the solution accord 
+with data set but also not depend on the order of input data. 
+It is more stable than original one. 
+Comparing the calculated means with two K-means 
+263 
+Proceedings of the Second International Conference on Machine Learning and Cybernetics, Wan, 2-5 November 2003 
+algorithms, it is obviously that the clustering centers 
+generated by improved K-means algorithm are closer to the 
+calculated means than that produced by original K-means. 
+4.2 Results On Another Datasets 
+We employ the improved K-means algorithm in the 
+data from the Places Rated Almanac [I3]. The Places Rated 
+Almanac is a guide to find the best places to live in the 
+United States. The Places Rated Almanac assigns scores to 
+characteristics/attributes of cities (Climate &Terrain, 
+Health Care & Environment, Crime, Transportation, 
+Education, The Arts, Recreation, and Economics. For all 
+but two of the above characteristics, the higher score is 
+better. For Housing and Crime, a lower score is better.). 
+They assign these scores to all U.S. metropolitan areas with 
+a population greater than 50,000 people. 
+The clustering trial was run on the Health Care & 
+Environment attribute and the Economics attribute, and 
+partitioned these cities into 3 classes. Tab.3 gives parts of 
+the original statistics data about Health Care & 
+Environment and Economics (two line data marked with 
+original value). 
+In order to improve the accuracy and efficiency of 
+algorithms and, consequently, to improve the overall 
+quality of patterns mined, the data have been normalized. 
+The normalization method is to scale the values of each 
+attribute then let them fall into a small specified scope. The 
+detailed is described below ['I. 
+Suppose there is a statistic dataset about m cities 
+which has n scoring criterion, and the value of j t h  criteria 
+for the ith city is xu , then the value of an attribute is 
+normalized to X; by computing 
+where standard deviation Si 
+and the mean 
+(4) 
+Table 2 also gives the normalized data (two line data 
+marked with normalized value), and Fig.3 depicts the 
+corresponding distribution of the data. 
+(3) 
+Table 2 The statistics data of 9 cities in Health Care & Environment and Economics 
+:- .. 
+health care & environment 
+Figure 3 The distribution of data on the Health Care & Environment attribute and the Economics attribute 
+The clustering results of original K-means are shown 
+in the left of Table 3, while the results of improved 
+K-means are on the right. 
+264 
+Proceedings of the Second International Conference on Machine Learning and Cybernetics, Wan, 2-5 November 2003 
+kesults of original K-meansResults of improved K-means 
+and the number of cities and the number of cities 
+(0.366948,0.373381) , 55 (0.590151,0.389618) , 13 
+(0.108903,0.540864) ,93  
+(0.098601,0.258748) , 181 
+(0.112569,0.628841) ,58 
+(0.139444,0.243043) , 258 
+The improved K-means algorithm is more reasonable 
+from the experimental results. The smallest cluster, with 
+only 3.95 1%(13/329) of the cities were in a cluster that had 
+the best mean heath care & environment rating clustered 
+with a medium mean economics rating. The cities in this 
+cluster were Baltimore, Detroit, Chicago, Los Angeles, 
+Minneapolis-St, Nassua-Suffolk, New York, Newark, 
+Philadelphia, Boston, Raleigh-Durham, San Francisco, and 
+Washington, DC. All of these cities are eastem half of the 
+country except for Los Angeles and San Francisco, and 
+they are very large metropolitan urban areas. The largest 
+cluster, with 258 of the 329 cities (78.419%) in the cluster, 
+was formed with a medium mean health care & 
+environment rating and the worst mean economics rating. 
+These cities were primarily in the northern states. 
+Computational results on emulation datasets 
+demonstrated that the clustering results of improved 
+K-means algorithm obviously have advantage over original 
+K-means algorithm. The improved K-means algorithm can 
+avoid converging to the local optimum for utilizing 
+square-error criterion and selecting initial conditions 
+randomly. Furthermore, adopting the method of sampling 
+dataset make the improved algorithm adapt to the clustering 
+tasks that have restriction in computing resources and time. 
+5 Conclusion 
+Along with the fast development of database and 
+network, the data scale clustering tasks involved in which 
+becomes more and more large. K-means algorithm is a 
+popular partition algorithm in cluster analysis, which has 
+some limitations when there are some restrictions in 
+computing resources and time, especially for huge size 
+dataset. The improved K-means algorithm presented in this 
+paper is a solution to handle large scale data, which can 
+select initial clustering center purposefully, reduce the 
+sensitivity to isolated point, avoid dissevering big cluster, 
+and overcome deflexion of data in some degree that caused 
+by the disproportion in data partitioning owing to adoption 
+of multi-sampling. 
+Acknowledgements , . 
+The author is partially supported by national f h d  
+(200 1 BA 10 1 A07-02), and Chongqing University f b d  
+2002. 
+References 
+Jiawei Han, Micheline Kamber, Data Mining 
+Concepts and Techniques, Higher Education 
+Press ,Morgan Kauhann Publishers,lO5- 142,335-388 
+E. Forgy: Cluster analysis of multivariate data: 
+Efficiency vs. interpretability of classifications, 
+Biometrics 2 1 :768, 1965 
+J. MacQueen: Some methods for classification and 
+analysis of multivariate observations. In Proceedings 
+of the Fifth Berkeley Symposium on Mathematical 
+Statistics and Probability. Volume 1 ,Statistics,L.M. Le 
+Cam and J. Neyman (Eds.).University of California 
+Press, 1967 
+Lixin Tang, Zihou Yang, Mengguang Wang: 
+Employing Genetic Algorithm To Improve The 
+K-means Algorithm In Clustering Analysis, 
+Mathemhtics Statistics and Application 
+Probability,Vol. 12, No.4, Dec. 1997 
+Enhong Cheng, Shangfei Wang, Yan Ning, Xufa 
+Wang: The Design And Realization Of Using 
+Representation Point Valid Clustering Algorithm, 
+Pattem Recognition and Artificial Intelligence,Vol. 14, 
+No.4,Dec. 2001 
+R.O. Duda and P.E. Hart, Pattem Classification and 
+Scene Analysis. New York: John Wiley and Sons, 
+1973 
+Selim S Z, Alsultan K: A Simulated Annealing 
+Algorithm for the Clustering Problem. Pattem 
+Recognition, 1991,24(10): 1003-1008 
+Usama Fayyad, Cory Reina, P. S. Bradley: 
+Initialization of Iterative Refinement Clustering 
+Algorithms. Microsoft Research Technical Report 
+MSR-TR-98-38, June 1998 
+Selim S Z, Ismail M A. K-Means-Type Algorithms: A 
+Generalized Convergence Theorem and 
+Charadterization of Local Optimality. IEEE Trans 
+Pattem Analysis and Machine Intelligence, 1984 
+[lo] Kaufman L,Rouseeuw P. Finding Groups in Data: An 
+Introduction to Cluster Analysis, New York : John 
+Wiley and Sons, 1990 
+[ll] Khaled Alsabti, Sanjay Ranka, Vineet Singh: An 
+Efficient K-Means Clustering Algorithm, 1997 
+[12] Yaoting Zhang, Kaitai Fang: The Introduction Of 
+Multivariate Multi-Statistics Analysis, Publishing 
+Company of Science, 1982 
+[ 131 http://lib.stat.cmu.edu/datasets/places.data 
+265 

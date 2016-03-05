@@ -1,0 +1,2308 @@
+   978-1-4673-1813-6/13/$31.00 ©2013 IEEE 
+ 1
+ OPALS: An Optical Communications Technology 
+Demonstration from the International Space Station 
+Bogdan V. Oaida1, Matthew J. Abrahamson, Robert J. Witoff, Jessica N. Bowles Martinez, Daniel A. Zayas
+ Jet Propulsion Laboratory, California Institute of Technology 
+4800 Oak Grove Dr. 
+Pasadena, CA 91109 
+818-354-5517 
+1Corresponding author: bogdan@jpl.nasa.gov  
+ 
+Abstract—Optical communication using space borne lasers has 
+long promised to increase the amount of science data 
+transmitted down to Earth. A first step in achieving 
+operational capability is demonstrating the fundamentals of 
+the optical link in an equivalent environment. The 
+International Space Station, with its vast capability, is well 
+suited to accommodate payloads aimed at advancing the 
+readiness of such technologies.  
+The Optical PAyload for Lasercomm Science (OPALS), to be 
+launched to and operated on the ISS in late 2013, will attempt 
+to downlink a short video to an optical ground station in 
+California using a 1550 nanometer, 2.5 watt laser, over the 
+course of a 90 day mission.  To achieve this, in addition to 
+designing and building the ISS payload, the OPALS team has 
+increased the capability of the existing ground station, as well 
+as developed the interface to the ISS infrastructure that will 
+allow operators to command it.  
+This paper will discuss the drivers and constraints created by 
+designing to existing interfaces (ISS flight, ISS operational, 
+ground system) while following a Class D payload 
+implementation (NASA NPR 8705.4). The paper will also 
+provide some specific examples of programmatic and technical 
+areas that have been shaped by these drivers and constraints.  
+TABLE OF CONTENTS 
+1. INTRODUCTION ................................................. 1 
+2. OPALS ARCHITECTURE .................................. 2 
+3. CONCEPT OF OPERATIONS ................................ 6 
+4. ISS INTERFACE ................................................. 9 
+5. DRIVERS, CONSTRAINTS, AND RESULTING 
+IMPLEMENTATION .............................................. 12 
+6. CONCLUSIONS ................................................. 18 
+ACKNOWLEDGEMENTS ....................................... 19 
+REFERENCES ....................................................... 19 
+BIOGRAPHIES ...................................................... 19 
+ 
+1. INTRODUCTION 
+Space-borne scientific instruments increasingly require 
+higher communication rates to transmit their gathered data 
+back to Earth or to support high-data rate applications (e.g., 
+high-definition video streams) [1]. Optical communication 
+(also referred to as ‘lasercomm’) is an emerging technology 
+in which data is modulated onto lasers to transmit 
+information. Because laser beams are significantly narrower 
+than radio-frequency (RF) beams, optical communication 
+offers, among other things, the promise of delivering much 
+higher power density, and thereby achieving much higher 
+data rates than the state of the art with RF beams [2]. 
+However, because laser beams are very narrow, the 
+spacecraft must be able to very accurately point the laser 
+beam to the receiving telescope on Earth as it travels across 
+the sky, which is one of the primary challenges of 
+lasercomm [3]. 
+The Optical PAyload for Lasercomm Science (OPALS) is a 
+technology demonstration project that aims to address some 
+of these challenges by downlinking a video over an optical 
+channel from the ISS to the Table Mountain optical ground 
+station in California. Its implementation approach is tailored 
+to be consistent with a low-cost project, and it has adopted 
+the Class D risk posture specified in NPR 8705.4 [4]. When 
+it is launched in the second half of 2013, OPALS will 
+become the first JPL-built space-borne lasercomm 
+technology demonstration, the first JPL-built unpressurized 
+ISS payload, the first JPL payload to fly on the SpaceX 
+Falcon9 Dragon vehicle, and the first Flight Releasable 
+Attachment Mechanism (FRAM) cargo to fly on the Dragon 
+capsule. It will also be among the first FRAM-based 
+payloads to undergo robotic extraction from the Dragon 
+cargo trunk. 
+OPALS is being developed as part of JPL’s Phaeton 
+Program, a training program with the objective to rapidly 
+train and grow early career professionals (ECPs) by 
+providing hands-on experience developing small, flight 
+payloads [5]. Phaeton projects are staffed and managed by 
+ECPs, with strong mentorship and guidance from senior 
+managers and engineers. The implementation approach for 
+the Phaeton projects provides the ECP participants 
+experience with all phases of a typical NASA project and 
+allows them hands-on experience throughout their lifecycle. 
+Upon delivery of the payload for final ISS interface testing 
+and launch vehicle integration, OPALS will be launched and 
+operated as a NASA payload [6].  
+This paper starts with a description of the OPALS 
+architecture in section 2, followed by the concept of 
+operation in section 3. It then breaks down the project’s 
+interactions with the ISS Program (section 4) into its three 
+major areas. Finally, section 5 addresses some of the 
+architectural and design changes that ensued as a result of 
+internal and external drivers and constraints. This includes 
+ 
+ 2
+ the challenges and advantages, both technical and 
+procedural, of being implemented as a Class D payload. 
+Technical case studies will address the use of Commercial 
+Off-The-Shelf (COTS) electronics, a novel forced 
+convection cooling approach, and safety-critical aspects of 
+the design. Systems engineering processes discussed will 
+include requirements flow-down from a known interface, 
+scope and size of verification and validation program, 
+technical margin management. Lastly, the conclusions are 
+discussed in section 6. 
+2. OPALS ARCHITECTURE 
+OPALS is more than just the hardware that will be 
+externally mounted to the ISS. In addition to the payload 
+Flight System (FS), OPALS includes a dedicated Ground 
+System (GS) and Mission Operations System (MOS). 
+Furthermore, it interfaces with the Marshall Space Flight 
+Center for commanding the payload, and SpaceX, the 
+launch vehicle provider, for ensuring physical compatibility. 
+Schematically, the architecture is depicted in Figure 1.  
+Optical Communication Design 
+As a low cost and high risk experiment, OPALS was never 
+intended to improve the state-of-the-art of optical 
+communications.  Instead, its focus has been on increasing 
+the understanding in a few of the challenging areas of the 
+field [7]. It will attempt to do so by downlinking a short-
+ duration, DVD quality video at a relatively modest data rate 
+of 30-50 Mbit/sec (state-of-the art optical communication 
+systems can support > 1 Gbit/sec links [8]).  The areas of 
+focus for OPALS include: 
+• Atmospheric turbulence characterization, including 
+obtaining downlink aperture-averaged fading statistics 
+by recording received power, and uplink scintillation 
+statistics by recording beacon power on the FS 
+• Link availability and how it is impacted by geometry, 
+atmospheric & environmental changes, and day vs. 
+night effects.  
+• Pointing performance of the ground system’s open loop 
+tracking and the FS acquisition, tracking, and stability.  
+Key design parameters for the optical links are summarized 
+in Table 1. 
+Flight System Overview 
+The flight hardware of the OPALS ISS payload is referred 
+to by the team as the Flight System (FS). It is generally 
+broken down into three major components: (1) the drum-
+ shaped sealed container (SC) housing the avionics, laser, 
+and support electronics; (2)  the two-axis gimbal supporting 
+the optical head (OH) containing the camera and laser 
+collimator; (3) the top half of the FRAM—called the 
+Express Pallet Adaptor (ExPA)—which provides the 
+mechanical and electrical interface to both the ISS and the 
+SpaceX Dragon launch vehicle and was provided to the 
+project free of cost by the ISS Program as contractor-
+ furnished equipment (CFE). The FRAM used by OPALS 
+was manufactured by SpaceX using NASA designs. It is the 
+ 
+Figure 1: The OPALS architecture contains elements beyond the ISS payload itself, all necessary to successfully 
+launch and operate it 
+ 
+ 3
+ first one SpaceX has delivered to a payload developer. 
+Sealed Container—The most prominent component of the 
+FS is the oil drum-sized sealed container and its roughly 
+7.25 square-foot radiator (Figure 2). Measuring 22 inches in 
+diameter, and forged out of aluminum, the sealed container 
+protects the COTS avionics from the harsh vacuum of space 
+by providing a room temperature environment at one 
+atmosphere. The avionics provide the functionality needed 
+to control all aspects of the FS and communicate with the 
+MOS via the ISS interface. The avionics include 
+commercial FPGAs and processors hosted in a modified 
+COTS PXI chassis. All of the components are laboratory-
+ grade, National Instruments-type electronics available 
+commercially. Figure 3 provides an overview of the makeup 
+of the FS and the components’ pedigree. 
+The SC also houses a ruggedized military-grade laser unit, a 
+custom-built power distribution and conditioning board, two 
+COTS motor drivers for controlling the bi-axis gimbal, and 
+various telemetry-gathering instrumentation such as 
+thermocouples and pressure transducers. All of these 
+components are mounted on wire rope isolators to provide a 
+more benign launch environment. All electrical and optical 
+conduits are routed through the SC wall via vacuum-rated 
+feedthroughs to the various connectors on the FRAM, the 
+gimbal, and optical head.  
+OPALS is not the first ISS payload to employ such a COTS-
+ driven design. The HICO payload, launched in 2009 and 
+operating from the Japanese Experiment Module Exposed 
+Facility (JEM-EF), has demonstrated success employing a 
+very similar approach [9], [10]. 
+Gimbal & Optical Head—Sharing the real estate on the 
+FRAM with the SC is the two-axis gimbal (Figure 2), which 
+points the optical transceiver towards the Ground System. 
+Actuation is performed by two microstepping motors whose 
+range of motion is limited to an 110˚ x 40˚ field of regard 
+(FOR) by hardstops.  An early, cost saving decision was to 
+forgo the use of motor encoders in favor of a dead reckoning 
+approach to gimbal pointing determination that counts 
+commanded motor steps. As a consequence, the gimbal 
+must be calibrated prior to each use to define axis reference 
+points and to ensure accuracy and precision are preserved.  
+The approximately three-pound optical head (OH), mounted 
+on the elevation axis, houses a commercial camera sensitive 
+at 976 nanometer used in acquiring and tracking the ground 
+beacon, and a custom collimator used to beam the 1550 
+nanometer, two-watt laser towards the ground station. Like 
+the gimbal, the OH was designed and built at JPL specific to 
+this application using flight rated parts capable of 
+withstanding the space environments. The mass and mass-
+ distribution of the OH were tightly controlled throughout 
+the lifecycle to allow it to be perfectly balanced on the 
+gimbal so that locks would not be required to keep it in 
+place during launch. Instead, the gimbal uses the backdrive 
+torque created by shorting the actuators’ coils to effectively 
+keep it immobilized when not in use. 
+Ground System Overview 
+The Table Mountain Facility, located about 60 miles east of 
+JPL in Wrightwood, CA, is home to the Optical 
+  
+Figure 2: OPALS Flight System consists of the ISS-
+ provided FRAM, a sealed container, and a two-axis 
+gimbaled optical transceiver (cabling not shown) 
+Table 1: Design parameters of the OPALS optical links 
+DOWNLINK CHARACTERISTICS 
+SIGNALING Parameter Units 
+Modulation OOK - 
+Uncoded BER 1.00E-04 - 
+ECC Reed-Solomon - 
+Modulation Rate  30-50 Mb/s 
+TRANSMITTER 
+Downlink wavelength 1550 nm 
+Beam Divergence (1/e^2) 1.0 - 1.6 mrad 
+Average laser power 2.5 W 
+Power transmitted from FS >0.833 W 
+POINTING 
+Pointing Bias 150.0 µrad 
+Pointing Jitter (RMS) 125.0 µrad 
+LINK GEOMETRY 
+Max Zenith Angle 65 deg 
+Max Range 700 Km 
+BEACON CHARACTERISTICS 
+Uplink wavelength 976 nm 
+Average Laser power 5 W 
+Beam divergence 1.7 mrad 
+Power transmitted from 
+OCTL 1.26 W 
+ 
+ 4
+ Communications Telescope Laboratory (OCTL), which will 
+be the ground receiver for the OPALS optical downlinks. 
+OCTL will host the OPALS Ground System (GS). In 
+OPALS parlance the Ground System (GS) refers to all the 
+hardware and software that is required to provide the optical 
+uplink beacon and to receive the optical downlink from the 
+Flight System. It does not include any of the hardware, 
+software, or people that will operate the FS as well as the 
+GS.  
+While leveraging the significant existing infrastructure at 
+OCTL, OPALS has also developed a significant amount of 
+hardware and software to enable it to be used as a Ground 
+System (Figure 4). Behind the one meter aperture of the 
+main OCTL telescope, OPALS is implementing a set of 
+optics to condition the 1550 nanometer light coming down 
+from the ISS so it can be focused on a detector and to 
+provide a 1.7 milliradian-wide beacon centered at 976 
+nanometer for the FS to lock onto and track.  
+Behind the optics, the detector turns photons into electrons 
+which are then processed to recover the clock and the signal 
+modulated on the downlink beam. The resulting bit stream 
+is then passed to a software decoder, which reconstructs the 
+file to its pre-transmission form. The GS also contains an 
+Ethernet interface to mission operations to ensure adequate 
+data transfer. 
+OPALS has also been able to leverage the existing OCTL 
+three-tier laser safety system. This system disables the 
+ground laser beacon when low flying objects, commercial 
+air traffic, and sensitive satellites are overhead. The 
+combination of hardware, software, and procedures already 
+in place there will ensure that the laser beam emitted by the 
+GS does not interfere with local air traffic. 
+Mission Operations System 
+The Mission Operations System (MOS) is a ground-based 
+system consisting of all personnel, processes, facilities, 
+hardware, software, and networks required to support the 
+successful operation of the payload and the optical ground 
+station. For OPALS, the MOS is tasked with commanding 
+the FS, processing telemetry, and displaying the 
+reconstructed file within 10 minutes of receipt by the GS. 
+These mission objectives must be accomplished within the 
+operational constraints imposed by the OPALS project and 
+project partners to ensure safety of ISS personnel and 
+OPALS hardware throughout the operational lifetime.   
+The OPALS MOS includes several components. For 
+personnel, there is a flight operations team and a ground 
+operations team. Hardware and software consists of four PC 
+workstations equipped with software for command builds, 
+telemetry receipt, telemetry display, telemetry query, 
+ephemeris management, sequence builds, camera frame 
+viewing, engineering log parsing, and configuration 
+management. Lastly, operational processes documentation 
+includes activity procedures, flight rules, and operational 
+interface agreements to ensure proper remote operation of 
+the FS and GS.  
+The MOS has major interfaces with the Payload Operations 
+Integration Center (POIC) at Marshall Space Flight Center 
+in Huntsville, AL, for operation of the Flight System and 
+with the Optical Communications Test Laboratory (OCTL) 
+in Table Mountain, CA, for storage and operation of the 
+ 
+Figure 3: Flight System Functional Block Diagram showing component pedigree 
+ 
+ 
+Ground System. As shown in Figure 
+interfaces between the OPALS MOS and t
+ file transfer protocol (FTP), voice-over-IP
+ private network (VPN) for comman
+ telemetry query and database download,
+ protocol (UDP) for one-way real-time telem
+ The network interfaces between the Fl
+ Ground MOS include VOIP for voice conn
+ for file transfer. The MOS also interfaces w
+ Investigator, who receives activity reconst
+ from the MOS and provides recommenda
+ technology investigations using the OPALS
+ The flight operations team is responsible f
+ execution of Flight System activities
+ commanding and flight product builds. Fil
+ as command sequences, configurations fil
+ files, are uplinked to the payload prior to 
+and real-time commands are sent to t
+ immediate execution.  
+The flight operations team, located at JPL, 
+progress via the Health and Status telemet
+ real-time in 768 Byte packets at 1 Hz—a
+ engineering log from the FS for a post-acti
+ Figure 4: The OPALS Ground System
+ 5
+ 5, the network 
+he POIC include 
+ (VOIP), virtual 
+d transmission, 
+ and user data 
+etry streaming. 
+ight MOS and 
+ections and VPN 
+ith the Principal 
+ruction products 
+tions for future 
+ payload. 
+or planning and 
+ via real-time 
+e products, such 
+es, and pointing 
+major activities, 
+he payload for 
+monitors activity 
+ry—streamed in 
+nd retrieves the 
+vity assessment. 
+Uplink products reach the OPALS
+ band transmission, while downlin
+ over the Ku-band via the Tracking 
+System (TDRSS) network.  
+The flight operations team is also re
+ and management of ISS trajectory 
+trajectory data from Johnson S
+ determine pass opportunities over
+ activity scheduling with the ISS Pro
+ downlink event, the team will retr
+ products to determine the final pas
+ pointing prediction products for 
+prediction products are known as 
+and the Blind Pointing Table. Si
+ dependent, each prediction file wil
+ local clocks at OCTL and on the ISS
+ The primary software tool used by t
+ for commanding and telemetry vie
+ Resource Kit (TReK) provided by 
+provides the capability to generate
+ patterns to the FS via the POIC
+ telemetry in real-time to the flight o
+ interface is a simple point-and
+  leveraged the existing OCTL infrastructure and also
+ specific hardware 
+ payload via the ISS S-
+ k products are relayed 
+Data and Relay Satellite 
+sponsible for processing 
+products. The team uses 
+pace Center (JSC) to 
+ OCTL and coordinate 
+gram. Prior to an optical 
+ieve the latest trajectory 
+s timing as well as build 
+the GS and FS. These 
+the OCTL Pointing File 
+nce both files are time 
+l be correlated with the 
+.  
+he flight operations team 
+wing is the Telescience 
+the POIC [11]. This tool 
+ and send command bit 
+ and display received 
+perations team. The user 
+-click architecture that 
+ 
+ developed mission-
+ 
+ 
+enhances ease of use during nominal opera
+ providing lower-level capabilities to mo
+ definitions and build enhancements for dat
+ display. TReK is currently serving as the
+ interface during OPALS integration and te
+ thus, will enable a smooth transition to orbit
+ The ground operations team is responsible 
+execution of Ground System activities.  S
+ System is physically located at OCT
+ operations team will be staffed there a
+ workstations to operate it directly. This tea
+ the GS for receipt of the optical communic
+ will retrieve and display the final reconstruc
+ Both operations teams must be trained to
+ nominal activities and exercise sound judgm
+ of anomalies. This training is accomplished
+ readiness tests (ORTs), which exercise 
+processes in a flight-like, real-time en
+ anomalies, or “green cards,” inserted into
+ various points in the timeline.  
+3. CONCEPT OF OPERATIO
+ The OPALS concept of operations is high
+ bi-directional line of sight between the Flig
+ ISS and the Ground System at OCTL. Th
+ when this condition is met is defined as the
+ The most important aspect of the Demonstr
+ Figure 5: The OPALS MOS interface wit
+ 6
+ tions while also 
+dify bit pattern 
+a processing and 
+ FS operational 
+st activities and, 
+al operations.  
+for planning and 
+ince the Ground 
+L, the ground 
+nd use the GS 
+m will initialize 
+ations signal and 
+ted video. 
+ safely execute 
+ent in the event 
+ with operational 
+nominal MOS 
+vironment with 
+ the exercise at 
+NS 
+ly dependent on 
+ht System on the 
+e period of time 
+ Demonstration. 
+ation is ensuring 
+accurate pointing of the optical com
+ the FS to the GS receiver. A pointin
+ of 300 ?rads (1?) is required to en
+ received on the ground receiver to
+ Predictions for the position and atti
+ over the Demonstration period are 
+level of accuracy, so an active, clos
+ is required.  
+The OPALS project achieves accur
+ laser beacon radiated from the G
+ feedback control tracking system i
+ This pointing architecture is typic
+ communications links as it fac
+ tracking of the ground station [8].  
+Figure 6 depicts OPALS implemen
+ the sequence of events during the D
+ Initially, the OCTL telescope point
+ the FS and continues to track the I
+ the Demonstration. Unlike the FS, t
+ not perform active tracking and rel
+ throughout the pass to track the ISS
+ 25° elevation in the sky, the FS b
+ laser beacon using a set of pointin
+ called the Blind Pointing Table, u
+ prior to each pass. The Blind Poin
+ ISS trajectory and attitude predictio
+ the OCTL surface location. Since t
+ h the Flight System, Ground System, and the ISS payl
+ munications signal from 
+g accuracy on the order 
+sure sufficient power is 
+ reconstruct the signal. 
+tude of the ISS platform 
+insufficient to meet this 
+ed-loop pointing system 
+ate pointing by use of a 
+S toward the FS and a 
+mplemented on the FS. 
+al of near-Earth optical 
+ilitates acquisition and 
+tation of this design and 
+emonstration.  
+s a laser beacon toward 
+SS over the duration of 
+he OCTL telescope does 
+ies on orbital predictions 
+. As the ISS rises above 
+egins searching for the 
+g predictions of its own 
+plinked to the payload 
+ting Table is built using 
+ns as well as a model of 
+he flight camera field of 
+ 
+oads operations center. 
+ 
+ 
+view is fairly wide at 7˚ by 9˚, it is ant
+ ground beacon will be present in the came
+ given the uncertainties assumed in the pred
+ FS detects the laser beacon on the flight 
+computes the centroid location of the beac
+ the two-axis gimbal to draw the beacon to 
+CCD and minimize future deviations f
+ location. The feedback control system 
+Proportional, Integral, and Derivative (PID
+ tuned to ensure adequate tracking perform
+ ISS flight profile and platform disturba
+ transmit and receive optical paths are co-al
+ optical head, this tracking system enables a
+ of the optical communications signal to the 
+While the Flight System continues track
+ beacon, the laser signal is modulated with
+ over the optical channel. The modu
+ continues to loop the video through
+ Demonstration to build in robustness to tem
+ cloud obscuration of the signal.  
+At the end of the Demonstration period, th
+ executes a post-Demonstration sequence of
+ safely powers down the laser and stows 
+Ground System then attempts to reconstruct
+ on the data collected at the receiver.   
+A Day-in-the-Life 
+The OPALS day-in-the-life scenario 
+operations activities required to exec
+ Demonstration. It does not describe plannin
+ Figure 6: Co
+ 7
+ icipated that the 
+ra field of view 
+ictions. Once the 
+camera CCD, it 
+on, and actuates 
+the center of the 
+rom the center 
+is governed by 
+) gains that are 
+ance given the 
+nces. Since the 
+igned within the 
+ccurate pointing 
+ground receiver. 
+ing the ground 
+ the video data 
+lation sequence 
+out the entire 
+porary fades or 
+e Flight System 
+ commands that 
+the gimbal. The 
+ the video based 
+describes the 
+ute a nominal 
+g and scheduling 
+activities, but instead the activ
+ operations teams on the Demonstra
+ path of the ISS fixes the time of 
+operations activities are driven by 
+the Demonstration start with a se
+ activities and the need to retrieve 
+shut down the payload with a se
+ activities. Figure 7 depicts the FS st
+ exercised during a typical Dem
+ activities occurring in, and transi
+ demonstration state—which are l
+ time-sequence driven—all other ac
+ a ground-in-the-loop commanding m
+ The pre-Demonstration activities in
+ and configuring the major payload 
+gimbal, camera, and laser, f
+ Demonstration. The activities begi
+ 28V Operational Power input to th
+ power source initializes the OPAL
+ flight software into safe state, which
+ operation where the hardware and 
+and stable configuration, and restri
+ FS. While in safe state, the operat
+ health assessment by analyzing 
+telemetry arriving at 1 Hz. Onc
+ confirmed, the FS is commanded i
+ accepts all commands except gimb
+ power commands. While in this sta
+ file uplink of configuration files, se
+ files that may require an update.  
+ 
+ncept of Operations for a typical Demonstration 
+ities executed by the 
+tion day. Since the orbit 
+Demonstration, OPALS 
+the need to prepare for 
+t of pre-Demonstration 
+payload data and safely 
+t of post-Demonstration 
+ates and state transitions 
+onstration. Except for 
+tions to and from, the 
+argely autonomous and 
+tivities are performed in 
+anner. 
+volve safely initializing 
+subsystems, such as the 
+or the start of the 
+n with activation of the 
+e OPALS payload. This 
+S avionics system and 
+ is defined as a mode of 
+software are in a known 
+cted commanding to the 
+ors can perform a quick 
+the Health and Status 
+e the system health is 
+nto the idle state, which 
+al movement and laser 
+te, the operators perform 
+quence files, or pointing 
+ 
+ 
+ 8
+ The transition from idle state to gimbal activity state 
+requires use of a set of critical commands to disable the 
+gimbal safety inhibit. This inhibit prevents inadvertent 
+operation of the laser during external crew or robotic 
+activities by preventing actuation of the gimbal pointing. In 
+order to disable the inhibit, a pair of two commands, one 
+“arm” and one “fire”, must be sent in succession to the 
+flight software. Following receipt of these commands, the 
+gimbal can be commanded to move away from the stow 
+position and away from the limit switches that bound the 
+range of motion.  
+Upon movement of the gimbal, the Flight System enters 
+gimbal activity state. The primary operations activity within 
+this state is the gimbal calibration, which defines the 
+reference points for each axis. This activity is a sequence of 
+movement commands that drive the gimbal through its full 
+range of motion and establish reference points at the edge of 
+each axis by measuring where the limit switches are 
+actuated. Since the actuators lack encoders, the gimbal can 
+only determine its position by counting commanded steps. 
+The transition from gimbal activity state to laser enabled 
+state requires additional critical commands to be sent to the 
+FS to disable the laser safety inhibits. The laser arm/fire 
+critical commands disable the inhibit preventing closure of 
+the 28V power relay to the laser. In order to decentralize the 
+laser activation process for safety purposes, independent 
+commands must be sent from the OPALS MOS and the 
+POIC for 28V power to be routed to the laser. Each of the 
+commands closes an independent power relay along the 28V 
+power path on the FS power board. Once the 28V power is 
+provided to the laser, the FS enters “laser enabled” state. 
+The major activities in this state are the powering on of the 
+flight camera and the powering of the flight laser unit to full 
+power. The latter involves activating a 5V power relay to 
+the laser booster, which is controlled by its own inhibit that 
+requires an additional arm/fire command pair to be sent. 
+Once these major activities are complete, the FS can be 
+commanded to point toward the first entry in the Blind 
+Pointing Table, at which point, the FS is configured for 
+Demonstration. 
+The FS enters demonstration state upon execution of the 
+commence_demo command. Since this transition must be 
+set to occur at a specific time determined by the ISS 
+trajectory, this command will be scheduled in a command 
+sequence. The Flight System restricts all commands during 
+this state except for the abort_safe command to transition 
+the entire payload to safe state, should an anomaly occur. 
+The sequence of activities in the demonstration state follows 
+the description in the first part of section 3.  
+The post-Demonstration activities involve safely powering 
+off the laser, driving the gimbal to stow, and re-enabling all 
+inhibits. These activities are accomplished by a post-demo 
+command sequence that executes automatically upon 
+nominal exit of demonstration state. Once all inhibits are 
+ 
+Figure 7: Flight System states diagram 
+ 
+ 
+enabled, the Flight System is returned to id
+ begin downlinking  accumulated engine
+ camera frames from the file system via t
+ Once all products are downlinked and a fina
+ made, the 28V power is removed from the
+ the Flight System activities. Figure 8 show
+ in-the-life timeline which includes som
+ assumptions about the durations required to
+ tasks. 
+4. ISS INTERFACE 
+The ISS interface is multifaceted and in
+ connections, software, and communicatio
+ teams at the various NASA centers. If
+ interfaces are considered, a number of as
+ significant influences on a project, directly
+ throughout its lifecycle may be missed. G
+ interface can be thought of as having thre
+ interaction: programmatic, technical, an
+ remaining of this section provides a discu
+ them. 
+Programmatic Interface 
+For over 11 years, the International Space 
+(ISSP) has continuously maintained a hum
+ low Earth orbit with constant operationa
+ around the globe.  After 14 years of co
+ visiting vehicles and integration of 390 met
+ qualified equipment, the ISS is the large
+ created in space. Supporting such a ma
+ requires a daunting number of engineers, to
+ thousands. 
+In 2011 STS-134 delivered the A
+ Spectrometer to the ISS marking the end
+ States’ primary assembly phase of the ISS
+ completion the ISSP has undergone a swe
+ from an assembly centric organization to a
+ one. Supporting this new focus, the ISSP
+ amongst 15 primary offices representing th
+ expertise. OPALS’ primary five offices o
+ shown Figure 9. 
+The Research and Integration Office (OZ) h
+ responsibilities for managing and interfacin
+ like OPALS.  Systems engineers with br
+ Figure 8: Day-in-the-life activities ar
+ 9
+ le state and can 
+ering logs and 
+he ISS RF link. 
+l health check is 
+ payload, ending 
+s a typical day-
+ e conservative 
+ perform various 
+cludes physical 
+n with all the 
+ only technical 
+pects that exert 
+ and indirectly, 
+enerally the ISS 
+e major areas of 
+d safety. The 
+ssion of each of 
+Station Program 
+an presence in 
+l support from 
+nstruction, 140+ 
+ric tons of space 
+st outpost ever 
+ssive operation 
+taling well in the 
+lpha Magnetic 
+ of the United 
+.  Following this 
+eping transition 
+ payload centric 
+ is now divided 
+e breadth of ISS 
+f interaction are 
+olds the primary 
+g with payloads 
+oad experiences 
+reside within this office to expertly
+ the rest of the program. On an as-ne
+ and Integration Office has aided d
+ with over 300 individuals across 30
+ Despite well planned standardizatio
+ human interface between payload 
+is necessary to facilitate the exchan
+ hundreds of engineers and th
+ specifications. 
+Technical Interface 
+The Station’s massive supporting o
+ support its technical complexity
+ complexity can amount to 694 
+across 11 disciplines.  These discip
+ electrical, command and dat
+ environmental, materials, marking, 
+astronaut and software interfaces.  
+To both standardize and simplify, a
+ connections are provided by a Fligh
+ Mechanism (FRAM), highlighted 
+come in many sizes and varieties 
+cargo or instrument they support. 
+Express Pallet Adapter (ExPA). 
+The physical interface occurs in
+ translation, and operation. The fi
+ OPALS integrated into the trunk o
+ stack ascending to orbit.  The laun
+ e scheduled and performed relative to the beginning o
+ Figure 9: Simplified org chart o
+ JSC offices that OPALS has inte
+ points in its life
+  direct payloads through 
+eded basis, the Research 
+irect OPALS interaction 
+ supporting teams.  
+n and documentation, a 
+developers and the ISSP 
+ge of information across 
+ousands of pages of 
+rganization is scaled to 
+.  For payloads, this 
+interface requirements, 
+lines include structural, 
+a handling, thermal, 
+maintainability, robotic, 
+ll physical interfaces and 
+t Releasable Attachment 
+in Figure 10. FRAMs 
+to suit the need of the 
+OPALS has chosen an 
+ three phases: launch, 
+rst of these phases has 
+f a Falcon 9 and Dragon 
+ch on which OPALS is 
+ 
+f a Demonstration  
+ 
+f the primary ISS and 
+racted with at various 
+cycle 
+ 
+ 
+manifested will mark the third SpaceX fligh
+ Commercial Resupply (CRS) contract and m
+ first SpaceX CRS flight extensively rede
+ external cargo.  These modifications includ
+ updated Falcon 9 (v1.1) and a Dragon
+ providing a suite of launch characterist
+ vibro-acoustic environmental ones, which 
+characterized.  Since the OPALS System
+ Review (SRR) in early 2010, the ongoing
+ of these interfaces has led to a net change o
+ ISS requirements and essentially 100% ch
+ Dragon requirements, including updates
+ deletions. 
+Following a successful berth with the ISS
+ phase to OPALS’ operational destinat
+ Utilizing the capable Mobile Servicing Sy
+ the Mobile Berthing System, Special Pu
+ Manipulator (SPDM), and Space S
+ Manipulator System (SSRMS) robotic 
+operators on the ground will extract O
+ berthed Dragon and again mate OPALS’ FR
+ to a power-providing element (the En
+ Replacement Unit Temporary Platform, o
+ SPDM.  After a nearly two-day robotic
+ SPDM will again install OPALS onto 
+FRAM, this time at its intended operationa
+ nadir, port side-facing ELC 1 FRAM 8 
+correctly utilize these robotic component
+ Figure 11: OPALS orientation
+ 10
+ t under NASA’s 
+ore notably, the 
+signed to carry 
+e a significantly 
+ block upgrade 
+ics, particularly 
+are not yet fully 
+ Requirements 
+ characterization 
+f 37% of the 694 
+ange of the 117 
+, additions and 
+, the translation 
+ion can begin.  
+stem—including 
+rpose Dexterous 
+tation Robotic 
+elements—ISS 
+PALS from the 
+AM underbelly 
+hanced Orbital 
+r EOTP) on the 
+ translation the 
+another Passive 
+l location on the 
+(Figure 11). To 
+s, 222 interface 
+requirements are provided, the 
+verified by use of a certified st
+ performed, OPALS will be the first
+ type of robotic transfer. 
+In the event of a robotic contingen
+ astronauts to intervene and acc
+ transfer towards final installation o
+ standardized FRAM handholds on
+ could manipulate OPALS if the n
+ interface is made possible wit
+ implications for OPALS, though op
+ as orientation and timing, do exi
+ contingency crew member interac
+ Figure 10: The FRAM provides a
+ the LV, the robotic arm and the
+  
+ relative to the ISS at its operational location on ELC
+ majority of which are 
+andard FRAM.  When 
+ payload to undergo this 
+cy, capabilities exist for 
+omplish the remaining 
+f OPALS.  By using the 
+ the ExPA, astronauts 
+eed were to arise. This 
+hout additional design 
+erational concerns, such 
+st.  To implement this 
+tion, up to 2 weeks of 
+ common interface for 
+ ISS mounting points 
+ 1, FRAM 8 
+ 
+ 
+unallocated planning would be required. 
+Finally, in the third interface phase, the OP
+ installed and ready to operate on its ELC, w
+ its full suite of interfaces available. They in
+ avionics and software interfaces, which 
+operations to commence. 
+OPALS will be the first payload installed o
+ Even with a standardized specification, 
+means many questions, capabilities, and i
+ addressed for the first time in parallel w
+ development and in collaboration with I
+ engineers. 
+Safety Interface 
+JPL engineers regularly design complex 
+sent far into space never to interact wit
+ launch.  As a result, the human safety co
+ OPALS responded to have introduced ne
+ every aspect of the design.   This experien
+ only learning how to navigate the pro
+ approval from the technical experts on the
+ Review Panel (PSRP) on the design, but 
+solve engineering problems from a safety p
+ not compromising technical goals. 
+The formal interaction between the payl
+ such as the OPALS project, and the PSRP 
+series of Flight Safety Reviews (FSRs)
+ reviews the project and the panel ident
+ hazards created by the payload and dec
+ controls to keep those hazards from causin
+ either personnel or the ISS.   A safety 
+submitted 45 days prior to a formal FSR 
+review and comment. The submission is
+ presentation and hazard report walk-throu
+ takes a full day or two as all safety concern
+ are discussed and addressed.  
+The first meeting with the PSRP was a 
+which focused on identifying applicab
+ verifying that the appropriate requireme
+ referenced.  OPALS started at a time whe
+ Figure 12: OPALS project milestones rel
+ 11
+ ALS FS will be 
+here it will have 
+clude electrical, 
+will enable full 
+n this new ELC, 
+a new interface 
+ssues have been 
+ith the OPALS 
+SS and SpaceX 
+systems that are 
+h humans after 
+nsiderations that 
+w challenges in 
+ce involved not 
+cess of gaining 
+ Payload Safety 
+also learning to 
+erspective while 
+oad developers, 
+occurs through a 
+ [12]. In these 
+ify all potential 
+ide on a set of 
+g any damage to 
+data package is 
+for the PSRP to 
+ followed by a 
+gh, which often 
+s and comments 
+Phase 0 review 
+le hazards and 
+nts were being 
+n documentation 
+was transitioning from shuttle requ
+ documents so the initial meeting 
+which standards are applicable to th
+ initial hazard assessment with the
+ some potential hazards the proje
+ Additionally, it helped guide the
+ choices that later could have snow
+ would have been difficult to 
+progressed toward the more formal 
+OPALS’ Phase 1 review was se
+ project’s PDR and reflected a fair
+ time leading up to this review the p
+ class 4 laser that required the h
+ classification (catastrophic) and i
+ controls for all possible operationa
+ the safety review OPALS discusse
+ with various members of the PRSP
+ design approaches for controls r
+ hazards from actualizing.  These 
+meetings were essential leading in
+ the design then required minimal ch
+ 1 review. This preparation had th
+ developing a strong relationship b
+ members and the OPALS team.  
+The Phase 2 review typically foll
+ Design Review (CDR).  OPALS
+ formal technical interchange meetin
+ to review its hazards and solidi
+ method of controlling them. With 
+identified and most of the control
+ debate, the Phase 2 review covered
+ testing and the supporting docu
+ particularly strong focus on veri
+ avionics and the hazard controls 
+computer system controls a haza
+ Control System (CBCS) Matrix m
+ outlines the requirements for that 
+meets the requirements, and the 
+demonstrate compliance [13].   The 
+into the high-level software archite
+ level registers and memory mana
+ reviewed by the Computer Safety 
+ative to the safety milestones outlined in NSTS 13830 
+and Data Submittal Requirements 
+irements to ISS-specific 
+focused on establishing 
+e OPALS payload.   The 
+ PSRP helped identify 
+ct had not considered. 
+ project’s early design 
+balled into hazards that 
+change as the design 
+Phase 1 review. 
+veral months after the 
+ly mature design. In the 
+roject settled on using a 
+ighest level of hazard 
+dentified a number of 
+l scenarios.   Going into 
+d these choices in depth 
+ to identify options and 
+equired to prevent the 
+earlier discussions and 
+to the formal review as 
+anges to pass the Phase 
+e additional benefit of 
+etween the safety panel 
+ows a project’s Critical 
+, however, requested a 
+g (TIM) with the PSRP 
+fy concurrence on the 
+the hazard sources well 
+s requiring little further 
+ the details of hardware 
+mentation and had a 
+fication of the OPALS 
+it governs.   When a 
+rd, a Computer Based 
+ust be developed that 
+system, the design that 
+verifications planned to 
+completed matrix delves 
+cture as well as the low-
+ gement. This system is 
+Panel (CSP) and if the 
+Payload Safety Review 
+ 
+ 12
+ panel chair agrees with the approach he or she recommends 
+it for approval to the PSRP. After many tweaks and focused 
+discussion outside of the full PSRP the OPALS CBCS 
+matrix was approved for Phase 2.    
+As Phase 3 approaches, all agreed-to verifications of hazard 
+controls must be performed, documented, and submitted.  
+Any deviations from the agreed-to verifications must be 
+documented and approved by members of the PSRP. 
+In addition to the Flight Safety Reviews (FSRs), a Ground 
+Safety Review schedule is also negotiated and a package is 
+submitted.  This process is very similar to the PSRP one, but 
+the scope of the hazards is limited to ground operations at 
+the launch and processing facilities.  
+The key to successfully passing the FSRs has been constant, 
+early, and open communication with the PSRP. It has 
+allowed for the quick identification of hazards and it has 
+prevented the project from locking itself into designs that 
+either could have adversely impacted safety or could have 
+made compliance significantly more difficult. The PSRP 
+and everyone involved in the safety side of the interface 
+have shown great flexibility in allowing OPALS design 
+freedom to ensure its mission success while enforcing a high 
+standard for the safety of the ISS and those inhabiting it. 
+5. DRIVERS, CONSTRAINTS, AND RESULTING 
+IMPLEMENTATION 
+OPALS is no exception when it comes to facing the typical 
+challenges that most space flight projects have to overcome 
+throughout their lifecycle. Cost and schedule always seem 
+insufficient. The workforce is sometimes stretched thin. All 
+these challenges create constraints, end up driving the 
+decision-making process and inescapably shape the final 
+product. There are, however, many aspects that set OPALS 
+apart from the average space borne instrument, and they too 
+came with their own drivers and constraints.  
+Overall, the drivers and constraints can be classified as 
+internal and external, with each category further divided into 
+process- or technically-flavored. This section is dedicated to 
+examples, spanning each of those categories, of drivers and 
+constraints that have in one way or another influenced the 
+implementation of the project. 
+Internal, Process-Derived Drivers and Constraints 
+The aspects falling under this section refer to those whose 
+common denominator is the internally-mandated JPL 
+process. The most influential and prevailing of these 
+processes are documented in the JPL Design Principles and 
+JPL Flight Project Practices. These documents provide 
+guidelines on everything from cost, schedule reserves and 
+technical margins to the pedigree of the parts and 
+components used by the flight article and the level of 
+documentation required. 
+Class D—The biggest impact on the project, second only to 
+the stringent cost cap, was the decision to implement it as a 
+Class D payload risk classification per NASA NPR 8705.4. 
+This decision was less of a constraint than it was a driver, 
+and it ultimately gave the project more flexibility in making 
+decisions. The ramifications of this decision are many, 
+including the risk posture of the project in parts selection, 
+sparing philosophy, hardware handling requirements, 
+qualification program, fault protection, and extent of formal 
+verification of requirements.  
+Early on in its lifecycle, the project sought to define the 
+Class D implementation approach within the guidelines set 
+by NASA procedural requirements. Specifically the project 
+was allowed to: 
+• Build one proto-flight model with limited engineering 
+models (EMs). The only subsystem to have a full EM is 
+the avionics. Other EMs include the acquisition camera, 
+one motor driver, and the in-house developed power 
+board 
+• Limit parts sparing to long-lead items only. The project 
+only purchased one spare actuator and a few of the 
+avionics cards. There are no spares for the laser, power 
+board, camera, or any structural components. 
+• Use COTS hardware wherever possible. This aspect is 
+discussed in further detail in a subsequent section. 
+• Forgo radiation or parts support. The extensive usage of 
+COTS components implies, to a large extent, the 
+absence of radiation susceptibility data, along with 
+other environmental information. Thus, as early as the 
+Mission Concept Review, the project and its 
+stakeholders have accepted the potential mission-
+ ending risk of unrecoverable single event upsets. 
+• Limit hardware and software Quality Assurance prior to 
+system level integration and test. Typically, HQA/SQA 
+involvement begins early in subsystem development, 
+well in advance of system I&T. 
+• Limit flight tech support to final torqueing and high risk 
+procedures. The philosophy here is similar to the 
+HQA/SQA involvement.  
+Requirements and V&V—Likely the most unglamorous 
+aspect of producing a space-worthy payload is developing 
+the set of requirements that govern its function and 
+behavior. While Class-D status does not give the project a 
+pass on developing requirements, it can shape the way the 
+process is conducted and the extent to which requirements 
+are developed.  
+For example, higher-class projects typically develop 
+requirements down to level five or six, and bin them in 
+dozens, if not hundreds of sets or modules. By contrast, 
+OPALS currently only has 782 requirements spread over 33 
+modules, with none of them containing more than 105 
+items. Of the 694 ISS requirements only 376 are applicable 
+to OPALS, accounting for 48% of the total OPALS set. 
+Similarly, of the 117 launch vehicle requirements, only 58 
+are levied on OPALS. This means that the project has only 
+ 
+ 
+348 project-specific requirements that it int
+ verify. Figure 13 breaks down the 
+requirements, including ISS and launch
+ residing at the various levels. 
+OPALS, however, is no poster child f
+ development as it fell into the same trap th
+ projects—regardless of size and risk 
+verification and validation (V&V) time: it 
+unnecessary requirements.  
+At CDR time OPALS realized that 
+requirements it was signing up to verify d
+ and testing, totaling almost 1300 (796 OPA
+ LV), had become unmanageable given
+ schedule and cost-to-go. Shortly therea
+ embarked on a months-long, project-
+ evaluating its requirement set with the goa
+ down to those that it couldn’t justify not ver
+ By the time the Test Readiness Review ca
+ later, the project had achieved an overall r
+ (Table 2) in the number of items it deem
+ verification.  
+Once again leveraging its Class D status, 
+from JPL management, the project decided 
+796 requirements it had written on itself—
+ the ISS and launch vehicle ones—provided
+ others when it came to verification. D
+ explicitly verify a requirement meant one of
+ 1. The statement was deemed to be, in 
+of a requirement and more of procedu
+ on how something was to be done, 
+less of an instruction on how well s
+ work and more of a documentation
+ Without engaging in a detailed sema
+ the project changed the status of these
+ requirement to policy. This meant th
+ still had to be implemented, but it di
+ formally verified.  
+Figure 13: Two-thirds of the 782 OPALS
+ reside at the level 4 FS subsystem level. 
+the ISS and launch vehicle requir
+ 13
+ ends to formally 
+distribution of 
+ vehicle ones, 
+or requirements 
+at cripples many 
+posture—come 
+developed many 
+the number of 
+uring integration 
+LS + 529 ISS& 
+ the remaining 
+fter, the team 
+wide effort of 
+l of trimming it 
+ifying explicitly. 
+me nine months 
+eduction of 37% 
+ed important for 
+and with buy in 
+that some of the 
+which excludes 
+ less value than 
+eciding not to 
+ two things: 
+some cases, less 
+ral specification 
+while in others, 
+omething had to 
+ on the design. 
+ntics discussion, 
+ statements from 
+at the statement 
+d not have to be 
+2. The statement remained a re
+ not be explicitly verified at t
+ written as the state-of-pra
+ Instead, its verification woul
+ parent at a higher level was 
+order for a requirement to be 
+a higher level it had to meet o
+ criteria:  
+• It is enveloped by a large
+ at a higher level; e.g. 
+flowdown, such as mass, 
+• Functionality/performanc
+ higher level test(s) AN
+ requirement will be app
+ level tests. Put another 
+cannot be verified at a hi
+ meet that requirement wo
+ in higher level test, then
+ requirement cannot be mo
+ This process was a very time-inte
+ number of individuals on the te
+ thought to have saved the project as
+ and money in Phase D when the ma
+ takes place.  
+There were, however, two exceptio
+ applied to externally-levied ISS
+ requirements, and those requireme
+ safety standards to be followed.  
+It is important to point out that the
+ 421 requirements which were ev
+ verification via this process should
+ but rather that the mission risk of 
+one the project was willing to
+ underperformance of the system 
+higher level testing. In doing so, h
+ had to accept an increased cost 
+problems that might have been cau
+ caught until later during system
+ significantly more expensive to fix. 
+ requirements 
+These include 
+ements. 
+Table 2: Reduction achieved betw
+ number of requirements needin
+ Set CDR 
+L1 1 
+L2 (all) 283 
+L3 (all) 216 
+L4 GS 66 
+L4 FS IRDs 158 
+L4 FS STR 188 
+L4 FS FSW 167 
+L4 FS Other 218 
+OPALS TOTAL 1296 
+ISS Total 468 
+LV Total 59 
+quirement, but it would 
+he level at which it was 
+ctice usually dictates. 
+d become implicit if its 
+successfully verified. In 
+allowed to be verified at 
+ne of the following two 
+r ‘capstone’ requirement 
+part of an allocation 
+pointing budgets. 
+e can be rolled into 
+D failure to meet the 
+arent in higher, system-
+ way, if a requirement 
+gher level OR failure to 
+uld not become apparent 
+ the verification of that 
+ved to a higher level. 
+nsive one for a limited 
+am, but it is generally 
+ a whole significant time 
+jority of the V&V effort 
+ns to this process which 
+ and launch vehicle 
+nts which specified the 
+ argument is not that the 
+entually descoped from 
+ not have been written, 
+not verifying them was 
+ accept because any 
+would be identified in 
+owever, the project also 
+and schedule risk that 
+ght earlier, would not be 
+ I&T when they are 
+ 
+een CDR and TRR in 
+g explicit verification 
+TRR % Change 
+1 -0% 
+230 -19% 
+138 -36% 
+28 -58% 
+61 -61% 
+101 -46% 
+109 -35% 
+158 -28% 
+823 -37% 
+411 -12% 
+39 -34% 
+ 
+ 
+Internal, Technically-Derived Drivers and C
+ Equally instrumental in shaping the outcom
+ were those decisions that were driven b
+ aspects over which the project had decision
+ In the same way that certain policy dec
+ subsequent ones (see Class D), early technic
+ a cascading effect throughout the design, pa
+ Flight System.  
+COTS Usage—The most clear and pervasi
+ the decision to utilize COTS parts whereve
+ of the early conceptual architecture and desi
+ was inherited from aircraft-borne system
+ operated by JPL as recently as 2011.  In an
+ cost and complexity, the use of COTS c
+ considered an attractive option for the avion
+ risk of latent failure and unfamiliarity wi
+ was essentially traded against the extreme
+ short lead times made possible by ordering
+ While the FS would evolve over time to
+ custom JPL-built boards and compone
+ implementation has left an indelible mark on
+ Traditional spacecraft and instrument electr
+ on strong conductive coupling to a tempe
+ interface to maintain safe operati
+ Ruggedization is also common practi
+ reliability in the vibration- and ra
+ environments of launch and low-Eart
+ practices, however, are often impractical or
+ with COTS avionics, where the cost o
+ ruggedizing for flight would surely dwarf
+ components themselves. The OPA
+ implementation, for example, comprises a 
+and electrical components that are desig
+ forced-convection cooling in a ro
+ environment. They have relatively little or 
+Figure 14: Cross-sectional view of flight
+ container showing arrangement of c
+ 14
+ onstraints 
+e of the project 
+y the technical 
+-making control. 
+isions impacted 
+al decisions had 
+rticularly for the 
+ve example was 
+r possible. Much 
+gn of the project 
+s designed and 
+ effort to reduce 
+omponents was 
+ics design – the 
+th the hardware 
+ly low cost and 
+ “off-the-shelf.”  
+ include several 
+nts, the COTS 
+ the FS design.  
+onics boxes rely 
+rature-controlled 
+ng conditions.  
+ce to improve 
+diation-intensive 
+h orbit. These 
+ even impossible 
+f modifying or 
+ the cost of the 
+LS avionics 
+series of boards 
+ned to receive 
+om-temperature 
+no tolerance for 
+extreme temperature, humidity, or
+ thus present significant technical c
+ thermal control. 
+The ISS in particular poses an add
+ and constraints owing to the na
+ payloads are installed and operat
+ docking at the ISS, OPALS is remo
+ SpaceX Dragon trunk.  During this
+ points throughout the subsequent ro
+ attach site on ELC1, the FS must a
+ loss of power for up to six h
+ architecture is therefore built 
+maintaining a “laboratory envi
+ operations.  The flight avionics sub
+ critical components like the la
+ distribution circuitry, is contai
+ cylindrical enclosure that maintain
+ environment throughout the nomina
+ highlighted in Figure 14, 120mm D
+ found in everyday desktop comput
+ the air across the avionics compone
+ heat exchanger assembly.  By rec
+ fashion, waste heat is transferred
+ avionics boards and components, th
+ and into the heat exchanger where i
+ external radiator.  Further, the loss 
+from a loss of electrical power to 
+effective means of insulating the 
+loss during said periods – gas c
+ dominant, though negligible, mode
+ microgravity environment provid
+ natural convection.  
+The decoupling of heat transfer 
+structural interfaces renders stand
+ finite volume heat transfer c
+ necessitates an iterative analy
+ CAD/CAE and computational fluid
+ to solve for characteristics of the flu
+ of the OPALS avionics enclosure (
+ envisioned a cuboid structure with
+ heated air from the electronics 
+assembly.  Early rounds of CFD an
+ unacceptable pressure losses in th
+ turning and relatively narrow cros
+ the duct.  Over time, the iterated
+ streamline the flow path, resulti
+ between the fans and heat exchan
+ cable routing to eliminate as man
+ main flow path as possible. This it
+ results in a design that is comp
+ cheaper to analyze, as well as more 
+build. Figure 16 shows a velocity 
+final design. 
+The relatively severe vibration e
+ launch vehicle posed yet another 
+avionics – most of which do 
+ 
+ system sealed 
+omponents 
+ vacuum operation, and 
+hallenges in maintaining 
+itional set of challenges 
+ture in which external 
+ed.  Upon arrival and 
+ved robotically from the 
+ process, and at various 
+botic transfer to its final 
+ccommodate a complete 
+ours. The OPALS FS 
+around creating and 
+ronment” for nominal 
+system, along with other 
+ser diode and power 
+ned within a sealed 
+s a 1-atmosphere (STP) 
+l life of the payload.  As 
+C fans, not unlike those 
+ers, drive circulation of 
+nts and through a ducted 
+irculating the air in this 
+ convectively from the 
+rough the air mass flow, 
+t is then conducted to an 
+of circulation that results 
+the payload provides an 
+flight system from heat 
+onduction becomes the 
+ of heat transfer, as the 
+es no mechanism for 
+paths from traditional 
+ard finite element and 
+odes ineffective, and 
+sis process between 
+ dynamics (CFD) codes 
+id flow.  Early concepts 
+Figure 15), for example, 
+ a long duct to transfer 
+to the heat exchanger 
+alysis, however, showed 
+e flow due to repeated 
+s-sectional areas within 
+ design has evolved to 
+ng in a single “turn” 
+ger, and optimization of 
+y obstructions from the 
+erative process naturally 
+utationally simpler and 
+practical to fabricate and 
+map of fluid flow in the 
+nvironment within the 
+challenge for the COTS 
+not even ship with a 
+ 
+ 15
+ manufacturer specification for vibration tolerance.  To deal 
+with this issue, the rigid tray assembly that houses the 
+avionics and fans is mounted on a system of wire-rope 
+isolators designed to dampen random vibrations within the 
+specific frequency spectra produced by the launch vehicle.  
+These isolators protect delicate solder joints and other non-
+ rugged components from being torn apart by launch loads. 
+Further, in much the same way as the loss of circulation 
+during power outages provides a natural means of insulation 
+against heat loss, the wire rope isolator system’s poor 
+thermal conductivity also impedes conduction to the outer 
+structure of the sealed container. 
+External, Process-Derived Drivers and Constraints 
+While many decisions were internally motivated by the JPL 
+processes and the OPALS paradigm, a significant number 
+also came via the ISS and launch vehicle interfaces, both 
+programmatically and technically.  
+As one might anticipate, the ISS interface in particular 
+impacted the OPALS day-to-day operations as well as the 
+design features it implemented. The most clear example of 
+this aspect came via the over 400 requirements imposed by 
+the ISS program on the OPALS payload, followed by the 
+V&V process mandated to demonstrate compliance. 
+Requirements—As one of the first payloads to negotiate 
+both the ISS and Dragon interfaces, OPALS has been 
+routinely involved in technical changes beginning and 
+ending with its interface requirements.  A considerable 
+ongoing effort within OPALS and its partners has been to 
+solidify the understanding of the requirements levied. 
+When OPALS began in 2009, the Dragon had neither flown 
+nor been fully designed.  This was best represented in the 
+miniscule 16 provided requirements that were largely 
+placeholders for what would become the Dragon’s interface 
+specification.  At that point, expectations were that OPALS 
+would be completed well before its Dragon flight. This 
+schedule disconnect led to a considerable technical 
+disconnect. 
+In order to proceed with OPALS development despite the 
+lack of a full set of design requirements assumptions had to 
+be made in three key areas: power, connectivity, and the 
+launch environment.  The first question of power came 
+about for an obvious reason: OPALS has thermally sensitive 
+optics and commercial equipment, and these components 
+need heater power to be kept warm in space.  Without 
+requirements on Dragon power provisions, the project’s first 
+assumption was that the thermal control hardware designed 
+for the on-orbit ISS environment would also prove valid 
+during a Dragon ascent.  After exhaustive integrated thermal 
+analysis, this assumption, and the resulting engineering 
+implementation, has proven to be valid, and an additional 12 
+pages of requirements and supporting data now reflect this 
+interface design. 
+After requirements were negotiated and an agreement was 
+reached to provide sufficient thermal power during ascent, 
+the question remained of how this power would be routed 
+into the OPALS payload.  To direct the efforts towards a 
+solution of connectivity, OPALS turned to the JAXA H-II 
+Transfer Vehicle (HTV) and Space Shuttle designs that 
+powered FRAM-based payloads similar to OPALS.  These 
+additional carrier requirements allowed several connectivity 
+options and it was thus taken to be a valid assumption that 
+the Dragon team could design around OPALS’ desired 
+cabling pin assignments.  The OPALS design was thus 
+submitted to SpaceX and, as this was the first request for a 
+specific option, the OPALS connectivity solution has 
+become the primary power distribution option amongst 
+external Dragon cargo requirements. 
+The project’s greatest challenge, however, was the need to 
+design the FS prior to receiving any validated launch 
+ 
+Figure 15: Early design of the sealed container did not 
+optimize component placement or airflow 
+ 
+Figure 16: CFD analysis led to a new component layout 
+that allowed for more efficient heat removal 
+ 
+ 16
+ loading requirements.  To address this, OPALS began with 
+JPL and NASA’s extensive historical data on expected 
+launch loads, amended with ample margin and overlaid with 
+standard levels on workmanship. The resulting crude 
+spectrum was then supplied to the ISS and SpaceX 
+dynamics teams who over the course of several months 
+helped refine test plans to a conservative but agreeable 
+level, which again proved to be valid (and indeed 
+conservative) via integrated analysis and testing. At the time 
+of this writing OPALS had successfully completed vibration 
+testing. 
+Lastly, the project has dealt with the uncertainty that comes 
+via requirements variability from the ISS interface. Since 
+OPALS began, 37% of the 694 ISS interface requirements 
+have changed. Even though only 376 of them are applicable 
+to OPALS, the project has had to maintain cognizance in 
+this regard over the full set.  Despite the fact that the ISS is 
+an operational facility and many components have been 
+flying in orbit for several years, both OPALS and the ISSP 
+are still learning about the function and performance of 
+these components.  As such, there have been ample updates 
+to the electrical and robotic interface requirement segments.  
+These requirement changes are executed methodically in a 
+thoroughly reviewed manner.  After internal ISS 
+coordination, pending requirement updates are quickly 
+disseminated amongst payload developers.  After external 
+review by existing and prospective payloads, signatures are 
+requested and requirements are enacted. 
+V&V—Verification and Validation includes the final work 
+done to certify both that the payload meets the word of the 
+requirements, and that it performs the intended function. 
+55% of OPALS’ requirements to be verified are provided by 
+its external interfaces, including the ISS and Dragon.  
+Though verified along with all other project requirements, 
+these interface requirements demand a different balance of 
+focus.  As these requirements are provided by external 
+entities they are managed outside of JPL and subject to 
+external verification.  OPALS, therefore, has no formal 
+validation program for these requirements beyond ongoing 
+interface systems engineering diligence.  While this 
+externalized approach minimizes internal efforts, it 
+simultaneously increases verification overhead.   
+Verification of each external interface requirement falls 
+under the cognizance of an external Discipline Engineer 
+(DE) and the OPALS verification program is built around 
+this external approval process, which is diagramed in Figure 
+17.  These external engineers represent the external 
+hardware expertise necessary to ultimately understand, 
+validate and approve all interactions with their hardware.  It 
+is important to note that these engineers support a multitude 
+of projects across geographic boundaries, and their ability to 
+provide dedicated attention to OPALS is attenuated by the 
+breath of the projects they support. 
+Internal to OPALS, an abundance of verification data is 
+generated for these DEs in the verification of the 452 
+external requirements.  The planning, technical 
+coordination, and direction of this work is coordinated 
+between the OPALS External Interface Engineer and the 
+cognizant engineers within OPALS. As data and plans have 
+been generated over years of interaction among these 
+organizations, it is incumbent upon the EIE to ensure 
+internal consistency and remedy problems across evolving 
+interfaces. 
+External, Technically-Derived Drivers and Constraints 
+The ISS-imposed requirements provide the specification for 
+the physical interface to the station, and, via the PSRP 
+process, also provide direction on meeting the safety 
+considerations that come with the Class A status of the ISS. 
+This section will highlight how technical specifications 
+from the ISS impacted aspects of the OPALS design.  
+Mass & Power Budgets—Most payloads will find the ISS 
+allocation for mass and 28V operational power to be quite 
+generous at 490 lbs. (excluding the top half of the FRAM—
+ the ExPA plate) and 504 watts, respectively. The ISS also 
+provides 750 watts on a 120V operational line and an 
+additional 300 watts of power on a 120V heater line.  
+Expected to come in under 400 lbs., OPALS fits well within 
+its mass allocation. In fact, at no point in its development 
+did the OPALS mass margin—calculated as (Allocation-
+ CBE)/Allocation—fall below 15%, and since CDR it has 
+been hovering around 30%. The 28V ops power margin has 
+been even more generous, hovering at or above 60% for 
+much of the projects lifecycle, while the 120V ops and 
+120V heater lines have seen equally generous margins of 
+over 60% and 70 %, respectively.  
+In space, mass and power are drivers more often than not. 
+For OPALS the opposite has been the case, to the point 
+where the excess allocations has been used to solve 
+problems in other areas. One such example has been the 
+ 
+Figure 17:  The OPALS ISS requirement verification 
+process is built around the ISS approval process  
+ 
+ 
+design of our gimbal. At nearly 70 lbs., the
+ to be severely overdesigned for the 3 lb
+ supports. However, the need for such a b
+ forced by the early selection of the actuato
+ long-lead items and had to be large enoug
+ the optical head in the absence of launch lo
+ time, by the yet unknown design of the opt
+ under certain configurations, could have be
+ lbs. Knowing that mass would likely not 
+project was thus able to save cost by avo
+ the mass of the gimbal while at t
+ accommodating an unknown optical head
+ lack of launch locks.  
+The power draw of the electronics was 
+concern since one of the benefits of having
+ is that their power draw is well known an
+ fluctuate greatly over time. If there was on
+ power draw required more active managem
+ 120V heater line which is shared by the ISS
+ launch vehicle, of which the latter had si
+ stringent and fluctuating requirements.  
+Designing to a Class A Interface—Of all th
+ interface, the safety-related ones likely 
+impact on the OPALS design. There are 
+features that owe their existence to the need
+ the two-fault tolerant design against cata
+ mandated by the PSRP. The payload ha
+ combination of three hardware and softwar
+ each of the two catastrophic hazards that we
+ the inadvertent usage of the 2.5 watt class
+ shining the laser outside of its approved ar
+ The hardstops limiting the travel of each ax
+ constitute two of the inhibits required to pre
+ Via a negotiation process with the PSRP, th
+ upon the area around the ISS where it wou
+ Figure 18: OPALS Field of Regard (red)
+ Motion (yellow) projected over the OC
+ station 
+17
+  gimbal appears 
+. optical head it 
+eefy design was 
+rs—which  were 
+h to immobilize 
+cks—and, at that 
+ical head, which, 
+en well over 10 
+be an issue, the 
+iding optimizing 
+he same time 
+ design and the 
+even less of a 
+ COTS avionics 
+d is unlikely to 
+e area where the 
+ent was on the 
+ and the SpaceX 
+gnificantly more 
+e aspects of the 
+had the largest 
+a number of FS 
+ to comply with 
+strophic failures 
+d to include a 
+e inhibits against 
+re identified: (1) 
+ 4 laser, and (2) 
+ea of operations. 
+is of the gimbal 
+vent the latter. 
+e project agreed 
+ld be allowed to 
+point the laser, referred to as the 
+From this not-to-exceed area, the p
+ allocation to allow for uncertai
+ manufacturing. Using these derate
+ gimbal to keep the laser within 
+Motion (ROM) (Figure 18). Relat
+ (~nadir), the ROM extends from ap
+ in the gimbal azimuth axis (~
+ approximately 1˚ to 38˚ in the 
+(~crosstrack). Generally speaking, 
+range limits the length of each pass
+ while the size of the elevation 
+frequently a pass occurs. This is 
+mission success is at odds with m
+ yield to it. Were it not for the nee
+ operation of the laser due to safety
+ would have enjoyed longer and mo
+ improving its chances of meeting its
+ In addition to the hardstops, meetin
+ mandate requires that the desi
+ microswitches, two relays, softw
+ protection, and operational constr
+ with the Huntsville Operations Supp
+ and function of these inhibits were d
+ MOS Interface—The main driver
+ implementation was the availabilit
+ operations tools, processes, and infr
+ payloads. Although drivers are som
+ negative impact on development,
+ opposite was true. The OPALS 
+leverage existing capabilities as mu
+ development of new tools and proce
+ Several remote operations tools are
+ from MSFC and JSC for telemetr
+ management, schedule viewing, tele
+ over-IP. Table 3 details the av
+ function. The OPALS MOS has i
+ tools with only a minor amoun
+ required. Given the wide array of t
+ responsibilities of OPALS MOS 
+simplified to development of the 
+ephemeris processing, generatio
+ generation of telemetry and comma
+ decision-making and execution,
+ analysis. 
+In addition to tools, OPALS has als
+ great deal in the area of operatio
+ depicts the interface support pro
+ Marshall Space Flight Center and 
+Directorate (MOD) at the Johnson 
+general, MOD handles the overall 
+with tasks including crew operati
+ orbital reboosts, docking activitie
+ MOD defines its interface with OP
+ Rules that govern power, attitud
+ restrictions on payload activity. T
+  
+ and Range of 
+TL ground 
+Field of Regard (FOR). 
+roject further derated the 
+nties in modeling and 
+d values it designed the 
+the expected Range of 
+ive to the ISS +Z axis 
+proximately -34˚ to +73˚ 
+alongtrack) and from 
+gimbal elevation axis 
+the size of the azimuth 
+ over the ground station, 
+range determines how 
+a clear example of how 
+ission safety and must 
+d to restrict the area of 
+ considerations, OPALS 
+re frequent passes, thus 
+ level one requirement.   
+g the two-fault tolerance 
+gn also include four 
+are arm-fire command 
+aints to be coordinated 
+ort Center. The purpose 
+iscussed in section 3. 
+ for the OPALS MOS 
+y of significant existing 
+astructure for ISS-based 
+etimes seen as having a 
+ in this case quite the 
+MOS has attempted to 
+ch as possible to avoid 
+sses and thus save cost.  
+ available free of charge 
+y processing, command 
+metry query, and voice-
+ ailable tools and their 
+ncorporated all of these 
+t of tool configuration 
+ools available, the prime 
+development has been 
+operations concept, ISS 
+n of file products, 
+nd databases, operations 
+ and troubleshooting 
+o been able to leverage a 
+ns processes. Figure 19 
+vided by the POIC at 
+the Mission Operations 
+Space Flight Center. In 
+ISS platform operations, 
+ons, robotic operations, 
+s, and attitude control. 
+ALS via a set of Flight 
+e, trajectory, and crew 
+he POIC, on the other 
+ 
+ 
+hand, provides the infrastructure to 
+commands and file products to the payloa
+ infrastructure to receive and relay real-time
+ the payload. The agreements between the 
+POIC to ensure proper operation, m
+ monitoring of the payload are documen
+ Regulations. In addition, the POIC maintain
+ process for planning payload activities an
+ those activities into the larger ISS schedule.
+ Activity planning and scheduling begins 8
+ launch and continues up to 7 days before th
+ it is included in the ISS Short Term Pl
+ OPALS operations are time critical
+ commanding by members of the POIC, O
+ will be designated with priority over 
+activities in the STP. During real-time 
+Payload Operations Director at the POI
+ interface for the OPALS payload and provid
+ inputs for activity coordination with th
+ Director. The expectations of the payload d
+ it will provide a clear set of science objecti
+ set of data and planning requirements neede
+ those objectives. For OPALS, these 
+documented in the OPALS Ops Concep
+ delivered to the POIC and MOD 18 mon
+ anticipated launch date. It is also expected 
+operations team will submit a formal tr
+ participate in training exercises with the P
+ other ISS payloads. The POIC offers two fl
+ activities: scenario training and simulation t
+ Scenario training exercises MOS execut
+ specific processes while simulation training
+ familiarity with ISS interfaces, coordination
+ MOD entities, and decision-making in th
+ anomalies. The scenario activity resembles 
+operational readiness test (ORT) in 
+Table 3: Existing operations to
+ Tool Operations F
+ Telescience Resource 
+Kit (TReK) 
+Telemetry Proce
+ Telemetry Displ
+ Telemetry Datab
+ Command Mana
+ Command Datab
+ Enhanced HOSC 
+System (EHS) 
+Telemetry Quer
+ Database Synch
+ HOSC Network
+ Internet Voice-over-IP 
+(IVoDS) Voice Loops 
+Payload Information 
+Management System 
+(PIMS) 
+File Transfer 
+Operations Chan
+ On-board Short Term 
+Plan Viewer (OSTPV) ISS Schedule V
+ 18
+ relay real-time 
+d as well as the 
+ telemetry from 
+payload and the 
+aintenance, and 
+ted as Payload 
+s a well-defined 
+d incorporating 
+  
+ months before 
+e activity, when 
+an (STP). Since 
+ and require 
+PALS activities 
+conflicting ISS 
+operations, the 
+C is the prime 
+es the necessary 
+e MOD Flight 
+eveloper are that 
+ves along with a 
+d to accomplish 
+products were 
+t document and 
+ths prior to the 
+that the payload 
+aining plan and 
+OIC, MOD, and 
+avors of training 
+raining.  
+ion of payload-
+  exercises MOS 
+ with POIC and 
+e event of ISS 
+what is called an 
+the JPL flight 
+development process, while the sim
+ to the ISS program due to the
+ diversity of the ISSP interfaces. F
+ members are available on consol
+ OPALS MOS in a flight-like opera
+ role of the Flight MOS and Groun
+ react appropriately to nominal and 
+relayed by the POIC over the voice
+ expected to obey all Flight Rules a
+ in the execution of their activ
+ proficiency with all operations pro
+ OPALS and external (e.g. ISS). 
+6. CONCLUSI
+ The development of the flight paylo
+ two factors: (1) interfacing with the
+ sense and a programmatic one, and
+ as a Class D risk classification paylo
+ The ISS physical interface provided
+ but one that was greatly facilita
+ standardized FRAM and by the ge
+ allocations. The latter have afforde
+ flexibility in making design decisi
+ the expense of the still generous ma
+ Operating on the ISS also meant
+ facility and of the astronauts it hos
+ all other considerations. As such, O
+ in a series of inhibits to provide tw
+ catastrophic hazards identified. 
+despite being a Class D payload
+ typically affords significantly mor
+ project’s risk posture for mission su
+ on safety. The ISS-driven proc
+ scrutinizes this aspect can be da
+ navigate it, projects need to plan
+ significant impacts in both techn
+ areas, while keeping in close c
+ PSRP. 
+The internal decision to implement
+ payload also had significant implic
+ led to the widespread use of COT
+ ols 
+unctions 
+ssing 
+ay 
+ase Build 
+gement 
+ase Build 
+y 
+ronization 
+ Access 
+ge Requests 
+iewer 
+Figure 19: OPALS cross-agency
+ ulation activity is unique 
+ sheer complexity and 
+or both exercises, POIC 
+e to interface with the 
+tional environment.  The 
+d MOS teams will be to 
+off-nominal notifications 
+ loop. The teams will be 
+nd Payload Regulations 
+ities and demonstrate 
+cesses, both internal to 
+ONS 
+ad was largely driven by 
+ ISS, both in a physical 
+ (2) being implemented 
+ad.  
+ a significant constraint, 
+ted by the use of the 
+nerous mass and power 
+d the project significant 
+ons that reduced cost at 
+ss and power margins. 
+ that the safety of the 
+ts took precedence over 
+PALS has had to design 
+o fault tolerance for all 
+This limitation comes 
+, a classification which 
+e latitude in defining a 
+ccess but has no bearing 
+ess that oversees and 
+unting. To successfully 
+ and accommodate for 
+ical and programmatic 
+ommunication with the 
+ the project as a Class D 
+ations for the design. It 
+S components, which in 
+ 
+ operations interfaces 
+ 
+ 19
+ turn lead to a design that required forced convective cooling 
+and vibration dampening, both uncommon for modern-day 
+space payloads. Furthermore, it allowed the project 
+flexibility in tailoring its verification and validation program 
+for non-ISS requirements to save cost and schedule. 
+The focus of space-borne instruments is usually on the flight 
+articles, which in the case of OPALS is the FRAM-based 
+payload to be externally installed on the ISS. However, 
+most, if not all, projects must also develop a ground 
+infrastructure to support the operations of the flight asset. 
+For OPALS, despite being more akin to an instrument than 
+a spacecraft, that was certainly the case as significant 
+development was required for both the optical ground 
+station to enable the transmission of a beacon and receipt of 
+the optical downlink for the former, and for the MOS to 
+support commanding and telemetry. 
+The use of the OCTL facility in California greatly reduced 
+the amount of development required to receive and process 
+the optical downlink, and to transmit the beacon needed by 
+the FS to locate the ground station. The development was 
+thus restricted to the optics needed to condition the light 
+beam for processing by the hardware receiver and the 
+software decoder. 
+The design of the MOS was, by and large, dictated by the 
+interface to the ISS’s expansive payloads operations 
+infrastructure located at Marshall Space Flight Center. 
+Because the interface was already mature and well 
+understood, the project’s efforts were primarily focused on 
+ensuring compatibility rather than developing its own 
+capability. The savings afforded by leveraging the existence 
+of the already operating infrastructure cannot be 
+understated. 
+ACKNOWLEDGEMENTS 
+The authors express their gratitude to the entire OPALS 
+team for their dedication and hard work, and to the mentors 
+that have guided the team on a path to success. The authors 
+acknowledge all of the OPALS team members, whose 
+technical contributions made the writing of the paper 
+possible.   The work described in this paper was carried out 
+at the Jet Propulsion Laboratory, California Institute of 
+Technology, under a contract with the National Aeronautics 
+and Space Administration. 
+REFERENCES  
+[1] R. J. Cesarone, D. S. Abrahams, S. Shambayati, and J. 
+Rush, “Deep space communications, visions trends and 
+prospects,”  In Proc. Int. Conf. Space Opt. Syst. Appl., 
+Santa Monica, CA, May 11–13, 2011, pp. 412–425. 
+[2] H. Hemmati. “Special section guest editorial: free space 
+optical communications.” Opt. Eng. 0001; 
+51(3):031201-1-031201-1.  
+doi:10.1117/1.OE.51.3.031201. 
+ [3] H. Henniger, and O. Wilfert. "An introduction to free-
+ space optical communications." Radioengineering 19.2, 
+pp. 203-212, 2010. 
+[4] Risk Classification for NASA Payloads, NASA 
+Procedural Requirements NPR 8705.4, 2008. 
+[5] Phaeton Early Career Hire Development Program. R. M. 
+Jones, J. Lim. 2012. Jet Propulsion Laboratory 
+California Institute of Technology. 19 Oct. 2012. 
+<http://phaeton.jpl.nasa.gov/internal/index.cfm> 
+[6] R. Richard, B. Solish, M. Seibert, K. Kilbride, S. Dong, 
+and T. Coffee. “Bridging the Generation Gap : A Rapid 
+Early Career Hire Training Program,” in AIAA Space 
+2008 Conference, pp. 1-13. 
+[7] A. Biswas, H. Hemmati, S. Piazzolla, B. Moision, K. 
+Birnbaum, and K. Quirk, “Deep-space Optical Terminals 
+(DOT) Systems Engineering.” IPN Progress Rep. 42-
+ 183. Nov. 15, 2010. 
+[8] H. Hemmati, A. Biswas, I.B. Djordjevic, "Deep-Space 
+Optical Communications: Future Perspectives and 
+Applications," in Proceedings of the IEEE , vol.99, 
+no.11, 2011, pp.2020-2039. 
+[9] Lucke, Robert L., et al. "Hyperspectral Imager for the 
+Coastal Ocean: instrument description and first 
+images." Applied Optics 50.11 (2011): 1501-1516. 
+[10] M. Corson, D. Korwan, R. Lucke, W. Snyder, C. 
+Davis, "The Hyperspectral Imager for the Coastal Ocean 
+(HICO) on the International Space Station," in IGARSS 
+2008, pp.IV-101-IV-104. 
+[11] Telescience Resource Kit. J. Onken. 2012. Marshall 
+Space Flight Center. <http://trek.msfc.nasa.gov> 
+[12] Payload Safety Review and Data Submittal 
+Requirements, National Space Transportation System 
+NSTS 13830, 1998. 
+ [13] Computer-Based Control System Safety Requirements, 
+Space Station Program SSP 50038, 1995. 
+BIOGRAPHIES 
+Bogdan Oaida is the Project Systems 
+Engineer for OPALS. He received a 
+B.S.E. in Aerospace Engineering in 
+2007 and a M.Eng in Space 
+Engineering in 2008, both from The 
+University of Michigan. Since joining 
+JPL in 2008, Bogdan has also worked 
+on a number of Earth-sensing mission 
+proposals and has participated in several TeamX studies, 
+JPL’s concurrent engineering environment. 
+ 
+ 
+Matt Abrahamson is
+ Operations Lead for 
+received a B.S. 
+Engineering With 
+Technology in 2006 a
+ Aeronautics and Astron
+ both from MIT. He 
+Laboratory Fellow from
+ since joining JPL has worked on flight op
+ EPOXI, Stardust-NExT, Juno, and Dawn
+ mission navigator. 
+Robert Witoff is the IS
+ Systems Engineer for 
+received a B.S. 
+Engineering from the 
+Colorado at Boulder i
+ pursuing a Masters in So
+ Engineering at Stanford.
+ Apigy Inc, Robert joined
+ has additionally worked on the Dawn
+ Interplanetary missions. 
+Jessica Bowles Martine
+ and Mission Assurance
+ OPALS. She received 
+Electrical Engineering 
+Science and B.S. in Com
+ Studies in 2003 at the
+ Institute of Technology
+ earned a M.Eng in Elec
+ Engineering from Johns Hopkins Universit
+ JPL in 2008, she has held various rol
+ radiation testing for Juno, research in NA
+ Parts Packaging program, and an ISS ba
+ assembled telescope project. 
+Daniel Zayas is the Th
+ both OPALS and th
+ Laboratory, a planned
+ Condensate experimen
+ International Space 
+received B.S. degrees 
+Engineering and Physics
+ Aerospace Engineering
+ Massachusetts Institute of Technology.  He
+ contributed to a number of planetary m
+ including JUNO and the Mars Science La
+ Curiosity. 
+ 
+20
+  the Mission 
+OPALS. He 
+in Aerospace 
+Information 
+nd a M.S. in 
+autics in 2008, 
+was a Draper 
+ 2006-2008 and 
+erations for the 
+ projects as a 
+S and Dragon 
+OPALS.  He 
+in Aerospace 
+University of 
+n 2009 and is 
+ftware Systems 
+  After founding 
+ JPL where he 
+ and Rosetta 
+z is the Safety 
+ Manager for 
+a B.S.E. in 
+and Computer 
+parative Media 
+ Massachusetts 
+. In 2006 she 
+trical Computer 
+y. After joining 
+es working on 
+SAs Electronic 
+sed robotically 
+ermal Lead for 
+e Cold Atom 
+ Bose-Einstein 
+t aboard the 
+Station.  He 
+in Aerospace 
+, and a M.S. in 
+, all from the 
+ has previously 
+issions at JPL 
+boratory rover 

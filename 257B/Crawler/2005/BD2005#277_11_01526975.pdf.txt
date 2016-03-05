@@ -1,0 +1,798 @@
+Proceedings of  the Fourth International Conference on Machine Learning and Cybernetics, Guangzhou, 18-21 August 2005 
+DESIGN OF A UNIFORM INTERFACE PLATFORM FOR BUSINESS AND 
+OPERATION SUPPORT SYSTEM 
+ZHEN-YU WANG, XIN-YI PENG, WEI-WEI LIN 
+School of Computer Engineering and Science, South China Univ. of Tech., Guangzhou Guangdong, 510640, China 
+E-MAIL: w_zhenyu@hotmail.com, linweiwei2000@sina.com 
+Abstract: 
+To implement complicated interface platform among 
+applications or modules in one application is a big challenge in 
+developing applications. This paper gives analysis and design 
+of a uniform interface platform used in Business and 
+Operation Support System (BOSS) developed for Telecom Co. 
+by use of object-oriented methods, and finally discusses its 
+implementation based on Openadaptor, in which components 
+are well re-used through introducing some design patterns. 
+Keywords: 
+EAI; Openadaptor; BSS/OSS 
+1. Introduction 
+Many factors become a strong motive force of the new 
+demand of IT applications, such as upgrading, 
+reconstruction and integration of the IT applications inside 
+enterprises, or among enterprises. Some well-known EAI 
+products are as follows, MQ Series Integrator of IBM, 
+Weblogic Integration Platform of BEA, BusinessWare of 
+Vitria and Microsoft ‘s BizTalk, etc. The functions of EAI 
+include data integration, application interface integration, 
+business integration (also called workflow management of 
+business process) and B2B [1][2][3]. EAI products are too 
+expensive to be used widely in large-scale applications 
+currently in China. The traditional system interface adopts a 
+point-to-point method, which is difficult to extend and 
+maintain because of low reusability and heavy workload 
+[4]. 
+This paper provides analysis and design of the uniform 
+interface platform for BOSS, which supports integration 
+between data layer and application interface layer, and 
+implements data communication of synchronous/ 
+asynchronous calls in the application interface layer. BOSS 
+is a critical operation system of Telecom Co., supplies such 
+functions as customer service, product marketing, 
+accounting, etc. and it has interfaces with billing system, 
+network management systems, intellectual network SMP 
+and exchanger HLR in the same enterprise. The BOSS 
+needs especially to interface with diverse transaction 
+systems of banks, in the rate up to 100,000 transactions 
+each hour, so high performance is highly expected. 
+2. Principle of Openadaptor 
+2.1. An overview of Openadaptor 
+Openadaptor is an open source adaptor framework [5], 
+written in Java, which supports data exchange standards 
+such as XML, and provides many functions such as 
+ready-built interface components, interface configuration, 
+state information logging and exception processing. The 
+Openadaptor framework is a message-based system 
+integration toolkit. System integration work can be as 
+simple as processing a file or as complicated as building 
+real-time feeds between systems. The framework abstracts 
+the process of sending messages between systems (or 
+transports). It provides a framework of "ready built" 
+components that can be quickly assembled to integrate 
+systems (by using simple configuration files rather than by 
+writing actual program code). An adaptor is one-way link 
+between one or more origins and destinations. The origins 
+and destinations can be many different things, e.g., flat files, 
+TCP/IP sockets, databases, specific system APIs, 
+middleware, RMI services, JMS queues, etc. Three stages 
+of the work required to send a message from the origin to 
+the destination is as follows: (1) Build a connection to the 
+origin according to the appointed communication protocol. 
+(2) Filter and transform message. (3) Build a connection to 
+the destination according to the appointed communication 
+protocol. There are also a number of other optional features: 
+Compression and Encryption, Data Enrichment, Message 
+Filtering, Message Transformation and Exception 
+Processing. 
+2.2.  Components and DataObjects 
+The adaptor of the Openadaptor framework consists of 
+0-7803-9091-1/05/$20.00 ©2005 IEEE 
+372 
+Proceedings of  the Fourth International Conference on Machine Learning and Cybernetics, Guangzhou, 18-21 August 2005 
+three types of components - Sources, Sinks and Pipes. 
+Sources are responsible for converting the message read 
+from the transport into the standard Openadaptor internal 
+form, called DataObjects. Sinks must convert the 
+DataObjects they receive into a format suitable for writing 
+onto their transport. Pipes filter and transform the messages 
+based on the contents. An adaptor consists of at least one 
+source, at least one sink and more than zero pipes.  
+DataObjects are the self-describing data structures, and 
+a DataObject message is unique form of exchanging data 
+between the Openadaptor components. The messages 
+consist of arrays of DataObjects within the Openadaptor 
+adaptor. DataObject XML is a specific XML schema for 
+representing arrays of DataObjects, the default behavior of 
+most Source and Sinks is to read or write data as 
+DataObject XML. The controller is responsible for starting 
+the source component threads, coordinating communication 
+between the components, and managing transactions. 
+The Openadaptor framework provides a GUI 
+environment that simplifies the whole process of 
+constructing a properties file and running the resulting 
+adaptor framework.. Openadaptor currently provides the 
+following types of "ready built" Sources and Sinks: Flat 
+Files, Sockets, JDBC, RMI, TIBCO, MQ Series and JMS, 
+and also provides the following types of generic pipe 
+components: Aliasing, Filtering, Exception Processing，
+Encryption and Audit. Of course, the components can be 
+expanded as needed. 
+3. Interface requirement of BOSS 
+BOSS is designed by using the typical three-tier 
+software architecture. The client is written in Delphi and 
+supports input interface, validity checking and the 
+download of data dictionaries. The middle tier written in Ec 
+services that implement all business logic by using a 
+transaction processing server, IBM CICS, and the client can 
+access Ec services through CICS Link. The back end is a 
+database server. The interface platform runs on an 
+independent machine. In order to ensure the stability and 
+reliability of BOSS server, the interface platform is 
+designed in a loosely coupled way and conveys XML 
+documents between the interface machine and the 
+application servers, and MQ Series was chosen to 
+communicate with BOSS application server, and the 
+interface machine communicates with external applications 
+by supporting Socket, MQ Series, RMI, ftp, etc, as 
+illustrated in Figure 1. External applications include billing 
+system, intellectual network SMP, exchanger HLR, and 
+accounting system of banks, etc.
+ 
+ 
+ BOSS Server 
+ Interface Engine
+Active service 
+Passive service
+Business logic 
+Cics 
+Cics 
+ Internal interface 
+Active service 
+Passive service 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+             
+Active services of the internal interface run on the 
+application server of BOSS, send request packages to 
+external applications according to performance requirement, 
+receive and process return packages from outside. 
+Passive services of the internal interface run on 
+application server of BOSS, process request XML packages 
+from external systems, and then submit to the business 
+layer and return XML packages as acknowledgement. 
+Active services of the interface server run on the 
+interface machine and receive the transaction requests from 
+BOSS, convert the data format, and then transmit to 
+external applications. After the external application finishes 
+the transaction, returns result record, and then the interface 
+machine of the external system (if exists) receives the result 
+and transmits to the BOSS interface server.  
+Passive services of the interface server run on the 
+interface machine, receive transaction request from external 
+applications, transform the data format, and then transmit to 
+BOSS. After finished, result record was returned to the 
+interface server by BOSS, and finally the interface sever 
+exteral applications
+Packet
+Tcp/ip 
+ 
+ 
+ 
+MQ Series
+Figure 1. Interface Server, BOSS Server and External Applications 
+373 
+Proceedings of  the Fourth International Conference on Machine Learning and Cybernetics, Guangzhou, 18-21 August 2005 
+receives transaction results and transmits them to external 
+applications. 
+4. Analysis and design of uniform interface platform 
+Interface between BOSS and accounting systems of 
+banks (abbreviated as interface of banks) is taken as an 
+example to introduce the design and implementation of 
+uniform interface platform for BOSS.  
+Interface of bank offers the data exchange between 
+BOSS and accounting system of banks.  Banks undertake 
+the delegation business from Telecom Co., such as accept 
+the prepaid fee, charge telephone bills for Telecom Co. etc. 
+Bank accounting system obtains users' telephone bills from 
+BOSS, and then charge money from the user’s account, 
+return the result record to accounting management 
+subsystem of BOSS, which finally balances the accounts of 
+users. The above process was originated by banks. As for 
+charging the fee in real-time, BOSS creates a new process, 
+in which BOSS sends a real-time charging request to the 
+bank system according to a user’s phone bill, then the bank 
+system charges the user’s account and return result record 
+back to BOSS. As to batch processing of delegation 
+services, BOSS sends a data file of users’ bills to bank 
+systems regularly, which finishes the charging and returns 
+charging records to BOSS. 
+In the design of uniform interface platform for BOSS, 
+Interface of bank is divided into two parts, the bank demon 
+process of BOSS (including active services and passive 
+services) and the bank service process of the interface 
+server (including active services and passive services). 
+4.1.  Bank demon process of BOSS 
+Bank demon process of BOSS (active services) 
+accesses the database tables correlated with the accounting, 
+looks for the data format, transforms to XML, and then 
+sends data to the active service process of interface server. 
+In order to solve mismatch of the rates of data sending and 
+data generating, generated data is held in a buffer area 
+before sending. 
+The bank demon process of BOSS (passive services) 
+deals with results returned by bank service process of 
+interface server (passive service), parses XML document, 
+and then writes to the corresponding table in database and 
+log file.  
+4.2.  Bank service process of interface server 
+Bank service process of interface server (active service) 
+receives a request for sending the data from BOSS, checks 
+validity of the business date in XML (such as user 
+information, account, amount of money, transaction type 
+and code) according to DTD, and then transforms into a 
+specific form of bank systems, and finally returns results to 
+BOSS server. 
+Bank service process of interface server (passive 
+service) receives a request for sending the data from bank 
+systems, transforms the business data (such as user 
+information, account, amount of money, transaction type 
+and code) to XML format, and then sends to the BOSS 
+server, finally returns the results back.  
+4.3.  Business model of the interface platform 
+Internal active services and passive services are 
+implemented in the BOSS server side, the active services 
+and passive services of the interface server are implemented 
+on the interface machine. Their use case diagram is 
+illustrated in Figure 2. The use case of network service 
+abstracts communication function between interface 
+machine and the BOSS server. 
+ 
+Network  Service
+Send Data Receive Data
+<<include>> <<include>>
+Internal Active Service
+<<include>>
+internal Passive Servce
+<<include>>
+Boss
+Active Service on IE
+<<include>>
+Passive Service on IE
+<<include>>
+Exteral Systems
+ 
+Figure 2. Use Case Diagram of the Interface Platform 
+ 
+ In Figure 3, the active service process of interface 
+server is started at first, and then creates an agent for getting 
+data from the business layer in BOSS, an agent for sending 
+data and an agent for receiving data. The agent for getting 
+data from the business layer calls Ec services to get the data 
+in batch and buffers them in sending data buffer. The agent 
+for sending data fetches data from the sending data buffer in 
+turn, packs it into a XML request package, which is sent to 
+the interface server by calling the network service. The 
+agent for receiving data collects the returning XML 
+package by calling network service and parses the XML 
+package, and then deals with the result by calling Ec service 
+of the business layer. 
+ 
+374 
+Proceedings of  the Fourth International Conference on Machine Learning and Cybernetics, Guangzhou, 18-21 August 2005 
+Network Service
+Agent of Send
+<<include>>
+Agent of Receive
+<<include>>
+Boss Business 
+Service
+Generate XML transactions 
+Package
+get data from Busines Level
+<<include>>
+<<include>>
+return resolution of XML Package
+process the result of Business 
+Service
+<<include>>
+<<include>>
+ 
+Figure 3. Use Case Diagram of Active Service in 
+BOSS 
+ 
+ In Figure 4, The passive service process is started at 
+first, and then creates an agent for receiving a request 
+package, which iteratively receives the request package 
+from network service and starts one service thread 
+whenever receiving one request package, which parses the 
+request parameter of the XML package, deals with the 
+request by calling Ec of the business layer, returned result is 
+packed into XML according to the transaction protocol and 
+is send to the interface server through network service as 
+acknowledgement. 
+ 
+invoke Ec Service in BOSS
+Reslove the XML Request
+Transform result to XML
+Network Service
+get
+request xml
+Agent getting Service Request
+Server Thread n
+<<include>>
+<<include>>
+<<include>>
+Server Thread 1
+<<include>>
+<<include>>
+<<include>>
+Passive
+<<include>>
+send result 
+xml
+<<include>>
+<<include>>
+ 
+Figure 4. Use Case Diagram of Passive Service in BOSS 
+ 
+In Figure 5, the external application sends out the 
+service request, the passive service process of interface 
+server starts and creates an agent for the receiving data 
+which receives iteratively the request package from 
+network service, and starts one service thread whenever 
+receiving one request package, the service thread 
+transforms the service request into XML format, which is 
+then sent to the internal passive service of BOSS and 
+receives return results.  Finally the XML data packages are 
+parsed and are packed into data packet in specific form 
+needed by the external application according to the 
+transaction protocol and returns to the external system by 
+network service. 
+ 
+Server Thread
+Transform Packet to XML
+         Send request to Interal 
+Passive Service
+Network  Service
+<<include>>
+Agent getting Request
+return ResultExternal System
+              get returned value from 
+BOSS
+<<include>>
+Transform Reult to packet
+            return to External System
+<<include>>
+<<include>>
+<<include>>
+<<include>>
+<<create>>
+<<include>>
+<<include>>
+ 
+Figure 5. Use Case Diagram of Passive Service on Interface 
+Engine 
+ 
+In Figure 6, BOSS sends one service request to the 
+external application, the active service process of interface 
+server is woken up, and then the agent for receiving request 
+is created, obtains one service request and creates one 
+service thread which transforms XML packages into data 
+packet, and sends out to the external application. Next, the 
+service thread wait to receive returned result, packs into an 
+XML package that is then sent to internal active service 
+process. One uniform exception processing mechanism is 
+used on the interface server (not discussed here). 
+ 
+       Transform from XML to 
+PacketSend to External System
+Network Service
+    Get Result from External 
+System
+Return Result to Internal Active 
+Service
+Transform to xml
+<<include>>
+<<include>>
+<<include>>
+Server Thread
+<<include>>
+<<include>>
+Agent getting Request
+return Result
+<<include>>
+<<include>>
+<<include>>
+Internal Active 
+Service
+<<create>>
+ 
+Figure 6. Use Case Diagram of Active Service in Interface 
+Engine 
+4.4.  Design of the interface platform 
+Figure 7, up to Figure 9 shows class diagrams of 
+internal active service and passive service of BOSS, and the 
+passive service of the interface server (that of active service 
+of the interface server is similar to the passive service, 
+omitted). 
+375 
+Proceedings of  the Fourth International Conference on Machine Learning and Cybernetics, Guangzhou, 18-21 August 2005 
+BankActiveService
+getDataEc
+getDataObj
+sendDataObj
+recDataObj
+recDealEc
+queueID
+HlrAcitiveService
+getDataEc : String
+getDataClass : String
+sendDataClass
+recDataClass : String
+recDealEc : String
+queueID : String
+getHlrEcData getBankEcData
+CommonRecData
+recieveXml()
+getReturnParams()
+callReturnProcEc()
+HlrRecData
+BankRecData
+RecData
+recieveXml()
+getReturnParams()
+callReturnProcEc()
+startRun()
+NetInterface
+put()
+get()
+MqImpSocketImp
+XmlWrap
+setProcResult()
+getTransationID()
+initTransationProperties()
+wrapToXml()
+BaseXmlWrap
+dataCahce : BatchDataBuf
+comAttNames : Vector
+comAttValues : Vector
+oneRowInitEcComAttsValues : Vector
+oneRowInitEcSelfAttsValues : Hashtable
+initComAttNames()
+initComAttValues()
+setProcResult()
+getTransactionID()
+initTransactionProperties()
+WrapToXml()
+XmlWrapForBank
+BaseXmlParser
+attributesNames
+attributsValues
+resultFieldsNam...
+result
+XmlParserFor
+Bank
+CommonGetEcData
+dataCache : BatchDataBuf
+initEasyCics()
+getFromEcData()
+GetData
+initEasyCics()
+getFromEcData()
+startRun()
+SendData
+getOneRowEcData()
+getXml()
+PutXmlPacket()
+startRun()
+CommonSendData
+dataCache : BatchDataBuf
+exceptionDataCache : Vector
+HlrSendDataBatchRead
+initEasyCics()
+callGetDataEc()
+BatchDataBuf
+initEcComAttsValues : Vector[]
+initEcselfAttsResult : Hashtable[]
+containerSize : int
+ActiveService
+interfaceID
+processID
+dataCache : BatchDataBuf
+getDataAgent : GetData
+sendDataAgent : SendData
+recDataAgent : RecData
+initialize()
+createEcDataCache()
+createGetDataControl()
+createSendDataControl()
+createRecDataControl()
+run()
+ReturnResProc
+initEasyCics()
+CallReturnProcEc()
+XmlWrapForHlr
+XmlParserFor
+Hlr
+CreateActiveServiceFact
+ory
+CreateActiveService()
+BankSendData
+XmlParser
+setInputXml()
+Parser()
+getAttributesName()
+getAttributesValue()
+getResultFieldName()
+getResult()
+ 
+Figure 7. Class Diagram of Active Service in BOSS 
+ 
+In Figure 7, the active service process creates active 
+services of each kind of interfaces by using factory pattern 
+[6]. The implementation class of interface GetData invokes 
+Ec service of the business layer in BOSS, buffers data read 
+from database. Different application interface corresponds 
+with different implementation class, such as getHlrEcData, 
+getBankEcData, etc. SendData interface and RecData 
+interface are designed in layers. Network service interface, 
+NetInterface has a few kinds of implementation classes 
+(Socket, MQ, etc.) corresponding to different 
+communication protocols. Interface of parsing XML, 
+XmlParser transforms XML data packages into various 
+kinds of specific data packet format (HLR, bank transaction 
+data). Interface of XML packing, XmlWrap transforms 
+various kinds of specific packet formats into XML data 
+packages. XmlWrap, XmlParser, NetInterface components 
+are re-used in class diagrams. 
+In Figure 8, the passive service process creates the 
+internal passive services for each kind of business services 
+by using factory pattern. The interface of the service thread 
+and its class implement the internal passive service and 
+achieve packing and parsing XML data through reusing 
+XmlParser and XmlWrap components. BatchRead class 
+reads data in batch by calling Ec services of the business 
+layer in BOSS. 
+ 
+CreatePassiveServiceFac
+tory
+createPassiveService()
+BankPassiveService HlrPassiveService
+ServiceThread
+createXmlParser()
+createXmlWrap()
+SendToBossEc()
+GetFromBossEc()
+wrapToXml()
+ParseResultXml()
+CommonDealService
+BatchRead
+initEasyCics()
+callGetDataEc()
+XmlParser
+setInputXml()
+Parser()
+getAttributesName()
+getAttributesValue()
+getResultFieldName()
+getResult()
+BankDealService
+BaseXmlParser
+...
+(from AcitiveService)
+BaseXmlWrap
+...
+(from AcitiveService)
+XmlWrap
+setProcResult()
+getTransationID()
+initTransationProperties()
+wrapToXml()
+NetInterface
+put()
+get()
+MqImp
+(from AcitiveService)
+GetReqPacketAgent
+maxDealServiceNumber : int
+currentDealServiceNumber : int
+serviceThreadAgent : ServiceThread
+getReqXml()
+startDealServce()
+PassiveService
+InterfaceID : String
+getReqXmlAgent
+initialize()
+createGetReqXmlAgent()
+startRecReqXml()
+HlrDealService
+ 
+Figure 8. Class Diagram of Passive Service in BOSS 
+ 
+In Figure 9, the passive service process of the interface 
+server creates passive services for each kind of business 
+services by using factory pattern. The interface of the 
+service thread and its class implement passive services of 
+interface server, and achieve packing and parsing XML data 
+by reusing XmlParser, XmlWrap components. As the class 
+diagram of the active service of the interface server is 
+similar to that of the passive service of the interface server, 
+and can reuse the interface of the service thread and its 
+class, it is omitted here. As what is described above, it is 
+obvious that function of interface platform is very easy to 
+expand by increasing implementation classes of new 
+business services. 
+ 
+BaseXmlWrap
+CreatePassiveServiceFac
+tory
+createPassiveService()
+BankPassiveService HlrPassiveService
+ServiceThread
+createXmlParser()
+createXmlWrap()
+SendToBossEc()
+GetFromBossEc()
+wrapToXml()
+wrapToPacket()
+ParseResultXml()
+respondAsPacket()
+CommonDealService
+XmlParser
+setInputXml()
+Parser()
+getAttributesName()
+getAttributesValue()
+getResultFieldName()
+getResult()
+BankDeal
+Service
+ComXmlParser
+XmlWrap
+setProcResult()
+getTransationID()
+initTransationProperties()
+wrapToXml()
+NetInterface
+put()
+get()
+MqImp
+HlrDealSe
+rvice
+GetReqPacketAgent
+maxDealServiceNumber : int
+currentDealServiceNumber : int
+serviceThreadAgent : ServiceThread
+getReqXml()
+startDealServce()
+PassiveService
+InterfaceID : String
+getReqXmlAgent
+initialize()
+createGetReqXmlAgent()
+startRecReqXml()
+ 
+Figure 9. Class Diagram of Passive Service in Interface 
+Engine 
+ 
+5. The implementation and Control of Interface 
+Platform 
+Interface server running on an interface machine is 
+implemented base on Openadaptor and the other part 
+running in BOSS side is achieved in C/C++, as shown in 
+Figure 10. 
+The pipe components in active service process and the 
+passive service process of the interface server implement 
+packing and parsing XML data, checking validity of data 
+format, packing and parsing data packet, and 
+encrypting/decrypting data. The platform implements 
+functions of administration afterwards and offers the 
+interface for administration in real-time. The administration 
+afterwards is implemented by Openadaptor’s logging, 
+writing to log file in real-time and system maintenance is 
+implemented by using a file system. The logging format is 
+as follows: 
+ 
+  
+376 
+Proceedings of  the Fourth International Conference on Machine Learning and Cybernetics, Guangzhou, 18-21 August 2005 
+  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+log<dir> 
+----Interface1<dir> 
+---- ×year×month<dir> 
+as×year×month×date req.log 
+as×year×month×date rep.log 
+as×year×month×date error.log 
+ps×year×month×date req.log 
+ps×year×month×date rep.log 
+ps×year×month×date error.log 
+---- Interface2<dir> 
+… … 
+In above fragment, as and ps means the active service 
+and the passive service respectively. 
+6. Conclusions 
+BOSS is the critical operation system in Telecom Co., 
+supporting such functions as customer service, product 
+sales and marketing, accounting, etc. and interfacing with 
+billing system, intelligent network SMP, exchanger HLR, 
+especially with the transaction system of banks. The 
+traditional implementation of interface adopts 
+point-to-point method, which is difficult to maintain and to 
+be developed. EAI products offer system integration 
+function in multi-layer, but currently they are too much 
+expensive to be used widely in large-scale applications in 
+China. Combining the technical characteristics of BOSS 
+implementation we finished for The Telecom Co., This 
+paper takes the interface between the BOSS server and 
+transaction systems of banks as an example to introduce 
+the design and implementation of the uniform interface 
+platform used in BOSS. The platform is much easy to 
+expand, and implementes the integration in 
+loosely-coupled manner between BOSS and external 
+applications. BOSS was made much reliable, and the 
+workload of developing and maintenance was reduced. 
+The interface platform has been achieved based on 
+Openadaptor. 
+References 
+[1] Matjaz B.Juric. J2EE EAI programming guide. 
+Electronic Industry Press.2002.9. 
+[2] Rahul Sharma. J2EE Connector Architecture and 
+Enterprise Application Integration. Electronic 
+Industry Press, 2003.111. 
+[3] Chen Yueguo, Wang Jingchun. Review of Data 
+Integration. Computer Science, 2004 Vol.31 No.5. 
+[4] Li Jianqiang, Fan Yushun. Research on Techniques 
+of Enterprise Integration Platform. Computer Science, 
+2004 Vol.31 No.1. 
+[5] Openadaptor Progammer’s Guide. V1.6.5. 
+http://www.openadaptor.org/. July 2004. 
+[6] James W. Cooper. Java Design Patterns. 
+Addison-Wesley. 2000.
+ 
+ 
+Bank 
+Transaction 
+B
+ank interface
+ 
+Active service 
+ 
+ 
+Passive service 
+ Sink 
+ Source 
+ 
+Pipe
+Source Pipe 
+Sink
+Interface Engine 
+ 
+Active service  
+ 
+CicsLink 
+assive service 
+CICS 
+ 
+SERVER 
+Figure 10. Architecture of Uniform Interface Platform based on Openadaptor 
+BOSS Server
+D 
+ 
+B 
+ 
+M 
+ 
+S 
+377 

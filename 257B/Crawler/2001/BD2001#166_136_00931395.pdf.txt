@@ -1,0 +1,1017 @@
+Basic System Identification for Condition Monitoring of 
+Turbopumps 
+S.J. DiMaggio* and B.H. Sako' 
+The Aerospace Corporation, P.O. Box 92957, Los Angeles, CA 90009-2957 
+(310) 336-6695 and (310) 336-2369 
+samuel.j.dimaggio@aero.org and brain@foxtrot.aero.org 
+Abstract-Condition monitoring of rotating machinery us- 
+ing vibration measurements has been improved due to ad- 
+vances in both data acquisition and digital signal processing 
+techniques. For example, one method that has become 
+popular is known as envelope detection, or demodulated 
+resonance analysis. This method requires bandpass filtering 
+of the vibration signal in the vicinity of a structural reso- 
+nance that occurs in the transmission path between a poten- 
+tial defect and the transducer. This implies that a basic un- 
+derstanding of the structural dynamics associated with the 
+system being monitored is required. It is the purpose of this 
+paper to suggest a basic mathematical model that may aid 
+the analyst in choosing the proper filter to use in the enve- 
+lope detection technique. Additionally, the paper presents 
+some simple experimental and analytical techniques that 
+provide relevant system identification information for the 
+model. In the course of the paper, the general method of 
+envelope detection is reviewed as it applies to the condition 
+assessment of turbopumps using gearbox vibration meas- 
+urements. The effectiveness of the method is assessed using 
+data acquired during a ground test of an actual rocket engine 
+that experienced a gear failure. Potential use of the de- 
+modulated resonance technique as an effective method in 
+aerospace telemetry applications is suggested. 
+1. NOMENCLATURE 
+A 
+ASD 
+DTN 
+F 
+f k  
+f n  
+f L 0 X  
+FRF 
+H 
+Hd 
+Hi 
+j 
+LOX 
+- 
+amplitude of force input, Ibs 
+autospectral density 
+defect-to-nominal (ratio) 
+input forcing function, lbs 
+discrete frequencies, Hz 
+natural frequency, Hz 
+frequency of LOX shaft rotation, Hz 
+frequency response funtion 
+Hilbert transform 
+system defect transfer function 
+system i transfer function 
+any integer 
+liquid oxygen 
+* Senior MTS, Environmental Test and Ordnance Departmenl ' Senior Engineering Specialist, Structural Dynamics Department 
+0-7803-6599-2/01/$10.00 0 2001 IEEE 
+MIS0 
+N 
+I? 
+n 
+SDOF 
+SF25 
+SISO 
+T 
+nd 
+xd 
+Xl 
+Xl 
+Y 
+Yd 
+Yn 
+Y, 
+Y 
+Yd 
+Y ,  - I
+a 
+6 
+At 
+s 
+multi-input, single-output 
+number of data values per segment 
+Fourier components of noise 
+output noise, g 
+number of segments per data record 
+single degree-of-freedom 
+static firing test number 25 
+single-input, single-output 
+length of single data record segment, s 
+Fourier components of defect input 
+Fourier components of input 
+multiple inputs, g 
+Fourier components of output 
+Fourier components of defect output 
+Fourier components of nominal output 
+Fourier components of unmeasured outputs 
+O~tpUt, g 
+output due to defect, g 
+unmeasured outputs, g 
+analytic signal, g' 
+pseudo-acceleration scale factor, g 
+dirac delta function 
+sampling rate, s 
+coefficient of critical damping 
+2. INTRODUCTION 
+In conjunction with vibration measurements acquired during 
+test or operation of a rotating machine, digital signal proc- 
+essing techniques are used extensively in condition assess- 
+ment programs across a wide range of ind~stries.l-~ Consid- 
+ering aerospace applications in particular, these programs 
+are used to assess both expendable launch vehicle (ELV) 
+rocket engine turbopumps6 as well as the Space Shuttle 
+Main Engine (SSME).7-s With the emergence of a viable 
+reusable launch vehicle (RLV)' that will involve the re- 
+peated use of its turbopump hardware, it is believed that 
+health assessment programs will become more important. 
+7-3189 
+A basic problem associated with the assessment of rotating 
+equipment such as a rocket engine turbopump is that the 
+complex nature of the assemblies often precludes a compre- 
+hensive analytical modeling of the dynamical system. Even 
+a qualitative understanding of the system, however, can be 
+useful in tailoring digital signal processing techniques to 
+incipient failure detection. This seems to be especially true 
+in the context of the envelope detection method due to its 
+reliance on the amplification of defects in the vicinity of 
+structural resonances. This method, also known as demodu- 
+lated resonance analysis, has been used extensively in de- 
+tection of bearing faults. 
+Due to the amount of literature related to condition moni- 
+toring of rotating equipment in general,”-’* and envelope 
+detection in pa r t i c~ la r , ’~ ,~~  a complete discussion of the 
+relevant work is not possible. In relation to the suggestions 
+presented in this paper, certain research should be noted. 
+Significant contributions related to this work have come 
+from NASA Lewis Research Center.21-23 A comprehensive 
+presentation of the mathematics associated with the enve- 
+lope detection methods used in this paper is given by 
+McFadden and in relation to rolling element 
+bearing vibrations. Authors associated with providers of 
+digital signal processing hardware and/or ~ o f t w a r e ~ ~ ” ~  have 
+also contributed extensively to the field. Finally, system 
+identification methods related to random vibrations are 
+taken directly from Bendat and Piers01.~~ 
+This paper uses the results of an impulse response test of 
+limited scope, a turbopump component finite element model 
+and an engine shutdown transient analysis to propose a 
+mathematical model that appears to provide insight regard- 
+ing the defect source mechanism for the vibration induced 
+by a discrete gear-tooth fault. The suggestions offered in 
+this paper are evaluated by comparing the theoretical devel- 
+opment with a particular failure observed in a development 
+test of a liquid rocket engine. The example presented herein 
+is used to suggest that simple models of relatively complex 
+systems can be used to tailor a health monitoring program to 
+a specific piece of hardware. It is proposed that conclusions 
+drawn from this particular failure can be extended to pro- 
+vide insight into the basic design of an envelope detection 
+routine. Finally, an additional benefit, previously docu- 
+mented by Tecza et of this method as it pertains to 
+aerospace telemetry applications is presented. 
+3. CONDITION MONITORING OF ELV TURBOPUMPS 
+Vibration measurements are acquired during static firing 
+tests in order to help detect out-of-family vibration charac- 
+teristics and to provide insight into the nature of potential 
+defects. Steady-state data are acquired while the engine is 
+fixed in a test stand and ignited. These data are then ana- 
+lyzed and used to compare an engine’s vibration signature to 
+other engines with known operating and hardware condi- 
+tions. Envelope detection is proposed as a screening tool 
+that can diagnose potential gear-tooth problems. The main 
+difficulty is that measurements are acquired on the exterior 
+of the gearbox and thus, vibrations induced by small defects 
+in the internal components are often hidden within the high 
+amplitude signal that is inherent in nominally operating 
+rocket engines. It is, therefore, useful if certain frequency 
+ranges can be identified in which the defect is more pro- 
+nounced with respect to nominal system vibrations. 
+In the case of turbopump components such as gears and 
+bearings, the first indications of incipient failure may be 
+short-duration impulses spaced at time intervals corre- 
+sponding to the disturbance induced by a defect. The occur- 
+rence of these impulses may be a result of several things, 
+including gear-tooth cracks due to high-cycle fatigue or sur- 
+face defects in a bearing. Regardless of the cause, in any 
+case where the defect induces a series of short duration im- 
+pulses, the resulting input energy will be spread across a 
+wide region of the frequency spectrum. These impulses will 
+correspondingly excite system resonances in the transmis- 
+sion path between the defect location and the transducer. 
+Likewise, these resonances have the potential to amplify the 
+defect across a wide frequency range. In this sense, the 
+structural system itself acts as a mechanical amplifier for 
+detecting the presence of the impulse. Furthermore, because 
+the response to the impulse is spread across a wide spec- 
+trum, detection techniques can be focused in frequency re- 
+gimes where the defect is not masked by nominal vibratory 
+response of the pump. In what follows, it should be under- 
+stood that the techniques discussed are directed toward de- 
+fects that induce disturbances characterized by short dura- 
+tion impulses that contain energy extending into the high 
+frequency regime. 
+In this paper, data acquired during the final static firing of a 
+production engine that operated nominally during its accep- 
+tance tests and later performed successfully during flight are 
+compared to results obtained from a similar development 
+engine that exhibited a catastrophic failure of its liquid oxy- 
+gen (LOX) gear. This failure occurred at the end of a series 
+of twenty-seven static firings. In the following sections, the 
+fmal three static firings, denoted SF25, SF26 and SF27, are 
+used to demonstrate the method proposed in this paper. Sub- 
+sequent to the failure during SF27, analysis and laboratory 
+testing attributed the failure to a fault that progressed from 
+the root of a single tooth on the LOX gear, Thus, the theo- 
+retical development will focus on developing a source 
+mechanism that correlates the vibration induced by a dis- 
+crete gear-tooth fault to the unique, demodulated spectral 
+characteristics that appear in the envelope analysis of SF25- 
+SF27. 
+4. THEORETICAL DEVELOPMENT 
+This section focuses on the development of a simple input- 
+output model that is used to suggest a source mechanism for 
+7-3190 
+the spectral characteristics observed on an engine with a 
+gear-tooth fault. 
+Fourier Transform 
+Following derivations in Ref. 31, consider a data record 
+y ( t )  that is divided into nd contiguous segments of length 
+T. Each record segment ya f  (t) can be represented in digital 
+terms, with a sampling interval of At ,  by N data values 
+{yffm 1 where n = 0,. . ., N -1  and nz = 1, .  . . , nd . The dis- 
+crete Fourier components of the mth record are defmed by 
+the transform 
+at the discrete frequencies f k  = k I T = k I NAt . 
+Figure 1 - Multi-Input Single-Output System. 
+Multi-Input Single-Output (MSO) Systems 
+The output from an accelerometer mounted on the exterior 
+of a rocket engine turbopump is a function of the multiple 
+vibration producing mechanisms, or inputs, within the gear- 
+box. The system can, therefore, be modeled using the simple 
+MIS0 model described in Ref. 31 and shown in Fig. 1. Con- 
+sider q transfer functions for the constant parameter linear 
+systems Hi( f ) ,  i = 1 ,..., q ,  with q inputs xi(t), 
+i = 1,. . ., q , and one output y ( t )  . The output noise term n(t) 
+accounts for all deviations hom the ideal model, which may 
+be due to nonlinear operations, non-stationary effects and 
+instrument noise. The output y ( t )  may then be considered 
+as the summation of the q unmeasured outputs y i ( t ) ,  
+i = 1,. . . , q and the noise term n(0. This gives 
+with a corresponding frequency relationship 
+Since each unmeasured output & ( f )  satisfies, in the ab- 
+sence of noise, 
+the basic frequency domain relation between the inputs and 
+the output is 
+Note that X i  , &,  Y and i ( f )  can be determined from 
+xi ( t )  , y i  ( t )  , y ( t )  and n(t) using the definition of Fourier 
+components in (1). 
+M S O  Systems with a Defect 
+Now consider a system whose output is the summation of 
+contributions from inputs xi (t) , i = 2,. . . , q , due to nominal 
+system operation and a single input x1 (t) = Xd ( t )  that is the 
+result of some defect in the system. Equation (5) can be re- 
+written 
+where the part of the total output resulting from nominal 
+system operation is 
+and the contribution from the defect is 
+Note that the contribution to the total output from nominal 
+system operation, or Y , is the sum of contributions from 
+nominal system ouputs and the noise inherent in the system. 
+7-3191 
+1 0' 
+10' 
+h 
+4 loo 2 
+s1 16' 
+4 
+10'' 
+1 N6 
+I I I 1 1  I I I  1 1  ri I I I I I 1 1  I I I I 1 I I I I 1 I I I I 
+1 ~ 
+3 
+0 1000 2000 3000 4000 5000 6000 7000 
+Frequency (Hz) 
+Figure 2 - ASD for static firing of a turbopump during 
+nominal operating conditions. 
+Also note that I'd, or the output resulting from the distur- 
+bance induced by the defect, is amplified or attenuated by its 
+associated transfer function H ,  ( f )  .
+5. FAULT DETECTION AND DIAGNOSIS 
+Using the MIS0 system to provide insight into development 
+of a successful envelope detection process is the main pur- 
+pose of the model and is the central point of this paper. In 
+order to facilitate this discussion, the "defect-to-nominal" 
+(Dnv) ratio is introduced as the ratio of the output due to 
+the defect divided by the outputs due to nominal operation. 
+i=2 
+Note that this ratio is a function of frequency and can not be 
+explicitly computed since only the total output, not the indi- 
+vidual contributors to it, is measured. Nevertheless, it is 
+suggested that an understanding of the relation in (9) can 
+provide an analyst insight into the design of an optimal con- 
+dition monitoring program. 
+The goal of the turbopump vibration diagnostic routine dis- 
+cussed herein is to determine the nature of a defect by 
+monitoring the change in output characteristics measured by 
+the accelerometer. In this case, that means being able to 
+relate a change in the total output, Y ( f ) ,  to a known defect 
+condition. In the MIS0 model proposed in the previous sec- 
+tion, the input and output contributions for i = 2,. . . , q are 
+associated with nominal system operation. It is, therefore, 
+reasonable to expect that, for consistent operating condi- 
+tions, any major deviation in the total output, or Y ( f ) ,  will 
+be a result of the single-input, single-output (SISO) defect 
+system ( i  = d = 1 ) described in the frequency domain by 
+(8). It is suggested that the optimal manner in which to di- 
+agnose an equipment problem is to focus attention in a fre- 
+quency range in which the DTW ratio is highest or, in other 
+words, where the output due to the defect constitutes the 
+largest part of the total signal. 
+Two distinct cases are considered as far as establishing a 
+frequency range in which to concentrate detection efforts. 
+The first applies to general condition assessment in which it 
+is desired to detect incipient failure of various components 
+within the engine. The second applies to the case in which a 
+particular type of failure has already occurred and focuses 
+efforts on preventing this unique failure in subsequent en- 
+gines. 
+Case I :  Detection of a General Class of Component Defects 
+In the first case it seems that the best possibility for detect- 
+ing a variety of defects is to identify a frequency regime 
+where any potential defect is amplified and where nominal 
+inputs are negligible. In other words, it is desirable to iden- 
+tify a frequency region where X ,  (f) , i = 2,.  . . , q , are small 
+and H ,  (f) is as large as possible. This is not as unrealistic 
+an expectation as it may initially seem. It is postulated that 
+this is the case if a gearbox housing structural resonance 
+exists in a high frequency region that contains little vibra- 
+tion due to nominal turbopump operation. For example, a 
+representative autospectral density (ASD) corresponding to 
+a 4 second time frame and data acquired at a rate of 25575 
+samples per second for a nominally operating turbopump is 
+shown in Fig. 2. Several peaks with significant amplitudes 
+above the noise floor can be seen in the low frequency re- 
+gime below 2000 &. These peaks are a result of known 
+forced system responses due to shaft rotation. Depending on 
+the construction of the turbopump, other forced responses 
+due to rotating components or flow-induced vibrations are 
+often observed. Notice the lack of distinct forced response 
+peaks with amplitudes well above the noise floor in the 
+higher frequency region between 3500 and 4500 Hz. It will 
+be shown in a later section that, for the turbopump discussed 
+herein, a gearbox housing structural resonance appears to 
+exist in this region and thus, any component defect with 
+input energy in this frequency range is amplified. 
+If one considers that the nominal inputs X i  , i = 2,. . . , q , do 
+not contain any significant energy at frequencies between 
+3500 and 4500 Hz, then (9) will reduce to 
+since H d ( f )  is large and the nominal inputs x i ,  
+i =  2 ,..., 4 ,  are small. In other words, even though the 
+gearbox resonance is in the transmission path for all inputs, 
+only the defect is amplified because it has input energy in 
+this frequency range, while the nominal inputs do not. As 
+will be demonstrated in a later section, this is because de- 
+fects that induce short duration force pulses generate input 
+7-3192 
+energy that extends into the high frequency regime. Note 
+that in this case the DTN ratio, as described mathematically 
+by (lo), actually represents a “defect-to-noise” ratio. 
+Case 2: Detection of a Specific Defect 
+In the second case, regarding fault detection of a particular 
+component, it is suggested that it may be more desirable to 
+focus diagnostic techniques in a frequency regime contain- 
+ing a resonance that is unique to the transmission path be- 
+tween the component in question and the transducer. In this 
+region 
+An example of this case can also be drawn from the gear 
+failure outlined in a previous section. V a n ~ e ~ ~  states that the 
+impulse resulting from large gear defects usually excites the 
+natural frequencies of one or more gears in a set. Both a 
+finite element and also a holographic experimental analysis 
+identified the second diametrical mode of the failed gear to 
+be at approximately 2689 Hz. The second diametrical mode 
+of the gear is one in which the response shape is character- 
+ized by two nodal diameter lines that divide the rotor into 
+two regions of positive and negative phase respectively. In a 
+nominally operating pump, the frequency range near this 
+resonance may contain various forced inputs. If the diamet- 
+rical resonance is strong enough to amplify the relatively 
+low-level defect input x d  (f), such that the product 
+H d  (f)X, becomes significant with respect to the other 
+unmeasured outputs (f), i = 2, ...,q, it is possible that 
+the defect signal may constitute the majority of the total 
+output in a particular frequency range. This would again 
+lead to a high DTN ratio as described by (9). 
+While tailoring the envelope detection process as described 
+in case two is indeed possible and can be more effective 
+than the process employed in case one, the type of failure 
+must be known a priori. Thus, unlike the method suggested 
+for case one, the analyst should not expect to obtain optimal 
+performance of the envelope technique for a general class of 
+defects. Since case one deals with a more general class of 
+component defects than does case two, emphasis will be 
+placed on the former in the following sections of this paper. 
+6. SYSTEM IDENTIFICATION 
+In order to identify frequency ranges with a high DTN ratio, 
+it is necessary to locate system resonances for the reasons 
+discussed previously. When typical experimental and ana- 
+lytical methods are used to do this, caution should be exer- 
+cised when considering the identified frequencies in the 
+context of the operational system. These analyses are nor- 
+mally conducted on the static, uncoupled system at ambient 
+temperature. This was the case for the holographic and finite 
+Figure 3 - Measured FRF magnitude relating acceleration 
+output to an impulse applied directly below the transducer. 
+element analysis of the gear rotor discussed in the previous 
+section. The effect of modal coupling, as well as component 
+rotation and thermal loads, can serve to alter the frequencies 
+of interest. The following is a case in which data acquired 
+during actual operating conditions can be used to mitigate 
+the unknowns associated with thermal and rotational effects 
+on the gearbox housing resonance discussed earlier. 
+In order for the process discussed in case one to be effec- 
+tive, the analyst must identify a gearbox structural resonance 
+with a natural frequency high enough to be out of the range 
+of nominal turbopump inputs. For the turbomachinery dis- 
+cussed herein, an impulse response test of limited scope was 
+conducted during which twenty-two locations on the pump 
+exterior were impacted with an instrumented force hammer. 
+This static test was conducted under ambient temperature 
+conditions. When the force impulse was applied adjacent to 
+the accelerometer, which was mounted on a flat section of 
+the gearbox, the frequency response function (FRF) shown 
+in Fig. 3 was acquired. This FRF is characteristic of a single 
+degree-of-freedom response with a natural frequency of 
+4068 Hz and a coefficient of critical damping, measured 
+using half-power bandwidth techniques, of approximately 
+g = .02. Additionally, regardless of impulse location, all 
+measured FRFs were characterized by a maximum at 4068 
+Hz. Based on these results, it was concluded that a gearbox 
+housing resonance existed near 4068 Hz. During operation 
+of the turbomachinery under consideration, the pressure 
+differentials across the impeller pumps induce significant 
+thrust loads on the shafts. Consideration should, therefore, 
+be given to the effects of modal coupling and rotational dy- 
+namics on the frequencies measured under non-rotating 
+conditions. 
+In order to mitigate the effects of using ambient, static test 
+results to define the gearbox resonance, an estimate of the 
+gearbox natural frequency during operating conditions is 
+made by performing a waterfall analysis of the SF25 shut- 
+down time transient shown in Fig. 4. The SF25 transient is 
+presented in a max-mean-min format that essentially pro- 
+vides the envelope and mean of the time history within 20 
+millisecond time intervals. The contour waterfall plot of 
+spectral density for this transient is shown in Fig. 5, in 
+7-3193 
+600 
+480 
+b 360 
+240 
+3 120 
+8 -120 
+c $ 0  
+4 -240 
+-480 
+-600 
+-360 
+175 180 185 190 195 
+Time (s) 
+Figure 4 - Shutdown transient for SF25. Plot shows the 
+max-mean-min values that essentially define a running 
+mean and envelope of the time history. 
+0 2000 4000 6000 
+Frequency (Hz) 
+Figure 5 - Contour waterfall plot of SF25 shutdown tran- 
+sient. 
+which the lightest regions represent the highest spectral den- 
+sity. Between 182 and 183 seconds the engine is shut down 
+and the high-amplitude forced responses due to shaft rota- 
+tions and flow-induced vibration are no longer evident. 
+Following the shutdown, significant vibration at system 
+resonances can still be observed in the region of 4224 Hz 
+and, to a lesser extent, at other frequencies. It should be 
+noted that this relatively wide-band peak centered around 
+4224 Hz appears consistently in the shutdown waterfall 
+plots regardless of engine operating condition. These obser- 
+vations support the existence of a gearbox housing reso- 
+nance in the vicinity of the frequency measured during the 
+impulse response test. A comparison of results indicates a 
+less than four percent difference between the static (impulse 
+response test) and dynamic (shutdown transient) predictions 
+of the gearbox housing natural frequency. It is, therefore, 
+inferred that the effect of modal coupling, thermal effects 
+and centrifugal stiffening are not significant in the case of 
+this particular resonance. 
+k zy 5 
+Figure 6 - SDOF model of the defect SISO. 
+7. SINGLE DEGREE-OF-FREEDOM DEFECT MODEL 
+In order to understand the effect of the gearbox housing 
+resonance on the input due to a LOX gear defect, a simple 
+single degree-of-freedom (SDOF) model is proposed to 
+characterize the defect SISO. Note that this SDOF model 
+should not be thought of as a physical model of the system, 
+but rather is used as a paradigm by which the transfer func- 
+tion associated with the defect can be mathematically de- 
+scribed. 
+The SDOF model shown in Fig. 6 is used to mathematically 
+describe the defect SISO. This model is governed by the 
+following equation: 
+where F is the force input induced by the defect and y d  is 
+the defect contribution to the total response acceleration. 
+The transfer function relating the input and output is char- 
+acterized by the natural frequency f n ,  the coefficient of 
+critical damping 5 and the mass m. The values for the gear- 
+box natural frequency and the damping coefficient are taken 
+from the static impulse response test. The SDOF transfer 
+function magnitude, IHd (f )i , for a unit generalized mass is 
+shown in Fig. 7 and compares well to the measured FRF 
+magnitude (also shown in Fig. 3) acquired during the im- 
+pulse response test. 
+Source Mechanism 
+Consider a LOX gear containing a tooth defect that induces 
+a short-duration force impulse once per revolution of the 
+LOX shaft. Mathematically, the forcing function is defined 
+as 
+7-3194 
+0 1000 2000 3000 4000 5000 6000 7000 
+Frequency (Hz) 
+Figure 7 - Transfer function magnitude squared for SDOF 
+defect model with unit mass. Notice similarity with meas- 
+ured data (from Fig. 3) shown by dotted line. 
+100 
+80 
+60 
+40 - 20 
+E o  g -20 
+-40 
+-60 
+-80 
+-100 
+0.02 0.025 0.03 0.035 0.04 
+Time (s) 
+Figure 8 - Input forcing function for series of short duration 
+impulses. Spacing between peaks is the reciprocal of the 
+LOX shaft rotation rate, or 1/(241 Hz). 
+where A is the amplitude of the force impulses, 6 is the di- 
+rac delta function, j are integers and fLox is the frequency 
+of rotation of the LOX shaft. This input forcing function is 
+shown in Fig. 8 for values of fLox = 241 Hz and A = 70 
+pounds. The ASD of this defect input, or s d d (  f) , is shown 
+in Fig. 9. Notice that the energy is spread across the entire 
+frequency spectrum and is contained in spikes located at the 
+fundamental and integer multiples of the frequency corre- 
+sponding to the LOX shaft rotation rate. 
+The response of the SDOF oscillator to this input is then 
+governed by the following equation: 
+where a = A i m  is a scale factor that can be thought of as a 
+pseudo-acceleration that depends on the amplitude of the 
+force impulses and the unknown system constant associated 
+with the reciprocal of the SDOF's mass. The response of the 
+SDOF oscillator for a value of 01 = 200 gs is shown in the 
+time domain in Fig. 10. Note the recurring damped oscilla- 
+tory response at the 4068 Hz natural frequency and an im- 
+pact spacing of 1 fLox . Recall that this response is a repre- 
+3 l@* 
+10.' 
+1 o-6 
+0 1000 2000 3000 4000 5000 6000 7000 
+Frequency (Hz) 
+Figure 9 - ASD of defect input. Spacing between peaks is 
+LOX shaft rotation rate, or 241 Hz. 
+160 .- 2 80 
+8 -80 
+I k o  
+3 -160 
+. :z 1, I I I I , , I I I , , , I l j  
+-400 
+1 1.005 1.01 1.015 1.02 
+Time (9) 
+Figure 10 - SDOF response to series of short duration im- 
+pulses. Spacing between response pulses is the reciprocal of 
+the LOX shaft rotation rate, or 1/(241 Hz). 
+sentation of the output due to the defect, or y d  (t) = y, (t), 
+and that this must be added to the nominal system response 
+to obtain the total output signal. 
+8. ENVELOPE DETECTION 
+It was suggested that the optimal manner in which to diag- 
+nose a wide range of component defects (case 1) is to iden- 
+tify a frequency range in which the D i T  ratio is highest. In 
+this case, since it does not appear (see Fig. 2) that there are 
+significant nominal turbopump inputs between 3500 and 
+4500 Hz, a logical location for a high D l Y  ratio is at the 
+gearbox housing resonance. Thus, the total output signal is 
+bandpass filtered in a region near the gearbox structural 
+resonance. Fig. 11 shows the time history response of the 
+SDOF oscillator after it has been filtered using a 1000 Hz 
+bandwidth Kaiser filter with a center frequency of 4068 Hz. 
+The Hilbert Transform and Analytic Signal 
+In order to determine the harmonic pattern of the impact rate 
+due to the disturbance induced by the defect, the filtered 
+7-3195 
+120 
+I E o  
+8 -120 
+4 -240 
+-480 
+-600 I I ' ' I '  I '  I '  ' I  ' I  ' I  
+1 1.005 1.01 1.015 1.02 
+Time (s) 
+Figure 11 - Filtered SDOF response to series of short dura- 
+tion impulses. 
+160 
+* 80 .I 
+e g o  
+8 -80 
+4 -160 
+-320 
+-240 
+-400 
+1 1.005 1.01 1.015 1.02 
+Time (s) 
+Figure 12 - Envelope function of the filtered SDOF re- 
+sponse to series of short duration impulses. 
+output signal y(t)  is demodulated. This is accomplished by 
+first developing the complex analytic function 
+where H(t)  is the Hilbert transform of y ( t )  . The magnitude 
+of the analytic function then provides an approximation to 
+the envelope of the original function y ( t ) ,  and will hence- 
+forth be referred to as the envelope function or demodulated 
+signal. For example, the envelope of the filtered SDOF re- 
+sponse of Fig. 11 is shown in Fig. 12. If plotted on the same 
+scale, as in Fig. 13, it is obvious that the magnitude of the 
+function defined in (15) provides a good approximation to 
+the envelope of the original function y( t )  . While this paper 
+is not intended to provide an in-depth discussion of the Hil- 
+bert transform and the analytic signal, it is important to note 
+that the accuracy of the mathematics in providing an ap- 
+proximation to the envelope is improved as the bandwidth 
+of the filter is decreased. The necessity of using a narrow- 
+band filter and choosing the appropriate center frequency 
+again leads to the conclusion that a basic understanding of 
+the dynamics of the coupled system is helpful. 
+The main value of this signal decomposition is that the high 
+frequency response of the oscillator is no longer contained 
+in the signal and what remains is a more slowly varying 
+6 160 
+.m 2 80 
+8 -80 
+4 -160 
+c 5 0  
+1 1 1 1 ' ' ' ~ " ~ 1 ~ ~ ' ~ ' I ~  
+1 1.005 1.01 1.015 1.02 
+Time (s) 
+Figure 13 - Envelope function plotted with the filtered 
+SDOF response to series of short duration impulses. 
+0 500 1000 1500 
+Frequency (Hz) 
+Figure 14 - ASD of the demodulated signal. 
+periodic function with a repetition rate equal to the fie- 
+quency of the defect. In this manner, the pulse train shows 
+up in the low frequency portion of the spectrum. Thus, the 
+demodulated frequency spectrum can be expected to contain 
+a peak at the fundamental frequency, and possibly its higher 
+harmonics, of the disturbance induced by the defect. For 
+example, the ASD of the demodulated function of Fig. 12 is 
+shown in Fig. 14. Note the pronounced peak at the fie- 
+quency of the assumed LOX gear defect, or fLox = 241, as 
+well as the higher harmonics. 
+Gear Failure Example 
+Actual ground test data from SF25-SF27 of the engine that 
+experienced a catastrophic LOX gear failure at the end of 
+SF27 are used to assess the defect model postulated in the 
+previous section. In the following discussion, the examples 
+presented for the actual engine are taken from operating 
+conditions corresponding to fLox = 241, as for the theoreti- 
+cal development. It is postulated that, as engine operating 
+time increased from SF25 to SF27, a local LOX gear-tooth 
+defect grew until the gear failed. In order to demonstrate the 
+veracity of this postulate, the theoretical responses shown in 
+Figs. 10-14 are compared to actual data acquired during 
+SF27 just prior to failure. Note that the same filters dis- 
+cussed in the previous section are used to analyze the 
+7-3196 
+480 
+2 360 
+2 240 
+.I 2 120 
+8 -120 
+3 t i 0  
+2 -240 
+-360 
+-480 60x 
+120.02 120.025 120.03 120.035 120.04 
+Time (s) 
+Figure 15 - Raw time history data from SF27. 
+3 360 
+240 .- ;;; 120 
+8 -120 c. 
+4 -240 
+-360 
+120.02 120.025 120.03 120.035 120.04 
+Time (s) 
+Figure 16 - Filtered time history and envelope function from 
+SF27. Notice periodicity corresponding to the reciprocal of 
+the LOX shaft rotation rate, or 1/(241 Hz). This is the same 
+periodic nature as evident in Fig. 15. 
+ground test data. Figure 15 shows the raw time history of a 
+0.02 second time interval during SF27, while Fig. 16 shows 
+the same time period with the bandpass-filtered and the de- 
+modulated signal respectively. In order to provide a refer- 
+ence for what follows, the ASD of the demodulated signal 
+for a nominally operating turbopump is shown in Fig. 17, 
+along with the theoretical prediction of the contribution due 
+to a defect corresponding to a value of a =200 gs (see Fig. 
+14). This plot indicates that, if a defect similar to the one 
+discussed in the theoretical development were to exist, the 
+ASD of the corresponding demodulated signal should be 
+characterized by the fundamental and decreasing amplitude 
+harmonics of the defect-induced impulse repetition rate. The 
+signature should also contain some random vibration and 
+noise in the regions between the peaks. The ASD of the de- 
+modulated signal for SF27 just prior to failure is shown in 
+Fig. 18 and is characterized by a spectrum that is consistent 
+with the expected results. Note the similarity in periodic 
+structure between the ASDs of the demodulated signals for 
+the ground test (Fig. 18) and for the theoretical prediction 
+shown Fig. 17. Note that the theoretical portions of the re- 
+sponses shown in Figs. 10-14 are due only to the defect and 
+must, therefore, be considered along with the outputs of the 
+nominally operating system in order to obtain the total out- 
+put. 
+lo' 1 1 1 1 / 1 1 1 ,  1 1 1 1 , 1 1 ( ,  
+1 o3 
+0 500 1000 1500 
+Frequency (Hz) 
+Figure 17 - ASD of the demodulated signal for a nominally 
+operating turbopump. The dotted line indicates the contri- 
+bution of a potential defect for a value of a =200. 
+h 
+0 500 1000 1500 
+Frequency (Hz) 
+Figure 18 - ASD of the demodulated signal for SF27. Notice 
+the similarity to the summation of the two functions shown 
+inFig. 19. 
+It is suggested that, as the defect evolved, the force induced 
+by the defect consequently increased. In relation to the theo- 
+retical development in the previous section this implies that, 
+as the defect becomes more severe, the amplitude A of the 
+force impulses defined in (13) and thus, the scale factor a 
+in (14), become larger. It is reasonable to expect that, at a 
+time earlier in the life of the equipment when the defect is 
+not as severe, or a is smaller, the ASD of the pump's de- 
+modulated signal will have the same basic shape as that ob- 
+served for SF27. It is also expected that the amplitude of the 
+fundamental and higher harmonics corresponding to fLox 
+will be of diminished amplitude. In condition monitoring 
+programs it is desirable to determine the presence of a de- 
+fect as early as possible in the life of an engine. It is, there- 
+fore, shown in Fig. 19 that the ASD for the demodulated 
+signal taken ftom a time period during SF26 also contains 
+the theorized presence of a distinct spectral peak at fLox ,  
+albeit at a lesser amplitude. 
+The particular gear failure example discussed herein was 
+also analyzed using bandpass filters with center frequencies 
+of 1500 and 2689 Hz respectively. These were chosen arbi- 
+trarily, in the case of 1500 Hz, and to correspond to the sec- 
+ond diametrical mode of the LOX gear, in the case of 2689 
+7-3197 
+1 oh 
+1 0' 
+h g lo' 
+C M  " 10' 
+8 loa 
+lo.' 
+10'' 
+0 500 1000 1500 
+Fkequency (Hz) 
+Figure 19 - ASD of the demodulated signal for SF26. 
+Hz. The results of the 1500 Hz filter were not able to pro- 
+vide any indication of a gear defect until a few seconds be- 
+fore failure. The 2689 Hi filter, however, indicated out-of- 
+family gear behavior early in SF25. In comparison, the 4068 
+Hz filter discussed in depth in the previous sections did not 
+provide indications of gear-tooth problems until SF26. 
+While it is not the purpose of this paper to compare the ef- 
+fectiveness of different filters, it is important to note that the 
+choice of filter center frequency affects the results obtained. 
+This again leads to the conclusion that even a qualitative 
+understanding of both potential defect source mechanisms 
+and also the structural dynamics of the system under consid- 
+eration can help an analyst to design an effective condition 
+monitoring program. 
+9. AEROSPACE TELEMETRY APPLICATIONS 
+There is a distinct advantage in using the envelope detection 
+method for performing in-flight assessment of rocket engine 
+turbopumps. This particular application has been previously 
+discussed by Tecza, et al.32 It has been suggested in this 
+paper that the high frequency regime can be an effective 
+spectral region in which to detect potential defects. Due to 
+the limited capacity of normal aerospace telemetry systems 
+to transfer or store information during a mission, the high 
+sample rates necessary to digitize the signals make acquisi- 
+tion of data in the higher frequency ranges impractical. 
+When using the demodulated resonance technique, however, 
+the bandpass filtering and envelope detection parts of the 
+method can be performed onboard the vehicle in the analog 
+domain before the data are digitized. Using the example 
+presented herein as a case in point, instead of seeing the fEst 
+indications of a potential defect above 3500 Hz, by using the 
+envelope detection technique the analyst sees the change 
+associated with the defect at 241 Hz in the demodulated 
+frequency domain. The sample rates necessary to obtain the 
+relevant information in the demodulated domain are, there- 
+fore, more than fourteen times less than the rates necessary 
+when using traditional frequency domain analysis. This dif- 
+ference in digitization requirements can make the detection 
+of defects in the higher frequency ranges during a mission 
+feasible within the context of normal telemetry system ca- 
+pabilities. 
+10. CONCLUSIONS 
+The envelope detection method has been shown to be effec- 
+tive in diagnosing the existence of a gear-tooth defect in a 
+rocket engine turbopump during actual operating conditions. 
+It is believed that the results presented using the method 
+described herein could be improved by pre-processing the 
+data with order tracking and synchronous time averaging 
+techniques. This process would enforce a consistent number 
+of time samples during each revolution of the LOX gear, 
+thus reducing the modulation effects due to speed variations, 
+inherent in the system, on the synchronous components of 
+interest. 
+Additionally, the current work provides a rationale for con- 
+ducting a cost-effective, simple set of tests early in the de- 
+sign process that may lead to substantial benefits later in the 
+life of a condition monitoring program. Consider that results 
+from early turbopump development tests and design analy- 
+ses can provide a reasonable idea of where significant 
+forced rotordynamic and flow-induced vibrations exist in a 
+turbopump. It is then suggested that an impulse response 
+test be conducted in which a number of accelerometers are 
+placed in various locations on the exterior surface of the 
+gearbox housing. With an instrumented force hammer, lo- 
+cations adjacent to the accelerometers are then impacted and 
+the FRFs measured. It is desired to identify a location on the 
+housing at which a single, well-defined structural resonance 
+exists. It is further desired that this resonance be located in a 
+frequency regime away from those occupied by predicted 
+rotordynamic or flow-induced forcing functions. It is sug- 
+gested that a transducer mounted at a location thus identi- 
+fied, is one that has an improved chance to identify defects 
+that induce excitations characterized by short-duration im- 
+pulsive forces, even if the excitations are of relatively low 
+amplitude. The reason for this is that data acquired from a 
+transducer mounted as suggested, and then subsequently 
+bandpass filtered and demodulated about the resonance 
+identified, provide a greater potential for a high DTN ratio 
+than could be expected from data acquired using an arbi- 
+trarily mounted transducer. Finally, the application of the 
+demodulated resonance technique for diagnosis of defects 
+during a mission, by using analog circuits to perform the 
+bandpass filtering and envelope detection, may become ex- 
+tremely useful with the evolution of lUVs. 
+1 1. ACKNOWLEDGMENTS 
+This work was supported by the U.S. Air Force Material 
+Command, Space and Missile Systems Center under Con- 
+tract F04701-93-C-0094. The authors would like to thank 
+Don Taylor and Dr. Ron Rogers for their input on analog 
+methods for envelope detection. 
+7-3198 
+12. REFERENCES 
+[l] Leuridan, J., Van der Auweraer, H., Vold, H., “The 
+Analysis of Non-Stationary Dynamic Signals,” LMS Inter- 
+national application note, 1994. 
+[2] International Standard (ISO) 3945, ‘‘Mechanical Vibra- 
+tion of Large Rotating Machines with Speed Range from 10 
+to 200 reds - Measurement and Evaluation of Vibration 
+Severity in Situ,” Ref. No. IS0 3945-1977 (E). 
+[3] Bradshaw, P. and Randall, R.B., “Early Detection and 
+Diagnosis of Machine Faults on the Trans Alaska Pipeline,” 
+MSA Session, ASME Conference, Dearborn, MI, Septem- 
+ber 11-14, 1983. 
+[4] Bate, A.H., “Vibration Diagnostics for Industrial Electric 
+Motor Drives,” Bruel and Kjaer application note. 
+[5] Kryter, R.C. and Haynes, H.D., “Condition Monitoring 
+of Machinery Using Motor Current Signature Analysis,” 
+Sound and Vibration, September, 1989. 
+[6] DiMaggio, S.J., Rubin, S., and Sako, B.H., “Gear Fault 
+Detection in Rocket Engine Turbomachhery”, 36‘h 
+AIAA/ASME/SAE/ASEE Joint Propulsion Conference and 
+Exhibit, 17-19 July 2000, Huntsville, AL. 
+[7] Jong, J.Y., Dorland, W.D., Fiorucci, T., Zoladz, F. and 
+Nesman, T.E., “Space Shuttle Engine Signature Analysis 
+Techniques,” Sound and Vibration, May 2000. 
+[SI Chin, H., “Automated Bearing Fault Detection with Un- 
+supervised Neural Nets,” Proceedings of The 491h Meeting 
+of the Society for Machinery Failure Prevention Technology 
+(MPFT), April 18-20,1995, Virginia Beach, VA, 141-150. 
+[9] Pettit, C.D., Barkhoudarian, S., Daumann, A.G., Provan, 
+G.M., El Fattah, Y.M. and Glover, D.E., “Reusable Rocket 
+Engine Advanced Health Management System: Architecture 
+and Technology Evaluation Summary,” 3 f h  
+AIAA/ASME/SAE/ASEE Joint Propulsion Conference and 
+Exhibit, 20-24 June 1999, Los Angeles, CA. 
+[lo] Lyon, R.H., “Damage Detection and Identification in 
+Structures and Mechanisms,” Proceedings of the Inter- 
+national Modal Analysis Conference, Vol. 1, SEM, Orlando, 
+FL, 1997. 
+[l 11 Courrech, J., “Condition Monitoring of Machinery,” 
+Chapter 16, Shock and Vibration Handbook, 4’ Ed., 
+McGraw-Hill, 1996. 
+[ 121 Brennan, M. J., Chen, M.H., and Reynolds, A.G., “Use 
+of Vibration Measurements to Detect Local Tooth Defects 
+in Gears,” Sound and Vibration, November 1997. 
+[13] Barkov, A. and Barkova, N., “Condition Assessment 
+and Life Prediction of Rolling Element Bearings-Part 1,” 
+Sound and Vibration, June 1985. 
+[ 141 Polyshchuk, V.V., Choy, F.K. and Braun, M. J., “New 
+Gear-Fault-Detection Parameter by Use of Joint Time- 
+Frequency Distribution”, Journal of Propulsion and Power, 
+Vol. 16, No. 2, March-April 2000. 
+[15] McFadden, P.D., “Detecting Fatigue Cracks in Gears 
+by Amplitude and Phase Demodulation of the Meshing Vi- 
+bration,” Transactions of the ASME, Journal of Vibration, 
+Acoustics, Stress and Reliability in Design, 1986, Vol. 108, 
+165- 170. 
+[ 161 Staszewski, W.J. and Tomlinson, G.R., “Application of 
+the Wavelet Transform to Fault Detection in a Spur Gear,” 
+Mechanical Systems and Signal Processing, 1994, 8(3), 
+289-307. 
+[ 171 Mitchell, J.S., Machinery Analysis and Monitoring, 
+PennWell Books, PennWell Publishing Co., Tulsa, OK, 
+1981. 
+[18] Lyon, R.H., Machinery Noise and Diagnostics, Butter- 
+worth Publishers, 1987. 
+[19] Toersen, H., “Application of an Envelope Technique in 
+the Detection of Ball Bearing Defects in a Laboratory Ex- 
+periment,” Proceedings of The Integrated Monitoring, Di- 
+agnostics and Failure Prevention Technology Showcase 
+Conference, Society for Machinery Failure Prevention 
+Technology (MPFT), April 22-26,1996, 121-132. 
+[20] Courrech, J., “New Techniques for Fault Diagnosis in 
+Rolling Element Bearings,” Proceedings of the 40th Meeting 
+of the Failure Preventive Group, National Bureau of Stan- 
+dards, Gaithersburg, MD, April 16-18, 1985. 
+[2  11 Zakrajsek, J.J. and Lewicki, D.G., “Detecting Gear- 
+Tooth Fatigue Cracks in Advance of Complete Fracture,” 
+NASA Technical Memorandum 107145, NASA Tech Briefs 
+, LEW-16433,1996. 
+[22] Jammu, V.B., Wang, K., Danai, K. and Lewicki, D.G., 
+“Model-Based Sensor Location Selection for Helicopter 
+Monitoring,” NASA Technical Momorandum 1072 19, 
+NASA Tech Briefs , LEW-16452,1996. 
+[23] Decker, H.J., Zakrajsek, J.J. and Handschuh, R.F., 
+“Enhancement of the NA4 Gear-Vibration Diagnostic Pa- 
+rameter,” NASA Tech Briefs, May 1997, LEW-16284. 
+[24] McFadden, P.D. and Smith, J.D., “Model for the Vi- 
+bration Produced by a Single-Point Defect in a Rolling 
+Element Bearing,” Journal of Sound and Vibration, 1984, 
+96( l), 69-82. 
+7-3199 
+[25] McFadden, P.D. and Smith, J.D., “The Vibration Pro- 
+duced by Multiple-Point Defects in a Rolling Element 
+Bearing,” Journal of Sound and Vibration, 1985,263-273. 
+[26] SKF Application Note CM3021, “Early Warning Fault 
+Detection in Rolling Element Bearings Using Microlog En- 
+veloping.” 
+and software tools related to signal processing and system 
+identification. He is a member of the AIAA and is an in- 
+structor in the Mechanical Engineering Graduate Depart- 
+ment at Loyola Marymount University. 
+[27] Randall, R.B., “Cepstrum Analysis,” Bruel and Kjaer 
+Technical Review, No. 3, 1981. 
+[28] Randall, R.B., “Ceptrum Analysis and Gearbox Fault 
+Diagnosis,” Bruel and Kjaer application note, No. 233-80. 
+[29] Randall, R.B., “A New Method for Modeling Gear 
+Faults,” Journal of Mechanical Design, April 1982, Vol. 
+1041259. 
+[30] Randall, R.B., Frequency Analysis, 3‘d Edition, Bruel 
+and Kjaer, September 1987. 
+[31] Bendat, J.S. and Piersol, A.G., Random Data Analysis 
+and Measurement Procedures, 2nd Ed., John Wiley & Sons, 
+1986. 
+[32] Tecza, J.A. et al., Rocket Engine Turbopump Bearing 
+Diagnostics, Astronautics Laboratory (AFSC) Technical 
+Report AL-TR-89-042, August 1989. 
+[33] Vance, J.M., Rotordynamics of Turbomachinery, John 
+Wiley & Sons, 1988. 
+Sam DiMaggio received his B.S. 
+degree in Civil Engineering (1989) 
+and his M.S. and Ph.D. in 
+Engineering Mechanics (1990, 1993) 
+from Columbia University. From 
+1993-1996, he was a Senior 
+Dynamics Analysis Engineer at Breed 
+Technologies, Inc., where he worked 
+on automotive vehicle dynamics and 
+safety restraints systems. During 1997, he worked as a Prin- 
+cipal Designer with the structural engineering consulting 
+firm of Iffland Kavanagh Waterbury, P.L.L.C. He joined 
+The Aerospace Corporation in 1998, where he works in the 
+Structural Mechanics Subdivision on issues related to ex- 
+pendable launch vehicles. He is a member of the U, 
+ASME and SEM. 
+Brian Sako received his B.A. and 
+M.A. degrees in Mathematics (1978, 
+1981) from the University of Hawaii 
+and a Ph.D. in Applied Mathematics 
+from the University of California, Los 
+Angeles (1986). From 1986-1987, he 
+worked at Hughes Aircraft Company 
+in the Radar Systems Group. He then 
+joined The Aerospace Corporation in 
+1987, where he currently works on developing algorithms 
+7 - 3 2 0 0  

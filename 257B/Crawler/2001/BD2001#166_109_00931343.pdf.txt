@@ -1,0 +1,689 @@
+Distributed Multi-Resolution Data Integration Using 
+Mobile Agents *t 
+Hairong Qi S .  Sitharama Iyengar Krishnendu Chakrabarty 
+ECE Department CS Department ECE Department 
+The University of Tennessee Louisiana State University Duke University 
+298 Coates Hall 
+Knoxville, TN 37996-2100 Raton Rouge, LA 70803 Durham, NC 27708 
+hqi @utk.edu iyengar@ bit.csc.lsu.edu krish@ee.duke.edu 
+319 Ferris Hall 130 Hudson Hall, Box 90291 
+865-974-8527 225-388- 1495 9 19-660-5244 
+Abstract - We describe the use of the mobile agent paradigm 
+to design an improved infrastructure for data integration in 
+Distributed Sensor Network (DSN). We use the acronym 
+MADSN to denote the proposed Mobile-Agent-based DSN. 
+Instead of moving data to processing elements for data inte- 
+gration, as is typical of a cliendserver paradigm, MADSN 
+moves the processing code to the data locations. This 
+saves network bandwidth and provides an effective means 
+for overcoming network latency, since large data transfers 
+are avoided. We study two important problems related to 
+MADSN design - the distributed integration problem, and 
+the optimum performance problem. Compared to DSNs, a 
+mobile-agent implementation of multi-resolution data inte- 
+gration saves up to 90% of the data transfer time. For a given 
+set of network parameters, we analyze the conditions under 
+which MADSN performs better than DSN and determine the 
+condition under which MADSN reaches its optimum perfor- 
+mance level. 
+TABLE OF CONTENTS 
+1. INTRODUCTION 
+2. BACKGROUND 
+3. PROBLEM STATEMENT 
+4. MULTI-RESOLUTION I TEGRATION ALGORITHM 
+5. PERFORMANCE EVALUATION 
+6. CONCLUSIONS 
+1 INTRODUCTION 
+Distributed Sensor Networks (DSNs) have recently emerged 
+as an important research area [6,7,9, 14, 181. This develop- 
+ment has been spurred by advances in sensor technology and 
+computer networking. Even though it is economically fea- 
+sible today to implement DSNs, there are several technical 
+challenges that must be overcome before DSNs can be used 
+'This research was supported in part by DARF'A under grant N66001- 
+* 0-7803-6599-2/01/$10.0@2001 IEEE 
+001-8946 
+for today's increasingly complex information gathering tasks. 
+These tasks, such as battlefield surveillance, remote sensing, 
+global awareness, etc., are usually time-critical, cover a large 
+geographical area, and require reliable delivery of accurate 
+information for their completion. 
+Wesson et a1 [ 181 were among the first to propose the design 
+of DSNs. Since then, several efficient DSN architectures have 
+been presented in the literature, including the hierarchical and 
+committee organization [18], the flat tree network [7, 141, 
+the deBruijn based network [6] ,  and the multi-agent fusion 
+network [9]. While improving the performance of DSNs in 
+different aspects, all these approaches use a common net- 
+work computing model: the cliendserver model, which sup- 
+ports many distributed systems, such as remote procedure 
+calling (RF'C) [2], common object request broker architec- 
+ture (CORBA) [l ,  171, etc. In the clientlserver model, the 
+client (individual sensor) sends data to the server (processing 
+element) where data processing tasks are carried out. 
+Recent advances in sensor technology allow better, cheaper, 
+and smaller sensors to be used in both military and civilian 
+applications, especially when the environment is harsh, unre- 
+liable, or even adversarial. A large number of sensors are usu- 
+ally deployed in order to achieve quality through quantity. On 
+the other hand, sensors typically communicate through wire- 
+less networks where the network bandwidth is much lower 
+than for wired communication. These issues bring new chal- 
+lenges to the design of DSNs: First, data volumes being in- 
+tegrated are much larger; Second, the communication band- 
+width for wireless network is much lower; Third, the envi- 
+ronment is more unreliable, causing unreliable network con- 
+nection and increasing the likelihood of input data to be in 
+faulty. 
+In this paper, we design an improved DSN architecture using 
+mobile agents - we refer to this as mobile-agent-based DSN 
+(MADSN). In traditional DSNs, data are collected by individ- 
+ual sensors, and then transmitted to a higher-level processing 
+3-1133 
+element which performs sensor fusion. During this process, 
+large amounts of data are moved around the network, as is 
+the typical scenario in the clientherver paradigm. MADSN 
+adopts a new computation paradigm: data stay at ithe local 
+site, while the integration process (code) is moved to the data 
+sites. By transmitting the computation engine instead of data, 
+MADSN offers the following important benefits: 
+Processing Element 
+, 
+I , I!, ’!, &~), I 
+0 Network bandwidth requirement is reduced. Instead I 
+of passing large amounts of raw data over the network 
+through several round trips, only the agent with small 
+size is sent. This is especially important for real-time 
+applications and where the communication is through 
+low-bandwidth wireless connections. 
+0 Better network scalability. The performance of the net- 
+work is not affected when the number of sensor is in- 
+creased. Agent architectures that support adaptive net- 
+matically [ 161. 
+0 Extensibility. Mobile agents can be programmed to 
+carry task-adaptive fusion processes which extends the 
+capability of the system. 
+(a) DSN 
+work load balancing could do much of a redesign auto- Processing Element 
+0 Stability. Mobile agents can be sent when the network 
+connection is alive and retum results when the connec- 
+tion is re-established. Therefore, the perfonnance of 
+MADSN is not much affected by the reliability of the 
+network. 
+Figure 1 provides a comparison between DSN and MADSN 
+from architecture point of view. 
+The organization of this paper is as follows: Section dis- 
+cusses the definition of mobile agents and application exam- 
+ples that benefit from using mobile agents. It also defines 
+the two problems studied in the design of MADSN.. Section 
+first reviews the multi-resolution data integration algorithm 
+implemented under traditional DSN, then describes its im- 
+plementation using mobile agents. A case study is provided. 
+Section 4.2 compares the performance of DSN and IMADSN. 
+For a given set of parameters, it derives the condition under 
+which MADSN performs better than DSN, also the condi- 
+tion under which MADSN reaches its optimum performance 
+level. Section 4.2 summarizes the paper and draws conclu- 
+sions. 
+2 BACKGROUND 
+This section reviews the basic DSN architecture and the key 
+characteristics of mobile agents. The problems stuclied in this 
+paper are formally defined at the end of the section. 
+A general DSN (Fig. 2) consists of a set of sensor nodes, a set 
+of Processing Elements (PES), and a communication network 
+interconnecting the various PES [6].  One or more sensors is 
+associated with each PE. One sensor can report to inore than 
+Figure 1: Architecture comparisorl between DSN and 
+MADSN. 
+one PE. A PE and its associated sensor(s) are referred to as 
+a cluster. Data are transferred from sensors to their associ- 
+ated PE(s) where the data integration takes place. PES can 
+also coordinate with each other to achieve a better estima- 
+tion of the environment and report tci higher level PES. In 
+the context of this paper, we assume that the sensor field is a 
+two-diniensional surface, and the sensor nodes are fixed. 
+Generally speaking, mobile agent is a special kind of software 
+which can execute autonomously. Once dispatched, it can 
+migrate from node to node performing data processing au- 
+tonomously, while software can typically only execute when 
+being called upon by other routines. 
+Lange listed seven good reasons to use mobile agents [ 111, 
+including reducing network load, overcoming network la- 
+tency, robust and fault-tolerant perfo~mance, etc. Although 
+the role of mobile agents in distribute,d computing is still be- 
+ing debated mainly because of the security concern [4, 121, 
+several applications have shown clear evidence of benefiting 
+3-1134 
+Data integration problem: At each sensor site, what kind 
+of data processing should be conducted and what integration 
+results should be carried with the mobile agent? 
+interconnected A4 network 
+Optimum performance problem: How to balance the value 
+of 7n. and n, such that the performance of MADSN is superior I 
+I 
+I to DSN. 
+, 0 sensornode 
+I 
+I 
+I 
+4 MULTI-RESOLUTION a PE 
+cluster INTEGRATION ALGORITHM 
+Figure 2: The architecture of a general DSN. 
+from the use of mobile agents, such as E-commerce [3], dis- 
+tributed information retrieval and information dissemination 
+[5 ,8 ,  13, 191, etc. 
+In this paper, we use mobile agent in DSNs to perform multi- 
+resolution data integration and fusion. Problems to be studied 
+are defined in the following section. 
+3 PROBLEM STATEMENT 
+We define the mobile agent as an entity of five attributes: 
+identification, itinerary, data, method, and interface. These 
+attributes are explained as follows: 
+0 Identification: is in the format of 2-tuple ( i , j ) ,  where i 
+indicates the identification number of its dispatcher and 
+j the serial number assigned by its dispatcher. Each mo- 
+bile agent can be uniquely identified by this identifica- 
+tion. We use MA;,j to indicate different mobile agents. 
+0 Itinerary: includes itinerary information assigned by its 
+associated PE when dispatched. 
+0 Data: agent’s private data buffer which carries integra- 
+tion results and itinerary information. 
+Method: the implementation of algorithms. In MADSN, 
+the key method is the multi-resolution data integration 
+algorithm for sensor fusion. 
+0 Interface: provides interface functions for agent and pro- 
+cessing element to communicate with each other. 
+Let PE; represent a certain processing element with an iden- 
+tification i that is in charge of the surveillance of a certain 
+area. Let { M A ; , l ,  - . . , MA;,,} represent a group of m mo- 
+bile agents dispatched by PE;. Without loss of generality, 
+we assume that each MA;,j  visits the same number of sen- 
+sor nodes, denoted by n. The parameters m and n are related 
+in the sense that their product mn equals the number of sen- 
+sor nodes in the field. The problems studied in this paper are 
+formally defined as follows: 
+As mentioned in Sec. , MADSN must respond to the chal- 
+lenges of a large amount of sensor nodes and higher prob- 
+ability of faulty sensors. More sensor nodes can increase 
+the computation load, while more faulty sensors can cause 
+the integration results to be unreliable. Algorithms are there- 
+fore sought which should not be significantly affected by net- 
+work scaling, and yet provide better performance and higher 
+fault tolerance. This section first reviews the original Multi- 
+Resolution Integration (MRI) algorithm proposed for DSNs 
+[15]. Enhancements to the basic MRI algorithm are then de- 
+scribed in order to take advantage of mobile agents to achieve 
+better network scalability and fault tolerance. The enhance- 
+ments involve a multi-resolution analysis of individual sensor 
+readout to generate a simple function (the overlap function) 
+at the sensor site, followed by an integration of the simple 
+functions at the processing element. Compared to the MRI 
+algorithm in traditional DSNs, where the integration of indi- 
+vidual sensor readout (carried out at the processing element) 
+is followed by the multi-resolution analysis of the integrated 
+simple function, the mobile agent implementation of MRI al- 
+gorithm reduces the data transfer time by as much as 90%. 
+4.1 Original MRI Algorithm in DSNs 
+The original MRI algorithm was proposed by Prasad, Iyengar 
+and Rao in 1994 [15]. The idea essentially consists of con- 
+structing a simple function (the overlap function) from the 
+outputs of the sensors in a cluster and resolving this function 
+at various successively finer scales of resolution to isolate the 
+region over which the correct sensors lie. Each sensor in a 
+cluster measures the same parameters. It is possible that some 
+of them are faulty. Hence it is desirable to make use of this 
+redundancy of the readings in the cluster to obtain a correct 
+estimate of the parameters being observed. We first review 
+several relevant definitions. 
+An abstract sensor is defined as a sensor that reads a physical 
+parameter and gives out an abstract interval estimate which is 
+a bounded and connected subset of the real line. We clas- 
+s@ abstract sensors into two categories: correct sensors and 
+faulty sensors. A correct sensor is an abstract sensor whose 
+interval estimate contains the actual value of the parameter 
+being measured. Otherwise, it is a faulty sensor. A faulty 
+sensor is tamely faulty if it overlaps with a correct sensor, 
+and is wildly fauity if it does not overlap with any correct 
+sensor. 
+3-1135 
+(1) 
+Let sensors 5'1, . . , S, feed into a processor P. Let the ab- 
+stract interval estimate of Sj be Ij (1 < j < n), the closed 
+interval [a,, bj]  with end points aj and b j .  The characteristic 
+function x of the j th  sensor Sj is defined in Eq. (1). 
+1, i f z i s i n I j ,  and1 < j  I n  
+X j ( 4  = { 0, i f x i s n o t i n I j ,  and1 < j  <n ,  
+Let a( z) = E;=, xj (z) be the overlap function of the n 
+abstract sensors. For each z E R, a ( x )  gives the number 
+of sensor intervals in which z lies; that is, the number of in- 
+tervals overlapping at the z. Crest is a region in the overlap 
+function with the highest peak and the widest spread. Figure 
+3 illustrates the overlap function for a set of 7 sensors. The 
+notion of the overlap function allows us to make the following 
+key observations: 
+0 Tamely faulty sensors cluster around correct sensors and 
+create high and wide (maximal) peaks in the profile of 
+fl(z)* 
+0 Wildly faulty sensors on the other hand do not overlap 
+with correct sensors, and therefore contribute to smaller 
+and narrower peaks. 
+Therefore, the actual value of the parameter being measured 
+lies within regions over which the maximal peaks of a(z) 
+occur. 
+Figure 3: The overlap function for a set of 7 sensors. 
+Multi-Resolution Analysis of the Overlap Function .- Multi- 
+resolution analysis provides a hierarchical framework for in- 
+terpreting the overlap function. It is natural and more efficient 
+to first analyze details at a coarse resolution and then increase 
+the resolution for only the region of interest. 
+Given a sequence of increasing resolutions 
+(2-", 2-"+17. . . , 2 O ) ,  where c is a positive integer, we 
+define the difference of function f(z) at resolution 2-"+l 
+and resolution 2-" as the details of f (z)  at resolution 2-c+1. 
+The algorithm is  described in Algorithm 1. 
+This procedure results in the isolation of those regions of the 
+real line over which the overlap function fl(z) has a maxi- 
+mum value, corresponding to high degree of overlapping of 
+individual sensor readouts. The algorithm is optimal, since 
+the overall time required is O(n log n), which is the time re- 
+quired tcl maintain a ( ~ ) .  This algorithm is also robust, sat- 
+isfies a Lipschitz condition [lo], which ensures that minor 
+changes in the input intervals cause only minor changes in 
+the integrated result. Figure 4 illustrates the multi-resolution 
+analysis procedure. 
+Algorithm 1: Multi-resolution analysis of the overlap 
+function. 
+Data : Q(z), 2 k ,  (-c < k 5 0), assuming the coars- 
+est resolution is 2-", the highest resolution is 
+2'; the initial integration interval [A,B] 
+Result : the final crest [7l,7tL] under resolution 2 k ,  
+where 72 and Y h  are the lower and higher 
+bounds of the crest respectxvely 
+t = -c ;  
+w h i l e t < = k d o  
+resolve R(z) at resolution 2, bX sampling it over 
+the interval [A,B] at points n2--,, (A/2-, < n 5 
+B/2-,), to obtain fl,(z); 
+select the highest peaks from Q,I(z); 
+choose from these peaks the one with the widest 
+spread [A,, B,]; which is a crest; 
+Ql:Z) = flt([At,Bt]); 
+A = A,,B = Bt; 
+t := t + 1; 
+end 
+71 = ~ 4 , 7 h  = B 
+4.2 MRI Implementation Using Mobile Agents 
+In a distributed sensor network (DSN), all readouts from the 
+sensor nodes are sent to their correspclnding PES, where the 
+overlap function at the $finest resolution is first generated, and 
+the multi-resolution analysis procedure is then applied to find 
+the crest at the desired resolution. 
+In a Mobile-Agent-based DSN (MADSN), the mobile agents 
+migrate among the sensor nodes and collect readouts. There- 
+fore, M Ai,j always carries a partially integrated overlap 
+function which is accumulated into a final version at PE; 
+after all the mobile agents return. During this process, if 
+MADSN applies the multi-resolution malysis method in the 
+same way as DSN does, that is, letting MAi,j carry the par- 
+tially integrated overlap function in its finest resolution and 
+then use multi-resolution analysis (MFL4) to find the crest at 
+desired resolution at PEi, the advantages of mobile agents 
+will be nullified because of heavy data migration. 
+We enhance the basic multi-resolutioni integration (MRI) al- 
+gorithm for MADSNs and present a more efficient implemen- 
+tation. The key concept underlying the enhanced algorithm is 
+3-1136 
+keeping only the crest from the same resolution 
+integrated 
+overlap 
+function 
+0 
+;z;z;on -5 ':IK/ 
+I OO 20 40 60 80 0 20 40 60 80 I 
+regions 
+need to 
+resolution 
+increases resolved 
+over by 2 " 
+20 40 60 80 0 20 40 60 8 0 )  
+" " 
+0 20 40 60 80 0 20 40 60 80 
+finest resolution ' 1 1 ' 1  lo- ~ 
+0 20 40 60 80 -0 20 40 60 80 
+0 
+Figure 4: An overlap function Q(z) and its appearance at different resolutions (The shaded region indicates the region needs to 
+be resolved over). 
+that MRI is applied before accumulating the overlap function. 
+A 1-D array, w;,j, can serve as an appropriate data structure 
+to represent the partially-integrated overlap function carried 
+by MA;,,. If the size of w;,, is s20 with 2 O  resolution, then 
+with resolution 2k (k times coarser than 2O), the size of wi, j  is 
+s20/E,  that is, E times less than s20. Algorithms 2-4 describe 
+the procedure in detail. A case study is provided as well for 
+better illustration. 
+Algorithm 2: Modified MRI algorithm for MADSN - be- 
+fore MA;,, leaves PE; 
+Data : integration interval [A;, B;], highest resolution 
+Result : array w;,j to hold partially-integrated overlap 
+2 O ,  desired resolution 2k 
+function 
+= B , - A i + l  . 
+2-k ' 
+initialize w; i as a zero vector with s elements: 
+Algorithm 3: Modified MRI algorithm for MADSN - 
+MA;,j at sensor node 
+Algorithm 4: Modified MFU algorithm for MADSN - 
+MA;,,. back to PE; 
+Data 
+Result : the final crest [-y1,7,'] under resolution 2k 
+create +i as a zero vector of size (B; - Ai + 1); 
+whilej <= m do 
+: w;,j, 2k ,  m is the total number of agents 
+j = 2; 
+accumulate wi,j to wi,l ; 
+j = j + l ;  
+end 
+j = 0; 
+wl,ilej < Bi-A;+1 do 
+2 - k  
++;[ j  : j + 2-k - 11 = w;,1[j/2-"; 
+j + + 2 - k ;  
+end 
+select the highest peak of 4;. If there are multiple peaks 
+with the same height, then all the peaks should be se- 
+lected; 
+choose from these peaks the one with the widest spread 
+[TI, ~ h l ,  which is a crest; 
+Data : wi,j, 2k ,  readout from the abstract sensor [a, b] 
+(a bounded connected set of real numbers) 
+Result : ~ i , j  
+find the smallest multiple of 2-', dmin, such that 
+&in 2 a; 
+find the largest multiple of 2-k ,  d, such that d,, 5 
+b; 
+increase elements w;,j[* : by 1; 
+Case Study - We present a case study to illustrate the 
+MADSN-based MRI algorithm. Suppose PE; has 10 sen- 
+sor nodes (SI, . .- , Slo), migrated by 2 mobile agents with 
+MA,,1 covering SI to SS, and IMAQ covering SS to SIO. 
+The readouts of sensors at time t are listed in Fig. 5 .  The in- 
+tegration interval [A;, Bi] is [ 1,641. The overlap function at 
+its highest resolution then has 64 elements. 
+3-1137 
+I 
+slqZO.351 
+56114.281 
+S3[10,20] s8[21,31] _ _ _ ~  
+~214, 151 s730.401 
+- s1[2. 101 yY15.251 S9(45, €01 ~~ 
+I 
+10 20 30 40 50 60 
+Figure 5: Readouts fiom 10 sensor nodes at time t. 
+Table 1: Tracing the change of WQ generated by M A ~ J .  
+If the desired resolution is 2-3 (or eight times coarser than 
+the finest resolution), according to Algorithm 2, an array w;,j 
+with 8 = 6418 elements will be created and initialized by 
+each mobile agent. Tables 1 and 2 list the step-by-step execu- 
+tion for each agent according to Algorithm 3. 
+According to Algorithm 4, the final integrated & will be 
+[0,2,3,5,2,1,1,1]. Compared to the results from DSN, as 
+shown in Fig. 6, they are exactly the same. If we define the 
+unit data transfer time as the time spent for one MA;,j mi- 
+grating from one node to another, carrying a one-element ar- 
+ray, then MADSN spends 8 x (5 + 2) = 56 units of time 
+(assuming M A ~ J  and MAi,z are executed in parallel when 
+migrating from node to node or from PEi to node, 8 x 5, and 
+in serial when returning to PEi, 8 x 2),  while DSN spends 
+64 x 10 = 640 units of time. Hence, MADSN offers a save 
+of up to (91.25% of data transfer time in this case. 
+Table 2: Tracing the change of wi,2 generated by iMAi,z. 
+Resolution is 8 times m r s e r  
+Figure 6: The overlap function at its hdghest resolution and 
+the version with 8 times coarser resolution. 
+5 PERFORMANCE OMPARISON 
+The case study shows that while obtaining the same integra- 
+tion results, MADSN saves 91.25% of data transfer time com- 
+pared to DSN. However, this does not necessarily mean that 
+MADSN is always better than DSN since MADSN also in- 
+troduces overhead, such as the agent creation and dispatch 
+time. On1 the other hand, DSN needs to transfer data files to 
+PEi which also causes overhead due to file accesses. In this 
+section, we analyze the relative performances of DSN and 
+MADSN, and determine conditions under which an MADSN 
+is more efficient than a DSN. These contiitions are determined 
+by the network transfer rate vn, the data processing rate V d ,  
+the data file size sf, the mobile agent dhta size sa (including 
+overlap function array size and the itinerary list size), over- 
+head of agent oa, overhead of file acct:ss of, the number of 
+sensor nodes p, and thus the balance between the number of 
+agents m and the number of sensor nodes each agent migrates 
+n (Notice that p = m x n). Equations (2) and (3) are two for- 
+mulas estimating the execution time for MADSN (tmal.lun) 
+and DSN @dun) .  In both equations, ithe three components 
+calculate the data transfer time, the overhead, and the data 
+processinghntegration time respectively. 
+(3) 
+mns j (mn - 1)sf 
+t d s n  = -+ mnoj + - 
+V n  v d  
+We use m as the variable. Assume k and j are positive 
+order to ensure that t m a d s n  I t d s n ,  Eq. (4) must be satisfied, 
+that is, na must be chosen within a range. 
+scalars, imd Sf = ICs,, Of = j o a ,  V ;  l / v n ,  V ;  = 1/vd, in 
+3-1138 
+:WO, I 
+226- 
+P5.5 
+9w- 
+eo- 
+700 - 
+- 
+200 
+0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 
+I 
+Figure 7: Performance evaluation between DSN and 
+MADSN: 7n. vs. j .  
+Table 3 listed some typical parameter values and the corre- 
+sponding performance. We evaluate the performance varia- 
+tion of MADSN with respect to relationships between m and 
+j , m and w; , and m and p .  m is the number of nodes migrated 
+by each mobile agent. j is the overhead ratio between DSN 
+and MADSN. vk is the reciprocal of network transfer rate. p 
+is the total number of sensor nodes. These parameters play a 
+more important role than others. Figures 7-9 demonstrate the 
+performance variation with respect to m and j .  
+Figure 7 shows a profile of the maximum value of m satisfy- 
+ing Eq. 4 when changing the overhead ratio between MADSN 
+and DSN, j .  Suppose the size of agent is lKB, the overhead 
+of agent is 0.5s (including agent creation time), the network 
+transfer rate is lOOKbps, data processing rate is lOOMbps, the 
+number of sensor nodes is 1000, and the data size is 10KB. 
+If we fix j at 0.25, that is, the overhead of file access is 
+one fourth of the overhead of mobile agent, the correspond- 
+ing maximum m. satisfying Eq. 4 is then 441 according to 
+Fig. 7. By changing m from 1 to 441, we generate the per- 
+formance curves for MADSN and DSN using the execution 
+time: tm&n and t d s n  as shown in Figs. 8 and 9. 
+Figure 8 shows the variation of tdsrL with respect to the num- 
+ber of mobile agents m. It is a straight line since t d s n  is inde- 
+pendent of the number of mobile agents and the total number 
+of sensor nodes is a constant. Figure 9 illustrates the varia- 
+tion of t m e d s n  with respect to m. The execution time t m a d s n  
+reaches its minimum when m is 4. Note that even though 
+in the range of m E [1,441], t m a d s n  is always less than 
+t d s n ,  after a decreasing segment at the very beginning, and 
+reaching a minimum when m = 4, tmadsn  starts to increase. 
+This is because of the overhead from mobile agent: the more 
+agents used, the heavier the overhead, the longer execution 
+time needed; on the other hand, the less the agents, the lighter 
+the overhead, but the longer the migration time. 
+Figure 8: Execution time for DSN ( t d s n )  with respect to m 
+with p = 1000, vt = lOOKbps, and j = 0.25. 
+0 '  
+0 5 1 0 1 5 2 0 2 5 3 0 3 5 4 0 4 5  D 
+Figure 9: Execution time for MADSN ( t m a d s n )  with respect 
+to m with p = 1000, vt = lOOKbps, and j = 0.25. 
+6 CONCLUSIONS 
+This paper describes the use of the mobile agent paradigm 
+to design an improved infrastructure for sensor fusion in dis- 
+tributed sensor network (DSN). We use the acronym MADSN 
+to denote the proposed mobile-agent-based DSN. Compared 
+to the traditional client/server paradigm, where data are 
+moved from the client to the processing center, MADSN 
+moves the processing code to the data locations. This saves 
+3-1139 
+Parameters 
+size of agent (:io) 
+data processing rate (wd) 
+overhead of agent (on ) 
+ratio E = 
+0.25 0.25 1 500Kbus 1 SoOKbus 1 ratioj = network transfer rate (v,) 
+case 1 case2 case3 
+1K 1K 1K 
+10 10 10 
+1OOMbps 1OOMbps 1OOMbps 
+0.5s 0.5s 0.5s 
+total number of sensor nodes (p) 
+optimal number of agents (m) 
+execution time in DSN (tdsn) 
+execution time in MADSN (tmadan) 
+execution time saved (wd  x 100%) 
+Table 3: Summary of performance comparison between DSN and MADSN. 
+lo00 1 lo00 I 3000 I 
+network bandwidth and provides and effective means for 
+overcoming network latency, since large data transfers are 
+avoided. We studied two important problems related to 
+MADSN design: the distributed integration problem, and the 
+optimum performance problem. We show that MADSN is 
+not always better than DSN, since the involvement of mo- 
+bile agents adds overhead. We analyze the conditions un- 
+der which MADSN performs better than DSN and the con- 
+ditions under which MADSN achieves its optimum perfor- 
+mance. From the performance comparison results in Table 
+3, we can see that for all three cases, MADSN saves up to 
+98% of execution time which is mainly contributed from the 
+time savcd for transferring raw data. We conclude that mo- 
+bile agent paradigm is an effective approach for distributed 
+computing, especially when large amount of data bansfer is 
+involved., which is the case in distributed sensor networks. 
+References 
+S .  B,aker. Corba implementation issues. IEE Colloquiwn (Di- 
+gest}, (007):5/1-5/3, ,January 14 1994. 
+A. I>. Bimell and B. J. Nelson. Implementing remote proce- 
+dure calls. ACM Transactions on Computer Systems, 2( 1):39- 
+59, ]February 1984. 
+P. Dasgupta, N. Narasimhan, L. E. Moser, and P. M. Melliar- 
+Smith. Magnet: mobile agents for networked electronic trad- 
+ing. IEEE Transactions on Knowledge and Data Engineering, 
+11(4.):509-525, July/August 1999. 
+C. G.  Harrison, D. M. Chess, and A. Kershenbaum. Mo- 
+bile agents: are they a good idea? Technical Report RC 
+19887, IBM Thomas J. Watson Research Center, March 1995. 
+http://www.research.ibm.com/massive/mobag.ps. 
+M. Hatton, N. Kase, A. Ohsuga, and S .  Honiden. Agentb- 
+based driver's information assistance system. New Generation 
+Computing, 17(4): 359-367, 1999. 
+S .  S .  Iyengar, D. N. Jayasimha, and D. Nadig. A versatile ar- 
+chitecture for the distributed sensor integration problem. IEEE 
+Transactions on Computers, 43(2):175-185, February 1994. 
+D. N. Jayasimha, S .  S .  Iyengar, andR. L. Kashyap. Informa- 
+tion integration and synchronization in distributed sensor net- 
+work&. IEEE Trans. Syst., Man, Cybem., SMC-21(2!1): 1032- 
+1043, SeptJOct. 1991. 
+J. Kay, J. Etzl, G. Rao, and J. Thies. Atl postmaster: a system 
+for agent collaboration and information dissemination. In Pro- 
+ceedings of the 2nd International Confer" on Autonomous 
+Agents, pages 338-342, Minneapolis, MN, 1998. ACM. 
+A. Knoll and J. Meinkoehn. Data fusion using large multi- 
+agent networks: an analysis of network structure and per- 
+formance. In Proceedings of the Intemational ConfeEnce 
+on Multisensor Fusion and Integration for Intelligent Systems 
+(MFI), pages 113-120, Las Vegas, NV, Oct. 2-5 1994. IEEE. 
+L. Lamport. Synchronizing time servers. Technical Report 
+Technical Report 18, Digital System Research Center, 1987. 
+D. B. Lange and M. Oshima. Seven good reasons for mo- 
+bile agents. Communications of the ACM, 42(3):88-89, March 
+1999. 
+D. Milojicic. Mobile agent applications. IEEE Concurrency, 
+pages 80-90, July-September 1999. 
+T. Oaks, M. V. N. Prasad, and V. R. Lesser. Coopera- 
+tive information-gathering: a distrih ted problem-solving ap- 
+proach. IEE Pmceedings - Sofhuare ,Engineering, 144(1):72- 
+88, February 1997. 
+L. Prasad, S .  S .  Iyengar, R. L. Kashyap, and R. N. Madan. 
+Functional characterization of sensor integration in distributed 
+sensor networks. IEEE Trans. Syst., Man, Cybem., SMC-21, 
+Sept./Oct. 1991. 
+L. basad, S .  S .  Iyengar, and R. L. Rae. Fault-tolerant sen- 
+sor integration using multiresolution decomposition. Physical 
+Review E, 49(4):3452-3461, April 1994. 
+T. Sundsted. An introduction to agents. Java World, June 
+1998. 
+A. Watson. Omg (object management group) architecture and 
+corba (common object request broker architecture) specifica- 
+tion. IEE Colloquium - Digest, (007):4/1, January 4 1994. 
+R. Wesson, F. Hayes-Roth, J. W. Burge, C. Stasz, and C. A. 
+Sunshine. Network structures for dislributed situation assess- 
+ment. IEEE Transactions on Systems, Man, and Cybernetics, 
+J. S. Wong and A. R. Mikler. Intelligent mohile agents in 
+large distributed autonomous cooperative systems. Journal of 
+Systems and SofhuaE, 47(2):75-87, 1999. 
+SMC-ll(l):5-23, January 1981. 
+3-1140 
+Hairong Qi received her Ph.D. degree in 
+Computer Engineering from North Car- 
+olina State University in 1999, B.S. and 
+M.S. degrees in Computer Science from 
+Northern JiaoTong University in I992 
+and I995 respectively. She is now As- 
+sistant Professor in the Department of 
+Electrical and Computer Engineering at 
+the University of Tennessee, Knoxville. Qi is a member 
+of IEEE and Sigma Xi. Her current research interests are 
+multi-sensor data fusion, omni-directional sensor technology, 
+knowledge discovery from database, and content-based im- 
+age retrieval. 
+in integrated circuits, and architectural optimization of mi- 
+croelectrojluidic systems. He has published over 50 papers in 
+archival joumals and refereed conference proceedings, and 
+he holds a US patent in built-in self-test. He is a member of 
+IEEE and Sigma xi. 
+S. Sithurama Iyengar is the Chair- 
+man and Professor of Computer Science 
+Department at Louisiana State Univer- 
+sity. He has been involved with re- 
+search in high-performance algorithms, 
+data structures, sensor fusion, data min- 
+ing, and intelligent systems since receiv- 
+ing his Ph.D. degree (in I974), his M.S. 
+degree from the Indian Institute of Science (I970). He has 
+served as a principal investigator on research projects sup- 
+ported by the Office of Naval Research, the National Aero- 
+nautics and Space Administration (NASA), the National Sci- 
+ence Foundation, Califomia Institute of Technology’s Jet 
+Propulsion Laboratory, the Department of Navy-NORDA, the 
+Department of Energy, LEQFS-Board of Regents, and the 
+U.S. Army Office. He authored and co-authored 11 books 
+and over 270 research papers. DI: Iyengar is a fellow of the 
+IEEE and was the winner of the prestigious IEEE Technical 
+Achievement Award for Outstanding Contributions to Data 
+Structures and Algorithms in Image Processing and Sensor 
+Fusion. 
+Krishnendu Chakrabarty received the 
+B. Tech. degree from the Indian Insti- 
+tute of Technology, Khuragpul; in 1990, 
+and the M.S.E. and Ph.D. degrees from 
+the University of Michigan, Ann Arbol; 
+in I992 and 1995, respectively, all in 
+Computer Science and Engineering. He 
+is now Assistant Professor of Electri- 
+cal and Computer Engineering at Duke University. DE 
+Chakrabarty is a recipient of the National Science Foun- 
+dation’s Early Faculty (CAREER) award, and a Merca- 
+tor Professor award from the Deutsche Forschungsgemein- 
+schajl, Germany for carrying out research at the Univer- 
+sity of Potsdam during 2000-2001. His current research 
+projects (supported by NSE DARPA and industrial sponsors) 
+are in system-on-a-chip design & test, real-time operating 
+systems, distributed sensor networks, thermal management 
+3-1141 

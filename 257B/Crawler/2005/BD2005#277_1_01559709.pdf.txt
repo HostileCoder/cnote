@@ -1,0 +1,1196 @@
+ 1
+SEIS: A Decision Support System for Optimizing 
+Spacecraft Operations Strategies 
+ 
+M. Pantoquilho, N. Viana, R. Ferreira - UNINOVA-CRI, Campus of New University of Lisbon,  
+2829-516 Caparica, Portugal, {mp, nv, rmf}@uninova.pt 
+J. Moura Pires - DI/CENTRIA, Campus of New University of Lisbon,  
+2829-516 Caparica, Portugal jmp@di.fct.unl.pt 
+A. Donati – ESA/ESOC – OPS-OSC, Robert-Bosch-Strasse 5, 
+64293 Darmstadt, Germany, Alessandro.Donati@esa.int 
+A. Baumgartner – SOLENIX GmbH, c/o ESA/ESOC – OPS-OSC, Robert-Bosch-Strasse 5, 
+64293 Darmstadt, Germany, Alexander.Baumgartner@esa.int 
+F. Di Marco – VEGA IT GmbH, c/o ESA/ESOC, Robert-Bosch-Strasse 5, 
+64293 Darmstadt, Germany, Federico.Di.Marco@esa.int 
+L. Peñin, T. Hormigo – Deimos Eng SA, Polo Tecnológico de Lisboa, Lote 1, 
+1600-546 Lisboa, Portugal, luis-felipe.penin@deimos.com.pt 
+ 
+Abstract—Keeping123 the spacecraft (S/C) healthy and 
+productive is the responsibility and the main concern of the 
+S/C flight control team (FCT). Space weather includes 
+effects and conditions that favour the aging of a S/C and its 
+instruments, e.g. degradation of sensors and solar arrays by 
+charged particles and single event upsets (SEU). It is worth 
+to stress out that it is hard to detect when the environmental 
+conditions of a S/C are safe and when they are hazardous. 
+So far, the most widely used approach of a FCT to 
+counteract these effects has been to play safe. Playing safe, 
+i.e. invoking counter measures early enough and keeping 
+them for a long enough period, is a means to reduce the risk, 
+but it is not the most efficient one. The dynamics of space 
+weather could lead to situations where the instruments are 
+shielded hours before the conditions become really 
+hazardous. On the other hand it might happen that the FCT 
+assumes safe conditions long before they actually are. 
+Clearly the S/C productivity – i.e. the observation time – is 
+being affected by this approach. 
+A major concern is the availability and acquisition of data. 
+A lot of space weather data is available from many sources 
+in different formats and predictions are scarce and often not 
+directly applicable to an individual S/C. It is therefore 
+almost impossible for a FCT member to consider all these 
+sources. Furthermore the available sources for space 
+weather data provide their data offline or at best near real-
+time. Therefore the S/C may be already in a hazardous 
+environment when the FCT receives this information.  
+A decision support system is currently being implemented 
+for ESA. Entitled “Space Environment Information System 
+for Mission Control Purposes (SEIS)” the system integrates 
+a huge variety of space weather data from different sources 
+                                                          
+1 0-7803-8870-4/05/$20.00© 2005 IEEE 
+2 IEEEAC paper #1147, Version 3, Updated September 17, 2004 
+3 ESA © 2005 With Permission to IEEE  
+as well as S/C telemetry data from running missions. All 
+this data is stored it in a data-warehouse. 
+Having S/C and space weather data available from one 
+single source, facilitates the analysis of this data therefore 
+enhancing user awareness of space weather effects and 
+possible cause-effect relationships between space weather 
+events and S/C anomalous conditions.  
+The system provides an interface to external applications to 
+include data produced by physical models for the space 
+environment and its effects. Furthermore, trained artificial 
+neural networks or other plug-in tools can access all the data 
+and produce forecasts for certain parameters. These 
+forecasts can be fed back into the data-warehouse and be 
+used for monitoring, analysis and operations planning. 
+The reference mission for SEIS is INTEGRAL, ESA’s 
+gamma ray observatory. It also includes data from other 
+ESA missions: ENVISAT and XMM. The main objective 
+for INTEGRAL is to maximize the payload instruments’ 
+time while operating in safe condition, resulting in an 
+increase of the S/C’s productivity. 
+The system is a prototype whose objective is the proof of 
+concept for new emerging technologies applicable to the 
+mission operations domain, increasing the quality and 
+effectiveness of mission operations management. 
+The paper presents the system, focusing on the application 
+of the new technologies to support the FCT in their critical 
+decision making process and its expected impact in the 
+INTEGRAL’s operations strategy. 
+TABLE OF CONTENTS 
+1. INTRODUCTION ..................................................... 2 
+2. THE SEIS SYSTEM CONCEPT............................... 2 
+ 2
+3. SEIS ARCHITECTURE AND TECHNOLOGY ...........3 
+4. DATA PROCESSING MODULE ................................5 
+5. FORECASTING MODULE........................................5 
+6. DATA INTEGRATION MODULE ..............................7 
+7. CLIENT TOOLS ......................................................9 
+8. METADATA REPOSITORY ....................................11 
+9. CONCLUSIONS......................................................11 
+10. FUTURE WORK..................................................12 
+11. ACKNOWLEDGEMENT .......................................12 
+12. REFERENCES .....................................................12 
+ 
+1. INTRODUCTION 
+Space weather is the combination of conditions on the sun 
+and in the solar wind, magnetosphere, ionosphere and 
+thermosphere that can influence the performance, integrity 
+and reliability of space-borne and ground-based 
+technological systems and that can affect human life and 
+health [1]. The main driver for space weather near the Earth 
+is the sun, i.e. the solar wind, solar flares, coronal mass 
+ejections. These phenomena affect and are affected by the 
+Earth magnetic field which usually shields the Earth 
+effectively from the hazardous space weather effects. 
+Spacecrafts (S/C) are by their nature more susceptible to 
+space weather events than ground-based systems. They are 
+in an environment where the Earth magnetic field is weaker 
+and therefore they are less shielded. Furthermore S/Cs 
+usually carry sensitive instruments and other components 
+that can easily be damaged by electromagnetic events. 
+Typical cases are single event upsets (SEU) that flip a bit in 
+the on-board memory, corrosion of the solar arrays, 
+degradation of sensors, S/C charging. All these effects favor 
+the aging of the S/C and can lead to malfunctioning of 
+components, data loss, and in extreme cases complete 
+unavailability of services up to mission loss. 
+Currently, S/C operations at the European Space Agency 
+(ESA) follow some simple risk avoidance procedures to 
+counteract hazardous space weather events: switching off 
+instruments’ high voltages and transition to safe operating 
+modes. However, these procedures are based on worst-case 
+scenarios and normally require switching off the scientific 
+instruments for a long period. Furthermore, there is the 
+problem that once the sensors are off, the S/C is ‘blind’, i.e. 
+it can only roughly be estimated – based on experience and 
+other data sources – when the conditions are safe again. 
+Instruments might be shut down or shielded even if there is 
+only a transient radiation peak or they might be turned on or 
+opened too early, when the radiation level is still high. 
+Another drawback of this approach is also that usually a 
+single threshold for the radiation level decides whether the 
+environment is save or hazardous. All this can lead to poor 
+instrument usage (science operation time) and to 
+unnecessary stress for the components.  
+The availability of accurate real-time information about the 
+ongoing space weather conditions along with better 
+predictions of radiation levels could greatly improve these 
+operations. However, such services are currently not 
+available or only very sparse. Although some information 
+can be found on Internet, it has to be acquired from many 
+different places in many different formats. It is almost 
+impossible for a FCT to collect all the relevant information 
+and interpret it correctly. Another problem is also that a 
+great part of this data should be adapted to the conditions 
+relevant for the specific S/C. 
+This paper describes a system that is currently being 
+implemented for ESA, called “Space Environment 
+Information System for Mission Control Purposes (SEIS)”.  
+The objective of the system is to provide relevant 
+information to FCTs to support the decision-making 
+processes about how to react to ongoing space weather 
+conditions. Furthermore the system increases awareness and 
+understanding of space weather and its effects on S/C 
+performance. All together it should lead to more efficient 
+operations and possibly to an increase of the quality of the 
+services as well as the safety of the payloads. 
+SEIS has been proposed to ESA by a partnership between 
+UNINOVA and DEIMOS as part of the Space Weather 
+Pilot Project (SWPP). It will be installed and run at the 
+European Space Operations Centre (ESOC) in Darmstadt, 
+Germany. INTEGRAL serves as reference mission for 
+SEIS, but also other ESA missions provide data to be 
+included in the data warehouse of SEIS, i.e. the SEU 
+database of ENVISAT and XMM telemetry data.  
+The paper focuses on the application of new technologies to 
+support the FCT in their critical decision making process 
+and its expected impact on INTEGRAL’s operations 
+strategies. 
+Next section presents the SEIS overview, describing its 
+context, goals and expected benefits. The third section 
+presents the system’s architecture. Afterwards, the SEIS 
+system’s main modules are described from sections four to 
+six, followed by the SEIS client tools. The paper ends with 
+the conclusions and some ideas for future work and 
+expected results. 
+2. THE SEIS SYSTEM CONCEPT  
+SEIS includes the collection of historical, real-time and 
+forecast space weather data from various data sources 
+relevant for flight operations. Additionally, the telemetry 
+and orbital data of several satellites will be collected and 
+integrated. Finally, the data of selected space weather 
+models will be made available. The space weather raw data 
+will be transformed afterwards into information and 
+ 3
+knowledge with higher levels of abstraction, thus allowing 
+the delivery of a set of space weather services designed for 
+mission control purposes directly in the control room. 
+For the INTEGRAL (International Gamma Ray 
+Astrophysics Laboratory) [4] mission the SEIS main goal is 
+to optimize the payload’s operating time (under safe 
+condition) by forecasting relevant space weather conditions 
+(such as radiation belt entry/exit)4 , integrating the mission’s 
+historical database of SEU (Single Event Upset) and to 
+provide tools to explore possible correlation between S/C 
+behaviour and space weather events. This will imply an 
+increase of the instrument’s life expectancy/usage with 
+benefits on the effective observation time thereby increasing 
+the instruments scientific return. 
+For the ENVISAT [5] mission, an advanced polar-orbiting 
+Earth observation satellite, the system will integrate the 
+mission’s historical database of SEU exploring possible 
+correlations between SEU occurrences, S/C orbital position 
+and specific space weather conditions at S/C orbital 
+locations, which in turn will allow the direct identification 
+of cause-effect relationships between space weather events 
+and SEU’s occurrences. 
+For the XMM-Newton (X-ray Multi Mirror) space 
+observatory mission [6], possible benefits will be the 
+exploration, data analysis and correlation between  space 
+weather and XMM’s telemetry data.  
+The expected user benefits provided by SEIS include: 
+(1) increased awareness of space weather causes and 
+effects on the S/C health status; 
+(2) improved operational productivity and safety; 
+(3) increased science return and extended life time. 
+SEIS
+Forecasting Module
+Alarm Engine
+SEIS 
+Data
+Integration
+Module
+SEIS
+External Data 
+Service Providers
+SEIS 
+Monitoring 
+Tool
+SEIS 
+Reporting & 
+Analysis Tool
+Space Weather Data
+Space Weather 
+Events
+S/C Telemetry
+Data
+S/C SEU
+Occurrences
+S/C Orbital Position
+SEIS
+Data 
+Processing 
+Module
+SEIS
+Metadata Module
+ 
+Figure 1 - SEIS general architecture. 
+                                                          
+4 Due to the characteristic of the INTEGRAL orbit and to the concurrent 
+effect of the solar activity, the position (altitude) of Belt Entry is varying 
+considerably along the year [see ESA Technical Note “INTEGRAL 
+Radiation Belts passage characteristic”, F. Di Marco, VEGA-IT GmbH, 
+Darmstadt 2003] 
+The envisaged architecture (Figure 1) consists of an 
+integrated repository (SEIS Data Integration Module) 
+containing space weather data from external sources, orbital 
+data and onboard telemetry from INTEGRAL and XMM-
+Newton missions, complemented by forecast data.  
+The original set of heterogeneous data is made available, by 
+applying data extraction, transformation and loading 
+techniques (SEIS Data Processing Module), as a single 
+integrated source of data, to the users. The main 
+services/functionalities offered to users are: 
+(1) Near real-time monitoring (online) of a user defined 
+subset of the collected data, in particular 
+INTEGRAL’s instrument parameters through the SEIS 
+Monitoring Tool (MT). In addition to monitoring the 
+instruments’ status, the tool will also be able to issue 
+alarms by identifying possible instrument anomalous 
+conditions and even suggest recovery actions to be 
+taken, in order to minimize instrument degradation. 
+The knowledge needed to identify anomalous 
+conditions, trigger out-of-limit (OOL) alarms and 
+suggest recovery actions will be extracted from the 
+INTEGRAL’s Flight Operation Plan [3]. The alarm’s 
+inference is done by the supporting Alarm Engine 
+service. 
+(2) Offline data exploration and correlation analysis, 
+through the SEIS Reporting and Analysis Tool (RAT). 
+This tool allows report creation as well as analysis of 
+all stored data (space weather, telemetry, orbital data, 
+SEUs occurrences) using On-Line Analytical 
+Processing (OLAP) querying technology. 
+(3) Generation of forecast data (SEIS Forecasting 
+Module) based on both well-known physical space 
+weather models and Artificial Neural Networks for 
+generic time series prediction (i.e. telemetry trend 
+forecasting taking into account already known 
+seasonal effects). 
+3. SEIS ARCHITECTURE AND TECHNOLOGY 
+Figure 2 depicts the SEIS system’s detailed architecture, 
+which is composed of four main components: the Data 
+Processing Module (the system’s supporting services for 
+data extraction, transformation and loading); the 
+Forecasting Module (physical space weather models and 
+Artificial Neural Networks for generic time series 
+prediction); the Data Integration Module which composes 
+the system’s data infrastructure along with the Metadata 
+Module; and the Client Tools (MT and RAT tools). Both 
+infrastructure and services are server-side modules. The 
+client tools are the client-side components that are used by 
+users to access the integrated data.  
+ 4
+In this section, an overview on each of the system’s 
+architecture modules is presented together with the 
+associated technology. 
+Main Modules 
+The basic SEIS infrastructure (Figure 1) include the Data 
+Integration Module, where all externally retrieved data 
+(space weather and S/C data) and internally generated data 
+(such as triggered alarms, SEU occurrences and time series 
+data forecasting) are collected and integrated and the Data 
+Processing Module, which is responsible for the retrieving, 
+extraction, transformation and loading of all relevant data 
+(available on each of the identified External Data Service 
+Providers or generated at request, by the components in the 
+Forecasting Module). 
+Acting as a provider of complementary data, we can find the 
+Forecasting Module. This module is capable of generating 
+space weather data estimations and generic time series 
+forecasts for S/C telemetry data. 
+The Client Tools are the principal human machine interface 
+with the users. It encompasses the Monitoring Tool, the 
+Reporting and Analysis Tool and the Alarm Editor, to allow 
+maintainability and evolution of the alarm definitions. 
+Finally, the SEIS system incorporates a centralized metadata 
+repository, whose importance has grown to a point where it 
+made sense to allocate its functionalities to its own module 
+– the Metadata Repository Module. This module provides 
+the whole SEIS modules’ infrastructure with an easy and 
+maintainable manner of managing all metadata associated 
+and shared by all modules (Data Processing, Forecasting, 
+Data Integration and even Client Tools). 
+Data 
+Data integration is the key concept of SEIS. From several 
+heterogeneous sources and domains data are collected, 
+extracted, transformed, cleansed and stored in repositories 
+able to support data mining. 
+The two data domains used in the SEIS system are space 
+weather and S/C. Space weather data includes parameters 
+(e.g. daily storm indexes, 1-minute proton fluxes at different 
+energy levels, hourly magnetic field components, solar 
+wind, daily sunspot numbers, etc); and events (e.g. 
+Geomagnetic Storms; Solar Flares; Coronal Mass Ejections; 
+Radio Bursts at different Frequencies, etc). As such, the 
+total number of parameters in the system amounts to 558 
+units (including different space weather events and 
+parameters that have a sampling rate between one minute 
+and one day). S/C data includes INTEGRAL and XMM 
+missions’ telemetry, XMM, INTEGRAL and ENVISAT 
+missions’ orbital data (revolutions, spatial positions) and 
+INTEGRAL and ENVISAT’s Single Event Upset’s 
+databases. A total of 180 parameters are stored in the 
+system, from which 164 have a sampling rate of 8 seconds. 
+Space weather data stored in the system covers the period 
+from 1994 until now for a subset of available parameters. 
+S/C data will include the three missions’ complete dataset: 
+XMM (in orbit since December 1999) [6], INTEGRAL( in 
+orbit since October 2002) [4] and ENVISAT (in orbit since 
+March 2002) [5]. 
+This data is extracted, cleaned and transformed by the Data 
+Processing Module and stored in the Data Integration 
+ 
+ 
+Figure 2 - SEIS system detailed architecture. 
+ 5
+Module. All information about the stored parameters and 
+events is managed by the Metadata Repository (e.g. 
+sampling rates, data source, etc). 
+4. DATA PROCESSING MODULE 
+It encompasses functionalities needed to move all identified 
+data from source(s) (typically legacy systems) to target 
+system(s) (usually databases containing high quality data). 
+This technology is most commonly known as ETL[7], 
+which stands for Extraction (retrieving necessary data from 
+countless data streams), Transformation (before being 
+loaded into the target databases, data needs to be checked 
+for coherency and consistency and it has to be integrated) 
+and Loading (which means, as the name implies, the final 
+loading of the prepared data into the target database 
+structures). For the past 20 years, this technology has been 
+used mainly in the business area, where constantly growing 
+volumes of data have been collected. Therefore, it is easily 
+understandable, why business applications have been the 
+driving force of this technology. 
+The Data Processing Module (Figure 3)is made of two 
+main sub-components, the Uniform Data Access Proxy 
+(UDAP) and the Uniform Data Extractor and Transformer 
+(UDET). The Data Processing Module interacts with 
+external Data Service Providers (providers of space weather 
+and S/C data) and also the Forecasting and Data 
+Integration Module. 
+The UDAP engine retrieves data files and sends them to the 
+UDET engine. The UDET engine evaluates and selects the 
+correct File Format Definition to apply. The file is then 
+processed (field extraction and transformation) by the 
+UDET service and finally the file outputs are sent into the 
+Staging Area. The Staging Area can be thought of as the 
+main data buffer of the Data Integration Module. As new 
+data is retrieved and loaded via the pipeline formed by the 
+UDAP and UDET into the Staging Area, its contents are 
+periodically loaded both in the Online Data Storage (ODS), 
+which directly supports the Monitoring Tool and Alarm 
+Engine and the Data Warehouse, which is the structure 
+holding the global collection of historical data and the 
+structural supporter of the Reporting and Analysis Tool’s 
+activities.  
+Integration with data generators 
+In addition to the features previously described and the 
+interaction with the Data Integration Module, the Data 
+Processing Module provides an interface solution with other 
+SEIS data generators. Given the prototype scope, the UDAP 
+component will be interfacing with the two existing 
+components of the Forecasting Module (the Mission 
+Modelling Module – 3M and the Artificial Neural Network 
+Engine). These components are capable of generating space 
+weather data estimations and S/C telemetry predictions at 
+the UDAP’s request, just like an ordinary Data Service 
+Provider. Figure 3 depicts the mechanisms developed in 
+order to interact with the Forecasting Module components 
+and Data Integration Module components. 
+ 
+Figure 3 - Detailed Data Processing Module and interacting 
+components. 
+5. FORECASTING MODULE 
+The Forecasting Module is made of two components: the 
+Mission Modelling Module Engine (3M Engine) and the 
+Artificial Neural Networks Engine (ANN Engine). Both 
+modules produce data estimations or forecasts based on 
+historical data inside the Data Integration Module. The 3M 
+Engine estimations are based on physical and mathematical 
+models while the ANN Engine uses learning neural network 
+models to build its predictions. 
+Mission Modelling Module Engine 
+The Mission Modelling Module Engine (3M Engine, 
+Figure 4) is SEIS’s element dedicated to the prediction 
+of S/C positions, and the corresponding space 
+environment parameters at the predicted locations of the 
+S/C. For this purpose, a series of physical and 
+mathematical space environment models were carefully 
+selected and compiled in 3M. They aim at: 
+(1) Orbit propagation: high-fidelity numerical orbit 
+propagator based upon meaningful Dynamics, 
+Kinematics and Environment (DKE) models;  
+(2) Prediction of space environment variables: generation 
+of estimated values for different space environment 
+elements related to the near-Earth region – 
+atmosphere, ionosphere, plasmasphere and 
+ 6
+magnetosphere, radiation belts, solar wind and cosmic 
+rays; these models have been thoroughly selected by 
+space weather experts, according to quality, relevance, 
+availability, and also due to priority issues related to 
+the framework of SEIS.  
+(3) Input/Output interface with the Data Processing 
+Module, for the reception and interpretation of queries, 
+as well as proper formatting of the parameters for 
+adequate use within SEIS. 
+ 
+PARTICLE MODELS 
+DKE 
+(Orbit 
+Propagator) 
+RESTITUTED 
+ORBIT 
+LATEST 
+SPACE 
+WEATHER 
+DATA 
+HISTORICAL 
+SPACE 
+WEATHER 
+DATA 
+GALACTIC COSMIC RAYS 
+GEOMAGNETICALLY TRAPPED PARTICLES 
+SOLAR ENERGETIC PARTICLES 
+PLASMA MODELS 
+IIONOSPHERIC PLASMA 
+SOLAR WIND 
+MAGNETOSPHERIC PLASMA 
+EFFECTS MODELS 
+RADIATION EFFECTS 
+PREDICTED ORBIT 
+Mission Modelling Module (3M) 
+3M output 
+CHARGING EFFECTS 
+Human Machine Interface (HMI) 
+ 
+Figure 4 - Mission Modelling Module (3M) architectural 
+overview. 
+Externally provided data, which are used by 3M to produce 
+the specified space environment parameters, consist of: 
+(1) Latest S/C orbit states, as determined by the reference 
+orbit solution provider (in the current case the 
+European Space Operations Centre (ESOC/ESA) in 
+Darmstadt, Germany), is used as the initial state for the 
+orbit propagator. The initial epoch for the 
+determination of space environment and effects 
+parameters can however be defined separately. 
+(2) Space weather data, originating from several reference 
+data providers (NOAA, SIDC, WDC-C2 Kyoto, etc.) 
+The data from external sources is accompanied by a 
+time tag. The age of the data will then determine the 
+quality of the parameters provided by 3M, and can 
+take one of three values per parameter: good, 
+acceptable, or poor. In this way, it will always be 
+possible to identify situations in which parameters are 
+being provided with space weather data that is no 
+longer valid, or with an orbit solution, which no longer 
+corresponds to actual S/C trajectory.  
+A significant number of the space environment models used 
+by the 3M block comes from the SPENVIS [10] software 
+suite, complemented by other models implemented and 
+validated at Deimos Engenharia, with extensive research of 
+existing literature. 
+Orbit propagator - At a pre-defined frequency, the Data 
+Processing Module will request from 3M an estimation, for 
+a given S/C, of a set of space environment parameters 
+(typically all), for an upcoming period of several hours, at a 
+given sampling rate. The 3M block uses the latest orbital 
+state estimates for the S/C under scrutiny, generating the 
+trajectory for the period under request, and yielding the 
+expected space environment parameters, along the 
+trajectory, with the given sampling period.  
+A high-fidelity orbit propagator ensures the space 
+environment data will cover entire orbits with acceptable 
+precision..  
+Table 1 contains the list of all models implemented in the 
+3M. 
+Component Model 
+AP-8 
+AE-8-MAX / Vampola ESA-SEE-1 
+Vampola 
+MEAINTEG 
+Vampola 
+MEAMAX 
+Geomagnetically Trapped Particles 
+ 
+Vampola 
+MEAPROB 
+Solar Energetic Particles and Cosmic 
+Rays 
+ 
+CREME 
+Ionospheric Plasma IRI-2001 
+Plasmasphere Carpenter-Anderson 
+Garret-DeForest 
+Sibeck Outer Magnetosphere 
+ECSS Analytical Model 
+Solar wind Plasma ECSS Analytical Model 
+High-energy Solar Electromagnetic 
+Flux ECSS Reference Spectrum 
+IGRF 
+Geomagnetic field 
+Tsyganenko 92 
+Atmospheric  MSIS-E-90 
+ Table 1 - 3M Estimated Components and Models 
+ 
+The 3M acts on a request by the Data Processing Module. It 
+first extracts the full structure of the request from the 
+original XML format into a manageable C++ structure. It 
+then re-orders and groups the individual parameter requests 
+in a stack, so that each model only needs to be execute once. 
+  
+ 7
+Artificial Neural Networks Module 
+The second module, which composes the Forecasting 
+Module, also acts as data generator. In this specific case, the 
+user is able to plug-in externally created Artificial Neural 
+Network (ANN) models and use them as an ordinary Data 
+Service Provider [11]. Moreover, the ANN Engine uses data 
+from the Data Integration Module system provided through 
+the Data Processing Module. The interfacing 
+communication layer between these models and the Data 
+Processing Module is achieved by using Web Services 
+functionalities.  
+The ANN models represent the experimental part of the 
+SEIS system. It is planned to train and develop specific 
+ANN, using historical data and then have them plugged in 
+to the system to forecast data or to modulate the output of  a 
+physical model.  
+An example is the modelling of the seasonal or temporary 
+variation of the radiation belts around the earth, along the 
+S/C trajectory, based on recent solar activity data and recent 
+S/C radiation measurements. It is expected, once the models 
+are properly trained and validated, to increase the temporal 
+and spatial precision prediction of when the S/C crosses the 
+radiation belts. 
+6. DATA INTEGRATION MODULE 
+The Data Integration Module is made of five distinct 
+components: (i) Staging area; (ii) Data Warehouse; (iii) 
+Data Marts; (iv) Operational Data Store; and (v) Alarm 
+Engine. 
+Staging Area 
+The first level database is the Staging Area and it acts as a 
+data buffer between the transformed and normalized data 
+provided by the Data Processing Module and the Data 
+Integration Module. 
+Data Warehouse 
+The Data Warehouse (D/W) is the main data repository: it 
+holds all historical and forecasted data that is at least one 
+day old (i.e. it was retrieved / collected until the previous 
+day). The data warehouse organises the data according to 
+subjects (space weather, S/C, orbital information, etc.). 
+Further more all data is integrated in one repository. The 
+data is time-invariant because the historical data is kept and 
+it is not volatile since data is not updated or deleted [12].  
+Conceptually the D/W captures the domain knowledge and 
+models it in a dimensional form. Fact and dimension tables 
+compose the D/W model. The fact tables store the values of 
+the measurements. The dimension tables contain textual 
+descriptions of the domain (e.g. Description of a type of 
+event). Each fact table is joined to a set of dimension tables, 
+in a star-like structure called star schema. Each star schema 
+models one concept of the problem [16, 17]. 
+The core D/W schema contains 17 shared dimension tables 
+and nine fact tables (i.e. nine star schemas). The dimension 
+tables include time and date; S/C; S/C subsystem; S/C 
+subsystem sensor; S/C revolution; ground station; ground 
+base; S/C event; S/C parameter; alarm and S/C position. 
+With these dimensions, it is possible to describe and 
+maintain vital information about the data stored in the fact 
+tables. The core fact tables are S/C real and predicted time 
+series; S/C events; S/C positions; triggered alarms; space 
+weather real and predicted time series and space weather 
+events. The mapping between the core fact and their 
+dimension tables is presented in table 2. 
+ 
+Table 2 - Mapping between fact and dimension tables. 
+ 
+Fact 
+Tables 
+Dimension Tables 
+Spacecraft 
+Time 
+Series 
+Time and Date of occurrence and generation;  
+Spacecraft to which the parameter reports; 
+Spacecraft parameter definition; 
+Ground Station that received the data; 
+Generation Model that generated the data, in case 
+of a generated or predicted time series  
+Spacecraft 
+Events 
+Ground Station that received the data; 
+Generation Model that generated the data, in case 
+of a generated or predicted event  
+Time and Date of beginning point; ending point 
+and generation;  
+Spacecraft that suffered the event 
+Spacecraft 
+Positions 
+Spacecraft position definition; 
+Generation model that generated or predicted the 
+data 
+Spacecraft to which the positions referrs to; 
+Time and Date of the position occurrence and 
+generation  
+Triggered 
+Alarms 
+Alarm definition; 
+Spacecraft subsystem that suffered the alarm 
+Time and Date of beginning point and ending 
+point 
+Space 
+Weather 
+Time 
+Series 
+Time and Date of occurrence and generation;  
+Space Weather parameter definition; 
+Ground Base that measured the data, if applicable; 
+Spacecraft that measured the data, if applicable 
+Generation Model that generated the data, in case 
+of a generated or predicted time series  
+Space 
+Weather 
+Events 
+Time and Date of beginning point; ending point; 
+maximum intensity point and generation;  
+Space Weather event definition; 
+Ground Base that measured the data, if applicable; 
+Spacecraft that measured the data, if applicable 
+Generation Model that generated the data, in case 
+of a generated or predicted time series 
+ 8
+The Data Warehouse (D/W) is updated daily with the last 
+day of data previously inserted in the Staging Area. To 
+complete this operation, the data has to be further organized 
+according to the D/W schema (e.g. the association of the 
+corresponding S/C and its position to each telemetry 
+parameter). In order to do this it is necessary to know the 
+corresponding meta-information concerning each parameter 
+(for instance the value refers to a certain parameter, that is 
+produced within an instrument/observation location - in that 
+case it could be a S/C or a ground station, the actual 
+location of spacecraft/ground station at that time). 
+Data Marts 
+Data Marts are multi-dimensional databases also separated 
+according to a given subject. Data marts contain the same 
+data as the D/W, but re-organized in a multi-dimensional 
+fashion with pre-aggregated data already computed. Data 
+marts of this type are often referred to as OLAP (Online 
+Analytical Processing) cubes [13]. These cubes, or data 
+marts, are the supporting databases for the Reporting and 
+Analysis Tool. 
+The Data Warehouse and the Data Marts are closely 
+related. Data Marts load data from the Data Warehouse and 
+pre-compute the aggregations (typically during less activity 
+hours – when the system is not expected to be used) 
+decreasing expected query answer time while increasing the 
+performance of the OLAP client tool. The main goal is to 
+have all data already pre-computed before the client tool 
+requests it for the most used queries. This is of critical 
+importance because a table can easily reach several millions 
+of rows containing parameter values. The OLAP technology 
+solves the problem of computing aggregations such as 
+averages, sums or maximums on the fly with a direct impact 
+on performance. Moreover, these cubes are queried through 
+a proprietary Microsoft language, named MDX – 
+MultiDimensional eXpressions. This query language is 
+more expressive and powerful than regular transaction 
+oriented SQL languages (e.g. Transact-SQL) in terms of 
+multidimensional querying, making it easier to query OLAP 
+data sources. The language also features an easy access to 
+pre-calculated aggregate measures contained in the cubes 
+for faster access. Due to the large amounts of data that will 
+be retrieved in the queries, the MDX language is the best 
+choice, in terms of speed, simplicity and expressive power. 
+Operational Data Storage 
+The Operational Data Storage or ODS, is the database that 
+supports the Monitoring Tool. This database is online 
+oriented, optimized to provide real-time usage. It holds 84 
+hours of past data and 84 hours of future (forecasted) data, 
+and simulates the behaviour of a sliding window: it is 
+constantly removing all data older than 84 hours. Every 5 
+minutes new data (forecasted and real) is expected to be 
+arriving at the Staging Area and is moved to the 
+“Operational Data Storage” as soon as it becomes available. 
+The Operational Data Storage receives data from the 
+Staging Area and from the Alarm Engine (explained later). 
+It also receives data generated by the Monitoring Tool: the 
+alarm’s confirmation and acknowledgement by the users. 
+Therefore, the Operational Data Storage has to send this 
+information back to the Staging Area on a daily basis, so 
+that it may be stored in the Data Warehouse. 
+Alarm Engine 
+The Alarm Engine is a service that reads data in real-time 
+stored in the Operational Data Storage and evaluates a set 
+of alarm rules to identify S/C or space weather anomalous 
+conditions. The Alarm Engine, which includes the implicit 
+domain expert’s knowledge, runs a continuous S/C 
+diagnostic, in order to infer possible spacecraft/space 
+weather alarms and suggest appropriate recovery actions to 
+minimize damage on the S/C instruments. The alarms to be 
+evaluated are defined by the users through the use of the 
+Alarm Editor tool. The rules that define an alarm will be 
+explained in the client-tools section. When the Alarm 
+Engine identifies an alarm, it stores it in the Operational 
+Data Storage so that it becomes accessible to the 
+Monitoring Tool. 
+Each alarm is defined by a rule that contains both the logic 
+to detect an anomalous situation, i.e. the  definition when 
+the alarm should be triggered. An alarm may also contain 
+associated suggested recovery actions to be performed in 
+order to minimize S/C instruments’ damage. These recovery 
+actions define the (human) action to be undertaken when the 
+alarm is triggered. 
+Spacecraft parameter
+Boolean operator
+Raw value Calibrated value
+ 
+Figure 5 - Simple alarm rule example. 
+Each rule is composed of one or more parameters along 
+with constrains on those parameters’ values. In this context, 
+a rule is the combination of parameters and their values’ 
+constraints (called expressions). Expressions are related to 
+each other through Boolean operators (e.g. and, or). Each of 
+these expressions defines a constraint on S/C or space 
+weather parameters. A parameter can be restricted by a raw 
+value, a calibrated expression (e.g. ON, OFF, WAIT, 
+RESET) or another parameter (see Figure 5).   
+More information on the alarm rules can be found on [14]. 
+ 9
+7. CLIENT TOOLS 
+The Monitoring Tool 
+The SEIS Monitoring Tool is an advanced multi-user 
+visualization application that allows the proper visualization 
+of all data stored in the Operational Data Storage database, 
+at near real-time rate. It is an on-line-oriented tool that in 
+addition to the visualization of real-time space weather and 
+S/C telemetry data, also displays the resulting inference 
+produced by the Alarm Engine, in the form of triggered 
+alarms warnings through an intuitive graphical interface, as 
+well as details about those triggered alarms.  
+Figure 6 depicts the Monitoring Tool (MT) main window, 
+with the main areas properly identified. 
+The MT is composed of a set of user-defined panels, which 
+are always available to the user, one at a time (point 1). 
+Each panel can contain a set of S/C and space weather 
+parameters to be plotted in several charts (point 2). Each 
+chart can be customized according to the user’s preferences.  
+Each panel contains data for the session specified time 
+window (point 3), which can be divided in past and future 
+data (in each chart the green (darker) area is the past data 
+and the (yellow) lighter area contains future data. 
+Figure 6 - Monitoring Tool Main Window. 
+In point 4a are displayed the values for the nowcast 
+(current) moment (lighter yellow column) and the sliding 
+marker (darker blue column). The sliding marker is the dark 
+vertical line identified in 4b, and allows the user to visualize 
+a specific time moment by moving it freely. Point 5 displays 
+the INTEGRAL S/C position and revolution number for the 
+nowcast and sliding marker time positions. 
+Each panel also has zooming capabilities (point 6) by using 
+the available “zoom in” and “zoom out” buttons or by 
+clicking and dragging the mouse over the charts.  
+The log window is accessible from every panel and shows 
+all occurred user-actions, application-activities and alarms 
+triggered (point 7). The log window is equipped with 
+filtering capabilities that can be defined individually for 
+each panel. 
+Finally, there is an alarm area composed by two flashing 
+buttons (one for space weather and other for S/C alarms) 
+that indicate the existence of triggered alarms. By clicking 
+on the “detailed alarm” button, a new window will open, 
+where the user can visualize the specific triggered alarms, 
+the triggering rule and the suggested recovery actions, when 
+applicable. 
+Alarm Editor 
+The purpose of the Alarm Editor is to help the user to create 
+and edit alarm rules. It can then be used to validate and 
+deploy these rules into the system. This tool has two main 
+areas: an alarm rule editing area, self explanatory, and an 
+alarm validation area that allows the user to load a set of 
+parameter values and simulate the alarm triggering process.  
+The rules defined or edited within this tool are then 
+deployed into the Alarm Engine in the data integration 
+module.  
+The Reporting and Analysis Tool (RAT) 
+The Reporting and Analysis Tool is a tool for offline 
+analysis of data. All the data present in the SEIS Data 
+Warehouse are available in RAT for previewing and 
+analysis purposes. The tool is composed of three 
+components: Data Catalogue; Report Designer and Report 
+Browser.  
+The purpose of the RAT tool is to create and manage 
+reports. Reports allow the visualization of a very large set of 
+data (either in number of parameters/components or in 
+number of values per parameter: time series length). The 
+reports can be edited and printed at any time, and all data 
+available within a report can be copied into a comma 
+separated value (CSV) format file, a word document or 
+transformed into a picture (e.g. the chart). 
+Reports are the work base for every data analysis, study or 
+correlation. There are very specific reports (such as the 
+world map report) and ad-hoc created reports. 
+RAT – Data Catalogue 
+The Data Catalogue component was designed to provide 
+access to all the available data, with special concern about 
+multiple data source navigation. Each parameter has meta-
+information associated with it, and the Data Catalogue uses 
+that information to organize the parameters in a tree, and to 
+provide search capabilities. Once a parameter is selected, 
+the application retrieves a sample of the data from the 
+database, and displays it in a chart with interactive 
+ 10
+capabilities. These interactive capabilities include: moving 
+the time window back and forth, zooming in and out, or 
+retrieving interpolated values from the series. This way the 
+user can have a first glimpse of the data. Additionally the 
+application also displays data quality and statistics 
+information about the sample retrieved. 
+ 
+Figure 7 - Data catalogue sample tab exemple. 
+ 
+RAT – Report Designer 
+The Report Designer allows the user to build his own 
+reports. In the reports the user will be able to add several 
+elements, like textboxes, charts or multi-charts. For the 
+static elements (like textboxes) the user just has to specify 
+their properties, for chart elements the user will have to 
+select the desired parameter(s) to display, along with a time 
+window definition. The report designer also features a 
+preview mode, for the user to see what the report will look 
+like, with all the charts filled with data. This preview mode 
+is limited and doesn’t allow further interactions with the 
+data. 
+Figure 8 to Figure 12 display examples of some available 
+charts. 
+ 
+ 
+Figure 8 - Standard scatter with two scales and three series. 
+ 
+Figure 9- Standard scatter with one time series and OOL 
+thresholds marks. 
+ 
+ 
+Figure 10- 2D Correlation chart example with real data, 
+correlating x-ray flux short and long. 
+ 
+ 
+Figure 11: Events chart with simultaneous events 
+ 
+ 
+Figure 12 - Multichart example, including a scatter, an event 
+chart, a gradient chart and a categorical chart. 
+RAT – Report Browser 
+The Report Browser allows the user to interact with 
+previously created reports or with pre-defined reports. This 
+interaction is similar to the interaction allowed in the data 
+catalogue (zoom in and out, move the time window or 
+ 11
+obtain interpolations). Report data exportation is possible: 
+the user can print the results of a report, save the report as a 
+JPEG image, save the data (values) of a chart to a text file, 
+or copy portions of the report to include it in word 
+documents. 
+The pre-defined reports include: 
+(1) World Map Report – report including a plot of the 
+world map with the orbits of one of the three 
+spacecrafts (INTEGRAL, ENVISAT and XMM) with 
+the highlight of Single Event Upsets and alarms 
+occurrences, along with altitude information and other 
+space weather events occurrences. 
+(2) Single Event Upset (SEU) Report – report for single 
+event upsets in the reference INTEGRAL mission.  
+ 
+Figure 13 - World map with an INTEGRAL revolution 
+(Rev#184), with an annotation. 
+8. METADATA REPOSITORY 
+Metadata are data about data and the SEIS system takes 
+advantage of this methodology: a central metadata 
+repository holds information about every part of the system. 
+The SEIS Metadata Repository is another key element in 
+the system’s structure and consistency (see Figure 2). 
+Every database, client tool and service is registered within 
+this repository and is able to read its own configuration 
+from it. The metadata repository is the source of the whole 
+system‘s configuration. It is possible to look at the metadata 
+repository as the seed from which the system is born, and 
+the roots where it gets all the necessary information to start 
+running. 
+The Metadata Repository contains: 
+(1) Domain Concepts: the definition of each parameter 
+and event that is stored in the system, including the 
+identification of its data source, the sampling rate; the 
+definition of each S/C and their ground stations; the 
+definition of each ground base used in the system, and 
+it location; 
+(2) Databases Schemas: the definition of each database in 
+the system 
+(3) Data Integration Module Scheduling Processes: how 
+and when each database should be updated;  
+(4) Mapping between the Domain Concepts and the 
+Database Schemas: so that the databases can be 
+populated based only on the information stored here; 
+(5) Tool’s Configuration: the configuration of each client 
+tool, such as the user preferences and the default 
+values and configuration.   
+(6) Services Configuration: besides the services 
+configurations such as the last read data, the last 
+running date, and all other vital information to their 
+proper functioning, we can also find Data Processing 
+Modules definitions, Data Service Providers 
+definitions, Provided File information and File Format 
+definitions (containing both the necessary fields to 
+extract and the sequence of transformation sequences 
+to apply to each one).  
+The metadata repository allows addition of new data service 
+providers as well as new files and parameters or even new 
+tools. All system’s management can be performed through 
+the metadata management, and since this is shared by 
+several applications, it is rather easy to coordinate several 
+applications. 
+9. CONCLUSIONS 
+This paper has discussed and presented the SEIS prototype 
+tool features focused on the interaction between space 
+weather and space mission control processes. The three 
+main objectives are increased awareness of space weather 
+causes and effects on the S\C health status; improved 
+operational productivity; i.e. science return and safety, e.g. 
+extended mission lifetime. 
+The SEIS system concept has been introduced, followed by 
+the architecture and the selected technology. From users’ 
+side an introduction to what is possible to do with SEIS has 
+been provided. 
+S/C onboard radiation and health monitoring complemented 
+by available external space radiation data and consolidated 
+radiation models represent the key data suitcase collected by 
+SEIS.  Specialized modules will provide graphical display 
+of data, correlation and trend analysis and short term 
+evolution forecasting. The system is open to interface 
+additional modules in the future.  
+The environment is designed to support multiple mission, 
+starting with INTEGRAL, ENVISAT and XMM as initial 
+missions. The tool will be made available at the dedicated 
+ 12
+control areas of these three missions. Flight control 
+engineers will be the prime users for assessing the impact of 
+space weather on the S/C health status. 
+Expected Benefits 
+The SEIS prototyping approach seems to pave the way for 
+an operational tool able to contribute to narrow the gap in 
+time and in knowledge between radiation events and safe 
+productive S/C operations. It is a multi-mission 
+environment, modular and expandable in capability, able to 
+retain a rich set of space radiation and effects data, 
+information and knowledge useful for today’s mission 
+operations and for tomorrow’s S/C design and 
+implementation. 
+In fact the S/C component manufacturer and the space 
+segment engineers are willing to receive SEIS stored 
+radiation data and effect to further analyze and investigate 
+specific anomalies and to shorten the learning time for 
+components performance improvement in harsh 
+environment. 
+The SEIS implementation phase will be followed by an 
+extensive operational validation phase required to fine-tune 
+the capabilities and the performance of the prototype. 
+10. FUTURE WORK 
+The initial idea was to start with a historical repository of 
+space weather data and a tool able to provide information 
+and knowledge to flight control engineers, not necessarily 
+experts in space weather. The initial requirement from the 
+operations engineers was to be assisted them in evaluating 
+when to activate protection procedures on critical and 
+radiation sensitive sensors, such as the CCDs (Charge-
+Coupled Devices) used in space telescopes. It was 
+considered necessary to build an operational prototype, 
+something that can then be deployed and validated on the 
+field. In Spring 2005 the operational validation phase will 
+start and will run for approximately one year. During this 
+period users, space weather experts and developers will 
+interact to fine tune SEIS features, refine the forecasting 
+model(s) and assess its performance. Also, it will be 
+possible to evaluate the 3M Engine estimations and the 
+ANN forecasts quality. 
+Other missions, beyond the current reference ones are 
+already manifesting their interest in the features of SEIS. 
+Therefore it is expected to extend the use of SEIS to other 
+ongoing space missions.  
+On the technical side, there are several improvements that 
+could be done to increase the system’s usability.  
+Make use of enhanced display techniques, such as Virtual 
+Reality, to visualize data directly on a S/C model. It would 
+greatly improve, for instance the awareness of the radiation 
+environment around the S/C. 
+ Furthermore, Data Mining techniques could be introduced 
+to assist the users in the finding and analyzing cause-effect 
+relationships between space weather conditions and S/C 
+events. 
+The alarms currently triggered by the Alarm Engine are 
+based on simple out-of-limit rules using satellite telemetry 
+and space weather parameters. However, no inference 
+mechanism is truly implemented. The implementation of an 
+inference mechanism, for instance based on fuzzy logic 
+rules, would bring extra strength and flexibility to the alarm 
+rules. 
+ The SEIS system is designed to allow easy integrations of 
+new clients, and can therefore be extended according to 
+future identified needs. 
+11. ACKNOWLEDGEMENT 
+The authors would like to thank all the SEIS team members, 
+but especially Joaquim José Neto; Ivan Dorotovic and 
+Fabrizio Pirondini for their dedicated work and invaluable 
+effort to the successful development of the SEIS project.  
+12. REFERENCES 
+[1] B. Schmieder, B. Vincent, W. Baumjoham, T. 
+Ono, S. Basu, and L. Lean, "Climate and Weather of the 
+Sun Earth System: CAWSES, SCOSTEP'S Program for 
+2003-2008," presented at SOLSPA: The Second Solar 
+Cycle and Space Weather Euroconference -  ESA SP-477, 
+2002. 
+[2] "Space Weather Applications Pilot Project: Space 
+Environments and Effects Analysis Section," vol. 2004: 
+European Space Agency, 2000. 
+[3] Michael Schmidt and F. D. Marco, "INTEGRAL 
+Flight Operation Plan," ESA/ESOC, Darmstadt 2003. 
+[4] "Integral," vol. 2004: The European Space Agency 
+Science & Technology, 2002. 
+[5] "Envisat," vol. 2004: The European Space Agency 
+Earth and Observations, 2003. 
+[6] "XMM-Newton," vol. 2004: The European Space 
+Agency Science & Technology, 2000. 
+[7] P. Vassiliadis, A. Simitsis, and S. Skiadopoulos., 
+"On the Logical Modeling of ETL Processes," presented at 
+CAiSE, Toronto, Canada, 2002. 
+[8] W3C, "The Web Services Activity Statement," 
+2002. 
+[9] W3C, "SOAP - SOAP Version 1.2 Part 1: 
+Messaging Framework," 2003. 
+ 13
+[10] Belgian Institute for Space Aeronomy, Space 
+Applications Services, and P. S. Institute, "SPENVIS - 
+Space Environment Information System," vol. 2004, 1998. 
+[11] S. M. Weiss and N. Indurkhya, Predictive Data 
+Mining: A Practical Guide. San Francisco, California: 
+Morgan Kaufmann Publishers, 1998. 
+[12] R. Kimball and M. Ross, The Data Warehouse 
+Toolkit: The Complete Guide To Dimensional Modeling, 
+2nd Edition ed: Wiley, 2002. 
+[13] E. Thomsen, "OLAP Solutions: Building 
+Multidimensional Information Systems," Second ed: Wiley, 
+2002. 
+[14] J. Moura-Pires, M. Pantoquilho, and N. Viana, 
+"Real-Time Decision Support System for Space Missions 
+Control," presented at IKE'04 - The 2004 International 
+Conference on Information and Knowledge Engineering, 
+Las Vegas, USA, 2004 
+ 
+ 
+BIOGRAPHY 
+Nuno Carlos Viana is currently exercising the function of 
+Project Manager within the CA3 Research Group in 
+UNINOVA, Portugal. After graduation in Computer 
+Sciences Engineering in 2001 at FCT/UNL, he was invited 
+to join the CA3 (Sofcomputing and Autonomous Agents) 
+Research Group in UNINOVA. Since 2001, he has been 
+actively involved on the development of R&D projects for 
+ESA (aiming to demonstrate the application of artificial 
+intelligence techniques and decision support systems to 
+ESA mission control operations), firstly as a Research 
+Enginner and afterwards as Project Manager (since early 
+2003). Simultaneously, he has been pursuing his Masters' 
+degreee in Applied Artificial Inteligence. 
+Luis F. Peñin is currently Technical Manager of the Space 
+Engineering Division at DEIMOS Engenharia. He started 
+his professional career in the aerospace industry in 1993. 
+Later on he joined the Automatic Control Department of the 
+Universidad Politécnica de Madrid, participating in several 
+industrial projects in the area of robot control. Meanwhile 
+he worked to earn a Doctoral degree in Control and 
+Robotics. In 1998 he joined the National Aerospace 
+Laboratory of Japan as a researcher, carrying-out several 
+real-time flight teleoperation experiments with ETS-7 
+satellite space robot arm from NASDA's Tsukuba Space 
+Center (TKSC). At the end of 1999 he joined Spanish 
+aerospace company GMV, where he participated as senior 
+project engineering in several proposals and projects for 
+ESA in the area of GNC and space robots teleoperation. In 
+2001 he founded EIMOS where he has worked as senior 
+project engineer and project manager for more than 10 
+different projects for ESA in the area of GNC, simulation 
+and control. He has published two books and more than 40 
+papers in the robotics and space field.  
+Marta Pantoquilho finished her Computer Science Degree 
+(5 year degree) with distinction in 2003 at the Faculty of 
+Sciences and Technology of the New University of Lisbon, 
+ and is now finishing her Masters' degree in Computer 
+Science with specialization on Information Systems' 
+Technologies.  She is currently Quality Manager and 
+Research Engineer at the CA3 Research Group in 
+UNINOVA, Portugal, where since 2003 she has been 
+working on R&D projects in the area of Decision Support 
+Systems for the European Space Agency (ESA). She has 
+already published more than 10 papers since 2003 on the 
+field of System Analysis and Information Systems' 
+Technologies. Starting April 2005 she will be joining ESA 
+trainees' team at the European Space Operations Centre 
+(ESOC) in Darmstadt, Germany, to continue her work on 
+Decision Support Systems.  
+Federico Di Marco is working as Spacecraft Engineer for 
+the INTEGRAL Mission Operations Centre based at ESA's 
+European Space Operations Centre (ESOC), Darmstadt 
+Germany. He has a Degree in Physics with Majors in 
+Astrophysics and has been in working for 2 years in the 
+facilities of AleniaSpazio-Roma for his final thesis and 5 
+years in ESA as Spacecraft Engineer. For the INTEGRAL 
+mission  he participated to System Validation Tests 
+campaign, Simulation Campaign and Launch campaign 
+culminated with the launch of the satellite on  October 2002 
+and has been responsible, within the INTEGRAL Flight 
+Control Team, of the Payloads, Experiment Checkout 
+Equipments and AOCS. At present he is the Spacecraft 
+System Engineer, responsible specifically for the AOCS and 
+payloads sub-systems and is collaborating with the ESA's 
+Control Technologies Unit in the definition of a decision 
+support system to provide Flight Control Teams with Space 
+Weather information. 
+Alessandro Donati is Mission Control Technologies 
+manager in the Special Projects Division at ESA’s European 
+Space Operations Centre (ESOC), Darmstadt Germany. He 
+has been in working for ESA for 13 years. He has a Masters 
+Degree in Electronic Engineering, and has been responsible 
+for a number of different positions within the Operational 
+Department, including Ground Segment Manager for the 
+Automated Transfer Vehicle ground segment definition 
+phase and Operations Engineer for the Cluster II mission. 
+At present he is managing a team responsible for the 
+identification of improvements of current and future mission 
+control related approaches and for the elaboration of 
+associated technology advances. 
+ 

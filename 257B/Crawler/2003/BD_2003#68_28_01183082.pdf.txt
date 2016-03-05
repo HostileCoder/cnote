@@ -1,0 +1,476 @@
+Pixel Navigator – a Simple Mobile Internet Paradigm 
+ 
+ 
+Ping-Wen Ong, Anil Rana, Frederic Battaglia 
+Bell Labs Wireless Research Lab, Lucent Technologies, Inc 
+791 Holmdel-Keyport Road, Holmdel, NJ 07733, USA 
+email: {ong,anil,fbattagl}@lucent.com        Tel: +1-732-888-{7112,7217,7093} 
+ 
+ 
+Abstract 
+The rise of the World Wide Web and the market growth 
+of mobile devices with advanced data capability make 
+the mobile Internet the inevitable next big wave of 
+technology. Due to the form factor limitation, mobile 
+device will never be used as a Web browsing tool like its 
+desktop counterpart. People will use it to access 
+personal information, communicate with people using 
+messaging facilities, find local information, and navigate 
+through a well-organized information directory. We 
+proposed a simple information access method called 
+Pixel Navigator. It utilizes images with hotspot data for 
+user interaction. We’ll compare it to the other popular 
+wireless data services. Performance issues in Pixel 
+Navigator will be discussed to illustrate the tradeoffs in 
+an image-only system. 
+ 
+ 
+1. Introduction 
+World Wide Web has a tremendous growth since 
+invented in 1990. There are 561 million people who have 
+Web access and 2 billion pages of information had been 
+created and shared [1]. Market growth and adoption rates 
+in the mobile phone subscriber base are occurring at an 
+even faster rate. A mobile phone or PDA equipped with 
+a browser and a wireless connection provides an 
+opportunity to connect to the Internet from any place. In 
+certain part of the world, the wireless Web access is 
+actually more popular than the wired Web access due to 
+poor wire line infrastructure and high access cost. 
+However, while the small physical size of the mobile 
+device makes it possible to be used everywhere, it is also 
+the most severe limiting factor. Mobile users want to 
+have a device that is cheap, small, light but with 
+adequate memory, processing power, battery life, and 
+communication speed. Technology improvements will 
+solve most of these problems except for one: the display. 
+There is no way to fit a large display on a small device. 
+Combining with the on-the-move environment, mobile 
+users will use mobile devices mainly to access specific 
+information, not undirected Web browsing.  
+With Web browsing out of the picture, many efforts 
+trying to do automatic Web contents adaptation or 
+transformation like RSVP Browser [2], WEST [3], 
+Power Browser [4] will not be practical. Once we forgo 
+the idea of general Web browsing on mobile device, we 
+can actually concentrate on how to build up a better 
+paradigm for mobile information access. 
+The highly successful i-mode from NTT DoCoMo 
+shows how wireless data service could do. Generally 
+speaking, mobile users do not surf the Web, but search 
+and find the information they want. A well-organized 
+service directory with easy way to navigate is the key to 
+a great user experience and successful business.  
+We have done some works in creating a useful mobile 
+data service platform called iLife [5]. The underling 
+interaction mechanism is called Pixel Navigator. It is an 
+image-based system in which mobile users interact with 
+the services using images plus hotspot data. This is an 
+attractive mechanism in the future unique wireless 
+environment where communication bandwidth is 
+abundant, but mobile device screen is small.  
+ 
+2. Pixel Navigator mechanisms 
+The mechanism of the Pixel Navigator is simple: 
+mobile sends a request to the server and the server sends 
+back an image with hotspot data. The image represents 
+the information screen and the hotspot data define the 
+interaction. The 3 images below illustrate this concept:  
+   
+The left image is a map with navigation, scale and zoom 
+control. The middle one shows the same image with 
+hotspots highlighted. The right one shows the same 
+image with only one hotspot covering the whole image. 
+Proceedings of the 2003 Symposium on Applications and the Internet (SAINT’03) 
+0-7695-1872-9/03 $17.00 © 2003 IEEE 
+The hotspot defines what the user can do. In this 
+example, the zoom-in and zoom-out, eleven different 
+scales, moving in eight different directions and clicking 
+on the map itself are the available actions.  
+Image:  When the session is established, the first 
+thing to negotiate is the image preference (size, types, 
+color depth etc.). This device capacity / content 
+preference negotiation could be carried out using any 
+industrial standard like W3C RDF [6], CC/PP [7] or 
+WAP UAProf [9] etc. or a proprietary format. Once the 
+image format preference is settled, the server should use 
+this preference to send appropriate images to the client 
+depending on the image type and QoS setting.  
+Hotspot: The hotspot defines the actions associated 
+with the image. We have defined four different kinds of 
+hotspots: 1) Area hotspot: This hotspot defines a 
+clickable area on the image. It has the syntax of HTML 
+AREA tag with attributes for shape, name, coordinates, 
+href and speakable (a list of acceptable spoken names 
+while using with speech recognition). 2) Input hotspot: 
+This is used for user input, including usual HTML Form, 
+audio, video, etc. Many input hotspot types are the same 
+as those from HTML Form. Bitmap, video and audio 
+hotspots are used to gather image, video and audio input 
+for interactive multimedia services. 3) Output hotspot: 
+This hotspot is used for output, including audio, video, 
+etc. 4) Meta hotspot: This hotspot defines the control 
+function for the image. One example is the refresh rate of 
+the display (e.g. updating stock quote). 
+Transport protocol: The Pixel Navigator is 
+independent of underlining transport protocol. We can 
+easily reuse the HTTP. But pure HTTP is very wasteful 
+in a wireless environment due to the overhead. We 
+implemented a long session protocol on the iLife 
+platform to handle Pixel Navigator. In this application 
+level protocol, we also defined messaging and personal 
+storage space manager. One advantage of iLife protocol 
+is that it has a two-way communication channel. This 
+helps the platform to have push/alert/alarm function that 
+is impossible to implement using pure HTTP. Two 
+important aspects of iLife protocol related to the Pixel 
+Navigator worth further explanations are: 1. Update 
+Response: The response for a request could be just a new 
+image with hotspot data, or an update response. This 
+update response could update the current image and/or 
+hotspot data partially. It enables iLife platform to 
+provide full interactive service with reduced bandwidth 
+requirement. These updates include changing the 
+properties of hotspots, partially updating the image, 
+moving current image, adding / deleting / enabling / 
+disabling hotspots, etc. On-line games, reservation 
+services and navigation services are the applications that 
+can benefit from it. 2. Client vs. Server side stack: Web 
+browser has client side contents cache to speed up the 
+Web browsing. Server and proxy cache is used to speed 
+up the delivery of frequently accessed contents. These 
+are not used for tracking the state of the user. One 
+drawback is that the browser only knows the order 
+between links, not the state of the service. On iLife 
+platform, every service has its identifier. The server 
+keeps a per user service stack to track and serve the iLife 
+client. Thus, not only mobile client can move between 
+screens easily but also move between services easily.  
+HTML Authorization: The iLife platform acts as a 
+proxy server for regular Web servers on the Internet. As 
+long as the Web page is designed to be iLife compatible, 
+it could be accessed from the iLife client. 
+ 
+3. Comparison 
+ 
+Currently, there are different services/protocols being 
+used for information access on the wireless networks. 
+The following table shows a comparison among them.  
+I-mode: I-Mode utilizes an overlay packet network 
+for direct communications to the content providers on 
+the Internet. It uses compact HTML. You can use the 
+Web browser to look at I-mode pages. In addition to 
+HTML tags, there are some special I-mode-only tags and 
+large number of non-standardized characters. At present, 
+an I-mode page needs to be smaller than 5 Kbytes. While 
+connection is not instantaneous, the connection time is 
+typically only a few seconds until the first data appears. 
+I-mode displays six to ten lines of text, at 16 to 20 
+characters per line. I-mode phones only support GIF 
+ 
+Name I-Mode WAP Web Clipping VNC/Remote Desktop Pocket IE Pixel Navigator 
+Content Based cHTML WML (Script) CML HTML HTML Image & Hotspot 
+Screen size 176 X 182 96 X 65 160 X 160 240 X 320 240 X 320 240 X 320 
+Processor Class Medium Low Medium High High High 
+Platform Proprietary Independent Palm OS Windows CE Windows CE Windows CE 
+Memor iremen Medium Low Medium High High High 
+Text, Image or Both? Both Text Text Both Both Both 
+Animation support GIF No No Yes No Gif 
+Users 33 Mil. 18 Mil. 0.2 Mil  N.A.  N.A.  N.A. 
+Is it a Web browser? No No No No Yes No 
+HTML transformer? No Yes Yes No No No 
+Page size < 5 KB 1.4KB 2K - 12KB N.A. Depends on the page 10 KB 
+Number of Sites 21000 14000 600 N.A. Almost all web sites N.A. 
+PDA Centric No No Yes Yes Yes Yes 
+Client/Server Rendering Client Client Client Server Client Server 
+ 
+y requ t 
+Proceedings of the 2003 Symposium on Applications and the Internet (SAINT’03) 
+0-7695-1872-9/03 $17.00 © 2003 IEEE 
+images, and cannot display JPEG. [8]  
+WAP: WAP is the protocol developed by the wireless 
+op
+ proponent of its Web 
+Cl
+ote Desktop: Virtual 
+Ne
+ternet 
+Ex
+erators. WAP-enabled phones use the Unwired Planet 
+browser to interpret its own markup language, called 
+WML [9]. Being mostly text-based, WAP requires 
+navigation between layered menus to look for right 
+information. It required special WAP browser. In 
+contrast to WAP, Pixel Navigators pages can be viewed 
+on regular web browser. Navigation can be much more 
+efficient due to the usage of images and hotspot rather 
+than text based scrollable menus.  
+Web Clipping: Palm has been a
+ipping technology, which requires that website owners 
+develop special Palm Query Applications (PQA), that 
+contain snippets of only the most important information, 
+tailored to fit in a 160 pixels by 160 pixels screen which 
+allows only 11 lines of text. Web Clipping doesn't offer 
+the rich experience found in Pixel Navigator. The pages 
+must use restricted subset of HTML 3.2, which means no 
+tables, frames, and image maps. Palm proxy server has 
+latency of about 10 seconds. PQA must be stored locally, 
+which makes it harder to update.  
+VNC/Microsoft PocketPC Rem
+twork Computing [10] is a remote display system 
+which allows you to view a computing ‘desktop’ from 
+anywhere on the Internet using various platform. It does 
+not store state at the viewer, so you can go back to the 
+state you left in previous time. It is sharable so that one 
+desktop can be displayed and used by several viewers at 
+once. Microsoft Remote Desktop protocol (RDP) [11] is 
+a presentation protocol that allows a Microsoft Windows 
+CE "thin client" to communicate with a terminal server 
+across a LAN or WAN.  RDP is a multiple-channel 
+capable protocol that allows for separate virtual channels 
+for carrying device communication and presentation data 
+from the server, as well as encrypted client mouse and 
+keyboard data. X server and RDP screen updates are 
+based on server push while the VNC is based on client 
+pull method [12]. VNC requires a proxy server and a 
+wired connection, which is not wireless friendly.  
+Pocket Internet Explorer: The Pocket In
+plorer is an almost-full-featured web browser that can 
+display full Internet Web pages. Pocket IE presents web 
+pages in their full form on small devices which is 
+problematic in terms of bandwidth, battery life and most 
+importantly, scrolling requirements in both dimensions. 
+On small devices, information access is more important 
+than just web browsing, which comes with lot of 
+unwanted bits. Unlike Pocket IE, Pixel Navigator offers 
+partial updates and state support as well. 
+10
+Server vs. Client Rendering: Client side rendering 
+applications like I-Mode browser, WAP browser, and 
+Pocket IE requires devices with powerful processors and 
+much larger memory when they are used to display the 
+same type of contents. Pixel Navigator is a server side 
+approach. Since bandwidth will be ample in the future, it 
+makes more sense to shift processing power to the 
+server. This is especially true in case of client/server 
+application like multi player graphic-rich interactive 
+games. To change the content on the server is much 
+easier than to make changes on every client. Since 
+different languages can be rendered and displayed in an 
+image on the multilingual server, Pixel Navigator is 
+language independent. Following is a table which 
+summarize the differences between the server side 
+rendering and client side rendering: 
+ Server Side (iLife) Client Side (web browser) 
+Bandwidth utilization Almost fixed Vary a lot 
+Customized look & feel Yes No 
+Client software Thin client software Complex client software 
+Client hardware Simple Demanding 
+Upgrade Mostly server side Mostly client side 
+Distributed computing Limited Yes 
+Platform Good for wireless Good for wired device, 
+but limited for wireless  
+ 
+4. Performance Issues 
+The overall Quality of Service the Pixel Navigator is 
+able to accomplish depends on two factors: the response 
+time (time elapsed between a click on the screen and the 
+rendering of the new image) and the quality of the image 
+displayed. The response time can be divided into two 
+parts, the transmission time and the processing time to 
+render the image. The quality of the image relates to the 
+compression used (GIF, JPEG) and some characteristics 
+of the image (anti alias, progressive). 
+Even though all sorts of information can be accessed 
+through the Pixel Navigator, we believe that only 3 
+distinct categories of images are sufficient to address this 
+variety of content: Text image: image that contains a 
+majority of characters and some control buttons (up, 
+down, etc.) Vector graphics image: image that contains 
+A = 160x160
+B = 240x160
+C = 320x240
+D = 320x320
+E = 480x320
+F = 640x480
+G = 800x600
+:Screen resolutionA B         C          D E F          G A B         C          D E F          G A B         C          D E F          G
+0
+2
+4
+6
+8
+T
+ra
+n
+sm
+is
+si
+o
+n
+ t
+im
+e 
+(s
+ec
+o
+n
+d
+) TEXT IMAGE VECTOR GRAPHICS IMAGE PICTURE IMAGE
+T
+ra
+n
+sm
+is
+si
+o
+n
+ t
+im
+e 
+(s
+ec
+o
+n
+d
+)
+Proceedings of the 2003 Symposium on Applications and the Internet (SAINT’03) 
+0-7695-1872-9/03 $17.00 © 2003 IEEE 
+mainly lines and shapes (e.g. maps and stock quotes) 
+Picture image: images that are neither Text image, nor 
+Ve
+ proposals for configuration to be used to 
+op
+y this 
+sta
+we
+e time + quality) that 
+are acceptable most of the time.    
+. Conclusion 
+ 
+ a 
+tru  useful mobile data service with Pixel Navigator. 
+6. References 
+[1] G ata for March, 
+[2] R
+ction with Mobile Devices, Sept. 
+[3] 
+ards 
+[4] P
+ Conf. 
+[5]  
+Frederic Battaglia, IEEE workshop 
+[8] 
+) 
+[9]  nts/WAP-248-
+[10]
+[11]  
+rary/default.asp?url=/librar
+[12]
+of the USENIX Annual Technical Conference, June 2002 
+ctor graphics image. 
+The following paragraphs describe the response time, 
+processing time and quality of image for each type of 
+images and give
+timize QoS. 
+Transmission time: To determine the transmission 
+time over different wireless standards (GPRS, UMTS 
+and 802.11b), we built images, for each type mentioned 
+above, with different resolutions (expected mobile 
+device’s resolution) and different mode of compression 
+(GIF and JPEG). Note that the transmission data rates 
+used correspond to expected rates rather than theoretical 
+ones. The graphs show that GIF compression has better 
+response time than the JPEG one for both the ‘Text 
+image’ and ‘Vector graphic image’ types and that this 
+trend is reversed for the ‘Picture image’ type. This 
+means that GIF compression performs better with text 
+and shapes images and that JPEG is better for more 
+complex images, like photos. The other observation we 
+can make out of the graphs is that, making the 
+assumption that the right compression is used for the 
+different type of images, the transmission time is 
+acceptable (< 2 seconds) for resolutions below 320x240. 
+This means that for these resolutions, assuming 
+processing time is negligible and the server is able to 
+select the right compression, the QoS provided to the end 
+user is good. The next paragraph describes wh
+tement is not true for the ‘Picture image’ type. 
+Processing time: Measuring the processing time is a 
+fairly complex task to accomplish because it is a function 
+of many parameters such as processor speed, memory 
+size, etc. The way this problem has been addressed has 
+been to use iLife [5] with Compaq iPAQs with Orinnoco 
+wireless LAN PCMCIA cards to measure the response 
+time. The observation we made was that even though the 
+JPEG images for the ‘Picture image’ are in general one 
+third smaller than its corresponding GIF, the total 
+response time is on average 10% bigger. This is due to 
+the fact that the processing power needed to decompress 
+JPEG images is a burden for mobile devices compared to 
+what is needed for GIF. Hence, the justification of using 
+JPEG format for ‘Picture image is not anymore valid if 
+ consider only the response time attribute of the QoS.  
+Quality of image: Until now, we have not taken into 
+account the quality of the image that is displayed on the 
+mobile device’s screen. One way to improve the quality 
+is to use anti-alias images. Unfortunately, as for the 
+JPEG measurements, anti-alias, even though it increases 
+the file size by a small percentage, is another intensive 
+processing task for the current mobile devices. Once 
+again, the time that is saved on the transmission is 
+compensated and, even worse, is increased by the 
+processing time on the client. Because at this point and 
+time the mobile devices are still limited in term of 
+processing speed, memory access, etc., it is not 
+necessary to have different types of format for different 
+type of images. The Pixel Navigator can use solely the 
+GIF format and still get a response time that is good with 
+decent quality. In the future when the transmission 
+speeds are going to be higher and the processing speed 
+faster, the JPEG format could be reconsidered, but for 
+now GIF gives us results (respons
+ 
+5
+The high-speed wireless data service is rising on the 
+horizon. Be it a 2G system augmented with high-speed 
+data or a true 3G system, the day of mobile Internet is 
+finally approaching. We believe that the form factor of 
+the mobile device will be the only major technology 
+hurdle that can’t be resolved. Mobile data services will 
+be designed with the screen-size constraints in mind. Our 
+Pixel Navigator provides a viable solution for mobile 
+information access. Once we fully understand the 
+tradeoff of using the image-only system, we can build
+ly
+ 
+lobal Internet Statistics, Global Reach d
+2002 (http://www.glreach.com/globstats/) 
+SVP Browser: Web Browsing on Small Scren Devices, 
+Oscar De Bruijn, etc., Third International Workshop on 
+Human Computer Intera
+10, 2001, Lille, France  
+WEST: A Web Browser for Small Terminals, Staffan 
+Bjork, etc., ACM conference on User Interface Stand
+and Technology (UIST), Asheville, November 1999  
+ower Browser: Efficient Web Browsing for PDAs,  Orkut 
+Buyukkokten, etc., Human-Computer Interaction
+2000 The Hague, The Netherlands - April, 2000.  
+Mobile Information Access - with iLife Case Study, 
+Ping-Wen Ong,  
+ASWN 2002, Paris 
+[6]  Resources Description Framework, W3C  
+[7]  Composite Capabilities / Preferences Profiles, W3C 
+The Independent I-mode FAQ, Eurotechnology.com, 
+8/21/01(http://www.eurotechnology.com/imode/faq.html
+http://www1.wapforum.org/tech/docume
+UAProf-20011020-a.pdf, WAP Forum  
+ Virtual Network Computing, University of Cambridge – 
+AT&TLabs, 3/19/01(http://www.uk.research.att.com/vnc/) 
+ Remote Desktop Protocol, Maricia Alforque, Microsoft
+(http://msdn.microsoft.com/lib
+y/en-us/dnce30/html/rdp.asp) 
+ The performance of Remote Display Mechanisms for 
+Thin-Client Computing, S. Jae   Yang, etc, Proceedings 
+Proceedings of the 2003 Symposium on Applications and the Internet (SAINT’03) 
+0-7695-1872-9/03 $17.00 © 2003 IEEE 

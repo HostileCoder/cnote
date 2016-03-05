@@ -1,0 +1,596 @@
+  
+Interpolation System for Generating Meteorological Surfaces Using to 
+Compute Evapotranspiration in Haihe River Basin 
+ 
+QiaoJing Qian, Bingfang Wu, Jun Xiong 
+Institute of Remote Sensing Applications, Chinese Academy of Sciences 
+Datun Road No. 3, P. O. Box 9718, 100101, Beijing, P.R. China 
+Tel: 86 10 64842376, Fax: 86 10 64858721, qj_qian@163.com 
+ 
+Abstract- The generation of meteorological surfaces from point-
+source data is an overwork in computing evapotranspiration in 
+Haihe River Basin. To date, the software in common use can't 
+meet this demand. Here we offer a high efficient, flexible, 
+integrated interpolation system that employs a database to store 
+climate weather data, a choice of interpolation methods, 
+validation and carry on batch processing. We performed 
+validations for five meteorological variables (minimum and 
+maximum temperature, relative humidity, average wind speed 
+and air pressure) with inverse distance weighting (IDW), thin 
+plate smoothing spline (SPLINE) and ordinary kriging (OK) and 
+achieved comparable success among all interpolation methods. 
+IDW and OK precision are superior to SPLINE, but SPLINE is 
+more effective and smoothing. There is not too big difference 
+between IDW and OK, and the precision obviously improves 
+after temperature and pressure are revised with the terrain. 
+Keywords-Evapotranspiration; IDW Interpolation; Spline 
+Interpolation; Kriging Interpolation; Cross-validation 
+I.  INTRODUCTION 
+With an area of 318,000 square kilometers and a 
+population of 120million, the Haihe river basin is one of the 
+seven largest basins in China. As China’s political and 
+cultural center and an economically developed region, the 
+basin enjoys a critical position in China. What is inappropriate 
+to its key status is its ecological crisis because of natural water 
+deficit. The correct estimation of water requirements is 
+therefore an important step towards the development of 
+efficient water management policies. 
+It is the largest consumer of water resources due to the 
+extensive surface that crops utilize during their development. 
+Rosegrant identify both climatic variability and the 
+competition for water among economic sectors, as two key 
+issues that have to be taken into account for the design of 
+efficient water allocation policies [1]. Evapotranspiration (ET) 
+is important components of the hydrologic cycle. Estimations 
+of ET are also essential in total satisfaction of crop water 
+demands [2]. The new procedures and guidelines have been 
+recently published in the FAO Irrigation and Drainage series 
+and include the adoption of the Penman–Monteith (PM) 
+approach as the new standard for determining reference crop 
+ET calculations [3]. Minimum and maximum temperature, 
+relative humidity, average wind speed and surface air pressure 
+are five essential inputs in estimation of ET, based on PM 
+model. But the generation of meteorological surfaces from 
+point-source data is an overwork. To date, the software in 
+common use can't meet this demand. 
+Here we offer a high efficient, flexible, integrated 
+interpolation system that employs a database to store climate 
+weather data, a choice of interpolation methods, validation and 
+carry on batch processing. We test IDW, SPLINE, OK 
+performed similarly across all variables, and try to find which 
+method is suiting for the five kinds of climatic data in Haihe 
+River Basin. 
+II. METHOD  
+A. System Framework  
+We developed a high efficient, flexible, integrated 
+interpolation system. A flow diagram of the system is shown 
+in figure 1 that indicates its modular design and functional 
+relationships between data acquisition, storage, batch 
+processing, Removal of erroneous data, interpolation and 
+projection as surface variables.   
+ 
+Figure 1.  Flow diagram of the system  
+B. Data Retrieval and Storage 
+We obtained daily climate weather data from China 
+Meteorological Bureau. The system automatically retrieves 
+the most current data and stores these data in the relational 
+database. Currently, these weather data are updated by China 
+Meteorological Bureau daily and provided observations of 
+minimum and maximum temperatures, relative humidity, 
+average wind speed and air pressure for approximately 81 
+stations near Haihe River Basin. Observations are available 
+from late 1990 to the present. The co-ordinate system and 
+projection of the surface grids are as follows: Ellipsoid is 
+Krasovsky; no Datum definition; Projection is Albers Conical 
+Equal Area, two stand latitude are 25 °N and 47 °N;  false 
+easting is 4000000 meters; longitude of central meridian is 
+110°E and no northing definition. The output from this system 
+will be in this map projection system, as this is commonly 
+This research was supported by the National 863 Program Project (No. 2003AA131050) 
+0-7803-9050-4/05/$20.00 ©2005 IEEE. 616
+  
+used for large area maps in China. Elevation (meters) is 
+explicitly considered as a third dimension due to the 
+covariance of many weather variables with changes in 
+elevation. 
+C. Interpolation Method 
+We implemented ordinary kriging (OK) [4], thin plate 
+smoothing spline (SPLINE) [5] and inverse distance 
+weighting (IDW) [6] as interpolators. OK calculates 
+predictions using two components: a matrix of covariances 
+between observations and a matrix of covariances between the 
+observations and the prediction point. These covariances were 
+determined from a spherical semivariogram model. SPLINE 
+fitted to data sets distributed across an unlimited number of 
+climate station locations [7]. It has been applied in numerous 
+regions including Australia, New Zealand, Europe, South 
+America, Africa and China. IDW weighs the contribution of 
+each observation by the squared reciprocal of its distance to 
+the prediction point. The IDW method truncates observations 
+at some distance from the prediction point [6]. 
+D. Removal of erroneous data  
+To aid in the identification and removal of erroneous data, 
+the interpolated climate surfaces were constructed using a 
+two-pass interpolation scheme [8]. Observed data were 
+interpolated in a first pass and residuals computed for all data 
+points. The residual is the difference between the observed 
+and interpolated values. Data points with high residuals may 
+be indicative of erroneous data and were excluded from a 
+subsequent interpolation which generated the final surface 
+from which the patched datasets were constructed. A datum 
+was rejected if the associated residual exceeded a fixed 
+threshold. The thresholds were: 1.4°C and 1.6°C for 
+maximum and minimum temperatures, respectively; 3.5 hPa 
+for pressure; 10.0% for relative humidity; and 1.5m/s for 
+average wind speed. The preceding thresholds were selected 
+as they typically remove about 1–2% of the observed data. If 
+the procedure rejected more than 5% of data from a given 
+dataset, the threshold was adjusted so that not more than 5% 
+of data would be rejected. Experience has shown the two-pass 
+interpolation scheme can accurately detect and remove gross 
+outliers in observed data. In some cases genuinely correct data 
+may be removed, but this cost must be weighed against the 
+effect that erroneous data can have on an interpolated surface. 
+III. RESULTS 
+A. Interpolation of Climate Data 
+1)Temperatures 
+The spatial variation of temperatures is distinct with the 
+terrain. Local topography can modify substantially the 
+relationship between elevation and temperature [9]. It is 
+universal that the temperature drops with rising of the vertical 
+height, but the lapse rate is various in different place .Here we 
+apply the average lapse rate of −0.65K/100m. 
+AETT += 0                                           (1) 
+Where T is the observed station level temperatures (℃)，T0 is 
+the sea level temperature (℃), E is vertical height(m), A is 
+average lapse rate of  −0.65K/100m. 
+We calculate station level temperature using “(1)” and 
+generate the sea level temperature surface grids. But in the 
+PM model the station temperatures surface grids is necessary. 
+So we use DEM (Digital Elevation Model data) to convert the 
+sea level temperature surface grids into the observed (station 
+level) temperature surface grids. 
+(-A)*y]DEM[x,y][x,Grid y]Grid[x, 0 +=            (2) 
+Where Grid[x,y] is the value of station temperature surface 
+grid in (x,y); Grid0[x,y] is the value of sea level temperature 
+surface grid in (x,y); DEM[x,y] is the value of station DEM 
+grid in (x,y); A is average lapse rate of −0.65K/100m.  
+We interpolated the temperature of July 1st, 2003 from 
+China Meteorological Bureau of the daily data using OK, 
+SPLINE, IDW and got the result (see Figure2).In of Figure2, 
+minimum, maximum temperatures of row A weren’t revised 
+with the terrain; minimum, maximum temperatures of row B 
+were revised with the terrain.  
+Minimum 
+Temperature
+(0.1deg C)
+0 - 37
+38 - 123
+124 - 152
+153 - 182
+183 - 206
+207 - 234
+Maximum 
+Temperature
+(0.1deg C)
+83 - 189
+190 - 221
+222 - 245
+246 - 270
+271 - 299
+300 - 343
+Minimum 
+Temperature
+(0.1deg C)
+0 - 36
+37 - 115
+116 - 148
+149 - 178
+179 - 207
+208 - 237
+Maximum 
+Temperature
+(0.1deg C)
+0 - 38
+39 - 117
+118 - 149
+150 - 179
+180 - 207
+208 - 234
+Minimum 
+Temperature
+(0.1deg C)
+0 - 38
+39 - 117
+118 - 149
+150 - 179
+180 - 207
+208 - 234
+Maximum 
+Temperature
+(0.1deg C)
+83 - 189
+190 - 218
+219 - 244
+245 - 267
+268 - 290
+291 - 341
+Maximum 
+Temperature
+(0.1deg C)
+143 - 190
+191 - 217
+218 - 243
+244 - 269
+270 - 297
+298 - 324
+Maximum 
+Temperature
+(0.1deg C)
+144 - 201
+202 - 226
+227 - 247
+248 - 271
+272 - 297
+298 - 321
+Maximum 
+Temperature
+(0.1deg C)
+144 - 200
+201 - 225
+226 - 245
+246 - 265
+266 - 286
+287 - 320
+Minimum 
+Temperature
+(0.1deg C)
+0
+1 - 138
+139 - 162
+163 - 182
+183 - 201
+202 - 234
+Minimum 
+Temperature
+(0.1deg C)
+0
+1 - 125
+126 - 156
+157 - 182
+183 - 208
+209 - 238
+Minimum 
+Temperature
+(0.1deg C)
+0
+1 - 129
+130 - 158
+159 - 183
+184 - 207
+208 - 234
+IDW SPLINE OK
+A
+A
+B
+B
+ 
+Figure 2.  Example of the comparison between  minimum, maximum 
+temperatures revised without the terrain (row A )and that with the terrain 
+(row B) to generate the minimum, maximum temperatures surface grids using 
+OK, SPLINE, IDW. 
+2)Pressures 
+The spatial variation in observed pressure can be reduced 
+if the topographic component is removed. This is done by 
+converting the observed (station level) pressure into mean sea 
+level pressure [10]: 
+0-7803-9050-4/05/$20.00 ©2005 IEEE. 617
+  
+ ))HV+
+2
+az+R(TgM(z
+o
+cfwgdgPe P =                         (3) 
+where Po is the mean sea level pressure (hPa), P is the 
+observed station level pressure (hPa), zg is the elevation height 
+(m), Md is the molecular weight of dry air (0.028965 kg 
+mol−1), g is the gravitational constant (9.80665 m s−2), R is the 
+universal gas constant (8.31451 J mol−1 K−1), a  is an average 
+temperature lapse rate (0.0065 K m−1), Vw is the saturation 
+vapour pressure of aqueous water (hPa), Hcf is the humidity 
+correction factor (K/hPa) and T is the temperature (K), 
+usually set equal to the dry-bulb temperature. The elevation 
+height, humidity correction factor and saturation vapour 
+pressure of aqueous water can be computed given the wet- 
+and dry-bulb temperatures, station level pressure, and the 
+station’s elevation (z) and latitude. If wet- and dry-bulb 
+temperatures are unavailable, an approximate mean sea level 
+pressure can be computed using a simple exponential decay 
+model: 
+))azR(TgMz (
+o
+godgPe P +≈                            (4) 
+Where To (298.0 K) is an average air temperature at sea 
+level.  
+In the paper wet- and dry-bulb temperatures are unavailable, 
+and we use the simple exponential decay model to compute 
+the Mean sea level pressure. We use “(4)” to generate the sea 
+level pressure surface grids. But in the model of PM the 
+station pressure is necessary. So we also use DEM to convert 
+the sea level pressure surface grids into the observed (station 
+level) pressure surface grids. 
+y]))aDEM[x,R(Tgy]MDEM[x,(- 
+o
+ody]e[x,P y]P[x, +≈      (5) 
+Where P[x,y] is the value of station pressure grid in (x,y); Po 
+[x,y] is the value of sea level grid in (x,y); DEM[x,y] is the 
+value of station elevation grid in (x,y). 
+We also tested the pressure of July 1st, 2003 from China 
+Meteorological Bureau of the daily data using OK, SPLINE, 
+IDW. The results are presented in Figure3 where pressures of 
+row A were revised without the terrain and pressures of row B 
+were revised with the terrain. 
+Air Pressure
+(Pa)
+0
+1 - 8,657
+8,658 - 8,975
+8,976 - 9,332
+9,333 - 9,809
+9,810 - 10,166
+Air Pressure
+(Pa)
+0
+1 - 8,576
+8,577 - 9,048
+9,049 - 9,363
+9,364 - 9,677
+9,678 - 10,071
+Air Pressure
+(Pa)
+0
+1 - 8,728
+8,729 - 9,134
+9,135 - 9,499
+9,500 - 9,864
+9,865 - 10,392
+Air Pressure
+(Pa)
+0
+1 - 8,531
+8,532 - 9,007
+9,008 - 9,404
+9,405 - 9,800
+9,801 - 10,157
+Air Pressure
+(Pa)
+0
+1 - 8,654
+8,655 - 9,016
+9,017 - 9,459
+9,460 - 9,861
+9,862 - 10,304
+Air Pressure
+(Pa)
+0
+1 - 8,654
+8,655 - 9,086
+9,087 - 9,362
+9,363 - 9,676
+9,677 - 10,070
+IDW SPLINE OK
+A
+B
+ 
+Figure 3.  Example of the comparison between pressures revised without the 
+terrain (row A )and that revised with the terrain (row B) to generate the 
+surface grids using OK, SPLINE, IDW. 
+3) Relative Humidity and Wind Speed 
+Topoclimatic effects can result from the influence of 
+terrain on mountain winds and the generation of airflow 
+effects such as cold air drainage [11].But the relationship 
+between terrain and wind is complex, in this paper we aim at 
+find which interpolator is suing for wind speed and relative 
+humidity. 
+We tested relative humidity and wind speed to generate the 
+surface grids using OK, SPLINE, IDW. The data is July 1st, 
+2003 from China Meteorological Bureau of the daily data. The 
+results are presented in Figure 4, Figure 5. 
+Relative 
+Humidity(%)
+0
+1 - 57
+58 - 63
+64 - 68
+69 - 74
+75 - 84
+Relative 
+Humidity(%)
+0
+1 - 54
+55 - 61
+62 - 68
+69 - 76
+77 - 86
+Relative 
+Humidity(%)
+0
+1 - 55
+56 - 62
+63 - 69
+70 - 76
+77 - 85
+IDW SPLINE OK  
+Figure 4.  Example of the tests of relative humidity to generate the surface 
+grids using OK, SPLINE, IDW. 
+Average 
+Wind 
+Speed
+(0.1m/s)
+40 - 119
+120 - 154
+155 - 183
+184 - 229
+230 - 319
+320 - 479
+Average 
+Wind 
+Speed
+(0.1m/s)
+37 - 103
+104 - 155
+156 - 207
+208 - 274
+275 - 362
+363 - 486
+Average 
+Wind
+Speed
+(0.1m/s)
+45 - 98
+99 - 142
+143 - 186
+187 - 240
+241 - 318
+319 - 478
+IDW SPLINE OK  
+Figure 5.  Example of the tests of wind speed to generate the surface grids 
+using OK, SPLINE, IDW. 
+B. Cross-validation 
+To test the system, we performed cross-validation for daily 
+minimum and maximum temperature, relative humidity, 
+average wind speed and air pressure over the Haihe River 
+Basin for the entire year of 2003, excluding 10 missing days, 
+using ordinary kriging (OK), thin plate smoothing spline 
+(SPLINE) and inverse distance weighting (IDW). For each 
+variable, we estimated the mean absolute error (MAE) and 
+standard deviation （SDEV） to quantify the accuracy and 
+precision of our predictions 
+Results of daily cross-validation for OK, SPLINE and IDW 
+for the Haihe River Basin for 2003 are presented in Table 1. In 
+general, the three test methods performed similarly across all 
+variables. Temperatures predicted with OK had lower MAE 
+than those predicted with SPLINE and IDW, but three methods 
+showed a marked improvement with the terrain. Pressure 
+predicted with IDW was low relative to the MAE and SDEV 
+in the OK and SPLINE, but three methods showed a marked 
+improvement with the terrain. Relative Humidity with IDW 
+was also low relative to the MAE and SDEV in the OK and 
+SPLINE. Wind MAE predicted with SPLINE was high relative 
+to the MAE in the OK and IDW. The error matrices for these 
+precipitation occurrence methods are presented in Table 1.  
+0-7803-9050-4/05/$20.00 ©2005 IEEE. 618
+  
+Table 1 presented cross-validation results for each of the 
+five key weather variables for the the Haihe River Basin for 
+2003 using OK, SPLINE and IDW. Where A isn’t revised with 
+the terrain; B is revised with the terrain. For example, A.Tmax 
+is the maximum temperature revised with the terrain, and 
+B.Pressure is the Pressure which isn’t revised with the terrain. 
+TABLE I.  CROSS-VALIDATION RESULTS  
+ IDW SPLINE OK 
+ MAE SDEV MAE SDEV MAE SDEV
+A.Tmax  (℃) 1.5 1.02 1.69 1.77 1.2 1.54 
+B.Tmax  (℃) 0.80 0.96 1.29 1.57 0.77 1.04 
+A.Tmin (℃) 1.59 1.94 1.73 2.01 1.34 1.68 
+B.Tmin (℃) 1.39 1.84 1.54 1.89 1.16 1.52 
+A.Pressure (Pa) 859.1 980.6 1212.5 1547.8 1232.5 1321.2
+B.Pressure (Pa) 803.3 926.8 1166.5 1437.8 1012.4 1273.2
+Relative Humidity (%) 2.76 3.91 3.61 4.78 5.45 7.34 
+Wind Speed (m/s) 0.61 0.72 0.97 1.03 0.557 0.68 
+IV. DISCUSSION  
+Although there are a number of common desktop software 
+applications that can both parse the available weather data and 
+interpolate these data to continuous surfaces, these software 
+products lack the ability to perform project, batch processing, 
+removal of erroneous data, data revised with the terrain. 
+Evapotranspiration modeling studies often require historical 
+datasets in order to properly account for long-term trends. 
+Such datasets would be tedious to create using common 
+desktop software because of the intense amount of user 
+interaction required. Our system can flexible, efficiently 
+generate such data with minimal initial user interaction, 
+especially using batch processing. 
+We test the daily data of Minimum and maximum 
+temperature, relative humidity, average wind speed and surface 
+air pressure of the Haihe River Basin for 2003, and 
+comparisons between OK, SPLINE and IDW interpolation 
+methods show very small differences between the three logics. 
+It is, however, important to note that OK develops 
+interpolation weights not only on the relationship between the 
+prediction point and observation point but rather a combination 
+of those relationships and the relationships between 
+observation points [12]. There are very great relations between 
+the climatic data and topography. The precision obviously 
+improves after temperature and pressure is revised with the 
+terrain. Although the wind speed is also affected by 
+topography, in this paper, we have not considered it. 
+V. CONCLUSIONS 
+We developed a high efficient, flexible, integrated 
+interpolation system that employs a database to store point 
+information, a choice of weather data interpolation method, 
+validation and carry on batch processing using to compute 
+evapotranspiration in Haihe River Basin. We used DEM to 
+revise the spatial variation in observed temperature and 
+pressure. We also presented examples of interpolating five 
+meteorological variables (minimum and maximum 
+temperatures, relative humidity, Average Wind Speed and Air 
+Pressure) for July 1st, 2003 from China Meteorological Bureau 
+of the day using OK, SPLINE and IDW. OK and IDW 
+precision are superior to SPLINE, but SPLINE is more 
+effective and smoothing. The precision obviously improves 
+after temperature and pressure is revised with the terrain. By 
+incorporating the dependencies on elevation, the interpolated 
+values showed a more complex pattern, which were in good 
+agreement with the temperatures and Pressure characteristics 
+of the location and its interaction with the terrain. This system, 
+we believe, represents an effective way of increasing the 
+application of computing evapotranspiration. 
+REFERENCES 
+[1] Rosegrant et al., 2000 M.W. Rosegrant, C. Ringler, D.C. McKinney, X. 
+Cai and G. Donoso, “Integrated economic–hydrologic water modeling 
+at the basin scale: the Maipo river basin”, Agric. Econ. 24 (2000), pp. 
+33–46. 
+[2] Rezaul Mahmood and Kenneth G. Hubbard, “Assessing bias in 
+evapotranspiration and soil moisture estimates due to the use of 
+modeled solar radiation and dew point temperature data” ,Agricultural 
+and Forest Meteorology, In Press, Corrected Proof, Available online 7 
+April 2005 
+[3] Martin Smith,”The application of climatic data for planning and 
+management of sustainable rainfed and irrigated crop “, Agricultural 
+and Forest Meteorology, Volume 103, Issues 1-2, 1 June 2000, Pages 
+99-108 
+[4] Brooker, P., 1979. Kriging. Engineering and Mining Journal 180 9, pp. 
+148–153 
+[5] Wahba, G. and Wendelberger, J., 1980. “Some new mathematical 
+methods for variational objective analysis using splines and cross 
+validation”， Monthly Weather Review 108, pp. 1122–1143.  
+[6] Patrick M. Bartier and C. Peter Keller ,”Multivariate interpolation to 
+incorporate thematic surface data using inverse distance weighting 
+(IDW) “, Computers & Geosciences, Volume 22, Issue 7, August 1996, 
+Pages 795-799 
+[7] Lelys Guenni and Michael F. Hutchinson ,”Spatial interpolation of the 
+parameters of a rainfall model from ground-based data”, Journal of 
+Hydrology, Volumes 212-213, December 1998, Pages 335-347 
+[8] Stephen J. Jeffrey, John O. Carter, Keith B. Moodie and Alan R. 
+Beswick,”Using spatial interpolation to construct a comprehensive 
+archive of Australian climate data “,Environmental Modelling & 
+Software, Volume 16, Issue 4, June 2001, Pages 309-330 
+[9] Todd R. Lookingbill and Dean L. Urban, “Spatial estimation of air 
+temperature differences for landscape-scale studies in montane 
+environments “, Agricultural and Forest Meteorology, Volume 114, 
+Issues 3-4, 31 January 2003, Pages 141-151  
+[10] Colquhoun, J.R., 1965., “A limited test of methods of pressure 
+reduction to mean sea level”,  Australian Meteorological Magazine 49, 
+pp. 28–39 
+[11] Todd R. Lookingbill and Dean L. Urban , “Spatial estimation of air 
+temperature differences for landscape-scale studies in montane 
+environments”, Agricultural and Forest Meteorology, Volume 114, 
+Issues 3-4, 31 January 2003, Pages 141-151  
+[12] William M. Jolly, Jonathan M. Graham, Andrew Michaelis, 
+Ramakrishna Nemani and Steven W. Running, “A flexible, integrated 
+system for generating meteorological surfaces derived from point 
+sources across multiple geographic scales “, Environmental Modelling 
+& Software, Volume 20, Issue 7, July 2005, Pages 873-882 
+ 
+0-7803-9050-4/05/$20.00 ©2005 IEEE. 619

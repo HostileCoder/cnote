@@ -1,0 +1,807 @@
+An Improved PMHT Using An Idea from Coding 
+Yanhua Ruan, Peter Willett 
+U-157, University of Connecticut 
+Storrs, CT 06269 
+860-486-2195, willett@engr.uconn.edu 
+Abstract - Tracking is inherently a combinatorial opti- 
+mization problem under the (admittedly realistic) con- 
+straint that each target generates at most one measure- 
+ment per scan per sensor. Practical algorithms to solve 
+the combinatorial problem are usually intelligent sub- 
+optimal procedures. Optimal procedures can be derived if 
+the constraint above is relaxed. The PMHT (probabilistic 
+multi-hypothesis tracker) uses “soft” posterior-probability 
+associations between measurements and targets. Its im- 
+plementation is a straightforward iterative application of 
+the Kalman smoother operating on “synthetic” (i.e., mod- 
+ified) measurements, and of recalculation of these syn- 
+thetic measurements based on the current track estimate. 
+As applied to data fusion the PMHT is a very natural 
+procedure, in that complexity is generally linear in the 
+number of sensors. 
+In this presentation, we first discuss the basic PMHT and 
+some of the older PMHT variants which have been used to 
+enhance convergence. We then treat a new turbo-PMHT, 
+which is informed by the recent success of turbo coding 
+in communication contexts. This new PMHT has perfor- 
+mance substantially improved versus any of the previous. 
+versions, and generally as good as the probabilistic data 
+association filter (PDAF). 
+TABLE OF CONTENTS 
+get(s), and evaluate which is best. And because there are 
+a great many such associations a full enumeration is com- 
+putationally infeasible, hence in each case the search is 
+suboptimal. 
+The PMHT [22] makes modification to the measurement 
+model. The PDAF and MHT assume, quite correctly, 
+that a target can generate at most one measurement per 
+scan; the PMHT sacrifices this constraint, and posits 
+the measurement/target association process as indepen- 
+dent across measurements. By doing so; it is able to 
+render a fully-optimal (under the modified assumption) 
+tracker. The associations become soft - in fact, gov- 
+erned by their posterior probabilities - and the integer- 
+programming problem of target tracking is rendered con- 
+tinuous and amenable to an iterative “hill-climbing” 
+method via the EM (expectation-maximization) algo- 
+rithm [8].  The PMHT has much in common with the 
+EM algorithm as applied to the estimation of parameters 
+in a Gaussian mixture. 
+The PMHT is probabilistically-sound (all the “bad” parts 
+of the PMHT are out in the open in the original assump- 
+tions), and it is easily extensible. This extensibility has 
+been exploited in a number of ways, such as those dealing 
+with multiple targets [17, 11, 91, nonlinear models [lo], 
+and target-maneuver [14, 201. It is very likely that this 
+easy extensibility will be the aspect to the PMHT which 
+provides it a wider audience and acceptance. However, as 
+of yet the PMHT has not managed to “beat” the simple 
+PDAF in the game of lost-tracks. 1. INTRODUCTION 
+2. THE PMHT AND SOME OF ITS VARIANTS 
+3. THE TURBO-PMHT 
+4. SIMULATION RESULTS 
+5. SUMMARY 
+6. REFERENCES 
+1. INTRODUCTION 
+Both the MHT (multi-hypothesis tracker) [5] and 
+PDAF (probabilistic data association filter) [2, 31 track 
+imperfectly-detected targets in clutter via a hard- 
+association model. That is, these algorithms enumerate 
+the possible associations between measurements and tar- 
+Therefore, in this paper, we propose to exploit the 
+PMHT’s easy extensibility to attempt its improvement. 
+We use a recently successful coding theme from commu- 
+nications to develop an innovative PMHT, and we test 
+it. Since our goal is straightforward, we test in the most 
+straightforward manner possible, by simulation in a linear 
+Gaussian environment, with one target, imperfect detec- 
+tion, and clutter. 
+In the following section we go into some detail about the 
+development of the PMHT. We then discuss some of its 
+older variants used to enhance convergence. In the suc- 
+ceeding section we discuss the turbo coding idea and then 
+the development of our new turbo-PMHT. We test it in 
+‘0 2001 IEEE 
+4-1889 
+various scenarios and conclude. 
+It will be seen that this new variant of the PMHT of- 
+fers substantially improved performance versus any of' the 
+previous versions. 
+2. T H E P M H T  
+2.1. The .EM Algorithm 
+Consider the following: 
+2 - an observation 
+X - an unknown random quantity 
+K - an unknown random quantity 
+in which a,ny of the above quantities may be continuous or 
+discrete, scalar or vector. It is desired to niaximizep(X(2) 
+over X; that is, the maximum a-posteriori (MAP) esti- 
+mate of X is sought. What makes the problem interesting 
+is the appearance of the "nuisance" random quantity K. 
+Estimation of K is not required; however, in problems for 
+which the EM approach is useful it is generally straight- 
+forward to write the probabilities p ( K ] X )  and p(ZJX, K), 
+but the desired probability is obtainable only via removal 
+of conditioning, which makes direct maximization a diffi- 
+cult chore indeed. 
+In the EM approach, the quantity 
+(since K: may be discrete, we define integration in its most 
+general sense) is iteratively maximized over Xn+', and n 
+incremented. It is straightforward to show that (1) may 
+be written as 
+Q(X"+1; X") log ( p ( X " f ' l 2 ) )  
+Since it is well-known (e.g. [7]) that for any probability 
+measures p and 1; we have 
+(3) 
+with equ.ality iff p 1;, then it is clear that with 
+Q ( X n + l ; X n )  > Q ( X n ; X n )  we must have p ( X n f ' 1 2 )  > 
+p(Xn12). Convergence, at least to  a local maximum, 
+is assured [8] provided that the likelihood of interest is 
+bounded. 
+2.2. Basic P M H T  Algorithm Description 
+In a recent paper [22] a new approach to multi-target 
+tracking and data association was proposed. The a p  
+proach, called the Probabilistic Multi-Hypothesis Tracker, 
+or PMHI', uses a recursive 0ptimizai;ion method (known 
+amongst statisticians as the Expectation-Mmimization or 
+EM method) to  compute in an optimal way the associa- 
+tions between measurements and targets. It shares some 
+features .with the results of [l] ,derived independently, but 
+whereas in this latt'er paper a maximum likelihood estima- 
+tor (MLE) is sought, in the former maximum a-posteriori 
+(MAP) estimation is the goal. 
+Under the (admittedly realistic) constraint that each tar- 
+get can generate aid most one measurement at each time, 
+multi-target tracking is inherently a combinatorial opti- 
+mization problem; practical algorithms to solve it (the 
+pruned MHTs and the JPDAF [2, 31) are intelligent s u b  
+optimal procedures. With the constraint relaxed, how- 
+ever, an optimal procedure can be derived. The resulting 
+PMHT uses "soft" posterior-probability associations be- 
+tween measuremen ts and targets, and its implementation 
+is a straightforwaId iterative application of the Kalman 
+smoother operating on "synthetic" (i.e. modified) mea- 
+surements. These soft associations can be considered as 
+mapping the problem ,from discrete (i.e. of conibinator- 
+ial complexity) to  continuous (i.e. amenable to iterative 
+algorithms). 
+In the scenario to which the PMHT is to be applied, there 
+are assumed to  be M targets, the sth of which moves 
+according to the discrete-time linear model: 
+xs(t + 1) = F s ( t ) x s ( t )  + G, ( t ) u s ( t )  + v s ( t )  
+Ys ( t )  = H s  ( t ) x s  ( t )  + w s (4 (4) 
+for t == 1 , 2 , . . .  ,T. Here, as usual, xs( t )  repre- 
+sents the trajectory of the sth model at time t ,  and 
+ys (t)  its corresponding observation; the matrix sequences 
+{F , ( t ) ,  Gs(t) ,  H,(t)} are known, and are assumed to 
+represent an observable and controllable system. The 
+random sequences { v s ( t ) ,  w s ( t ) }  are assumed white, 
+zero-mean, Gaussian, and mutually independent, with 
+E { v , ( t ) v : ( t ) )  = Qs(t) ,  E{ws(t)vvT(t)} = Rs(t) The 
+control sequences {us@)} are known, and since these 
+contribute in the form of "ownship" platform motion in 
+a straightforward but notationally-inconvenient way, we 
+shall take them as zero with no loss of generality. 
+Now, naturally in a multi-target itracking scenario the 
+thorniest problem is of data-associtation; that is, how to' 
+determine which measurements come from which targets. 
+We pose that here in terms of EM algorithm parameters 
+[22], in that for each t we define {kr( t ) , z r ( t ) } :L l  such 
+that 
+meaning that the rth measurement (out of nt) at time 1: 
+comes from model k r ( t )  - and, of course, k T ( t )  is unknown. 
+zr(t> = Yk, ( t )W (5) 
+In EM algorithm terms, then, we have 
+X = { x s ( t ) } ,  where xs( t )  is the state of target s at time 
+t ,  
+4-1890 
+2 = { z r ( t ) } ,  where zr( t )  is the rth measurement vector where 
+at time t ,  
+K: = { k r ( t ) } ,  where k,(t) is the target from which the 
+rth measurement at time t arises. 
+What remains is to provide a probabilistic structure for 
+K .  In fact, our assumption is that 
+PT(kT( t )  = s )  = 7rs (6) 
+where 7rs is a preset parameter that reflects our a priori 
+knowledge on measurement target association, and that 
+all are independent random variables. It should be noted 
+that the generally-accepted probabilistic structure of each 
+target having associated at most one measurement at each 
+time is here abandoned. It is a perfectly feasible event 
+that all measurements come from the same target. 
+With this, then, we have 
+M T M  
+where we have used 
+nt - the number of measurements at time t ,  
+T - the number of time samples in the batch, 
+M - the number of targets, 
+Af{x; ,U, X} - Gaussian density in variable x, with mean 
+p and covariance E. 
+Yk,(t)(t)  = Hk,(t)(t)Xk,(t)(t) 
+This is illustrated in figure 1. Equation (7), or rather its 
+logarithm, specifies one element of the Q-function to be 
+maximized. The other element is p(lc12, X ) ,  for which we 
+need p ( 2 ,  X). This can be obtained by summation of (7) 
+and appropriate gathering of terms as 
+M 
+s=l t=2s=1 
+With this, we may factor 
+From its definition in (lo), ~ ; ~ ( ~ ) , ~ ( t )  has the interpreta- 
+tion that it is the posterior probability (conditioned on 2 
+and X )  that the rth measurement at time t arises from 
+target kr( t ) .  The superscript n amplifies the fact that 
+quantities are computed from the nth EM iteration. In 
+the EM approach, we have [22] 
+&(X"+l; X " )  
+T nt 
+= C l o g  (P(X"+l, K 1 - q  W;,( t )J t )  
+K t= l  r=l 
+where 
+Q(X"+'; X") 
+T M  / M  
+t=2s=1 
+where 
+Equation (12) is the logarithm of the joint likelihood func- 
+tion of M target models for  which there i s  no  data asso- 
+ciation uncertainty and for which measurements and cor- 
+responding measurement c2variances are given by their 
+synthetic values {E} and { R } .  As such, maximization of 
+(12)  is a (relatively) straightforward matter of applying 
+the appropriate Kalman smoother (e.g. [2]).  Thus, we 
+have the algorithm: 
+1. calculate the w's based upon the measurements and 
+the current track estimate, 
+2. form the "synthetic" measurements and covariances 
+from these w's, and 
+4-1891 
+t t t 
+Figure 1: The influence diagram of the basic l?MHT 
+3. update the track using a Kalman smoother. 
+to be iterated upon these three steps. The convergence of 
+the PMHI’ is proven in [22]. 
+2.3. Some PMHT Variants 
+The PMHT is an elegant approach to target tracking. 
+However, the performance of the basic PMHT is often 
+disappointing. The reasons for this, as we understand 
+them, are: non-adaptivity of the “look” region to the 
+present estimation uncertainty; unwillingness to  admit 
+that a detection-poor trajectory estimate is unlikely; and 
+too great a hospitality to multiple measurements. There 
+are a number of PMHT variants helps to fix the problem 
+[24, 231. In what follows we describe two of these: the 
+homothetic PMHT and the deflationary PMHT. 
+2.3.1 The Homothetic PMHT - The homothetic 
+PMHT, d.iscussed previously in [18, 19, 171, is a niodifica- 
+tion on the basic PMHT model such that measurements 
+at scan t can come from any Gaussian density having 
+mean x(t)  and variance {K~R};’~. Typical values used 
+are P = 2,  with ~1 = 1 and 62 = 3. The “homothetic” 
+nomenchture derives from “having the same mean”; that 
+is, the model has been altered from having one target to 
+P targets, and EM MAP estimation proceeds under the 
+constraint that each of these models has the same track 
+{ X ( t ) L .  
+Equation (8) is replaced by 
+T 
+P(-% 4 = P(X(1))  nP(x(t)lx(t--l)) 
+t=2 
+x t=lr=l fig [ ~ ~ p . ” { z r ( t ) ; i ( t ) , . : n ( t ) }  p=l 1 (15)  
+from which the obvious modification to (10)  is 
+In accordance with our previous discussion, it is reason- 
+able to predefine 
+in practice. Some algebra yields that 
+are the new synthetic measurements and associated co- 
+variances, to replace (13)  and (14)  -- the PMHT iteration 
+is otherwise intact,. 
+2.3.2 A Deflationary PMHT -- It has been noticed 
+that the major problem with the basic PMHT is of track- 
+initialization; that is, the likelihood surface over which 
+the basic PMHT performs its maximization is often so 
+“busy” with local maxima that convergence to a good 
+trajectory is unlikely. Thus, a means to smoothen the 
+likelihood surface is sought. An approach which has been 
+commonly applied (e.g. [13])  is to  injfiate the measurement 
+covariance. It is hoped that if the initial EM iteration is 
+performled with a large R, and subsequent iterations use 
+smaller and smaller (deflating) R’s, then the eventual con- 
+vergence to the global maximum will be encouraged. The 
+idea is similar to that of simulated annealing, although 
+“downhill” steps ilre not used. 
+There are many ways to  select the inflated R’s and the 
+schedule of their decrease to  the eventual “correct” mea- 
+surement covariances. We have adopted the approach: 
+R”(t) = (1  - n / N ) S ” ( t )  + n/NR 
+= R + (1 - n /PJ)HPn( t )HT  (20:) 
+in which n is the EM iteration number, N is the ( k e d )  to- 
+tal number of EM iterations, and S n ( t )  is the innovations 
+covariance at scan t and EM iteration n. We have selected 
+4-1892 
+this dependence on S as an attempt to recover some of the 
+PDAF’s adaptivity; but it should be noted that this is a 
+convergence-aided PMHT. To avoid the problem of over- 
+hospitality, we have forced the denominator of in the com- 
+putation of R to be no larger than unity (see (14)) while 
+an expanded measurement covariance is being used. k2 
+3 .  THE TURBO-PMHT 
+h 
+V 
+3.1. Turbo Codes 
+Turbo codes, introduced in 1993 by Berrou et al. [4], are 
+perhaps the most exciting and potentially important de- 
+velopment in coding theory in many years. In a turbo code 
+there exist interleavers between component short codes, 
+and overall the resulting code behaves as if it were a sin- 
+gle long code. By Shannon’s theorems, a long code is 
+likely to be “good” in the sense of having the potential, 
+with optimal decoding, to achieve performance near chan- 
+nel capacity. But optimal decoding of a very long code 
+would be impossibly complex, since there are simply too 
+many possibilities to interrogate. To decode a turbo code 
+the sub-codes (which are interleaved) are decoded itera- 
+tively and sequentially, with soft decisions from the out- 
+put of one decoder passed to the input of the other. A 
+turbo code can be thought of as a refinement of the con- 
+catenated encoding structure together with an iterative 
+algorithm for decoding the associated code sequence [21]. 
+They have the error correction capability of much longer 
+codes, and a structure that permitted relatively-easy to 
+only moderately-complex decoding. We give a simple ex- 
+ample in the two dimension case [21, 121 to illuminate the 
+principle of turbo decoding. 
+Suppose we are given IC1 x IC2 data bits d, and we or- 
+der them in a rectangular matrix as shown in figure 3. 
+Attached are the parity bits p and q from two system- 
+atic codes - a code is “systematic” if its input data 
+appears explicitly within the encoded word. All these 
+are transmitted through a Gaussian channel serially as 
+see nothing special here but an interleaver procedure; the 
+real key is in the iterative decoding of turbo code. 
+dld2 * * * dklk2PllP12 * * ‘Pkz(nl-k1)qllQ12 * . . q(nz-k2)kl * w e  
+data 
+I code1 
+data 
+Interleaver 
+code2 
+Figure 2: Interleaving in a turbo coding scheme. 
+In the receiver we denote the observation of data bits and 
+kl nl-kl  -- 
+d(klt1) d(klt2) 
+m 
+paritybits 
+Figure 3: The diagram of a turbo coding scheme. 
+parity bits as x and c,  respectively. We insert them to a 
+rectangular matrix in the same way as did the encoder. 
+The proper decoding strategy in the sense of minimiza- 
+tion of probability of error is the MAP rule, meaning that 
+which maximizes the a-posteriori probability. We write 
+P(diF9.3 P E  W i ) P ( d i )  
+= P(xiIdi)P(& W i > P ( d i )  (21) 
+where 4 {x1,22,. . . , xi-1, xi+l,. . . , X k l } ,  the terms 
+p(zi)di) and p(Zz, q d i )  stand for the likelihood function of 
+the direct observation and of the other observation plus 
+parity codes respectively; p ( d i )  denotes the prior proba- 
+bility. 
+First, note that we have 
+d; 
+Second, suppose we were to find 
+P(di l6 ,  c3 0: P ( 6 ,  cldi)P(di)  (23 )  
+then we defer adding information from xi and use infor- 
+mation from other observations and codes instead. We 
+iteratively calculate p(diIZ;, E) for each bit in the current 
+row, then in a similar fashion to other rows, and next to 
+all columns, as depicted in figure 4. Thus we obtain the 
+algorithm: 
+1. Set p ( d i )  = $,. 
+2. Calculate p(diIZ;, Z) for all di using horizontal code. 
+3. Set p ( & )  = p(dilZ;, 4. 
+4-1893 
+4. Calculate p ( d i I e ,  E )  for all di  using vertical code. 
+5 .  Set p ( d i )  = p ( d i I 6 ,  E ) .  
+6. Iterate until convergence. 
+The transmitted data bits d are decoded by selecting the 
+ones that maximize p(di) .  
+stage 1 stage 2 stage 3 
+Figure 4: The diagram of a turbo decoding scheme. The 
+shaded region denotes those bits on whose es- 
+timates the indicated observation has an effect. 
+Note that there is a delay on the observation for 
+a given bit being used in estimating that bit: this 
+delay of what might otherwise be overwhelming 
+evidence is arguably the strength of the turbo de- 
+coding algorithm. 
+The convergence and relationship to Bayesian Inference 
+Networks of the above iterative decoding idea is elabo- 
+rated in detail in [15]. We discuss this in the following 
+subsection. 
+3.2. The Turbo-PMHT 
+In Subsection 2.3, we mentioned several reasons for the 
+PMHT’s inability to outdo the simple PDAF, and these 
+can be summarized as its dependence on  a good track- 
+initializafion. Both the homothetic PMHT and the defla- 
+tionary PMHT are used to enhance convergence - really to  
+encourage the PMHT to “look” over a wider area for valid 
+measurements - as the PMHT often does have to contend 
+with a poor initial track-guess. Now, for similar reasons, 
+iterative decoding implementations have been rare due to  
+the multimodality of the likelihood surface and their ten- 
+dency to become “stuck” at an inopportune place. This 
+appears to  have changed with the advent of the turbo de- 
+coding algorithm; thus, inspired by the turbo coding idea, 
+we develop a new PMHT which attempts to  overcome un- 
+fortunate initialization by iteratively evaluating the data 
+association probability from the other observations (the 
+extrinsic data). We call this variation the “turbo” PMHT 
+hereafter. 
+In the following, we f is t  give a overview of the general 
+Bayesian networks and a brief discussion of Pearl’s algo- 
+rithm. Then we will use these concepts in the derivation 
+of the turbo-PMHT. 
+Let X =.{XI, X z , .  . . , X N }  be a set of random variables, 
+and assume the marginal densities p ( z i )  are known. The 
+marginal density function p ( z , )  represents our a priori 
+“belief” about the random variable X,. Now, suppose 
+there is an evidence subset J { 1,2,  . - , N }  which con- 
+tains all the variables that are measured or “observed”. 
+The evidence is then defined to be the event E = {X, = 
+a,, i E J ) .  The fundamental probabilistic inference prob  
+lem is to compute the a posteriom or conditional probabil- 
+ities p(&IE), for all i $? J .  General ,solution to this kind 
+of probabilistic inference problem is NP hard [6]. How- 
+ever, considerable simplification can be obtained when 
+the “partial independencies” which exists among the Xz’s 
+are exploited. A €!ayesian Network is a good way to  d e  
+scribe the partial independencies, and as an example Fig. 
+6 shows the Bayesian network of the turbo coding problem 
+discussed in section 3.1. 
+Figure 6: Bayesian network description of the turbo coding 
+problem. 
+Among all the implications of the probabilistic inference 
+problem, perhaps the most important is Pearl’s belief’ 
+propagation algorithm. In the 1980’s, Kim and Pearl [l6] 
+showed that if the Bayesian Network is a “tree”, i.e., if 
+there are no loops, then there are eEicient distributed al-’ 
+gorithms for solving the inference problem. Since the net- 
+work in Fig. 1 is a tree, Pearl’s algorithm will apply. We 
+will see that the .turbePMHT is an instant result if we 
+apply Pearl’s algorithm to the Bayesian network in Fig. 
+1. 
+Pearl’s belief propagation algorithm is a decentralized 
+“message-passing’’ algorithm, in which there is a processor 
+associated with each vertex of the network. Each proces- 
+sor can communicate only with its parents and children. 
+Furthermore, the processor associated with a variable X 
+is assumed to  “know” the conditional density function 
+p(zlu) = Pr{X = zlU1 = ul,...,U~ = U M } ,  where 
+U1 = u1,. * ,  UM = ~21.1 are the parents of X .  (If X hzj  
+no parents, this knowledge is assumed to  be the marginal 
+density function p ( z )  Pr{X = :c}.) Thus, the “local 
+environment” of a node X is as shown in Fig. 7, where 
+Yl , . . . , YN are th’e children of X .  
+4-1894 
+(T-1 z(T) ... 
+&- 
+Obtain estimate of x(3) via a kalman,smoother without using z(3); 
+herds of x 
+Figure 5: The influence diagram of the new PMHT. 
+Cldldrsn of x 
+’ Figure 7: Pearl’s algorithm. 
+When a processor is activated, it “reads” the messages 
+TU,X(U), Ay,x(x) received from each of its parents and 
+children, respectively, updates its belief based on these 
+messages, and then sends new messages Xx,u(u), 7rx,y(z) 
+back to  its parents and children respectively. 
+Now we apply Pearl’s algorithm to the PMHT structure. 
+As shown in Fig. 1, the structure of the PMHT model 
+is clearly a Bayesian Network: the observations 2 are 
+the ‘Levidence”. The problem here is to compute the 
+a posteriori p ( X I 2 ) .  As shown in Fig. 8 we “bundle” 
+Z ( t ) , X ( t ) , K ( t )  to be a unit Ut in the network. When 
+Ut is activated, it “reads” the messages received from 
+its parent Ut-1 and child Ut+l, and updates itself based 
+on these messages. The updating of unit Ut is accom- 
+plished by updating its elements on a one by one basis. 
+The element X ( t )  is updated first by applying a Kalman 
+smoother without using the knowledge in Ut, the element 
+K ( t )  is updated next using 
+where 
+S i ( t )  = HiPi(t)Hr + Ri (25) 
+Figure 8: Apply Pearl’s algorithm to  the PMHT 
+The new messages the unit Ut sends out contain informa- 
+tion about the updated state X ( t )  and data association 
+K ( t ) ,  and this information will be used in the updating 
+of other units. This procedure is done iteratively and we 
+come up with an algorithm consisting of the following five 
+stages: 
+1. Extrapolate the track in the usual way except that 
+we use S = HPHT + R instead of R in the compu- 
+tation of association probability w’s. 
+4-1895 
+Set .j. = T - 1, use a Kalman filter to update the 
+estimate of track x, except we use measurement CO- 
+variance 
+This amounts to  the use of a Kalman Smoother with 
+no measurement at scan “s”, with all other measure- 
+ments clamped to  their previous synthetic values. 
+The output is denoted x,, Ps . 
+Calculate the w’s for t = s according to the 
+usual rules: the mean is xs and the covariance 
+is HP,HT + R. Repeat this procedure for s = 
+T - 2, . . . ,2,1, then s = 2,3,  . . . , T - 1. 
+Iterate Stages 2,3 until there is no change. 
+Perform PMHT iterations with initial values as de- 
+rived from the output of stage 4. 
+The final stage is often unnecessary. However, the origi- 
+nal PMHT converges to  a track estimate that is optimal 
+under its given assumptions, and these assumptions do 
+not necessarily give rise to the turbo-PMHT. Hence, if 
+the turbo-PMHT is to be treated as a convergence aid, 
+these final steps should be performed. 
+The rationale of the turbo-PMHT is that we try to use as 
+much as possible of the extrinsic information to  acquire 
+a good track initialization which is, as we discuss in [24], 
+very important to the convergence of the regular PMHT. 
+In this sense, the turbo-PMHT is a convergence-aided 
+variation of the PMHT. What happens is that when we 
+are to  estimate the measurement-target association prob- 
+abilities, the fact that the current state is “unknown” to 
+the tracker (which is artificially blinded to it by the turbo 
+idea) suggests that the innovation variance S be used in 
+(10) instead of R. This helps somewhat to reduce the 
+PMHT’s “nonadaptivity” . 
+4. SIMULATION RESULTS 
+For our simulations we choose a two-dimensionally kine- 
+matic model with direct discrete-time process noise. For 
+x( t )  the trajectory of the target at time t and y ( t )  its 
+corresponding observation, we have 
+x ( t +  1) = Fx(t) + ~ ( t )  
+y ( t )  = Hx(t) + w ( t )  (27) 
+for t = 1,2 , .  . . , T.  The random sequences {v(t), w ( t ) }  
+(respectively process and measurement noises) are as- 
+sumed white, zero-mean, Gaussian, and mutually inde- 
+pendent., with E { v ( t ) v T ( t ) }  = Q and E{w(t )wT( t )}  = 
+R. According to th.e kinematic model we have 
+( 1  At 0 0 )  
+R = I&{ y }  
+Measurements are of position only, and the model is in all 
+respects linear. Detections may be missed, independently 
+from scan to scan with probability 1 - Pd, and there are 
+at each x a n  false alarms whose number is Poisson distrib 
+uted according to clutter density X (in events per meter’). 
+Some notes and parameter values: 
+e We have chosen At = 30 seconds, a fast but not- 
+unreasonable scan rate for active sonar. 
+e We have om% = 100 meters, corresponding to a 
+constant-frequency pulse with. length of the order 
+of one secon’d. 
+e We use process noise ap = .001 meter/second2. 
+e We explore various probabilities of detection: pd E 
+{510%, 70%, 90%). 
+e We explore various clutter densities, X E 
+  IO-^.^, 1 0 - ~ . ~ } .  If we imagine a circular 
+PlMHT “gate” of radius 4am, then these values im- 
+ply that such a gate would contain, on average, 1.6, 
+0.5, and 0.1.6 false-alarms per scan under the re- 
+spective A’s. Thus these clutter values range from 
+reasonably heavy to very light. 
+e We choose a track length T = 30 scans of data. 
+e We declare a track lost if 
+(x;(T)  - x P e ( T ) ) ’  + (xg(T) - x r e ( T ) ) ’  
+> 2r(4am)2 (29:) 
+in which the subscripts 1 and 3 refer to  the two 
+position coordinates. 
+0 Since the deflationary PMHT and the homothetic 
+PMHT appear offering the best performance among 
+all variants of the PMHT, we compare them with the 
+turbo-PMHT and the PDAF in this paper, we also 
+list the basic PMHT as a reference. 
+4-1896 
+In our simulation, targets begin their trajectories at scan 
+t = 0 with position coordinates (0,O) and velocity coor- 
+dinates (5,5) meters per second, corresponding to 13.8 
+knots. 
+In the simulation we use 100 Monte Carlo runs and set 
+the percentage of lost track as the criterion of comparison. 
+The results are given in table 1. Seen from this table: 
+0 the deflationary PMHT and the homothetic PMHT 
+have a similar performance while both offer an im- 
+provement over the original PMHT; 
+0 the PDAF is overall preferable to all the three old 
+variants of the PMHT (the original PMHT, the de- 
+flationary PMHT and the homothetic PMHT); 
+0 the turbo-PMHT offers a significant improvement 
+over the three old versions of the PMHT; and most 
+important, 
+0 the turbo-PMHT has performance usually similar 
+to that of the PDAF, except in extreme situations 
+in which its performance is better. 
+5. SUMMARY 
+The PMHT is an elegant and self-contained tracking algo- 
+rithm which relies only on a slightly-altered measurement 
+model. The PMHT’s assumption renders a combinatorial 
+problem continuous, and hence makes descent-based o p  
+timization possible. The PMHT is easily extensible to a 
+variety of probabilistic appurtenances, such as the homo- 
+thetic measurements and the maneuver process. However, 
+it has not yet shown its superiority to the simple PDAF. 
+In this paper we develop the new turbo-PMHT, an in- 
+novative modification to the PMHT which uses an idea 
+from coding theory. The situation explored is of a sin- 
+gle kinematic model in clutter, and is linear both plant 
+and measurement. Results from Monte Carlo runs show 
+that the turbo-PMHT achieves substantial improvement 
+versus the best previously-known PMHT variant (the ho- 
+mothetic). It has performance comparable to that of the 
+PDAF in most cases, and “beats ” the PDAF in relatively 
+difficult situations. 
+ACKNOWLEDGMENT 
+Among the 12 scenarios used in the simulation, the turbo- 
+PMHT outperforms the PDAF in the following 7 cases: 
+This work was 
+under contract N00014-00-1-0678‘ 
+by the Office Of Research 
+they tie in 1 case: 
+and the PDAF outperforms the turbo-PMHT in 4 cases: 
+The turbo PMHT is apparently never significantly worse 
+than the PDAF, and can be a great deal better. 
+REFERENCES 
+f11 D. Avitzour. “A Maximum Likelihood Amroach to  
+D k a  Association’;, IEEE Transactions on  Aerospace and 
+Electronic S stems, Vol. AES-28,No. 2 April 1992, pp. 
+560-565, 1995. 
+[2] Y. Bar-Shalom, X. R. Li, Estimation and Tracking: 
+Principles, Techniques and Software, Artech House, Inc., 
+1993. 
+[3] Y. Bar-Shalom, X. R. Li, Multitarget-Multisensor 
+Tracking: Principles and Techniques, YBS Publishing, 
+1995. 
+[4] G. Berrou, A. Glavieux, and P. Thitimajshima, 
+“Near Shannon limit Error-correcting Coding: Turbo 
+Code”, in Proceedings of the International Communi- 
+cations Con erence, Geneva, Switzerland, May 1993, 
+pp. 1064- 1076. 
+[5] S. Blackman and R. Popoli, Design and Analysis of 
+Modern Tracking Systems, Artech House (Boston), 1999. 
+[6] G. Cooper, “The Computational complexity of 
+Probabilistic Inference Using Bayesian Belief Networks”, 
+Artificial Intelligence, vol. 42, pp. 393-405, 1990. 
+[7] T. M. Cover, J. A. Thomas, Elements of I n f o m a -  
+tion Theory, Wiley series in telecommunications; J. Wiley 
+and Sons, New York 1991. 
+[8] A. Dempster, N. Laird, and D. Rubin, “Maximum 
+Likelihood from Incomplete Data via the EM Algorithm”, 
+Journal of the Royal Statistical Society, Vol. 39, pp, 1-88, 
+1977. 
+[9] D. Dunham and R. Hutchins, “Tracking Multiple 
+Targets in Cluttered Environments with a Probabilistic 
+Multi-Hypothesis Tracker”, Proceedings of SPIE Confer- 
+ence 3086, April 1997, pp. 284-295. 
+4-1897 
+[lo] E. Giannopoulos, R. Streit, and P. Swaszek, “Prob- 
+abilistic Multi-Hypothesis Tracking in a Multi-Sensor, 
+Multi-Target Environment”, First Australian Data Fusion 
+Symposium, November, 1996. 
+[11] H. Gauvrit, J.-P. LeCadre, and C. Jauffret, “A For- 
+mulation of Multitarget Tracking as an Incomplete Data 
+Problem”, IEEE Transactions on Aerospace and Elec- 
+tronic Systems, Vol. 33, No. 4, October 1997, pp1242- 
+1257. 
+[12] J. Hagenauer, E. Offer, and L. Papke, “Iterative De- 
+coding of :Binary Block and Convolutional Codes”, IEEE 
+Transactions on Information Theory, March 1996. 
+[13] C. JaufFret and Y. Bar-Shalom, “Track Forma- 
+tion with Bearing and Frequency Measurements” , IEEE 
+Transactions on Aerospace and Electronic Systems, N e  
+vember 1990. 
+[14] A. Logothetis, V. Krishnamurthy, and J .  Holst, “On 
+Maneuvering Target Tracking via the PMHT” , Proceed- 
+ings of the Conference on Decision and Control, Decem- 
+ber 1997. 
+[15] R. J. McEliece, D. J. C. MacKay, and Jung-Fu 
+Cheng, “Turbo Decoding as an Instance of Pearl’s “Be- 
+lief Propagation” Algorithm”, IEEE Jounzal on Selected 
+Area in Communications, February 1998. 
+[16] J. H:. Kim and J. Pearl, “A Computational Model 
+for Combined Causal and Diagnostic Reasoning in Infer- 
+ence Systems”, in Proc. 8th Int. Joint Conh AI(IJCAI83), 
+Karlsruhe, Germany, pp. 190-193. 
+[17] C. Rago, P. Willett, and R. Streit, “Direct Data F’u- 
+sion Using the PMHT”, Proceedings of the 1995 American 
+Control Conference, June 1995. 
+[18] C. Rago, P. Willett, and R. Streit, “A Comparison 
+of the JPDAF and PMHT Tracking Algorithms”, Proceed- 
+ings of the 1995 International Conference on Acoustics, 
+Speech, and Signal Processing, May 1995. 
+1191 C. ]%ago, P. Willett, and R. Streit, “A Modified 
+PMHT” , Proceedings of the 1995 Conference on Infor- 
+mation Sciences and Systems, March 1995. 
+[20] Y. Ruan, P. Willett, and R. Streit, “The PMHT 
+for Maneuvering Targets”, Proceedings of the 1998 SPIE 
+Conference on Signal and Data Processing of Small Tar- 
+gets, April 1998. 
+[21] B. Sklar, “A Primer on Turbo Code Concepts”, 
+IEEE Communication Magazine, December 1997. 
+[22] R. L. Streit and T. E. Luginbuhl, “Probabilistic 
+Multi-Hypothesis Tracking”, NU WC-NPT Technical Re- 
+port 10,428, February 1995. 
+[23] P. Willett, Y. Ruan, and R. Streit, “A Variety 
+of PMHT’s” , University of Connecticut Technical Report 
+1998-4, October 1998. 
+[24] P. Willett, Y. Ruan, and R. Streit, “The PMHT: 
+Its Problems and Some Solutions”, submitted to IEEE 
+Transactions on Aerospace and Electronic Systems, Mar 
+1999. 
+BIOGRAPHIES 
+Yanhua Ruan was born in China on April 18, 1971. He 
+received his B.S. and M.S. degrees in electrical engineering 
+from Peking University in 1994 and 1.997 respectively. He 
+is currently a Ph.1). candidate and Research Assistant of 
+Electrical Engineering Dept. in University of Connecticut. 
+His research interejts include signal processing, detection 
+and estimation theory. 
+A 
+Peter Willett is a professor at the University of Connecti- 
+cut, where he has worked since 1986. Previously he was 
+at the University (of Toronto, from which he received his 
+BASc in 1982, and at Princeton University from which he 
+received his PhD in 1986. His inteirests are generally in 
+the areas of detection theory and signal processing. He is 
+a senior member of the IEEE, and is an associate editor 
+both for IEEE Transactions on Aerospace and Electronic 
+Systems and for 1E:EE Transactions on Systenls, Man, and 
+Cybernetics. 
+4-1898 
+7000 - 
+* 
+6000 ~ 
+5000 - 
+4000 - 
+* 
+3000 - 
+Tracking a single target by the Homothetic PMHT 
+m- T 
+* ** 
+* '  y  * * *  
+d 
+* false alarms 5 +  
+* * * * *  ** ** 
+* 
+* 
+* *  * 
+* 
+* 
+# * 
+* * * 
+* 
+* *  *(- 1 
+2000 
+-6000 -5000 -4000 -3000 -2000 -1000 0 1000 2000 
+Figure 9: The homothetic PMHT tracks with X = 10-5.5, pd = 90%, up = .l, am = 100, and initial speed 13.8 knots. The 
+final scan only of clutter (i.e. t = T )  is shown, with clutter returns denoted by *. 
+7000 - 
+* 
+6WO - 
+5000 - 
+4000 - 
+* 
+3000 - 
+Tracking a single target by the NEW PMHT 
+8000 i * *  ** * * ; I  * y *  * 
+* 
+* *  * *  
+d 5* 
+* ****  ** 
+* * 7 *  * * 
+# 
+* *  * 1  * *  
+2000 
+-6000 -5000 -4000 -3000 -20W -1000 0 1000 2000 
+Figure 10: The new turbc-PMHT tracks with X = 10-5.5, P d  = 90%, op = .l, m,,, = 100, and initial speed 13.8 knots. The 
+final scan only of clutter (i.e. t = T )  is shown, with clutter returns denoted by *. 
+4-1899 
+Tracking a single target by the PDAF 
+6oool * 
+5000 1 
+4000 - 
+* 
+* 
+3000 - 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+1; 
+* 
+* *  ;SCayB:f* 1 * * 4  * * 
+I
+,** * , 
+2000' 
+-6000 -5000 -4000 -3000 -2000 -1000 0 1000 2000 
+Figure 11: The PDAF tracks with X = 10-5.5, pd = 90%, op = .1, om> = 100, and initial speed 13.8 knots. The jina2 scan 
+only of clutter (i.e. t = T )  is shown, with clutter returns denoted by *. 
+( 1  Orig. PMHT I Def. PMHT I Homo. PMHT I Tur. PMH7i-U 
+Table 1: Illustration of the performance of the various tracking approaches, in terms of lost-track percentage. 
+4-1900 

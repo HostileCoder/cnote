@@ -1,0 +1,597 @@
+Tracking on Intensity-Modulated Sensor Data Streams* 
+Michael J. Walsh 
+Marcus L. Graham 
+Roy L. Streit 
+Tod E. Luginbuhl 
+Lauren A. Mathews 
+Naval Undersea Warfare Center Division 
+Newport, Rhode Island USA 
+walshmj,graha“l,streitrl,luginbuhlte,mathewsla@npt.nuwc.navy.mil 
+401-832-4155,3846,4189,8241,7026 
+Absfrucf-Conventional trackers are point trackers. Tracking 
+energy on a field of sensor cells requires windowing, thresh- 
+olding, and interpolating to arrive at data points to feed the 
+tracker. This scheme poses problems when tracking energy 
+that is distributed across many cells. Such signals are some- 
+times termed “over-resolved.’’ It has been suggested that track- 
+ing could be improved by decreasing the resolution of the sig- 
+nal processor, so that the cells are large enough to encompass 
+the bulk of the energy, and better match the point tracker as- 
+sumptions. Larger arrays provide greater resolution at lower 
+frequencies, with the potential for improved detection and 
+classification performance, but in direct conflict with tracking 
+“over-resolved” signals. 
+These issues are addressed by the histogram-based probabilis- 
+tic multi- hypothesis tracking (PMHT) method discussed in 
+this paper, which provides a means for modeling and track- 
+ing signals that may be spread across many sensor cells. This 
+paper will focus on the initial development and testing of this 
+algorithm for one-dimensional sensor data. Elements of the 
+signal model, theory, and algorithm will be presented along 
+with two frequency domain examples. 
+‘US.  Government work not protected by U.S. copyright. 
+TABLE OF CONTENTS 
+1. INTRODUCTION 
+2. HISTOGRAM-PMHT 
+3. ONE-DIMENSIONAL TRACKER 
+ALGORITHM STATEMENT 
+4. EXAMPLES 
+5. CONCLUDING REMARKS 
+1. INTRODUCTION 
+Tracking an unknown, nonstationary signal against a noisy, 
+nonstationary background on an intensity-modulated sensor 
+display is a difficult problem. Traditional techniques involve 
+thresholding the sensor data and treating the exceedences as 
+point measurements that are subsequently fed to a tracking al- 
+gorithm. Choosing this threshold is a challenge in itself, and 
+even then it is typically subject to a prescribed probability of 
+detection and probability of false alarm. Linearizing the gener- 
+alized frequency modulated (GFM) model in Luginbuhl [ 1,2] 
+and adding some of the Bayesian structure from Streit [3] re- 
+sults in a new tracking algorithm that uses all of the sensor data 
+and avoids thresholding entirely. The fundamental premise of 
+the proposed tracking algorithm is that losses due to threshold- 
+ing can be eliminated completely if all of the sensor data are 
+used by the tracking algorithm. 
+Section 2 describes this new tracking algorithm, referred to 
+herein as histogram-PMHT, or H-PMHT; in particular, the key 
+aspects of its derivation are discussed. A concise statement 
+of the H-PMHT algorithm applied to one-dimensional sensor 
+data is given in section 3. Two frequency domain examples, 
+one involving a simulated linear frequency modulated (FM) 
+chirp and one involving an at-sea recorded bowhead whale 
+4-1901 
+call, are presented in section 4. A summary is given in sec- 
+tion 5. 
+Incomplete-Data Likelihood Function 
+Let 2, denote the sensor-data measurement vector at time t ,  
+Zt = { Z t l , .  . . , Z t L } ,  t = 1,. . . ,T ,  (2.1) 2. HISTOGRAM-PMHT 
+Signal and Measurement Models 
+The H-PMHT tracking algorithm is intrinsically a multi-signal 
+tracking algorithm, and is based on a stochastic model of the 
+signals and the noise background. As in [ l ,  21, it assumes 
+that the signals, clutter, and background noise are described 
+by a discrete mixture of continuous distributions in which each 
+component PDF represents a target, clutter, or the background 
+noise process. Furthermore, each component PDF may be a 
+discrete rnixture PDF. The sensor data are indirect realizations 
+of this underlying distribution. The approach taken is first to 
+quantize the real-valued senor data into a “pseudo-histogram,’’ 
+and then to use a multinomial distribution to model the counts 
+in the hiljtogram cells. The cell-level intensities of the sen- 
+sor data are directly proportional to the cell counts of the his- 
+togram. The goal is to fit the underlying mixture distribution to 
+the histogram at each scan; that is, to estimate the parameters 
+of the mixture distribution that maximize the likelihood of the 
+histogram at each scan. The theoretical framework of PMHT 
+(see [4]) is used to “assign” the histogram samples to the mix- 
+ture components, and to link these mixture distributions across 
+scans with a dynamical signal model. 
+Expectat ion - Maximization 
+where zte is the output of the sensor at time t in display cell I 
+(a sequence of unaveraged, magnitude-squared DFT data ver- 
+sus frequency in the examples). Let h2 > 0 be a specified 
+quantization level, an’d let 
+Nt = {nil , .  . , ntL} ,  t =: 1 ,..., T ,  (2.2) 
+denote the quantized ineasurement vector corresponding to Zt , 
+where 
+nte = 
+is the greatest integer less than or equal to zte/h2. Let 
+L 
+Ntc = C n t e  
+(2.3) 
+(2.4) 
+e=i  
+denote the: total cell count (sample size) at time t. Unlike in 
+[ 1, 21, in [ 31 the quantized data vector ?lit is used as an inter- 
+mediate variable in the derivation of the H-PMHT algorithm; 
+at an appropriate point in the derivation, the measurement vec- 
+tor Z+ is recovered in the limit as f i  + 0. 
+As in [ 1,121, the quantized data vector Nt is assumed to have 
+a multinomial distribution consisting of N t z  draws (with re- 
+placement) on L “categories” with probabilities 
+(2.5) -- pe(x t )  
+P(-&) ’ e = I,. . , L,  The expectation-maximization (EM) method formalized by 
+Dempster, Laird, and Rubin (see [5]) is a powerful method for 
+estimating the parameters of mixture distributions, and is the 
+method used to solve the likelihood equation in H-PMHT. The 
+method of EM is particularly well suited to so-called “miss- 
+ing” data problems; that is, problems in which the parame- 
+ters of interest are comparatively straightforward to estimate 
+if the observed data set is augmented with certain unobserved 
+data. The basic strategy of EM is to include the missing data 
+as random variables in the likelihood function, take the expec- 
+tation of the log-likelihood with respect to the missing data In equation (2.6), f c  7; xt) is the underlying mixture density 
+conditioned on the observed data, and maximize the resulting and xt denotes the 
+requires both the specification of the incomplete (observed) mixing proportions, which are implicit j,n all of the likelihood 
+plus missing data) likelihood function. The incomplete- and distribution for the cluantized data vector Nt implies that the 
+complete-data likelihood functions for H-PMHT are described counts Nt  cells and a sample size of 
+Nix,  where the samples are independent and identically dis- in the next two sections. 
+tributed with probability density function f ( ~ ;  X t )  (see [6] for 
+more on 1he multinomial distribution). 
+where 
+pe(xt) = J ’ f ( T ; x t ) d r ,  e (2.6) 
+and 
+L 
+P(&) = c Pe(X*).  (2.7) 
+e= 1 
+of the and he 
+expression7 the function. The EM method parametelr vector of the mixture density at time t (minus the 
+data (Observed data expressions in the se:quel). The assumr,tion of a multinomial data likelihood function, and the 
+a histogram with 
+4-1902 
+Let N = { N I ,  .. . , NT)  denote the collection of quantized 
+measurement vectors, and let X = {XI, . . . , X T }  denote the 
+set of mixture parameters to be estimated. Assuming the scans 
+are independent, the incomplete-data likelihood function for 
+N is given by 
+t=l 
+where 
+In [ 1, 2, 31, a Bayesian model for the mixture parameters X is 
+adopted. If p z  (X) denotes the a priori density of X, then the 
+incomplete-data likelihood function is given by 
+where the density pinc(NIX)  is essentially identical to the 
+density (2.8), and differs only in its statistical interpretation 
+(Bayesian conditioning versus parametric dependence). 
+The derivation of a new prior density p s ( X )  in [3] is an im- 
+portant contribution and theoretical development in H-PMHT. 
+In short, in [3] it is shown that the prior needs to be suf- 
+ficiently non-diffuse so that the synthetically generated his- 
+togram counts N ,  which depend on the arbitrary quantization 
+level h2, do not overwhelm the prior as h2 + 0. Under the 
+usual Markov assumption on the signal states Xt , Bayes The- 
+orem gives 
+where the power of Ntc is necessary to account for the artifi- 
+cial abundance of quantized data Nt at each scan. 
+The sample density is assumed to be the mixture density 
+M 
+where the mixing proportions ntk 2 0 for all t and k, 
+CEO 7rtk = 1 for all t, and the Gk(r1X;) are component 
+probability density functions. For component 7r tO  Go (~lx't), 
+7 r t O  represents the fraction of the total power due to the back- 
+ground noise, and Go(TJXt) models the cell-to-cell varia- 
+tion of the background noise. Likewise, for components 
+7rtl  G1 ( T ( X t ) ,  . . . ,7rtM G ~ ( r l X t ) ,  n t k  is the fraction of the 
+total power due to signal k, and Gk(~1Xt) models the varia- 
+tion of signal k from cell to cell. The mixture model (2.12) as- 
+sumes that the signal power levels may be spread across more 
+than one cell of the sensor display. 
+Let Kte = { k t e l , .  . . , ktenfe ) denote the components of 
+the mixture that generated the missing variables & = 
+{&I,. . . , & ~ n t e } .  It is assumed that the random variables in 
+Kte are independent and identically distributed. Furthermore, 
+l e tK t={Kt l ,  ..., K t L j a n d K = { K l ,  ..., KT}. 
+Including the missing sample locations and their mixture com- 
+ponent assignments, the complete-data likelihood function is 
+given by 
+T I, n+o 
+t=i e=i ~ = i  
+(2.13) 
+where 
+that is, the complete-data likelihood function is the product of 
+all the histogram sample densities across all L cells and all T 
+scans, scaled by the prior for the signal mixture parameters. 
+E-Step 
+Complete-Data Likelihood Function 
+The missing data in H-PMHT are (1) the locations of the sam- 
+ples that make up the pseudo-histogram, and (2) their mixture 
+component assignments; that is, the components in the under- 
+lying mixture distribution from which the samples are drawn. 
+Let &e = { S t e l , .  . . , &en,,} denote the locations of the sam- 
+ples within cell C. The random variables in are assumed 
+to be independent and identically distributed with probabil- 
+ity density function f(-rlXt)/Pe(Xt). Furthermore, let Q = 
+{GI,. . . , S t L }  and S = {SI,. . . , S T } .  
+The auxiliary function of the EM method, denoted here by Q ,  
+is defined as the conditional expectation with respect to the 
+missing data of the logarithm of the complete-data likelihood 
+function given the observed data and the current values of the 
+parameters X, denoted X': 
+where E ~ K  denotes expectation with respect to the missing 
+data. The mechanics of the E-step for H-PMHT are tedious ' 
+but straightforward, and are well documented in [I, 2,31. The 
+4-1903 
+final result in terms of the pseudo-histogram counts N is where 
+!P(X,.Y') = l0gpzo(XO) 
+(2.22) 
+1 1 ~ f I l  T In [3] it is shown that by taking the limit fkx = p(x'I) log&tklZt-l ,k ( Q k I X t - l , k )  
+t=1 
+T L  = lim hz 9, (2.17) 
+and using definition (2.3) for the quantization, the EM auxil- 
+h2+0 
+t=l  e=1 
+iary function 9 can be replaced by @, a function of the un- 
+quantized sensor data 2 = { 21, . . . , Zt}: The updated mixing proportions K t  are obtained at each time 
+t by maximizing with respect to 7rt the Lagrangian equation 
+involving Qt ,  and the constraint 7rto + 7rt1 + . . + 7rtM = 1. 
+For this application. linear Gauss-Marlkov processes are as- 
+sumed far the signals, so that for k == 1,. . . , M and t = 
+1% PSt ]E t  - * (x't I X t  - 1) 11~t11 Qfl(X.,X/) = -
+T 
+t=1 P(X,') 
+T Lt M 
+t=i e = i  k = ~  + 2; & l . f k ( ~ / X i )  logfi,(T/Xt) d7, (2.18) 1,. . . , T, the signal process models are:given by 
+where N(r;  p, C) denotes the multivariate normal probability 
+density function with mean p and covariance matrix C, the 
+Ft-1 ,k  are known state matrices, and thle Qtk  are known pro- 
+cess covariance matlices. 
+Additionally, it is assumed that the signal components in the 
+mixture distribution are also Gaussian, and that the means of 
+these Gaiissians are linearly related to the states of the signals 
+k = 1,. . . , M at times t = 1,. . . ,T ,  so that 
+M-Step 
+The objective of the M-step is to maximize the auxiliary func- 
+tion !Pfi with respect to the unknown signal parameters X. To 
+proceed, a p p ~ c a ~ o n - s p e c ~ ~ c  temS in the function 
+(2.18) must be defined. 
+Let 
+X t  =' {ZtO,  Z t l  ,.. . , XtM}, t = O , 1 , .  . . T ,  (2.19) (2.25) 
+where X ~ O  is the background noise parameter at time t, and x t k  
+is the parameter of signal k at time t. Assuming the signals are where the Htk are known measurement matrices, and the Rtk 
+independent at all times, 
+G k ( + t k )  = M(T; H t k  x1'k7 Rtk), 
+are known measurement covariance matrices. 
+M Finally, the background noise distribution in this application 
+P Z t l s t - l ( X ' t l x ' t - d  = n P Z t k J s t - l , b  ( X t k l Z t - 1 , k ) .  (2.20) is assumed to be uniform and known for all t ,  so that the 
+k=O Go(~lzto) terms are all constants. 
+With these assumpljons, it is shown in [3] that for X ( k )  = 
+{ Z O k ,  x l , k , . .  . , X T k  1, the value of x(k) that maximizes the 
+auxiliary function Q ~ x  for each signal k is the solution to 
+a symmc:tric, block-tridiagonal, linear system of equations, 
+and that this system is most efficiently solved by a recursive 
+= *tx + Q k X ,  (2.21) Kalman smoothing filter. The details off this result are omitted 
+here, but the filter steps are listed explicitly in the next section. 
+It is readily shown that kfl can be separated into two terms, 
+one involving the unknown mixing proportions T = {r tk} ,  
+and one involving the unknown signal parameters X ,  
+T M 
+t=1 k=O 
+4-1904 
+3. ONE-DIMENSIONAL TRACKING 
+ALGORITHM STATEMENT 
+2. Total bin probabilities fort = 1, . . . , T and e = 1, . . . , L: 
+For one-dimensional tracking, the signal parameters of interest 
+are typically the instantaneous location on the sensor display 
+Yt (e.g., angle or frequency) and the instantaneous rate +t at 
+time t; therefore, for signal k ,  
+(3.2) 
+For this two-state linear Markov model, the state matrices 
+F t - l , k  and the process covariance matrices Q t - 1 , k  have sim- 
+ple forms: I 
+1 A t - 1  
+F t - l , k  = [o 
+1 ] , (3.3) 
+where At is the elapsed time between time t and time t - 1, 
+and 
+[ At-l ] ' (3'4) & t - i , k  = q t - i , k  
+where the q t - l , k  are scale factors (see [7, p. 841). 
+For two-dimensional time-intensity data, the measurement 
+matrices H t k  and the measurement covariance matrices R t k  
+also have simple forms: 
+H t k  = [I 01 , (3.5) 
+R t k  = P&, (3.6) 
+and 
+where p:k is the variance of signal k at time t. 
+Let {T::)} be the set of estimated mixing proportions and 
+{XI?} the set of estimated signal states at the i-th EM itera- 
+tion. At the beginning of the algorithm (the 0-th iteration), the 
+mixing proportions { n$'} are initialized so that n::) > 0 and 
+are initialized with nominal 
+values for t = 1,. . . , T .  For iterations i = 0,1,2, .  . . , the 
+following nine quantities are computed (see [3] for further de- 
+tails): 
+n$) +ntl  (0)  +-.-+a:% = 1 fort = 1,. . . , T .  The signal state 
+sequences {ZIP,', xi:), . . . , x t M }  ( 0 )  
+1. Component bin probabilities for t = 1,. . . , T ,  C = 
+1 ,..., L,andk = 0,1, ..., M :  
+k = 0, 
+s, N(T;  H t k  x$, R t k )  d.r, k = 1, . . . , M .  
+(3.7) 
+3. Total scan probabilities for t = 1, . . . , T :  
+(3.9) 
+4. Bin centroids for t = 1,. . . , T ,  I = 1,. . . , L,  and k = 
+1,. . . , M :  
+(3.10) 
+5.  Synthetic measurements for t = 1, . . . , T and k = 
+1,. . . , M :  
+6. Synthetic measurement covariance matrices for t = 
+1, ..., Tandk = 1, ..., M :  
+7. Synthetic process covariance matrices for 
+t = 0,1, . . . , T - 1 and k = 1, . . . , M :  
+(3.13) 
+8. Estimated mixing proportions for t = 1, . . . , T and k = 
+0, 1, . . . , M :  
+9. Estimated signal states for t = 0,1, .  . . ,T and k = 
+1, . . . , M ,  using (for computational efficiency) a recur- 
+sive Kalman smoothing filter, which comprises a forward 
+filter initialized at time t = 0 with e$il)(k) = z$) and 
+a large (diffuse) state covariance matrix P;;:')(k), and 
+4-1905 
+given, fort = 0,1,  . . . , T - 1, by the recursions rewritten as 
+p("1) t + l l t  (IC) = Ftk p$+')(k) F& + Q t k ,  z(t) = Aexp[i R(t) t + z $1, 
+R(t) = Ro + f j o  t ,  
+(4.4) 
+W g 1 ) ( k )  = P$-$(k) Hi+,,, and 
+(4.5) 
+where R(i)  is the instantaneous frequency in rads, Ro is the 
+nominal frequency in rads, and ho is the: chirp-rate in rad/$. 
+Without loss of geneirality, it is assumed that the signal is ob- 
+served starting at time t = 0, and that estimates of the in- 
+stantaneous frequency and frequency-rate of z ( t )  are required 
+every 7 seconds. To avoid aliasing, the signal is sampled well 
+above the Nyquist rate for the observabon period of interest 
+and a backward filter initialized at time t = T with sr, wher,e s is the number of scans; that is 
+by the recursion 
+p(2+') 
+t+llt+l(k) = P(?+l) t+llt ( k )  - 
+wt?:l)(k) Ht+',k pjiT/2(k)7 
+- (2+1)  (/.) = F t k  Ytlt  -(2+1) (IC) + w p ( k )  Y t + l l t + l  
+xTk (%+I) - fj!$)(k) andgiven,fort = T-l,T-2,. . . ,1, 
+2T 
+7,  
+0, = - >> 2R(ST) ,  (4.6) 
+where 0, is the sampling rate in rads, and 7,  is the sampling 
+period in seconds. Using n to denote the sampling index, the 
+z:;") = fj!;:')(k) + P$+')(k) Ft;: (Pi::;2(IC))-' 
+[ z(2+1) t + l , h  - Ftk GL;:') (k)] , discrete-time versions of equations (4.4) and (4.5) are given by 
+and, for t = 0, bv 
+where the asterisk denotes matrix transposition. 
+z(n7,) == A exp[i R(n7,) n7, + i $1 
+4.3 == Aexp(iw[n] n -t i $), (4.7) 
+(3.15) 
+and 
+w[n]  = WO +Ljon, (4.8) 
+The most common convergence tests for termination of the al- 
+gorithm are based on the rate of increase of the incomplete- for n = 0, .  . . , N - 1, where w [ n ]  is the instantaneous 
+data likelihood function. Other tests are based on the rate of frequency in raasample, WO is the nominal frequency in 
+change of the estimated parameters. In practice, usually some radsample, and Ljo is the chirp-rate in radsample2 (see [SI 
+combination of these two tests is used. for details on time-sampling). 
+4. EXAMPLES 
+For simplicity, it is assumed that the signal z(t) is corrupted 
+by additive, complex., zero-mean white Gaussian noise with 
+variance 02; that is, tlhe observed time-series is given by 
+Linear Chirp y[n] = 4.1 + 4n3, (4.9) 
+where 
+In this section, a two-state H-PMHT frequency tracker is used E{v[nl} = 0, (4.10) 
+to track the instantaneous frequency and frequency-rate of a 
+low-frequency linear chirp. 
+E{v[n.] v[n + I C ] }  = o 2  S[IC], (4.11) 
+for all n and k.  An observation interval of length 7 seconds 
+a sampling period of length 7, secontis yields a time-series 
+of length 7/7, + 1 samples every 7 seconds, for a total of 
+N = S(T/K + 1) samples. 
+For each observation interval, the signal-to-noise ratio (SNR) 
+7 is defined as the ratio of the average signal power P to the 
+(4.3) noise power c& in a, bin, 
+Consider the COntinUOUS-time, complex-sinusoidal signal ~ ( t )  
+with constant amplitude A and constant phase 4, 
+z( t )  = Aexp[i 27ry(t)t + i $I7 (4.2) 
+where 
+7(t)  = 70 + ?o t, 
+TO is the nominal frequency in Hz, and i.0 is the chirp-rate 
+in Hds. Converting to radians, equations (4.2) and (4.3) are 
+P 
+7 - - -  
+4 i n  
+(4.12) 
+4-1906 
+sequel. 
+Figure 1. Magnitude-Squared STFT of Linear Chirp in 
+White Gaussian Noise (q = 4 dB, p = 1 Bin (0.625 Hz), 
+q = 1 x and Estimated Track 
+For the signal of interest, the average signal power P = A2,  
+SO q = A2/aii,. 
+In this example, a low-frequency linear FM chirp with ampli- 
+tude A = 1, phase q5 = 0, nominal frequency 70 = 20 Hz, 
+and chirp-rate i /o = 0.125 Hds is sampled every 7, = 0.0125 
+second, and its short-time Fourier transform (STFT) is taken 
+every 7 = 1 second for S = 120 consecutive, nonoverlapping 
+(unaveraged) blocks of data (scans) to yield a spectrogram of 
+length ST = 2 minutes. This sampling period corresponds to 
+a sampling rate of ys = 1 /7, = 80 Hz, which is well above the 
+Nyquist rate of 2 r(S7) = 2 [TO + j o ( S 7 ) ]  = 70 Hz for the 
+2-minute observation period. Each 1-second observation in- 
+terval yields T/7, f 1 = 81 samples, for a total of N = 9720 
+samples over the whole data set. The spectrogram for a signal 
+with U = 5A is shown in Fig. 1. 
+The STFT in this example is computed using a 128-point fast 
+Fourier transform (FFT) and an 81-point Hamming window. 
+The window sequence is normalized such that it sums to one; 
+this scaling allows the magnitude-squared FFT output to be di- 
+rectly interpreted as power. Since for a P-point DFT the spac- 
+ing between DFT frequencies is 27r/P, and the relationship 
+between the discrete-time frequency w and the continuous- 
+time frequency 0 is w = R7,,  where 7, is the sampling period, 
+the frequency resolution is given by 27rlP7, rads, so the DFT 
+bin-width for this example is 1/(128 x 0.0125) = 0.625 Hz. 
+Only the positive half of the spectrum is shown in Fig. 1, and 
+only the first L = 64 bins of sensor data are considered in the 
+The H-PMHT frequency tracker outlined in section 3 was im- 
+plemented as a single-scan (T = l),  single-signal (M = 1) 
+sequential filter and was applied to the data in Fig. 1 on a 
+per-scan basis; that is, the scans were processed sequentially, 
+where the estimate for the previous scan was used to initialize 
+the estimate for the current scan (see [3 ] ) .  
+The estimated instantaneous frequencies are shown connected 
+by a solid line the figure. The jaggedness of the track will 
+increase as the SNR drops and the signal power varies more 
+from cell to cell. The jaggedness of the track is also a function 
+of the process noise; the stochastic signal model allows for 
+further excursions from the deterministic, constant-rate model 
+as the process noise scale factor q is increased, resulting in 
+larger random accelerations. There is an intimate relationship 
+between the values of the filter parameters p and q, the SNR, 
+the track initialization, and the tracker behavior. High SNR 
+signals will tend to draw the signal component of the mixture 
+closer if the signal is within the effective “gate” determined by 
+p. The amount by which the signal component will move to 
+data outside the range of the deterministic process model de- 
+pends on the SNR, the value of q,  and the track‘s local estimate 
+of its own quality (i.e., the size of the state covariance Ptlf. on 
+zt) .  In low SNR, the “inertia” of the tracker will allow it to 
+coast according to the deterministic process model until there 
+is good reason (i.e., supporting data) for it to change course. 
+Bowhead Whale Call 
+The spectrogram of a 1.2-second bowhead whale call recorded 
+at sea is shown in Fig. 2. This signal was sampled at 2500 
+Hz and processed with a 421-point Chebyshev window and a 
+1024-point FlT with a bin resolution of 2.4414 Hz. Values 
+of p = 3 bins (7.3242 Hz) and q = 1 x were used to 
+track this signal. The estimated instantaneous frequencies are 
+shown connected by a solid line in Fig. 2. The intent of this 
+example is to show the ability of the tracker to track complex, 
+nonstationary signals, and the ability of the stochastic process 
+model to accommodate dynamics of higher order than the de- 
+terministic process model. The benefit of including process 
+noise is the ability to track high dynamics with a reduced pa- 
+rameter set. However, for too low a model order, the burden 
+of tracking the signal dynamics falls squarely on the shoulders 
+of the process noise, and the result for high process noise may 
+be very jagged tracks or, for low processes noise, tracks whose 
+dynamics lag those of the actual track. 
+4-1907 
+5. CONCLUDING REMARKS 
+(a) Linear-Scale 
+Figure 2. Spectrogram of Bowhead Whale Call 
+The H-PMHT tracking methodology avoids the thorny issues 
+of threshollding the sensor data to provide measurements for a 
+point tracker by (1) using all of the sensor data, and (2) mod- 
+eling the signals as potentially distributed over several cells. 
+The H-PMHT signal model is a stochastic model in that the 
+signal centers are modeled as the component means of a dis- 
+crete mixture distribution; the signal “widths” are modeled by 
+the variances of the mixture components. 
+The interpretation of the sensor output as a pseudo-histogram 
+plays an important role in the derivation of H-PMHT. The real- 
+valued cell outputs are quantized and treated as the cell counts ‘ 
+of a pseudo-histogram whose distributioin is multinomial; the 
+underlying density of this multinomial distribution is the mix- 
+ture density of the signals and the background noise. It is a 
+remarkabbe fact [3] tlhat the sensor data are recovered in the 
+algorithm as the quantization level h2 is taken to zero. 
+An important theoreQca1 development in the derivation of H- 
+PMHT not discussed! in this paper is the use of a negative 
+multinomial distribution (see [6]) to model sensor cells in 
+which no (data are collected. The negative multinomial func- 
+tions as an interpolator in this case, serving to restore the miss- 
+ing cell counts in the histogram. In this capacity, the negative 
+multinomial may be useful to reduce “edge effects” that may 
+bias estim,ates when the tails of signal components extend be- 
+yond the ends of the sensor display. The reader is referred to 
+[3] for further details on the use of the negative multinomial in 
+H-PMHT. 
+REFERENCES 
+[ 11 T. E. Luginbuhl, “Estimation of General Discrete-Time 
+FM Pirocesses,” Ph.D. Thesis, University of Connecticut, 
+Storrs, 1999. 
+[2] T. E. 1,uginbuhl and P. Willett, “Tracking a General, Fre- 
+quency Modulated Signal in Noise,” Proceedings of the 
+3gth lEEE Conference on Decision and Control, Decem- 
+ber 19199. 
+[3] R. L. Streit, ‘‘‘Tracking on Intensity-Modulated Data 
+Strearns,” NUWC-NPT Technical Report 11,22 1, Naval 
+Undersea Warfare Center Division Newport, Rhode Is- 
+land, 1 May 2000. 
+[4] R. L. Streit and T. E. Luginbuhl, “Probabilistic Multi- 
+Hypohesis Tracking,” NUWC-NPT Technical Report 
+10,428, Naval Undersea Warfare Center Division, New- 
+port, Rhode Island, 15 February 1995. 
+[5] A. P. Dempster, N. M. Laird, and D. B. Rubin,“Maximum 
+Likelihood from Incomplete Data via the EM Algorithm,” 
+4-1908 
+Joumal of the Royal Statistical Society, Series B, vol. 39, frequency line detection and tracking, and probabilistic meth- 
+1977, pp. 1-38. ods for neural network design. His current research interests 
+include distributed and sequential detection problems, multi- 
+r6] N. S .  N. Balakrishnan, Discrete target tracking using advanced Bayesian methods, and multi- 
+Source acoustic datafision using statistically validated belief Multivariate Distributions, WileY &L Sons, New YOrk, 
+1997. networks. 
+[7] Y. Bar-Shalom and T. E. Fortmann, Tracking and Data 
+Association, Academic Press, New York, 1988. 
+[8] A. V. Oppenheim, R. W. Schafer, with J. R. Buck, 
+Discrete-Eme Signal Processing, Prentice-Hall, New Jer- 
+sey, 1999. 
+Michael J. Walsh received the B.A. degree in physics from 
+Bard College and the B.S. degree in mechanical engineering 
+from Washington University, both in 1996 as part of a dual- 
+degree program. In the summer of 1994, he was a student 
+fellow at the Woods Hole Oceanographic Institution (WHOI) 
+in the Ocean Systems and Moorings Laboratory, where he 
+worked on hydrodynamic modeling of surface moorings. He 
+has been employed by the Naval Undersea Warfare Center Di- 
+vision, Newport, Rhode Island since 1996, where he works on 
+target tracking applications for the Combat Systems Depart- 
+ment. He is also working towards the M.S. degree in electrical 
+engineering at the University of Massachusetts, Dartmouth. 
+His current research interests include applications of estima- 
+tion theory, probabilistic and statistical modeling, and numer- 
+ical analysis to target tracking. 
+Marcus L. Graham received the B.S. and M.S. degrees in elec- 
+trical engineering from Case Western Reserve University in 
+1983, and the Ph.D. degree in electrical engineeringfrom the 
+University of Rhode Island in 1992. He has been employed by 
+the Naval Undersea Warfare Center Division, Newport, Rhode 
+Island, f.om 1984 to present, where he works on various as- 
+pects of target motion analysis and contact management. His 
+current interests include nonlinearjltering and regularization 
+methods for ill-posed problems. 
+Roy L. Streit received the B.S. degree (Honors) in physics 
+and mathematics in 1968from East Texas State University, 
+the M.A. degree in mathematics in 1970 from the Univer- 
+sity of Missouri (Columbia), and the Ph.D. in mathematics 
+in 1978 from the University of Rhode Island. From 1981 to 
+1982 he was a Visiting Scholar in the Department of Op- 
+erations Research at Stanford University, Stanford, Califor- 
+nia, and from 1987 to 1989 he was an Exchange Scientist 
+at the Defence Science and Technology Organisation, Ade- 
+laide, Australia. He joined the U. S. Navy Underwater Sound 
+Laboratory in New London, Connecticut, in 1970, and he is 
+now with the Naval Undersea WarfQre Center (NUWC) Di- 
+vision in Newport, Rhode Island. His previous research in- 
+cludes diverse investigations supporting NUWC acou$c ar- 
+ray R&D programs, applications of hidden Markov models to 
+Tod E. Luginbuhl received the B.S. degree in Electrical En- 
+gineering in 1985 from the University of Rochester in New 
+York, and the M.S. and Ph.D. degrees in Electrical Engineer- 
+ing in 1991 and 1999 respectively from the University of Con- 
+necticut. He has been employed by the Naval Undersea War- 
+fare Center Division, Newport, Rhode Island, since 1985. His 
+previous research includes acoustic data fusion, tracking fre- 
+quency lines and frequency line families, probabilistic design 
+of neural networks, multi-target tracking, signal detection and 
+signal classijication. His current research interests include se- 
+quential detection problems, tracking frequency line families, 
+multi-target tracking, statistical signal classijication and sta- 
+tistical methods for acoustic data fusion. 
+Lauren A. Mathews received the B.S. degree in I992 and the 
+M.S. degree in 1999 from the University of Massachusetts, 
+Dartmouth, both in electrical engineering. She has been em- 
+ployed by the Naval Undersea Waqare Center Division, New- 
+port, Rhode Island since 1992. During this time, she has been 
+involved in developing, implementing and testing target track- 
+ing algorithms for submarine combat control systems. Her 
+current efforts include the mathematical modeling and devel- 
+opment of geometry-based target localization algorithms in a 
+3-0  visualization environment. Her primary interests are esti- 
+mation theory, modeling and simulation, and real-time imple- 
+mentation. 
+4-1909 

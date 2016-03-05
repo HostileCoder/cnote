@@ -1,0 +1,1082 @@
+Real-Time Classification of Multiple Non-Separated 
+Battlefield Ordnance Events Using ELMO1 
+Jeanne A. Atwell and Susan P. Hagerty 
+jaatwelllii:ball.com sharzertvk$ball.com 
+Ball Aerospace & Technologies Corp. 
+1600 Commerce Street 
+Boulder, CO 80301 
+(303) 939-4000 
+Karl Walli 
+(703) 808-4704 
+Abstract-With long range remote sensors observing high 
+intensity conflicts on a battlefield, it is possible to observe 
+multiple non-temporally separated ordnance events in a 
+single pixel. ELMO (Event Location and classification in 
+Multiple Ordnance profiles) is a real-time algorithm for 
+classifying these multiple ordnance events. The algorithm 
+has three basic steps. The first step estimates delays of 
+events in a composite signal by computation of a peak 
+function. The second step classifies the events by a least 
+squares fit involving a banded matrix developed using the 
+delay information. The third step allows for an error 
+correction based on comparison of the computed composite 
+signal with the measured composite signal. Trials show 
+ELMO to exhibit good performance in cases where events 
+have reasonably small variances from the class mean, and 
+where the class means are linearly independent. 
+TABLE OF CONTENTS 
+1. INTRODUCTION 
+2. ALGORITHM MOTIVATION, DESCRIPTION, 
+3. EXA~PLES AND RESULTS 
+AND ANALYSIS 
+4. CONCLUSIONS AND FUTURE WORK 
+1. INTRODUCTION 
+Discrimination of battlefield ordnance is an important part 
+of Battle-Space Characterization (BSC). Accurate and 
+timely classification reports, with geolocation information 
+and confidence factors, provide the Warfighter with the 
+situational awareness to perform counterfiie missions, 
+provide early indication and warning of threats, assist in 
+battle damage assessment (BDA), help perform intelligence 
+preparation of the battlefield (IPB), and provide overall 
+Technical Intelligence. 
+The purpose of this paper is to introduce an algorithm 
+(ELMO: Event Location and classification in Multiple 
+Ordnance profiles) that can be implemented in a real-time 
+system to class@ individual ordnance events contained in a 
+multiple event signature. To discriminate among various 
+ordnance types of interest, we exploit the temporal signature 
+of the events. This effort is complementary to other ongoing 
+efforts in the community for discrimination of multiple 
+bomb events [l]. This work also extends our previous work 
+on classification to include the multiple event case. In 
+previous papers [2, 31, excellent classification results were 
+achieved with our baseline algorithm OSCAR applied to the 
+principal components of the ordnance profiles or extracted 
+features. Those studies were done on ground-based and 
+remotely sensed data. The present study uses remotely 
+sensed data to generate simulated multiple event profiles. 
+Various cases of multiple event profiles are used to evaluate 
+the performance of ELMO with different sets of ordnance 
+classes and/or with different amounts of intra-class variance. 
+Both the algorithm classification performance and 
+computational complexity are evaluated. The initial results 
+from this study are promising, and illustrate the potential of 
+achieving good classification performance using real-time 
+ordnance discrimination algorithms. 
+Discrimination of ordnance events such as high explosive 
+events, muzzle flash events and missile or rocket launches is 
+accomplished by detecting and extracting the temporal 
+profiles. In previous work, we have addressed solving this 
+problem for the case of single events, i.e., temporal profiles 
+containing only one event [2,3,4,5]. With long range remote 
+sensors, the ground sample distance (GSD) can be quite 
+large, especially at stressing Line-of-Sight elevation angles. 
+During high intensity conflicts, or even in the case of “carpet 
+bombing”, it is entirely possible to have multiple events 
+contained within a single pixel that overlap in time. After 
+the detection and extraction processes, the resulting 
+temporal signature from this pixel is a composite profile 
+comprised of multiple events with varying delays (relative to 
+the start of the composite profile). The problem of trying to 
+classify the individual events contained in such a composite 
+temporal profile is a challenging one. Both the number of 
+events and the delay associated with each event (relative to 
+0-7803-6599-2/01/$10.00 2001 JEEE 
+4-1965 
+the event start) are unknown. The two assumptions made in 
+attempting to solve this problem are i) that the event classes 
+are know (characterized by class means), and ii) that 
+individual ordnance events are relatively close to the class 
+means. 
+When de:veloping algorithms for ordnance discrimination, 
+several things need to be considered. To help the Warfighter 
+understand and characterize the battle space (BSC), the 
+algorithm must process all ordnance events during a conflict 
+and issue a timely report. This requires the algorithm to 
+keep up with all events on the focal plane (during the active 
+operation:). The focal plane used for this BSC system is a 
+high frame rate staring array. Therefore, the discrimination 
+algorithm must operate in real-time to keep up with the 
+potential ilood of events during a high intensity conflict. In 
+the coursi: of our effort, we have kept in mind that our 
+algorithm must not only be accurate, but must also be 
+suitable for implementation in a real-time system. 
+The a1go:rithm can potentially be used to classhfy any 
+multiple osdnance transient events such as ordnance muzzle 
+flashes, explosions, and/or missile launch spikes. The 
+algorithm only needs a priori knowledge of the relevant 
+classes. This type of information can be gathered by a fast- 
+framing, staring array sensor with see-to-the-ground bands, 
+developed in the early 1980’s for detecting transient 
+ordnance events [6]. This sensor has been used to gain a 
+priori knowledge of the physics of gun muzzle flashes [7]. 
+Data on missile detonations and bomb explosions has also 
+been collected and analyzed [SI. Fellow contractor Stan 
+Rudman has done work in analysis of rocket/missile 
+launches 191. Controlled tests have shown the repeatability 
+of ordnance signatures, as in [SI. Ordnance signatures have 
+also been collected from several conflicts where they show 
+repeatability [lo, 11, 12, 131. 
+In addition to the remote sensor data at our disposal, 
+ground-based signatures have also been collected. These 
+include signatures of bomb explosions, warhead explosions, 
+missile plumes, secondary damage, and gun muzzle flashes 
+ranging from tanks up to large artillery. Pre-planned 
+ordnance collects have been conducted to provide a 
+preliminary assessment of the potential of signal processors 
+to transform sensor outputs into ordnance detection, class 
+and type [14, 15, 161. The Battlefield Ordnance Awareness 
+(BOA) program, headed by Ms. Kaye Blankenship of the 
+U.S. Army Space and Missile Defense Command, sponsored 
+these collects. The BOA program conducted its first 
+airborne demonstration in November of 2000, for the 
+purposes of detecting, geo-locating, and classifying 
+battlefield ordnance in near real-time. 
+Multiple signal analysis is the subject of vast work unrelated 
+to ordnance classification. For example, a multiresolution 
+Fourier transform has been used to identify notes arid their 
+onset times in polyphonic musical signals [17] and a 
+multiresolution discrete wavelet transform has been used for 
+joint time-delay and signal estimation in respiratory and 
+heart sounds [18]. A technique called Independent 
+Component Analysis has been usecl for blind source 
+separation of multiple signals [19, 20, 211. Sammon 
+described a techniqpe for multiple signal detection and 
+identification with a similar flavor to the algorithm 
+developed here in 1967 [22]. Unfortunately, none of these 
+techniques were ajpplicable to the real-time ordnance 
+classification problem. Some required assumptions on the 
+data that we cannot make (such as the assumption that the 
+events are a finite distance apart in ]phase space, or the 
+assumption that the signal and noise are mutually 
+independent zero-mlean Gaussian processes). Others took 
+more computational time (some algorithms took as long as 
+20 seconds), or they required availability of multiple 
+observations of the data. 
+The ELMO algoritlun can successfully locate delays of 
+events in a composite signal and classily the corresponding 
+events in computational times on the order of microseconds. 
+This is a three-step iilgorithm. The technique applied in the 
+first step uses discre1:e Fourier analysis 110 estimate delays of 
+events present in the composite. The second step involves 
+solving an over-determined, banded linear system of 
+equations to classify the events present at each delay in the 
+composite: by means of a least squares fit. Very efficient 
+numerical algorithms: for the first two steps are well known. 
+The third step allows for an error correlction by comparison 
+of the computed composite with the measured composite 
+signal. Delays corresponding to event:; determined in the 
+third step are unknown. 
+The ELMO algorithm is motivated, described in detail, and 
+analyzed in Section. 2. Section 3 contains experimental 
+results. Conclusions and ideas for future improvements to 
+the algorithm are provided in Section 4. 
+2. ALGORITHM hdOTIVATION, DESCRIPTION, AND 
+ANALYSIS 
+2.1 Descr@tion of the Problem 
+Due to the large pixel footprint (GSD) in a long range 
+imaging system, muli.iple, temporally ovferlapped events may 
+be observed in a single pixel during times of high intensity 
+conflicts or in the case of carpet bombing. If obscurations 
+are “optic*ally thin”, then the property of superposition holds 
+and the overall composite can be modeled by the direct sum 
+of all individual events with their ;issociated delays. 
+However, if a ground-based or off-nadir-looking airborne- 
+based sensor observes these events, the signatures of 
+successive events may be reduced after partial obscuration 
+and/or re-absorption by battlefield obscurants produced by 
+previous events (such as smoke, gasses, dust, and/or dirt). In 
+this case, the principle of superposition may fail. From a 
+space-basad sensor looking down from above, this is likely 
+to be a second order effect. For the purposes of this study, 
+we will assume that the events are separated enough (though 
+4-1966 
+still contained in a single pixel), so that superposition holds. 
+We assume that a composite signal is composed of events 
+fi-om known classes, in unknown numbers and with unknown 
+delays. The goal is to determine the number of events from 
+each class present in the composite. Ideally, the algorithm 
+will also determine the delay of each event in the composite 
+(which could be of value in geolocation). If all observations 
+within each class are identical, this problem can be 
+expressed mathematically as follows. Assume that there are 
+k classes represented by source intensity profiles 
+f, ( t ) ,  i = l,..., k . 
+A composite profile of events with at most m delays fi-om 
+each class is of the form 
+fit) = aifi(t-4)+afi(t-9)+...+an~fi(t-bni)+ 
+%i+&(t -bni+l) + * . a +  a ~ n f 2 C t  -&nil + 
+a * * +  a ( k - l ) ( n i + l ~ ( ' - ~ k - l ) ( n i + l ) ) + . . . + a k n f k ( t - ~ l ) .  
+If there are n samples in the composite signal (and each of 
+the known class profiles), the equation can be written in 
+matrix form as 
+The goal is to solve for the coefficients a i ,  but more 
+information is needed. The basic ELMO algorithm involves 
+delay isolation (finding the values for bi ) as a first step, and 
+classification (solving for the coefficients ai ) as a second 
+step. 
+2.2 Delay Estimation 
+Suppose there is only a single ordnance class. This situation 
+will be used to illustrate the principle that is later extended 
+to multiple event classes. In the continuous domain, the 
+composite signal can be written-as 
+m ni 
+y ( t ) = z a i f ( t - b i ) = X a i  f ( t ) * 6 ( t - b i )  
+i=l i=l 
+with Fourier Transform 
+m 
+y(s)  = C ai e-j'*lS F(s)  
+i=l 
+where F(s) is the Fourier transform of f(Q and Y(s) is the 
+Fourier transform of y(t) [23]. Then, deconvolving f(t) from 
+y(t) via inverse filtering [24] yields 
+The resulting function in the time domain exhibits a series of 
+spikes occurring at the delays given by b, . This function 
+d(t) will be called the peak function of the composite signal. 
+This approach carries over to the discrete domain, with the 
+only difference being that the estimates of the delays will be 
+"temporally quantized", i.e., limited to the sample times due 
+to the sampling process. 
+Unfortunately, this does not extend directly to multiple 
+classes. The composite in the fiequency domain is 
+m 
+~ ( s )  = 2 ai e-j2*is F~ (s) + ... + .. . 
+i =1 
+Fk (4 2 ai e - j2+  
+i=(k-l)ni+l 
+In this case, the Fourier transforms of all classes cannot be 
+removed from the right hand side by a single division. 
+However, suppose the Fourier transforms of the f, can be 
+written as 
+F, (s) = C(s)R, (s) 
+where C(s)is some factor common to all of the Fourier 
+transforms and Ri ( s )  is the differentiating factor. Ideally we 
+would like R,(s) = 1 for all s, so that the composite peak 
+function is 
+km 
+~ a , e - J 2 n b 1 s R  k (  s 1)
+i=(k-l)m+l 
+i=l  i=(k-l)ni+l 
+= F a i S ( t  - bi). 
+i=l  
+A simple method for determining C(s) has been formulated 
+empirically. In the single class case, C(s)is the Fourier 
+transform of the class profile. An extension to the multiple 
+class case is to make C(s) the Fourier transform of one of 
+the multiple class profiles. The class profile to use is 
+determined by examining the results from using each in turn, 
+and choosing the one that leads to the best approximation of 
+sharp spikes with small support at the appropriate delays for 
+all classes. Currently this is done manually offline using test 
+composites of one event .from each class, well separated 
+4-1967 
+from one another by delays. Good results have been 
+obtained for three different sets of multiple events. The 
+closer the classes are in form, the better this method works. 
+It is reasonable to assume that event classes given by 
+battlefield ordnance events will also be similar in form, due 
+to the similarity in the physics of each explosive event. For 
+example, events are characterized by fast rise times with 
+more gradual, exponentially decaying fall behavior. In fact, 
+it is more likely to be a concem that the classes are too 
+closely related (see Figure 9 and the accompanying 
+discussion). 
+Figure 1 shows a set of event class profiles. Figure 2! shows 
+an example of a composite profile. This simple composite 
+contains one event of Class 1 delayed by 10 samples, one 
+event of Class 2 delayed by 50 samples, and one event of 
+Class 3 delayed by 90 samples. In this simple example, it is 
+easy to vi:wally identify the events present in the composite 
+and their delays. 
+0.3 
+It ' 
+i -~ 
+0.21 ~ 
+1 0.1 
+, 1 - 4  I i  0- I 
+0 50 100 150 200 250 300 350 400 450 500 
+time 
+Figure 1: Class Profiles of Three Classes 
+0 50 100 150 200 250 300 350 400 450 502 
+lime 
+Figure 2: A Simple Composite Profile 
+Figure 3 illustrates the peak function obtained when the 
+Fourier transform of the composite signal is divided by the 
+Fourier transform of the Class 1 profile. Although the peak 
+function is far from smooth, it is easy to see that delays 
+occur at the lo* sample, the 50" sample, and the 90* 
+sample. 
+3.5 r 
+I 
+3! 
+i 
+2.5 
+I 
+1 ii 
+0.5 
+I I I 1  1 oL- /I , ' ,  ,":I ,-L I r l ,  _L_ -i_l_--I 
+0 1 0 0 x N ) 3 0 0 4 0 0 5 0 0 6 0 0  
+time 
+Figure 3: The Peak Function for the Simple Composite 
+Profile 
+Figure 4 shows a peak function obtained by dividing the 
+Fourier Transform of the composite profile by the Fourier 
+Transform of Class .3. It is much more difficult to identify 
+peaks corresponding to delays from this picture. 
+1 0 0 2 0 0 3 0 0 4 0 0 5 0 0 m  
+time 
+Figure 4: An Alternate (Inferior) Peak. Function for the 
+Simple Composite Profile 
+The output of the first step of the ELMO algorithm is a list 
+of approximate delays bi, i = 1, ..., m . These correspond to 
+times when events within the composite signal may occur. 
+The delay information will be vital for the event 
+classification step, described next. 
+2.3 Event dassifcation 
+Once the delays have been estimated, the types of events 
+occurring ;at each delay must be determined. The first step in 
+this process is building the matrix 
+4-1968 
+F=l 
+Ordering the columns of F by delay rather than by class 
+yields more efficient computations by giving a banded 
+structure to the matrix (assuming the delays are positive and 
+the class profiles are zero for times before t - b,). In 
+particular the matrix has at most knon-zero super- 
+diagonals. The Coefficients ai can be found using a least 
+squares fit to solve y = Fa for a [25 ] .  A unique least 
+squares solution exists if the columns of Fare linearly 
+independent and km < n ,  i.e. the system is not 
+underdetermined. Once the solution is obtained, the values 
+are rounded since the number of events must be an integer. 
+In the simple example from Section 2.2, the ELMO 
+algorithm correctly identifies the events in the composite 
+signal as well as their respective delays. Some details have 
+been omitted and will be addressed later. For example, it is 
+easy to visually identify the peaks corresponding to delays in 
+this section, but the identification must be done 
+automatically. Also, the possibility that delays occur at non- 
+integer multiples of the sample rate has not yet been 
+addressed. Algorithm modifications that address these 
+details and enhance the overall classification performance 
+(including an error correction step) are described in the next 
+section. 
+2.4 Enhancements and Modijkations 
+Peak Finding-The simplest peak fmding algorithm would 
+just choose all local maxima as peaks. However, the peak 
+function may have many local maxima that are not peaks 
+caused by events, but are results of imperfections in the 
+inverse filtering step. This can be clearly seen in Figure 3. 
+Assuming there are possible delays at all local maxima can 
+waste computational time and possibly cause the system of 
+equations to violate the restriction km 5 n . Choosing peaks 
+to be local maxima also prohibits the algorithm from finding 
+delays at consecutive time samples (since consecutive 
+samples cannot both be local maxima unless they are equal). 
+To avoid these two shortcomings, an alternate definition is 
+implemented for peaks. Rather than choosing local maxima 
+as peaks, all points above some height threshold are chosen 
+as peaks. This introduces its own complication: a height 
+threshold must be determined. This choice is not as simple 
+as it might appear. The imperfect approximations to delta 
+functions can produce troughs as well as spurious peaks, and 
+these troughs can decrease some legitimate peaks. A good 
+strategy for determining a height threshold might be to 
+choose a value just large enough to exclude spurious peaks, 
+yet significantly smaller than the legitimate peaks of well 
+separated events. Fortunately, this step is completed ahead 
+of time and does not need to be part of the real-time 
+algorithm. For the example discussed above, the threshold 
+value is chosen as 0.4. 
+When a delay occurs between sample points, the true peak 
+will not be observable due to the limits of the grid 
+resolution. However, points adjacent to the peak will have 
+values near the peak value, so a peak will appear at an 
+adjacent sample point. Future modifications involving 
+increased computational complexity could allow for better 
+approximations of the delays. However, current 
+approximations provide adequate performance for the 
+present implementation. 
+Iterated Least Squares Fitting-Due to imperfect delay 
+approximations and near linear dependence of time shifted 
+profiles, the linear solve can sometimes compute incorrect 
+results. Fortunately, some of these results are easily 
+detectable as incorrect. In particular, negative coefficients 
+for classes are not physically feasible answers. Event types 
+with negative coefficients are most likely found to cancel 
+other fictitious events. Therefore the algorithm has been 
+modified so that columns of F corresponding to negative 
+coefficients are deleted and the least squares fit is repeated 
+with a smaller system. This process is repeated until all 
+coefficients are non-negative or until a pre-determined 
+number of iterations is reached (at which point the algorithm 
+is considered to have failed). 
+Error Corrections-Errors can be easily detected by 
+comparing a composite from the computed results to the 
+measured composite signal. Besides providing a convenient 
+measure for the success of the algorithm, this can also 
+provide guidance for a simple correction. Denote the error 
+by E and the computed composite by y . Then 
+y(t)dt = J'"" y(t)dt . E + 
+0 
+If E is larger than some threshold (indicating that an error 
+has occurred), then E is compared to the integrals of each 
+class in turn. One event of the nearest class is added to or 
+subtracted from (depending on the sign of E )  the total 
+number of events in that class. The delay for the event is 
+unknown. Observation of the algorithm revealed that most 
+failures were only failures by one event. This is the type of 
+error that can be corrected by this modification. This 
+correction will be applied for any failure, and in some cases 
+will cause more error than it corrects. However, this doesn't 
+decrease the appeal of the algorithm, since it had already 
+failed before the correction was attempted. This 
+modification to the algorithm increased the success rate by 
+at least 10% for composites generated randomly as 
+described in Section 3. 
+2.5 Computational Complexity 
+4-1969 
+The ELMO algorithm can be divided into pre-processing 
+tasks and real-time tasks. The pre-processing tasks need only 
+be performed once and can be completed before the 
+algorithm is needed for multiple event classification. The 
+real-time tasks are performed for each composite signal. The 
+computational time for these tasks must be minimized since 
+the output is desired immediately after obtaining the 
+composite profile. 
+The complexity of the pre-processing tasks is not of great 
+importance. These tasks are: 
+0 Deciding on the individual class mean to use as 
+0 
+0 Choosing the peak threshold 
+0 
+“divisor” for peak function 
+Computing the DFT of above chosen event 
+Computing the integrals of each known class 
+The real-time tasks are summarized below with the order of 
+the number of floating point operations necessary to 
+complete leach. It is assumed that n is the number of samples 
+in the composite profile and that the number of classes and 
+the number of delays (k and m respectively), are much 
+smaller than n. 
+Step I: Delay isolation-O(n1ogn) 
+This step is dominated by the computation of fast Fourier 
+transforms. 
+0 Computation of peak function 
+Vector division = O(n) . Inverse FFT= O(n1ogn) 
+threshold height) = O(n) 
+FFT of input signal = O(n1ogn) [see 261 
+Peak finding (Comparison of peak function with 
+Step 2: Event clarsi@cation-O(n) 
+The dominant computation in this step is the least squares 
+fit. This is where the assumption of k and m much less than n 
+becomes essential. 
+0 Formi%tion of F matrix involves 2*k*m*n assignment 
+operations = O(n) 
+0 Least Squares Fit (and jllOiterations) involves 
+(n + A%)* * j operations [25] = O(n) 
+Step 3: Error correction-O(n) 
+The assumption of k and m much less than n is also 
+important to this step, which involves n*(2*km-I)+3n 
+arithmetic operations. 
+Step 4: Dirplay of results-Ofi*m*k) 
+Reconstruction of data into interpretable form involves 
+j*(3*k*m + 3) assignment operations + m*P5 arithmetic 
+operations. The complexity of this step is negligible with 
+respect to the other steps. 
+Total: O(rr1ogn) 
+For n=lOO (event length = 100 sampks), n*log,(n) is 664 
+operations and assuming, conservatively, a Power PC 
+processor derated by a factor of 4 to 250 MFLOPS, the 
+approximate execution time is on the order of 2.66 ps. 
+Since this is only “on the order of”, i3 more conservative 
+estimate degrades this by a factor of 100, in which case we 
+still have an approximate execution t h e  of 266 ps, or less 
+than a millisecond. ‘This execution time is very fast and is 
+definitely suitable for use in a real-time system. 
+3. EXAMPLES AND RE!SULTS 
+Results are presented for tests of the algorithm under three 
+different assumptions. In the first test, the simplest case is 
+addressed, in which id1 elements of a class are assumed to be 
+identical ( simulating zero intra-class variance). The profiles 
+fiom the :sample problem in Section 2 are used to represent 
+the three classes. These profiles are averages of real 
+ordnance data collected from a space-based remote sensor. 
+In the sec:ond type cif test, the classes are assumed to have 
+small variance within each class (up to a standard deviation 
+of 15%). Each realization is generated by adding a random 
+perturbation to the class average profiles used in test one. 
+The third test applies the algorithm to composites derived 
+fiom a set of real ordnance data, collected fiom an airborne 
+remote sensor. There are two classes i r i  this test. The three 
+types of tests are described in more detail below along with 
+results summarizing 1:he algorithm perfoimance. 
+All tests were implemented in Matlab on a 600 h4Hz 
+Pentium III. 
+3. I Test 1 
+Developing Composites-In the first test, there are three 
+classes Corresponding to the three profiles shown in Figure 
+1. A statistical approach was used to generate the composite 
+profiles. ’Each class profile and the composite profiles have 
+451 samples. Random composite profiles are formed by 
+choosing sparse uniformly distributed delays for each class 
+in the first half of the sampling interval. This insures that the 
+composite profile does not end in the middle of an event. 
+This is a realistic assumption since a signal containing 
+multiple events woulld continue to be measured until activity 
+ceased. The precise tiumber of delays is random, but should 
+be about the same as the number of classes, i.e. in the 
+average case, a composite will consist of about one event 
+fiom each class. Delays are on a grid one order of magnitude 
+finer than the grid for the profiles, idlowing for delays 
+between sample points. At each delay, a single event can 
+occur with 80% probability. Two identical events can occur 
+with 15% probability, and three identical events can occur 
+with 5% probability. This is meant to model the possibility 
+that the fiame rate is slow enough for several events to start 
+within a fiame, or the pixels are large enough for several 
+events to occur simultaneously within a pixel. 
+4-1970 
+Performance Evaluation-The algorithm is considered to 
+have succeeded if it correctly identifies the number of events 
+fi-om each class present in a composite profile. If the 
+algorithm does not succeed, three types of errors are 
+possible. Events can be missed (referred to here as a “miss” 
+error), extra events can appear (an “extra” error), and events 
+can be classified as the incorrect class (a “misclassification” 
+error). 
+A sample trial is depicted in Figure 5. The true composite 
+and computed composite are indistinguishable. 
+1.8i I 
+I 
+1.4L 4 
+I i 0.4 1 
+0.2 ! 
+I 
+0 50 100 150 200 250 300 350 400 450 500 
+time 
+Figure 5: True Composite and Estimated Composite are 
+Indistinguishable 
+For 1000 trials on random composites generated as 
+described above, the algorithm was successful 997 times. In 
+an additional 2 trials, at most one error was made. All delays 
+present in a composite were identified correctly to within 
+one sample time in all 1000 trials. The error correction step 
+was implemented in 103 trials, resulting in a successful 
+classification in 100 trials. Recall that delays corresponding 
+to events affected by error correction are unknown. In the 
+1000 trials, there was 1 misclassification error, 1 miss error, 
+and 2 extra errors. Note that these errors may have occurred 
+in the same trial, so the total number of errors is not equal to 
+the total number of unsuccessful trials. The average time 
+taken for each trial was 68.1 ms. This execution time is for 
+the Matlab implementation. Execution times in a real-time 
+system would be much faster. These results are summarized 
+in Row 1 of Table 1. 
+3.2 Test 2 
+Developing Composites-This test involves the same three 
+classes as test 1. However, now individual events may vary 
+from the mean. In three sub-tests, the standard deviation 
+(STD) of individual events from the mean of the 
+corresponding class is 5%, 10% or 15%. Random 
+composites are generate in the same way as for test 1, with 
+the exception of a random perturbation being added to each 
+class profile for each event in the composite. 
+Performance Evaluation-The definitions of algorithm 
+success and error types carry over fi-om test 1. 
+Test 2.1: 5% STD-In the first sub-test, events vary fi-om 
+the class profiles with standard deviation of 5%. In 1000 
+trials, the algorithm was successful 845 times. The algorithm 
+made at most one classification error in an additional 122 
+trials, for a total classification rate with at most one error of 
+97.6%. All delays in a composite were identified to within 
+one sample period in all 1000 trials. The error correction 
+step was implemented in 286 trials with 184 error 
+corrections resulting in a correct classification. In 1000 
+trials, there was a total of 33 misclassification errors, 66 
+miss errors, and 58 extra errors. The average time taken for 
+each classification in the Matlab implementation was 64.6 
+ms. These results are summarized in row 2 of Table 1. Table 
+2 provides a specific breakdown of the average number of 
+errors of each type per trial, depending on the number of 
+events present in the composite. The final column gives the 
+average percentage of correct event classifications per 
+composite. Table 3 gives the total number of events 
+generated fi-om each class, and the total number of errors 
+corresponding to each class. The final column gives the 
+percentage of correct events classified of each type. It can be 
+seen that events from Class 3 were correctly identified most 
+often. This corresponds to intuition, since the class profile 
+for Class 3 is the most distinctive. 
+Test 2.2: 10% STD-As expected, the performance of the 
+algorithm degrades with higher standard deviation of the 
+events in a composite profile from the class means. In 1000 
+trials with 10% standard deviation, there were 656 successes 
+and an additional 294 trials with a maximum of one error. 
+The total classification rate with at most one error is 95%. 
+The error correction step was implemented 473 times with 
+only 189 successful classifications resulting. This decrease 
+in performance of the error correction step arises from its 
+dependence on matching error in the computed composite to 
+the area under class profiles. The variance in the events 
+causes larger errors in the estimated composite that do not 
+necessarily equate to particular classes. A sample trial is 
+depicted in Figure 6. The true composite is given by a solid 
+line and the computed composite by a dashed line. The two 
+have no probability of being identical since the algorithm 
+can only form the computed composite from class averages. 
+4-1971 
+0.41 ' i 1 
+-I I 1  0.2 1 
+- -  1 -
+0 50 100 150 9 250 300 350 4M) 450 500 
+time 
+Figure 6: Computed and True Composite from Classes with 
+10% Standard Deviation 
+There were a total of 150 miss errors, 163 extra errors, and 
+42 misclassification errors. The average time taken for each 
+classification was 62.13 ms. The results are summarized in 
+row 3 of Table 1. Tables 4 and 5 give more detailed results 
+broken down by number of events per composite and by 
+class. 
+Test 2.3: 15% STD-In random composites where the 
+events had 15% standard deviation from the class profiles, 
+1000 trials yielded 542 successes. There was at most on 
+error in ani additional 361 trials, for a total classification rate 
+with at most one error of 90.3%. The error correction step 
+was implemented 533 times, resulting in 164 successful 
+classifications. Once again, this method of error correction is 
+less effective for higher variations, but still accounted for 
+30% of the total number of successes. There were a total of 
+201 miss errors, 213 extra errors, and 73 misclassifications. 
+The number of miss  and extra errors increases much more 
+dramatically with variance than the number of 
+misclassifications. For the first time, the algorithm failed to 
+detect all the correct delays, succeeding in 997 of 1000 
+trials. The: average time taken for each classification was 
+59.3 ms. These results are summarized in row 4 of Table 1. 
+More detailed results for Test 2.3 are given in Tables 6 and 
+7. It should be noted that percentage of classification for 
+Class 3 is still excellent and much higher than for the other 
+classes. 
+3.3 Test 3 
+Test 3 applies the ELMO algorithm to real data collected 
+from an airborne remote sensor. The data has been selected 
+to exhibit low intra-class variance. The test is divided into 
+three subtests. In the first sub-test, events from a single 
+class (refe:rred to as Class A) are present. This tests the 
+algorithm's ability to find delays and count events from a 
+single class within a composite. The second sub-test is the 
+same as the first, but uses events from the second class 
+(Class B). In the third sub-test, events from Classes A and B 
+are mixedL. All events and composite profiles have 51 
+samples. -Note that a smaller number of classes and a smaller 
+number ad time samples will result in significantly smaller 
+computatiion times for tests of type 3. 
+Developing Compcaites-Generation of composites is 
+similar in this case to the preceding cases. The delays are 
+randomly chosen i n i  the same way for each class. Then 
+events fiom each class are randomly assigned to all 
+occurrences of each #:lass. 
+Performance Evaluation-The definitions of algorithm 
+success and error B e s  carry over from test 1. 
+Test 3.1: Class A--Class A contains three events, with 
+profiles shown in Figure 7. In lOOCl trials, the correct 
+number of events in the composite was identified 974 times. 
+There Wa!j a maximum of one error in ari additional 26 trials, 
+for a total classification rate with at most one error of 100%. 
+The error correction step was implemented a total of 261 
+times, resulting in a successful classification in 236 trials. 
+The correct delays were identified to within one sample 
+period in all 1000 trials. There were a total of 21 miss  
+errors, and 5 extra errors. Misclassifkation errors are not 
+possible in this case. The average time required for each 
+classification was 4.67 ms. These results are summarized in 
+row 5 of Table 1. Tables detailing the error results reveal 
+little additional infonmation and are omilted. 
+0.25 - 
+0 10 20 30 40 50 
+time 
+Figure 7: Event Profiles from. Class A 
+D 
+Test 3.2: Class B-€lass B contains seven events, with 
+profiles shown in Figure 8. The algorithm succeeded in 950 
+of 1000 trials. In an additional 50 trials, there was at most 
+one error, for a total classification rate with at most one 
+error of 100%. The error correction step of the ELMO 
+algorithm was implemented 264 times resulting in 215 
+successes. The correlct delays were iden!tified to within one 
+sample time for all 1000 trials. There were a total of 38 miss  
+errors and 12 extra errors. The average time required for 
+each classification was 4.39 ms. Row 6 of Table 1 
+summarized these results. Again, additional tables reveal 
+little information and are omitted. 
+4-1972 
+1.4 I I 
+I 
+1.2/ 
+I ,  
+I t  I i I 
+1 E l  
+I 
+time 
+Figure 8: Event Profiles from Class B 
+Test 3.3: Classes A and B-In this test, events from classes 
+A and B are mixed in random composite signals. The results 
+are significantly worse than in all previous tests. In 1000 
+trials, there were only 391 successes. There was at most one 
+error in an additional 454 trials, for a total classification rate 
+with at most one error of 87.5%. The error correction step 
+was implemented 920 times, indicating that the basic 
+algorithm always yielded error high enough to trigger this 
+step. All correct delays were found to within one sample 
+point in only 802 trials. 
+These errors can be understood by examining the means of 
+Class A and Class B. Figure 9 shows that the mean of Class 
+B is very close to a constant (4.8) times the mean of Class A, 
+i.e. the two means are nearly linearly dependent. Thus, when 
+the algorithm tries to solve a linear system to arrive at the 
+least squares fit, it can easily classify 1 event of Class B as 
+about 5 of Class A. 
+unsuccessful due to extra or miss  errors. These results are 
+summarized in the final row of Table 1. Tables 8 and 9 
+include more details about the errors, broken down by 
+number of events in the composite and by class. It is 
+particularly interesting to note that 90% of events in Class B 
+were correctly identified, while a minimum of 7% in Class A 
+were correctly identified. This again indicates that many 
+failures were caused by several events of Class A replacing a 
+single event of class B (resulting in many extra errors for 
+Class A and a single miss  error for Class B). Note that it is 
+possible that an event of Class A was identified in every 
+composite that an event of Class A was present. The 
+minimum number correctly identified is a lower bound, 
+since in this analysis the number of errors resulting from 
+extra events is subtracted from the number of events 
+generated (leading to potentially negative numbers). 
+3.4 Discussion of Results 
+The preceding tests indicate that the ELMO algorithm is 
+very successful at classifying events in a composite profile 
+when the classes have certain properties. The classes must 
+have means that are linearly independent from one another. 
+In addition, the algorithm is most successful when intra-class 
+variance is low. Although the data of Test 3 appeared to be 
+suitable because of low intra-class variance, the near 
+dependence of the class means caused the algorithm to 
+perform unsatisfactorily. 
+Under most conditions, the algorithm correctly identified all 
+true delays within one sample period. Also, nearly all 
+composites were identified with at most one error. In 
+general, the number of miss and extra errors is more 
+significant than the number of misclassification errors. 
+Considering that misclassification errors must occur in pairs 
+(at least 2 per trial), misclassifications occurred in less than 
+4% of trials of types 1 and 2. 
+Class A mean The error correction step was implemented more frequently 
+with increasing intra-class variance of the data. Although the 
+percentage of successful implementations decreased (from 
+97% with 0 standard deviation to 29.7% with 15% standard 
+deviation), the percentage of successful classifications due 
+to this step increased (from 10% with 0 standard deviation 
+to 30% with 15% standard deviation). 
+1 -- c las s  B mean 
+I 
+1 
+1 
+I 
+I 
+, 
+2 0 6  
+0 2  
+, 
+10 20 30 40 50 60 
+time 
+Figure 9: Means of Class A and Class B are Nearly Linearly 
+Dependent 
+These observations are further reinforced by the error 
+counts. There were 693 extra errors, 262 m i s s  errors, and 
+106 misclassifications, indicating that most trials were 
+4-1973 
+Test Type 
+Test 1 
+(0 STD) 
+Test 2.1 
+(5% STD) 
+Test 2.2 
+(10% STD) 
+Test 2.3 
+(15%STD) 
+Test 3.1 
+(ClassA) 
+Test 3.2 
+(Class B) 
+Test 3.3 
+(A 8L B) 
+Total 
+Successes 
+997 
+845 
+656 
+542 
+974 
+950 
+391 
+, 
+&n All Tests 
+Error Types 
+Misclass- 
+ifications 
+Error Correction Step Avg. Time 
+per Trial 
+(ms ) 
+68.1 
+64.6 
+62.14 
+59.3 
+4.67 
+~ _ _  
+1 1 2 1  1 
+-41
+967 1 1000 I 286 1 184 66 I 58 1 33 
+950 I 1000 I 473 I 189 
+903 I 997 1 553 I '164 
+1000 I 1000 I 261 I 236 21 I 5 1 NA 
+1000 I 1000 I 264 I 215 38 I 12 1 NA 4.39 
+845 I 802 1 920 1 335 262 I 693 I 106 3.19 
+Table 2: Detailed Results from Test 2.1 5% STD 
+~~ 
+,4vg. Errors Per Trial 
+Avg. Correct 
+Trials 
+fications 
+Number of 
+Events in 
+Composite 
+~~~~ 
+95:::62 
+112 0.0714 0.0357 0.0357 96.4286 
+1 5  95.6204 
+96.6667 
+0.1429 97.9592 
+I 6 /  
+E 1 1 0 I 0 I 0 1 100.0000 
+Correct Classification 
+94.3 
+I 2 I 1124 I 123 1 :B9.1 
+I 3 I 1222 I 2 I '99.8 
+4-1974 
+3 I 724 I 0.1354 I 0.1519 I 0.0359 I 89.2265 I 
+Number of 
+Events in 
+Composite 
+Avg. Errors Per Trial 
+Number of Avg. Correct 
+Trials Misses Extras Misclassi- Events per Trial 
+fications 
+4 
+5 
+Table 6: Detailed Results for Test 2.3 15% STD 
+127 0.1811 0.1417 0.0630 90.3543 
+129 0.2016 0.2171 0.0388 90.8527 
+4-1975 
+6 
+7 
+9 0.2222 0.3333 0.2222 87.0370 
+10 0.10000 0.4000 0.1000 97.9592 
+9 1 0 0 0 100.0000 
+Class 
+1 
+2 
+3 
+Number Total Mini"% 
+Generated Errors Correct Classification 
+1100 163 85.2 
+1168 233 80.1 
+1190 1 99.9 
+Class 
+1 
+2 
+3 
+Number Total Mini"% 
+Generated Errors Correct Classification 
+1196 299 75 
+1108 242 78.2 
+1131 19 98.3 
+Number of 
+Events in 
+1 3  
+1 4  
+Table 8: Detailed Results from Test 3.3 Classes A and B 
+Avg. Errors Per Trial 
+ficaitions 
+2 1 0 1 0 1 0 1  100 
+818 I 0.2731 I 0.6565 I 0.0978 I 48.5941 
+130 I 0.2231 I 0.7154 I 0.1077 I 65.1282 
+50 I 0.1800 1 1.2600 I 0.:2400 I 58 
+Correct Classification 
+I 1 I 1141 1 1061 I 7 
+I 2 I 1087 I 106 I !?0.2 
+4-1976 
+4. CONCLUSIONS AND FUTURE IMPROVEMENTS 
+The ELMO algorithm provides a tool for classifying 
+multiple events that are not spatially or temporally separated 
+in a composite profile. This algorithm is conceptually simple 
+and can be executed in near real-time, with some prior 
+processing of known data. ELMO isolates approximate 
+event delays in addition to the requirement of computing the 
+number of events present fiom each class in a composite 
+signal. The algorithm performs well on data with linearly 
+independent class averages and small intra-class variance. In 
+trials reported in this paper, a 99.7% classification rate was 
+realized on simulated data with no intra-class variance. For 
+all trials on classes with distinct means and intra-class 
+standard deviation up to 15%, at least a 90% classification 
+rate with at most one error was realized. 
+There are several areas where ELMO can be improved. The 
+computation of the peak function is currently very heuristic 
+and may be improved by a more rigorous method of 
+determining C ( s )  . This could lead to better approximations 
+of the delays by providing steeper peaks with smaller 
+support for each class, resulting in a more accurate 
+approximation of the linear system to be solved. ELMO 
+could further be enhanced by taking advantage of known 
+information about the shape and magnitude of peaks 
+corresponding to individual event classes. If the peaks 
+corresponding to different classes are distinguishable, this 
+could diminish the size and complexity of the system to be 
+solved in Step 2, increasing both speed and accuracy of the 
+least squares fit. The effort required to utilize such 
+information would have to be balanced against the 
+performance gain. 
+In real applications, composite signals are not formed from 
+class average profiles, but of individual observations from 
+each class. The effectiveness of ELMO under such 
+conditions needs to be investigated, and further 
+modifications may be necessary to extend the algorithm’s 
+success. 
+ACKNOWLEDGEMENTS 
+The authors would like to thank Neil Endsley for 
+introducing them to the delay estimation step of the ELMO 
+algorithm. The authors would also like to thank Andres 
+Haralson for performing some of the testing of ELMO. 
+REFERENCES 
+[I] A. Ritter, A. Weisberg, T. Slusarchyk, J. Lisowski and B. 
+Hibbeln, “Transient Event Characterization”, 1999 IEEE 
+Aerospace Conference Proceedings, March 1999. 
+[2] S .  Hagerty, K. Ansar i  and A. Haralson, “Comparison of 
+Correlation, Distance, and Bayes Classifiers for the Near 
+Real-Time Discrimination of Battlefield Ordnance”, 1999 
+IEEE Aerospace Conference Proceedings, March 1999. 
+[3] S. Hagerty, C. Hilliard and A. Haralson, “Real-time 
+Discrimination of Battlefield Ordnance Using Remote 
+Sensing Data”, 2000 IEEE Aerospace Conference 
+Proceedings, March 2000. 
+[4] S. Hagerty, J. Draper, K. Blankenship, A. Haralson and 
+K. Ansari, “Real-Time Discrimination of Battlefield 
+Ordnance in Support of the WarFighter”, National Fire 
+Control Symposium, August 1999. 
+[5] A. Ritter, T. Slusarchyk, L. Rodriguez, J. Lisowski, S; 
+Hagerty, A. Haralson, C. Hilliard and B. Hibbeln, 
+“Performance Assessment of Transient Characterization 
+Algorithms For Staring Fast Framing Sensors”, 2000 
+Meeting of the MSS Specialty Group on Missile Defense 
+Sensors, Environments and Algorithms, vol. 11, 25-27 
+January 2000. 
+[6] J. Draper, Ninth DARPA Strategic Space Symposium, 
+October 1983. 
+a-1 977 
+[7] G. Klingenberg and J. M. Heimerl, “Gun Muzzle Blast 
+and Flash”, vol. 139, Progress in Astronautics and 
+Aeronautics, 1992. 
+[SI T. Hunt and S. Miller, USAF NAIC, WPAFB, July 
+1998. 
+[9] Personal conversation with Stan Rudman. 
+[lo] J. Hage, C. Baker, D. Sene, M. Sands, J. Draper, E. 
+Powers and R. Cody, USAF NAIC, WPAFB, November 
+1996. 
+[ll] D. Sene, K. Blankenship, M. Stamm, J. Draper, R 
+Cody and D. Lopes, Combat Identification Systems 
+Conference, April 1997. 
+[12] D. Fletcher, M. Nelson, R Cody and H. Evans, USAF 
+NAIC, WPAFB, May 1997. 
+[13] I. Schiller, D. McKay, J. Draper, J. Dennis, G. Clark, 
+K. Blankenship, R. Curtis, S. Hagerty and D. Sene, “Total 
+Battlefield Awareness by Detecting, Classifying, and 
+Reporting of Ordnance Delivery and Theater Missile Events 
+(U)“, National Fire Control Symposium, July 1997. 
+[14] S. Hagerty, C. Orlick, M. Diestel and J. Ray, “Eglin 
+Collect Final Report (U)”, Ball Final Report to SMDC, 
+October 1998. 
+[15] G. Bickley, S. Hagerty, T. O’Connor and J. Ray, 
+“WSMR Collect Final Report (U)”, Ball Final Report to 
+SMDC, 1999. 
+[16] G. B;ickley, S. Hagerty, T. O’Connor and J. Ray, Ball 
+Final Rejiort to NAIC, August 1998. 
+[17]R. Wilson, A. Calway and E. Pearson, “A Generalized 
+Wavelet Transfoim for Fourier Analysis: The 
+Multiresolution Fourier Transform and Its Application to 
+Image and Audio Signal Analysis”, IEEE Transactions on 
+Information Theory, vol. 38, no. 2, March 1992. 
+[ 181 S. Charleston, M. Azimi-Sadjadi and Ramon Gonzalez- 
+Camarena, “Interference Cancellation in Respiratory Sounds 
+via a hfultiresolution Joint Time-Delay and Signal- 
+Estimation Scheme”, IEEE Transactions on Biomedical 
+Engineering, vol. 44, no. 10, October 1997. 
+[ 191 Comon, Pierre, “Independent Component Analysis, A 
+New Concept?”, Signal Processing, vol. 36,287-3 14, 1994. 
+[20] C. Chang, S. F. Yau, P. Kwok, F. Chan and F. IC. Lam, 
+“Uncorrelated Component Analysis for Blind Source 
+Separation”, Circuits Systems and Signal Processing, vol. 
+18, no. 3,225-239, 1999. 
+[21] K. I’orkkola, “Blind Separation of Delayed Sources 
+Based on Information Maximization”, Proceedings of the 
+IEEE Intemational Conference on Acoustics, Speech & 
+Signal Processing, Atlanta; May 7-10, 1996. 
+[22] J. Sammon, “An Adaptive Technique for Multiple 
+Signal Detection and Identification”, Defense Technical 
+Information Center Technical Report No. RADC-TR-67- 
+260, August 1967. 
+[23] R Bmcewell, The Fourier Transform and Its Applications, 
+McGraw Hill, New York, 1978. 
+[24] R. Gonzales and P. Win@ Digital Image Processing, 
+Addison-Wesley, Reading, MA, 1987. 
+[25] G. (iolub and C. Van Loan, Matrix Computations, 
+Third Edition, Johns Hopkins University Press, Baltimore, 
+1996. 
+1 _ -  
+I 
+Jeanne A. Atwell received a B.S. 
+degree in Mathematics fi-om the 
+University of North Carolina at 
+Charlotte in 1995, a M.S. degree 
+fi-om Oregon !state University in 
+1997, and a Ph.D. in Applied 
+Mathematics at ’Virginia Polytechnic 
+Institute and State University in 
+2000. Her research has included 
+work in (computational mathematics, development of low 
+order control system:$, and partial differential equations. She 
+is currently working at Ball Aerospace & Technologies 
+Corp. in the areas of signal processing, algorithm 
+development and integrated modeling. 
+II 
+Susan P. Hagerty received the B.S. 
+degree in Ekctronic Engineering 
+from the University of Vermont in 
+1981 and the M.S. degree in 
+Electronic Engineering from the 
+University of Colorado in 1987. 
+Starting in 1981, she spent five years 
+working at Hewlett Packard 
+developing next-generation spectrum 
+analyzers. Since completing her - -  
+Masters degree, she has worked at Ball Aerospace & 
+Technologies Corporation in the S o h e  & Signal Processing 
+group. Her research interests include pattern recognition, 
+detection and estimation, target tracking, and data compression. 
+[26] W. Press, S. Teukolsky, W. Vetterling and B. Flannery, 
+Numerical Recipes in C: The Art of Scientific Computing, 
+Second Edition, Cambridge University Press, Cambridge, 
+1988. 
+4-1978 

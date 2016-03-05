@@ -1,0 +1,475 @@
+\ 
+Distributed Scheduler for High Performance 
+Data-Centric Systems 
+Sushant Goelf Hema Shards' David T a n i d  
+‘.’School of Electrical and Computer system Engineering. Royal Melbourne Institute of Technology, Australia 
+’Email: s2013070@student.rmit.edu.au 
+‘Email: hema.sharda@rmit.edu.au 
+3School of Business System, Manash University, Australia 
+Email: David.Taniar@infolechmonashedu.au 
+. .  
+Abstract-Amount of data stored in enterprises are 
+increasing rapidly. Volume of data stored in database is 
+approaching to terabyte size. Response time is directly 
+proponional to the amount of data in databases. 
+Requirement of fast response time under these 
+circumstances have motivated the research of Parallel 
+Database Systems (PDS) during last decade. Despite 
+distribution of data in PDS to various Processing Elements 
+(PE), concurrency control algorithms uses centralized 
+scheduling approach. This approach has inherent weakness, 
+under heavy load conditions, such as - big lock table, more 
+number of messages in the system, central overloaded 
+scheduler. I n  this paper we distribute the scheduling 
+responsibilities to the nodes where data is actually located. 
+We also propose a new serializability criterion, Parallel 
+Database Quasi-Serializability, to meet these requirements. 
+1. INTRODUCTION 
+High performance database systems are a necessity for 
+today’s enterprise, as the amount of data is spanning to 
+terabyte (10’’ bytes) sizes. Processing of transaction takes 
+longer as the sire of d a t a h e  grows. PDS research was 
+motivated to meet the requirements of Very Large Databases 
+-volume of data spanning to terabyte size [2]. 
+Consistcncy of data is one of the key issues to be considered 
+in  any database system: In this paper we address the problem 
+of concurrent execution of transactions in parallel database 
+systems. Traditional concurrency control technique (e.g. 
+lock, timestamp) uses single scheduler architecture to 
+achieve the consistency of the database system. Single 
+scheduler approach [2,9] has weaknesses, like -big central 
+lock table, more number of messages in the system, wastage 
+of abundant computing resources available etc. 
+In this paper we argue a multi-scheduler architecture that 
+distributes the scheduling responsibilities to the respective 
+nodes where the data is located. But, in doing so the 
+correctness of data and consistency of the database is 
+threatened, as we will see in section 3. Thus a correctness 
+criterion that meets the requirement of multi-scheduler 
+environment is needed. We formulate these requirements 
+and propose a new correctness criterion. Parallel Database 
+Quasi-Serializability (PDQ-Serializability). We then 
+demonstrate the correctness of the proposed criterion. 
+In the next section we briefly discuss about transactions. 
+Section 3 shows how the properties of a transaction can vary 
+in multi-scheduler environment. The correctness measures 
+are proposed for this distributed scheduling environment in 
+section 4, and we conclude in section 5 .  Since, distributed 
+scheduler uses multiple schedulcrs at various PE 
+simultaneously. we will be using distributed scheduler and 
+multi-scheduler interchangeably. 
+2. TRANSACTION: AN OVERVIEW 
+First we will define few terminologies that will he used in 
+the paper and then we will present an overview of PDS. 
+A transaction Ti is a set of read (6). write (wJ. abort (q) and 
+commit (G). Ti is a partial order with ordering relation < 
+where: 
+I) T;L ( r ; [ ~ ] , w ; [ ~ ] ~ * i s a ~ a t a i t e m )  U ( n ; . c , )  
+2) ai E T, iff ci qi T, 
+3) If t is ai or ci. for any other 0peration.p E T,. p < t 
+4) If r, [XI. wi [XI E Tj3 then either r, [XI <; wi [XI or w; 
+[XI <; r i [ * ] .  
+A complete histov (or schedule) H over T (let, T be set of 
+transactions, T = [ T I ,  T2, . . . T,, t )  is a panial order with 
+ordering relation < where 191: 
+1) H =  U!., T;; 
+2) +,,l U’;=, <{;and 
+. P < H ~ ~ ~ ~ < I I P .  . 
+3) For any two conflicting operations p, q E  H ,  either 
+b7803-76CI-XIO1lB17.00 0 2003 E€€ 
+TENCON 2003 11  sa 
+A history H i s  Serinlizable (SR) i f  ils committed projection, 
+C(HJ. is equivalent to a serial execution H, [91. 
+A database history H ,  is  serial [9] iff 
+( 3 p E  T , .  3 q €  T,suchthatp<.,  q ) t h e n ( ' d r E  T., 
+'ds€ Ti,r<,,s s). 
+3. TRANSACTION IN PARALLEL DATABASES 
+Many organizations and industries. e.g. telecommunications, 
+banking. airline. process control etc., rely on effective and 
+correct processing of data. With increasing volume of data, 
+need for high performance Database Management Systems 
+(DBMS) have been realized. Parallel DBMS, distributed 
+DBMS, multi-DBMS are few of the endeavors towards high 
+performance DBMS. In this research we focus on parallel 
+DBMS. Details of other system could be found elsewhere 
+[6.10,41 
+Parallel database systems architecture could be divided in 
+three major categories. Different strategies are used for data 
+and memory management in multiprocessor environment to 
+meet specific requirements. In shared memory architecture 
+p.71 processors have direct access to the disks and have a 
+global memory. This architecture is good for load balancing. 
+In shared disk archilectrire [2,7] processors have direct 
+access to all disks but have private memory. Shared-nothing 
+archirecrure (2.5.71 has individual memory and disk for each 
+processor. called processing element (PE).  
+Interconnectinn Network 
+Figure 1. Shared Nothing PDS 
+The main advantage of shared-nothing multi-processors is 
+that they can he scaled up to hundreds and probably 
+thousands of processors, for detailed discussion and 
+comparison between these architectures see [ I .  2, 5 ,  7. 81. 
+Scalability i s  an imponant characteristic for a system that 
+handles large amount of data. Hence, we have chosen shared 
+nothing architecture for this study. 
+In the literature we could not figure out any architecture that 
+delegates the scheduling responsibilities to the PES. Almost 
+all architecture considers either centralized scheduler 01 
+decentralized scheduler that still manages a part of central 
+scheduler [9. IO. 41. Whereas, in our work we intend to 
+totally delegate the scheduling responsibilities to the 
+respective processing elements. Under this condition the 
+concurrency control algorithms developed for single 
+schedulers may not be directly migrated to the proposed 
+multi-scheduler environment. We demonstrate the problem 
+by the following example. 
+Consider two PE and four data objects (O,, 02. O?, 0,). The 
+two P E S  are denoted as P, and P2. Say, the data objects are 
+located as follows: 
+Pi = 0,. o2 
+P2 = O.?,O, 
+Now, consider two transactions are submitted to the 
+database as shown below. 
+T,  = r d 0 J  rdO?J wlfO.J wAOd Ci 
+n = rdOd d0d w d 0 J  wd0,J C, 
+Each transaction is divided into subtransactions according to 
+the location of data objects. From T,  and T, following 
+subtransactions are obtained: 
+TI ,  = n,(O,) r,i(O2J w d o d  Ci, 
+T?, = od0d WdOi) GI 
+T7? = r d 0 . d  w2d04)  C, 
+T n  = w , d W  CE 
+Ti, and TI? are read as subtransaction of transaclion 1 at PE, 
+and subtransaction of transaction I ai PE, respectively. 
+Assume. the following histories are produced by the local 
+scheduler at the processing elements: 
+H I  = r,LOJ r,,(O>J wdO,IC,,  r d O d  W d O J  
+H2 = r d 0 i J  w2dOJ C22 wd0.i CE 
+H, and H 3  are history at PE, and PE2 respectively. Both the 
+local scheduler produces serializable history with following 
+serialization order: 
+Scheduler I :  schedules transaction I < transaction 2 
+Scheduler I :  schedules transaction 2 < transaction I 
+The two serialization orders are contradictory. Although 
+individual schedulers generate serial history the combined 
+effect produces a cycle Tl+T2+T,. Thus, the 
+responsibility of scheduler at each PE is much more than 
+that of a single scheduler. Hence, we conclude that the 
+concurrency control strategies applicable to single scheduler 
+may not be migrated in its present form to multi-scheduler 
+environment. 
+4. DISTRIBUTED SCHEDULER A CHITECTURE 
+In this section we show the architecture we assume for our 
+work. Shared nothing architecture has been considered for 
+this study as mentioned in section 2. For the sake of 
+pedagogical simplicity we assume, without loss of 
+generality, only two PE in the system. We also assume that 
+individual PE is capable of producing serializable schedule. 
+Fig. 2 shows the general architecture of a multi-scheduler 
+environment. This architecture differs from the traditional 
+single scheduler architecture in two ways. First. it reduces 
+the load from the traditional single scheduler and replaces it 
+with mere splitter. Second, it increases the responsibility of 
+Computer Systems and Architecture / 1 159 
+local schedulers of each PE to achieve consistency of the 
+PDS from glohal perspective. 
+than one transactions access multiple PES simultaneously. 
+Some additional criterion has to be enforced to ensure multi- 
+scheduler concurrency control in addition to subtransaction 
+level granularity. The additional criterion we enforce is the 
+concept of total-order [6]- for any two transactions T, and 
+q. if T. precedes Ti at any PE then all of Tt's operations 
+precede T,'s operations in all PES in which they both appear. 
+This concept is also reported as quasi-serialimbiliry~bility in the 
+r\ S P L I T E R  2 .  J 
+Figure 2. Distrihuted Scheduler Architecture 
+Major parts of this architecture are explained below: 
+a) Splitter: splitter contains the information regarding the 
+data allocated to the processing elements and splits the 
+transaction into multiple suhtransactions depending on 
+data location. In centralized scheduling strategies this 
+part of the system is the central scheduler and has the 
+responsibility of achieving correct schedules. Thus, all 
+the lock information has to be stored at a central place, 
+making it ditlicult to manage under heavy workload 
+conditions. We distrihute the responsibility of scheduling 
+to the respective PE. In rest of the paper scheduler will 
+always refer to the scheduler at any specific PE and not 
+to the centralized scheduler, unless otherwise specified. 
+b) Processing Elemenis: FE contains a processor, a 
+memory and a fragment of database as discussed in the 
+shared nothing archtecture in section 2. 
+c) Scheduler: We increase the responsibility of 
+individual schedulers at the sites. Our motive behind 
+doing this is to use the abundant computing resource 
+available at the individual sites and avoid centralized 
+overloading of any particular site. Schedulers are 
+responsible for generating serializable schedule, not only 
+site-specific but from global perspective. 
+d) Tmnsaclions: Definition of transaction is exactly 
+literature. Next we propose an algorithm that uses 
+rimesramps (TS) and enforce total-order in the schedule to 
+ensure multi-scheduler serializahility. We name the 
+serializability theory formally as Parallel Dntobnse Qeasi- 
+Serializabiliry (PDQ-serializahilityj. Total-order is required 
+only for those simultaneous conflicting transactions that 
+accesses more than one PE being accessed by other active 
+transactions, The following definition states the correctness 
+criterion for PDS. 
+Definirion I :  A Multi-Scheduler Serial (MS-Serial) history 
+is considered correct in parallel database system. A history 
+is MS-Serial i f f  
+1. Every PE produces serializable histoiy and 
+2. Any transaction having more than one suhtransaction 
+i.e. accessing more than one PE, executes the 
+transaction according to total order. Total order for 
+two transactions T, and can be defined as - if 7, 
+precedes T, at any PE then all of 7,'s operations 
+precede 7;'s operations in all PE in which they hoth 
+appear. I 
+The second condition is similar to rluaSi-serioliiubilil~. 
+Hence, we name the correctness criterion as Parallel 
+Database Quosi-Serialiiability. 
+Definition 2: A history in multi-scheduler environment is 
+PDQ-serializable iff it is equivalent to a MS-Serial history 
+(definition of equivalence ( = )  from 191, page 30). 
+Correctness of schedules.can be achieved by using the 
+Parallel Database Quaii-Seriali7,ability (PDQ- 
+serializabilty) graphs. Only the committed projection 191 of 
+the history C(H)  is considered in the definition. The 
+following definition describes the PDQ-serialiaability graph. 
+I 
+same as that of single processor envi~onment, as ~ ~ f i ~ i t i ~ ~  3: A  any given instance, histories of all the 
+explained in section 2. schedulers at each PE can he represented using a directed 
+Distribuled Scheduler Concurrency Control 
+The motivating example shows that although, individual 
+schedulers produce serial histories, the glohal view is non- 
+serializahle under certain conditions (these conditions are 
+discussed in the algorithm). Thus, we conclude from the 
+motivating example that operation level concurrency control 
+cannot ensure a serializable schedule to be produced in 
+multi-scheduler environment. Even, subtransaction level 
+granularity in itself is not sufficient to produce serializable 
+schedule. The history becomes non-serializahle when more 
+'graph defined with the ordered three: (TI. T", A). The 
+graph would he referred as Multi-scheduler Serinliznbility 
+Graph (MSG). 
+1. TI: set of labelled vertices representing transactions 
+wlth one subrmnsaction. 
+2. T" : set of labelled vertices representing transactions 
+with more than one subtransaction. 
+3. A is the set of arcs representing the ordering of 
+transaction in each PE. I 
+In rest of the paper we would only consider transaction 
+TENCON 2003 / 11 60 
+having more than one suhtransaction and denote that as T, 
+Transactions with single suhtransaction are taken care by the 
+individual PE and do not pose any threat to the concerned 
+problem. Based on the definition of MSG we next formalize 
+the following theorem. 
+Theorem 4: A history in multi-scheduler environment is  
+PDQ-Serializahle iff MSG i s  acyclic, 
+Proof (if): Let us assume without loss of generality that the 
+committed history C(NJ consists o f  the set [ T, T, 
+T, T2. .... T, are transactions with more than one 
+sublransaction. We assume' that all processing elements 
+always schedule transactions in senalizahle order. The n 
+veilices of  the MSG ([T,, T, ..., T,,)) are acyclic and thus i t  
+may be topologically sorted (definition o f  topologically 
+sorted from [9]). Let T(,, T;2. . . .. Ti,, he a topological sort of 
+the multi-scheduler history for permutation of 1, 2, .,., n. 
+Let the MS-serial history be T;, C2, ..., Ti,,. We show that: 
+C(HI I MS-serial. Let PE C and YE Ti and p and q conflict 
+such that p i,, q. This means an arc exists in the MSG from 
+T; to q. Therefore in any topological son of  multi-scheduler 
+history T, precedes Tp Thus, all operaiions o f  T, precede a l l  
+Operations o f  ?; in any topological sort. Thus C(H)= MS- 
+serin1 and from Definirion-2 the history H i s  PDQ- 
+serializable. 
+(only 8: Suppose a history H i s  PDQ-serializable and let Hi 
+be a MS-serial history equivalent to H. Consider an arc 
+exists in the MSG. Tj to T, This implies there exists two 
+conflicting operations PE T, and q E  ?;,such thatp+, q a t  
+some PE,. This condition i s  valid as both operation conflicts 
+at the same PE;. Since, H.,=H, all operations of T; occur 
+before T, a1 lhat specific PE. Suppose there is a cycle in 
+MSG. T h i s  implies at any other PE,. T,<T, in MS-serial 
+history But T, i s  known to precede at PE,, which i s  
+conrradicrory to the earlier assumption. 
+To implement and achieve this serializability we make use 
+o f  following functions: 
+I. Splir-rmns(TJ: This function takes the transaction 
+submitted to the splirrer as parameter and returns a 
+set of  subtransactions that access different PES. 
+2 .  PE-accessed(T,): This function also takes the 
+transaction as parameter and returns the set of  PES 
+where the subtransactions for 
+3. Acrive-rrans(PE): This function takes the processing 
+element as parameter and returns the set of 
+transactions that have an active subtransaction 
+executing at that PE. 
+4. Cordinaliry(J: Thc function can lake any set as 
+parameter and returns the number of elements in that 
+ret. 
+5 .  Append-TS(Subrrarisncr;on): sublransaction of a 
+transaction C i s  the argument for the function and the 
+function appends a rimerramp (TS) to the 
+subtransaction. All the subtransaction of a transaction 
+will have same TS value. 
+are executed. 
+Working of the Timestamp based Multi-scheduler 
+Concurrency Control algorithm is  explained below: 
+Srep I :  As soon as the transaction arrives at the splitter, 
+Splir-rrans(TjJ splits the transaction into multiple 
+subtransactions according to the allocation of  data to 
+various PES. 
+Srep 2: If there i s  only one suhtransaction required by the 
+transaction, the transaction can be submitted 10 the 
+PE immediately without any delay. As discussed 
+earlier, the transaction with only one'suhtransaction 
+can never conflict with other transactions. 
+Srep 3: If multiple subtransactions are required by the 
+transaction. the splirrer appends a timestamp with 
+every subtransaction before submitting it to the 
+corresponding PE. 
+Step 4: If there are active transactions which access more 
+than one o f  the PES accessed by the transaction being 
+scheduled then,the subtransactions are suhmitted to 
+the PE's queue. The subtransactions from the queue 
+are executed strictly according to the timestamps. 
+Srep -5: If no overlapping i s  present then the subtransactions 
+can be submitted to the PES and can be scheduled 
+without any delay. If the subtransaction cannot he 
+scheduled because the PE is  busy in processing other 
+request then the subtransaction i s  send to the Quese 
+and executed according to the timestamp. 
+Srep 6: Subtrmsactions from srep-2 can be assumed lo have 
+lowesi timestamp value e.g. 0 and can he scheduled 
+immediately. 
+Srep 7: When a11 subtransactions of  any transaction 
+complete the execution at all the sites. the transaction 
+commits and i s  removed from Acrive-rmns(PEJ l ist. 
+, 
+Correcrness of Multi-scheduler Concarrency Control 
+The correctness of the model is  proved through Lemmes and 
+theorems. The model assumes. without loss of  generality. 
+that each PE is capihle of producing serializahle schedule 
+(Proposition-5) and PE's ,voir-qaeue schedules the 
+subtransactions strictly according to their timestamps. 
+Proposition 5: All processing elements always schedule a l l  
+transactions in serializable order. 
+Proposition 6: Splirrer submits the subtransactions to the 
+Queue of PE i f  active transactions access more than 
+common database. 
+This ensures that the conflicting transactions arc 
+executed according lo the timestamp value to ensure the 
+PDQ-serializahle execution of the multi-scheduler system. 
+The following Lemma proves this. 
+Lemma 7: For any two transactions C, ?; scheduled by the 
+algorithm. either all of. 7';'s subtransactions are executed 
+before at every PE or vice versa. 
+Pro@ There are three cases to he considered. 
+Case - l J  A rransaclion reqrrires only single 
+subfransacrion (SC). The suhtransaction i s  submitted 
+Computer Systems and Archifecture / 11 61 
+immediately as shown in the algorithm flow chart. From 
+proposition S it follows @at any other subtransaction ST,€ T, 
+either precedes or follows ST,. 
+Case-2) A rrnnsnclion T, splifs info mulriple 
+subrronsocrions bur accesses only one P E  accessed by other 
+acfivr franmcfion. Step 5 of the algorithm checks for the 
+above-mentioned cnndition and the subtransaction is 
+submitted to the PE immediately with a timestamp. The 
+timestamp will he used for case-3. Consider two active 
+transactions that overlap only at one PE. Since they overlap 
+at only one PE, Proposition-5 ensures lhal the transactions 
+would he ordered in a serializable way. 
+Case-7) A fra~nacrion T, splirs info mulriple 
+subrrmnnctions and nccesse~ more rkan one PE accessed 
+by orher ucrive framncfiort: Under this condition schedulerr 
+at PES may schedule the transactions in conflicting mode. 
+To avoid this conflict we submit the transactions in the PES 
+wnir-queue instead of scheduling it immediately 
+(Proposition-6). The transactions in the wnir-queue are 
+executed strictly according to the timestamp order. 
+Say. transaction T, has two subtransactions Ti, and Ti2 
+already executing at PE, and PE*. When Tj arrives and it 
+also has q, and Ti2. Then srepd fails and the subtransactions 
+are submitted to the wait-queue at each PE. Assume that the 
+timestamp of Ti. TS(TJ < TS(Tj). Timestamp is appended 
+to the subtransactions of 7; and 5 during the execution of 
+step-4. Then T, will precede T; at both the sites because the 
+transactions are scheduled strictly according to the 
+timestamp value. thus avoids execution of incorrect 
+schedules. . 
+Theorem 8: The Timestamp based Multi-scheduler 
+Concumncy Control algorithm presented produces PDQ- 
+serializable histories. 
+Proof; All PDQ-serializable histories can he shown by 
+acyclicity of multi-scheduler serializability graph, as 
+demonstrated by Theorem 4. Thus, we will show that the 
+proposed algorithm avoids cycle in the MSG. 
+Without loss of generality, consider that there is a sequence 
+of arcs from T, + T2 + . . . + T,. This implies that there 
+exists an operation of subtransaction Tjkc TI that precedes 
+and conflicts with an operation of T,*E T,, at any particular 
+processing element, say PEk. For a cycle. another sequence 
+of arcs must exist. from T,, + T,,~,+ ... +.  T,. Two 
+possibilities can exist due to this sequence. (I) An operation 
+of T& T,, precedes and conflicts with an operation of Tirc 
+T,  at the same PEk. This contradicts Proposition 5. (2) An 
+operation of some other subtransaction T,jc T,, a1 another 
+. PE1 precedes and conflicts with an operation of T,{E T,. 
+This contradicts Lemma 7. 
+e. 
+5. CONCLUSION 
+With increasing amount of data in today's enterprise, load 
+on centralized scheduler of a database is also increasing. 
+Centralized schedulers are unable to meet the requirements 
+under heavy loading conditions. We investigated the 
+possibility of multi-scheduler architecture and found that 
+single scheduler concurrency control algorithms may not 
+meet the requirements of multi-scheduler architecture. The 
+notion of'conflict serializability is insufficient of producing 
+correct schedule and a new serializability criterion is 
+required for multi-scheduler approach. We discuss the PDQ- 
+serializability and propose an algorithm that guarantees 
+PDQ-serializable schedules. In future we intend to reinforce 
+the algorithm with recovery procedures that can handle 
+system failure and maintain the consistency of data. 
+REFERENCES 
+(11 A. Bhide, "An Analysis of Three Transaction Processing 
+Architectures", P~-oceedi,igs of 14'" VLDB Confererzcc, 339- 
+350, 1988. 
+[2]  D.1. DeWitt, I. %ray. "Parallel Database Systems: The 
+Future of High Performance Database Systems", Comm of 
+the ACM35(6) ,  85-98. 1992. 
+131 1. Gray, A. Reuter. Tranrnction Processing: Conceprs 
+and Techniques, Morgan Kaufmann, 1993. 
+141 M.T. Ozsu and P. Valduriez. editors. Principles Gf 
+Disrribured Dafabare Sysrems (Second Edition). Prentice- 
+Hall, 1999. 
+[SI M. Stonebraker. "The Case for Shared-Nothing", IEEE 
+Dola Engineering 9(I),  4-9, 1986. 
+[6] K. Barker, "Transactipn Management on Multidatabase 
+Systems", PhD thesis. Department of Computer Science. 
+The university of Alberta, Canada. 1990. 
+171 P.  Valduriez, "Parallel Database Systems: The Case For 
+Shared Something", Proceedings of rhe hilernorionnl 
+Corlference on Darn Engineering. 460-465, 1993. 
+[8j P. Valduricr, "Parallel Database Systems: Open 
+Problems and New Issues'', Disrribetcd arid Pnrallel 
+Databases 1. 137.165, 1993 
+191 P. A. Bemstein, .V. Hadzilacos, N. Goodman, 
+Concurrency Control and Recovery in Darnbare Sysfcnts, 
+Addision-Wesley, 1987. 
+[IO] T,Oisu, P.Valduriez. "Distribitred and Pnrnllel 
+. '  
+Dnrabase Sysrem". ACM Computing Sime.vs 28(1). 125- 
+128, 1996. 
+[ I  I ]  T:W. kuo, I. Wu, H.-C. Hsih. "Real-time concurrency 
+control in multiprocessor environment",lEEE Tram, 
+Pnralfelond Disr. Sys. 13(6). 659-671, 2002. 
+[I21 S.D.Chen; H. Shen; R. Topor. "Permutation-based 
+range-join algorithms on N-dimensional meshes", Pnrnllrl 
+at& Disl. Sys., IEEE Trans 13(4),413-431, '02. 

@@ -1,0 +1,747 @@
+A Highly Reliable Broadcast Scheme for IEEE 802.11 Multi-hop Ad Hoc Networks
+Shiann-Tsong Sheu†, Yihjia Tsai‡, and Jenhui Chen‡
+†Department of Electrical Engineering,
+‡Department of Computer Science and Information Engineering,
+Tamkang University, Tamsui, Taipei, Taiwan, R.O.C.
+E-mail: stsheu@ee.tku.edu.tw; jenhui@tkgis.tku.edu.tw
+Abstract—In wired networks, the broadcast data packets can be
+easily and safely delivered to destinations. Nevertheless, it is a big
+challenge to transfer the broadcast frames over the IEEE 802.11
+based multi-hop ad hoc wireless networks due to the high bit error
+rate, the high collision probability, and the lake of acknowledge-
+ment (ACK). Unfortunately, most of routing protocols need the
+broadcast function to exchange important information between
+nodes. From our observations, the efficiency of the routing proto-
+col, such as DSR and AODV, finding the path from source to des-
+tination is strongly depending on the supported broadcast scheme
+in the underlying media access control (MAC) protocol. In this
+paper, we will first investigate the uncertain broadcast problem
+in the IEEE 802.11 MAC protocol while delivering the necessary
+broadcast frames. Since no acknowledgement will be sent by any
+recipient of the broadcast frame in IEEE 802.11 MAC protocol, we
+will propose a highly reliable broadcast scheme to solve such un-
+certain problem. The proposed scheme, which is still compatible
+with standard, can efficiently minimize bandwidth consumption as
+well as propagation delay.
+Index Terms— ad hoc, broadcast, multicast, MAC, RTS/CTS,
+WLANs, MANET.
+I. INTRODUCTION
+Ad hoc wireless networks are constructed by several mo-
+bile handsets or laptops and characterized by multi-hop wire-
+less connectivity, constantly changing network topology and
+the need for efficient dynamic routing protocols. There is no
+stationary infrastructure or base station to coordinate packets
+transmissions and advertise the information of network topol-
+ogy. According to these characteristics, each mobile node in
+the multi-hop ad hoc networks must act as routers, relaying data
+packets to their neighboring mobile nodes. Since network re-
+source is limited, any transmission will interfere the neighbors
+which also have packets to transmit in the same radio channel.
+In order to route packets to all members in the network, one of
+the main actions of a mobile node is the dissemination of con-
+trol messages to all other nodes that share the same physical
+channel. This procedure is known as intra-team broadcasting
+and is discussed in [8]. The existence of a reliable and resource-
+efficient broadcast protocol in a multi-hop ad hoc wireless net-
+work is indispensable due to the increased amount of circulating
+control information.
+Wireless applications are becoming popular for high-speed
+communications in some areas, where wiring for conventional
+networking is difficult or not economic. The IEEE 802.11 stan-
+dard provides detailed medium access control (MAC) and phys-
+ical (PHY) layer specifications [5] for wireless local area net-
+works (WLANs). A mobile ad hoc networks (MANET) work-
+ing group [9] has been formed within the Internet Engineering
+Task Force (IETF) to develop a routing framework for IP-based
+protocol in ad hoc networks.
+In conventional networks, there are many kinds of data
+needed to be transmitted by using broadcast method, e.g., ad-
+dress resolution protocol (ARP), routing information exchange,
+and advisement messages, etc. Any network node needs ARP
+to retrieve the MAC address information of other network node
+with a particular IP address or vice versa. The ARP packets are
+broadcasted to achieve this goal. Lack of this scheme, nodes
+may fail to reach the others due to insufficient network infor-
+mation. Besides, there are many routing protocols using broad-
+cast approach to perform their routing procedure. For example,
+the dynamic source routing (DSR) protocol [6] and ad-hoc on-
+demand distance vector (AODV) protocol [10], [11] are two fa-
+mous routing protocols for multi-hop ad hoc wireless networks.
+Both of them are on-demand routing protocols and are basing
+on the concept of source routing. To perform the route discov-
+ery, the source mobile node broadcasts a route request (RREQ)
+packet that is flooded through the network in a controlled man-
+ner and is answered by a unicast route reply (RREP) packet
+from either the destination mobile node or another mobile node
+that knows a route to the destination. Obviously, the correctness
+of the DSR and AODV protocols are relying on the efficiency
+of the broadcast scheme in the MAC protocol.
+In IEEE 802.11 MAC protocol, regardless of the length of the
+broadcast frame, no request-to-send (RTS) and clear-to-send
+(CTS) exchange shall be used. In addition, no acknowledge-
+ment (ACK) shall be transmitted by any recipients of the broad-
+cast frame. Therefore, source node has no idea about the status
+of the transmitted broadcast frame. In DSR and AODV pro-
+tocols, the request will be blocked if its source node has not
+received a valid route within route discovery timeout. Once
+the route discovery timeout is up, it is very hard to tell the
+timeout is caused by no path exists or resulted from losing
+RREQ broadcast frame. Consequently, the reactive nature of
+on-demand routing protocols can not obtain any benefit from
+saving bandwidth than traditional proactive protocols. Hence, it
+is desired to design an efficient and reliable broadcast transmis-
+sion scheme for the IEEE 802.11 MAC protocol to realize the
+multi-hop ad hoc wireless networks. The problem of designing
+an optimal broadcasting protocol so that bandwidth consump-
+tion or time delay are minimized has been proved as NP-hard in
+[1], [2]. We therefore resort to heuristics, aiming at providing
+upper bounded performance with respect to these metrics.
+The remaining of this paper is organized as follows. At first,
+in Section II, we describe the uncertain broadcast problem in
+610
+0-7803-7400-2/02/$17.00 © 2002 IEEE
+Multi-hop MANET. In Section III, we present the proposed
+broadcast transmission scheme for IEEE 802.11 wireless net-
+works. Some of simulation models and results are defined and
+given in Section IV. Finally, some conclusions and discussions
+are presented in Section V.
+II. UNCERTAIN BROADCAST PROBLEM IN MULTI-HOP
+MANET
+In the IEEE 802.11 Standard, the broadcast frame and the
+RTS frame are sent using same physical carrier sensing. They
+are transmitted only when the sensed channel idle time reaches
+the DIFS period as mentioned above. The key distinguishing
+feature of broadcast frames in wireless link is the lake of ac-
+knowledgements. Since the IEEE 802.11 WLAN adapter is
+designed as half-duplex mode, sender can not detect the col-
+lisions on its broadcast frame. This incurs a server problem
+for all protocols or applications which need broadcast control
+frames to retrieve useful information from networks. For ex-
+ample, the DSR and AODV protocols need broadcast RREQs to
+perform route discovery procedure. We can imagine that as the
+RREQ frame travels from a source to various destinations, the
+frame loss probability (without recovering) is proportional with
+the number of hops in its journey. Even though some RREQs
+are fortunately surviving after passing a number of consecutive
+contentions, the available paths by receiving the RREP frames
+from either destination or intermediate node which has the valid
+route to destination may not include the best route. This means
+that such routing protocols will work well in wireless network
+under the constrain that any node can successfully detect neigh-
+bors’ broadcasts without loss as in the wired networks. Unfor-
+tunately, to apply such routing protocol for IEEE 802.11 based
+multi-hop ad hoc networks requires the IEEE 802.11 protocol
+providing reliable broadcasting. In the following section, we
+will propose a simple and efficient reliable broadcast scheme
+with limited bandwidth consumption to overcome the uncertain
+broadcast problem.
+III. RELIABLE BROADCAST TRANSMISSION SCHEME
+If the radio link between two neighboring nodes is symmet-
+ric, the broadcast sender will successfully receive the identical
+broadcast frame sent from its neighbor in the near future if the
+initial broadcast is success. Based on this concept, one way
+of a mobile node to recognize if its broadcast transmission is
+successfully received by all its neighbors can be accumulating
+the number of the same broadcast frames rebroadcasted from
+neighbors within a specified observing window. Nevertheless,
+how to give an appropriate observation window becomes an is-
+sue. A shorter observation window will cause excessively re-
+dundant rebroadcast overheads. On the other hand, a longer
+observation window will slow down the flooding speed. The
+CSMA/CA protocol assuming nodes contending channel in a
+distributed manner, it is very hard to measure a precise delay of
+each transmission to help determining the observation window
+size. Therefore, we propose an efficient duplicated broadcast
+scheme, which does not need the observation window, in the
+following subsection.
+SIFS
+DIFS
+BACK Window
+RTS/BROADCASTBROADCAST
+begin to receive
+the BACKs from
+neighbors
+end of receiving
+BACKs from
+neighbors
+#
+#: collision
+Fig. 1. An illustration of the BACK scheme.
+A. Duplicated Broadcast Scheme
+Upon a node successfully transmitting a broadcast frame,
+all the recipients of this frame will forward it as fast as they
+can. Unfortunately, it is quite often the neighbors of a node can
+hear each others in wireless LANs. Hereafter, the expected se-
+vere contentions will make the following broadcastings fail. In
+the IEEE 8021.11 MAC protocol, each broadcast frame will be
+transmitted once in a mobile node, the flooding may not cover
+all members in the ad hoc wireless networks. The simple way
+of enlarging the flooding area (flooding fraction) is to increase
+the number of transmissions of a broadcast frame in every mo-
+bile node. If each node transmits a broadcast frame twice, the
+flooding fraction will become higher than that with single trans-
+mission. In general, given a larger number of duplicative trans-
+missions, a wider flooding area and a higher flooding fraction
+will be obtained. From the network’s point of view, it is not
+wise to transmit too many identical broadcast frames in a node
+since too much overhead will significantly degrade the network
+throughput. Obviously, it is a tradeoff between the flooding
+fraction and the control overhead. Thus, it is worthy to design-
+ing an efficient scheme with minimal broadcast transmissions
+to enhance the flooding capability in the complicated multi-hop
+ad hoc wireless networks.
+An efficient broadcast scheme should prevent a node from
+transmitting redundant broadcast frames. In fact, rebroadcast-
+ing is necessary only when there is any neighbor does not
+receive the broadcast frame. To achieve this goal, there are
+two important information must be obtained by the broad-
+cast sender: the number of active neighbors and the number
+of neighbors which have successfully received the broadcast
+frame. The former information can be determined by main-
+taining a local connectivity table (LCT) in each node. Each
+time a node receives a frame, it will update its LCT accord-
+ing to the source address. Without losing generality, entries in
+LCT should be aged by timeout due to mobility. (For simplic-
+ity, we let #(LCT) denote the number of active neighbors of
+a node.) In the next subsection, we will introduce the broad-
+cast acknowledgement scheme to provide sender the informa-
+tion of the number of its neighbors already received the broad-
+cast frame.
+B. Broadcast Acknowledgment Scheme
+Recall the uncertain broadcast problem is mainly caused by
+the lake of acknowledgment of broadcast frame. To ensure the
+sender be aware of the status of broadcast frame, we slightly
+modify the IEEE 802.11 MAC protocol to provide broadcast
+acknowledgement. To avoid producing extra overhead, we en-
+force all the receivers to response right away in the following
+611
+PHY
+hdrBusy Medium DIFS
+Backoff MAC
+hdr BROADCAST SIFS
+DIFS
+Source patterns
+Others
+PHY
+hdr RTS SIFS
+PHY
+hdr CTS SIFS
+PHY
+hdr
+MAC
+hdr PAYLOADBROADCAST PacketDIFS
+BackoffBusy Medium SIFS
+NAV
+SIFS
+PHY
+hdr ACK
+Fig. 2. An illustration of broadcast, RTS/CTS and backoff scheme of DCF.
+DIFS. By applying the same collision avoidance procedure in
+CSMA/CA, the 50 µs DIFS time period (named as the Backoff
+Acknowledgement window (BACK W) in this scheme) is di-
+vided into several minislots and each receiver will select one of
+them to transmit acknowledgement as shown in Fig. 1. Since
+the transmission time of a formal ACK frame is longer than
+DIFS, the broadcast acknowledgement (BACK) message must
+be short enough to accommodate the minislot in the BACK W.
+To help nodes to recognize the BACK message, we use m-
+bit pattern, say x, to identify the BACK message. Basically,
+the link quality in wireless network will determine the pattern
+length (in bits). If the channel quality is poor, a longer pattern
+length should be used and less minislots will be allocated in
+limited BACK W. There are two patterns p(x) are used in the
+proposed scheme:
+p(x) =
+{
+0, new ACK for received broadcast packet
+1, duplicted ACK for received broadcast packet
+(1)
+These two patterns are designed to inform sender the new or
+the duplicative receive of the broadcast frame from a neighbor-
+ing node. As soon as a node receives a broadcast packet, it will
+randomly choose a BACK minislot to fill the corresponding pat-
+tern. Since the WLAN adapter uses half-duplex mode to access
+channel, a switching delay for sender and receiver to change
+the transceiver state is required. According to the PHY speci-
+fication, we need allocate a time period, which is set as equal
+as SIFS (= 10 µs), for the PHY layer transferring between re-
+ceiving and transmitting states at the end of broadcasting. Con-
+sequently, for the x-bit patterns used in the m-Mb/s WLAN, a
+number of (DIFS−SIFS)x/m =
+(50−10)
+x/m minislots will be allocated
+in the BACK W. For example, if we use 4-bit patterns in 2 Mb/s
+WLAN, we have 20 minislots (BACK W = 20).
+Since the BACK messages are only used for notification, they
+can be treated as particular control signallings between broad-
+cast sender and receivers. Hence, in this scheme, all mobile
+nodes can ignore the channel busy caused by these BACK sig-
+nallings within the time period DIFS following the broadcasting
+and will content the channel immediately after passing DIFS as
+the standard does. As a result, the proposed scheme will not
+waste any channel resource to easily acknowledge broadcast
+frames as shown in Fig. 2.
+According to the broadcast acknowledgement scheme, any
+forwarding node has sufficient information to help deciding the
+necessity of rebroadcasting. In the case of the number of re-
+ceived BACKs is less than the number of its neighbors minus
+one (= #(LCT) − 1)1, the forwarding node needs rebroadcast
+1The expected number of BACKs in the original sender is equal to the exact
+number of active neighbors.
+Data Queue
+Broadcast
+Queue
+MAC Buffer
+Priority Queue
+Selector
+Data packet
+arriving
+Queued
+messages
+Broadcast
+packet
+arriving
+Messages
+departing
+Fig. 3. Model of data queue and broadcast queue in network layer and a
+priority queue in MAC layer.
+it again. Recall the connectivity between nodes is time vary-
+ing, sender may fail to collect sufficient BACKs no matter how
+many rebroadcasts it attempts. Thus, we still need a maximal
+broadcast retry threshold (MBRT) to minimize the bandwidth
+wastage. Accordingly, a node will rebroadcast broadcast frame
+until either the number of BACKs is sufficient or the retry count
+reaches the MBRT.
+C. Priority Queue
+In the original IEEE 802.11 MAC broadcast scheme, there is
+no priority between broadcast frames and ordinary data frames.
+Propagated broadcast frames probably spend a long propaga-
+tion delay at intermediate nodes even if the traffic load is low.
+This is because that each time a broadcast frame relayed by a
+node needs wait in the FIFO queue. This is a fatal drawback in
+multi-hop communication network, especially when these pri-
+ority frames have a delay bound. Therefore, the normal data and
+broadcast packets come from the higher layer (network layer)
+should be separated as two priority queues as shown in Fig. 3.
+Broadcast packets will get a higher priority than normal data
+to be serviced. Besides, to avoid circulating broadcast frames
+in network, each broadcast frame should contain the following
+fields:
+• Source Address (SA)
+• Destination Address (DA)
+• Broadcast ID (BID)
+• Hop count
+• Retry flag
+• Data Payload
+Every mobile node maintains a BID counter and increases
+the value by one each time it has a new data to broadcast.
+The pair <SA, BID> uniquely identifies a broadcast packet.
+Each time the broadcast frame is forwarded by a node, the
+associated Hop count will be increased by one. According
+to the Hop count indication, we let the broadcast frame with
+the largest Hop count to have the highest priority to shorten
+the propagation delay. Field Retry flag is used to identify
+the broadcast frame is a new one or just a retransmission.
+612
+Procedure TRANSMIT BROADCAST()
+input: BPkt
+begin
+set BACK count(BPkt) := #(LCT)−1; // or #(LCT) in the original
+sender
+set Retry count(BPkt) := 0;
+set BPkt→Retry flag := False;
+While (BACK count(BPkt) > 0 and Retry count(BPkt) < MBRT )
+begin
+broadcast the BPkt and then wait the replied BACKs;
+receive all replying BACKs in BACK window;
+BACK count(BPkt) := BACK count(BPkt) − new #BACKs;
+BPkt→Retry flag := True;
+end
+drop this BPkt;
+end
+Fig. 4. The algorithm of transmitting broadcast packet procedure.
+This will help the receiver to reply a correct BACK back to
+sender. In addition, a node needs maintain two counters, named
+as BACK count and Retry count, for each broadcast frame
+buffered in queue to make the decision of rebroadcast. The
+BACK count stands for a number of BACK count BACKs are
+expected to be received from neighbors before discarding the
+broadcast frame. A node will continue rebroadcasting it until
+the BACK count is decreased to zero. Initially, the BACK count
+is set as #(LCT)−1 or #(LCT). Another counter Retry count
+is used to indicate that how many retries of a broadcast frame
+has been done. If the Retry count is equal to MBRT, the broad-
+cast frame will be discarded immediately. We note that since
+a node may receive the identical broadcast frame from any of
+its neighbors, the bandwidth consumption can be further min-
+imize by detecting the Retry flag, SA and BID of the frame.
+That is, each time it receives the identical broadcast frame with
+Retry flag = False, it decreases the associated BACK count of
+the broadcast frame buffered in the priority queue if any. As
+a result, some waiting broadcast frames could be quickly re-
+moved from queue. This is another advantage of the proposed
+broadcast acknowledgement scheme. The broadcast transmis-
+sion and receive procedures are listed in Fig. 4 and Fig. 5, re-
+spectively.
+IV. MODEL SIMULATION AND RESULTS
+In order to evaluate the proposed broadcast scheme in a more
+precious way, we consider a detailed simulation model which is
+based on the distributed coordination function (DCF) of IEEE
+802.11 [5] WLAN. In simulations, we considered the realistic
+system parameters (listed in the direct sequence spread spec-
+trum (DSSS) physical specification) in IEEE 802.11 MAC pro-
+tocol, which are shown in Table I. The 802.11 DCF uses
+RTS/CTS exchange precedes data packet transmission and im-
+plements a form of virtual carrier sensing and channel reser-
+vation to reduce the impact of the well-known hidden terminal
+problem [12]. Data frame transmission is followed by an ACK
+and the RTS/CTS frames are sent using physical carrier sens-
+ing. “Broadcast” frame transmission follows by a number of
+BACKs and can be treated as control frame in proposed scheme.
+All broadcast, RTS/CTS, and ACK are sent using physical car-
+rier sensing. The radio model uses characteristics similar to a
+commercial radio interface, Lucent’s WaveLAN [3]. WaveLAN
+Procedure RECEIVE BROADCAST()
+input: BPkt
+begin
+if BPkt→BID> BIDTable[BPkt→SA] then // New broadcast frame
+if BPkt→DA = self address then // Arrive the destination
+receive the BPkt and response via unicasting;
+else
+if #(LCT) > 1 then //excluding the sender
+BPkt→Hop count := BPkt→Hop count + 1;
+insert BPkt into priority queue and perform
+InsertionSort(Hop count);
+endif
+endif
+select a random(BACK W) to reply a new BACK;
+update BIDTable[BPkt→SA] := BPkt→BID;
+else // Duplicate broadcast frame
+if BPkt→BID = BTable[BPkt→SA] then
+if BPkt→Retry flag = False then
+find the buffered BPkt, say Pkt, from local priority queue if
+any;
+if found Pkt then
+BACK count(Pkt):= BACK count(Pkt)-1;
+if BACK count(Pkt) = 0 then
+remove Pkt from priority queue;
+endif
+endif
+select a random(BACK W) to reply a duplicate BACK;
+else
+drop this BPkt;
+endif
+endif
+endif
+end
+Fig. 5. The algorithm of receiving broadcast packet procedure.
+is modeled as a shared-media radio with a nominal bit rate of 2
+Mb/s and a nominal radio range of 100 m.
+A. Simulation Models
+In our simulations, we simulated a scenario of N mobile
+nodes active in a square area of 300 m × 300 m. The initial
+location of each node is assigned randomly within the area.
+Excepting the first mobile node, the other mobile nodes will
+be reallocated until it has at least one neighbor. This ensures
+the simulated network topology is a connected graph. For the
+sake of comparisons, nodes are assumed to stay at its original
+spot during the simulation duration. Each mobile node has one
+transceiver and its transmission range is 100 m (in 2 Mb/s). The
+background data packets arrival rate of each mobile node fol-
+lows the Poisson distribution with a mean λd, and the packet
+length is an exponential distribution with a mean of L slots
+time. The packet mean length is according to the analyzed av-
+erage network packets on ordinary LAN [7], which is about
+50∼150 Bytes (i.e., about 10∼30 time slots in 2 Mb/s trans-
+mission rate). These popular TCP/UDP packets occupy over-
+all traffic loading over 74%. Thus, we assume the data packet
+length L = 30 time slots, and including PHY and MAC head-
+ers (≈ 17 time slots) will be approximate 47 time slots, in our
+simulations. The broadcast request arrival rate of each mobile
+node also follows the Poisson distribution with a mean λb, and
+the broadcast frame length is a fixed length of 25 Octets. The
+broadcast request arrival rate per node λb is considered from
+613
+TABLE I
+SYSTEM PARAMETERS IN SIMULATIONS
+Parameter Normal Value
+Channel bit rate 2 Mb/s
+Transmission Range (2 Mb/s) 100 m
+RTS frame length 160 bits
+CTS frame length 112 bits
+ACK frame length 112 bits
+Broadcast frame length 25 Octets
+Preamble and PLCP header 192 µs
+MAC header 34 octets
+A slot time 20 µs
+SIFS 10 µs
+DIFS 50 µs
+aBACK Wmin 5 minislots
+aBACK Wmax 20 minislots
+aCWmin 31 slots
+aCWmax 1023 slots
+Air propagation delay 1 µs
+Density 1 30 nodes in 300m× 300m
+Density 2 60 nodes in 300m× 300m
+Density 3 100 nodes in 300m× 300m
+0 0.5 1 1.5 2 2.5 3 3.5 4
+60
+65
+70
+75
+80
+85
+90
+95
+100
+Bro
+adc
+ast
+ fl
+ood
+ing
+ fr
+act
+ion
+ (%)
+Retry count
+IEEE 802.11, N=30
+IEEE 802.11 /w Priority Queue, N=30
+IEEE 802.11, N=60
+IEEE 802.11 /w Priority Queue, N=60
+IEEE 802.11, N=100
+IEEE 802.11 /w Priority Queue, N=100
+Fig. 6. Comparisons of derived broadcast flooding fractions by the traditional
+IEEE 802.11 and the proposed broadcast method priority queue method under
+different retry counts.
+10−5 to 10−4 in a step of 10−5. Each node maintains an infi-
+nite waiting buffer (priority queue) in MAC layer. It contains all
+data and broadcast frames waiting for transmission, in which,
+broadcast frames have a higher priority than data frames. Each
+simulation run lasts 60 seconds (≈ 3×106 time slots) and each
+simulation result is obtained by averaging the results from one
+hundred independent simulation runs.
+B. Results
+Two important performance metrics are investigated:
+• Broadcast flooding fraction – The average ratio of the
+number of nodes successfully received the broadcast frame
+and the total number of mobile nodes in the network.
+• Broadcast retry overhead – The average fraction of the
+number of broadcast retries to the total broadcast times
+during entire simulation duration.
+In the first simulation, we consider three different network
+densities which are generated by allocating 30, 60 and 100 mo-
+bile nodes into a fixed square area 300m × 300m. We first
+investigate the efficiency of broadcast flooding by using tra-
+ditional broadcast scheme in IEEE 802.11 MAC protocol and
+0 1 2 3 4 5 6 7 8 9
+0
+10
+20
+30
+40
+50
+60
+70
+80
+90
+100
+Bro
+adc
+ast
+ re
+try
+ ov
+erh
+ead
+ (%)
+No. of expected BACKs
+MBRT=1
+MBRT=2
+MBRT=3
+Fig. 7. The derived retry overheads by proposed broadcast scheme under
+different number of BACKs.
+vary the retry count to observe the broadcast flooding results.
+From the results shown in Fig. 6, we can see that with a lower
+network density (i.e., with fewer nodes in network), a lower
+flooding fraction will be obtained. For example, the best flood-
+ing fractions in cases N = 30, N = 60, and N = 100 when
+retry count is zero (i.e., the traditional broadcast scheme) are
+about 76%, 89% and 90%. This is because that the link degrees
+of nodes in the network with lower density is smaller than that
+of a network with higher density. In other words, in the net-
+work with higher density, once a broadcasting fails in reaching
+some nodes, they have a higher probability to receive/recover
+it from their neighbors. We can see that the flooding capability
+is linear proportional (contra-proportional) with the number of
+retries when the network load including the extra control over-
+head is under (beyond) the saturated load. On the other hand,
+combining the priority queue approach with the IEEE 802.11
+MAC protocol can easily achieve a higher flooding fraction in
+all cases. The reason is that the priority queue approach speeds
+up the propagation speed for an ongoing flooding. We also em-
+phasize the broadcast flooding fraction increases as the increas-
+ing of the retry count. The highest flooding fraction can be up
+to 97% in the high network density whereN = 100, λb = 10−6
+and the retry count is equal to 4. From Fig. 6, we concluded two
+results that the broadcast retry may raise or degrade the flooding
+fraction depending on the generated control overhead and the
+proposed priority queue scheme can significantly enhance the
+flooding fraction especially when the network density is high.
+In the following simulations, we only consider the network
+size of 30 nodes since the worse performance occurs in this
+case as shown in Fig. 6. Fig. 7 shows the generated retry over-
+heads under different expected numbers of BACKs and differ-
+ent MBRTs in the scheme with broadcast acknowledgement
+when BACK W = 5. We find that a larger expected number
+of BACKs will result in a higher broadcast retry overhead. The
+retry overhead will finally saturate at MBRTMBRT+1 by the MBRT.
+Fig. 8 shows the derived flooding fractions by the pure
+IEEE 802.11 broadcast scheme, the IEEE 802.11 with prior-
+ity queue and the proposed broadcast scheme with broadcast
+acknowledgement and priority queue under different broadcast
+request loads. We can see that the flooding fraction is contra-
+614
+2 3 4 5 6 7 8 9 10
+x 10 −5
+30
+40
+50
+60
+70
+80
+90
+100
+Bro
+adc
+ast
+ fl
+ood
+ing
+ fr
+act
+ion
+ (%)
+Broadcast request arrival rate per node
+IEEE 802.11
+IEEE 802.11 /w Priority Queue
+ADBS(MBRT=3, BACK_W=20)
+Fig. 8. Comparisons of the derived broadcast flooding fraction by three differ-
+ent schemes under different network loads.
+2 3 4 5 6 7 8 9 10
+x 10 −5
+30
+40
+50
+60
+70
+80
+90
+100
+Bro
+adc
+ast
+ fl
+ood
+ing
+ fr
+ati
+on 
+(%)
+Broadcast request arrival rate per node
+MBRT=1, BACK_W=20
+MBRT=2, BACK_W=20
+MBRT=3, BACK_W=20
+MBRT=3, BACK_W=10
+MBRT=3, BACK_W=5
+Fig. 9. Comparisons of the derived broadcast flooding fraction by proposed
+broadcast schemes under different MBRTs, BACK Ws, and network loads.
+proportional with the broadcast request load and the flooding
+fraction may be down to only 39% when λb = 10−4. This
+implies that over 60% mobile nodes can not be notified by the
+broadcast frame. As a result, routing protocols like DSR and
+AODV become useless in the IEEE 802.11 based multi-hop
+ad hoc wireless networks. Contrarily, the proposed broadcast
+scheme with broadcast acknowledgement and priority queue
+can reach about 97% when the broadcast request arrival rate
+is 10−5 when MBRT = 3 and BACK W = 20. Even though
+with broadcast acknowledgment and priority queue schemes
+when λb = 10−4, we still have 60% flooding fraction. The
+performance degradation is mainly caused by the generated ex-
+tra broadcast retry overhead and the broadcast request load. We
+also note that the IEEE 802.11 broadcast scheme with priority
+queue will outperform the proposed scheme when λb = 10−4.
+This is because that no retry overhead will be generated in the
+pure priority queue approach which will sustain an acceptable
+flooding fraction even when the network load is heavy.
+In order to investigate how the MBRT and the BACK W af-
+fect the efficiency of proposed scheme, we consider different
+combinations of MBRT and BACK W in simulations. Fig. 9
+illustrates that by assigning a larger MBRT or BACK W will
+result in a higher flooding fraction. Moreover, the flooding
+fraction improvement by enlarging the BACK W is more ob-
+vious than enlarging the MBRT. With a small BACK W, lots of
+BACKs will collide with each other and the sender will rebroad-
+cast as many times as possible. However, too many rebroadcast-
+ings in a node will consume network bandwidth, increase queue
+length and slow down the propagation speed to reach all mem-
+bers. The advantage of the priority queue is being repressed by
+large amount of broadcast retry overhead. From Fig. 9, we also
+find that if the number of minislots in BACK window is suffi-
+cient (e.g., BACK W = 20), a larger MBRT should be used to
+derive a higher flooding fraction.
+V. SUMMARY AND CONCLUSIONS
+This paper pointed out the uncertain broadcast problem in
+the IEEE 802.11 multi-hop ad hoc wireless networks. With-
+out the robust broadcast scheme, some well-known multi-hop
+routing protocols will become inefficient in such wireless net-
+works. In this paper, we had proposed the broadcast acknowl-
+edgement scheme and the priority queue scheme to enhance the
+reliability and efficiency of conventional IEEE 802.11 broad-
+cast scheme. These two waste-free schemes can respectively
+minimize the unnecessary broadcast retries and the propagation
+delay of broadcast frames in wireless networks. Simulation
+results show that, with moderate network load, the proposed
+broadcast scheme can provide an acceptable flooding fraction.
+This encourage us to realize the IEEE 802.11 multi-hop ad hoc
+wireless networks.
+REFERENCES
+[1] I. Chlamtac and S. Kutten, “On Broadcasting in Radio Networks Problem
+Analysis and Protocol Design,” IEEE Trans. Commun., vol. COM–33, no.
+12, pp. 1240–1246, Dec. 1985.
+[2] I. Chlamtac and S. Kutten, “Tree-based Broadcasting in Multihop Radio
+Networks,” IEEE Trans. Commun., vol. COM–36, no. 10, pp. 1209–1223,
+Oct. 1987.
+[3] D. Eckhardt and P. Steenkiste, “Measurement and Analysis of the Er-
+ror Characteristics of an In-building Wireless Network,” Proc. ACM SIG-
+COMM’96, pp. 243–254, Oct. 1996.
+[4] T. A. ElBatt, S. V. Krishnamurthy, D. Connors, and S. Dao, “Power Man-
+agement for Throughput Enhancement in Wireless Ad-Hoc Networks,”
+Proc. IEEE ICC’2000, pp. 1506–1513, Jun. 2000.
+[5] IEEE 802.11 Working Group, “Part 11: Wireless LAN Medium Access
+Control (MAC) and Physical Layer (PHY) Specifications,” ANSI/IEEE
+Std. 802.11, Sept. 1999.
+[6] D. B. Johnson and D. A. Maltz, “Dynamic Source Routing in Ad-Hoc
+Wireless Networks,” Mobile Computing, T. Imielinski and H. Korth, Eds.,
+chapter 5, pp. 153–181, Kluwer Academic Publishers, 1996.
+[7] K. M. Khalil, K. Q. Luc, and D. V. Wilson, “LAN Traffic Analysis and
+Workload Characterization,” Proc. 15th Conf. Local Computer Networks,
+pp. 112–122, 1990.
+[8] I. Koutsopoulos, D. Connors, A. Savvides, and S. K. Dao, “Intra-Team
+Multi-Hop Broadcasting (ITMB): A MAC Layer Protocol for Efficient
+Control Signaling in Wireless Ad-Hoc Networks,” Proc. IEEE ICC 2000,
+vol. 3, pp. 1723–1727, 2000.
+[9] J. Macker and S. Corson, “Mobile Ad Hoc Networks (MANET),”
+IETF WG Charter., http://www.ietf.org/html.charters/manet-charter.html,
+1997.
+[10] C. E. Perkins and E. M. Royer, “Ad-hoc On-Demand Distance Vector
+Routing,” Proc. 2nd IEEE Wksp. Mobile Comp. Sys. and App., pp. 90–
+100, Feb. 1999.
+[11] C. E. Perkins, E. M. Royer, and S. R. Das, “Ad Hoc On-Demand Dis-
+tance Vector (AODV) Routing,” Internet Draft draft-ietf-manet-aodv-
+08.txt, Mar. 2001.
+[12] F. A. Tobagi and L. Kleinrock, “Packet Switching in Radio Channels:
+Part-II – The Hidden Terminal Problem in Carrier Sense Multiple-Access
+Models and the Busy-Tone Solution,” IEEE Trans. Commun., vol. COM–
+23, no. 12, pp. 1417–1433, Dec. 1975.
+615

@@ -1,0 +1,455 @@
+Application Translation for IPv6 at NAT-PT 
+,*Yong Geun Hong, *Myung Ki Shin; *Hyoung Jun Kim 
+*Electronics and Telecommunications Research Institute 
+Daejeon, Korea 
+{yghong, mkshin, khj}@etri.re.kr 
+Protocol Engineering Center . 
+Absfracf- The next generation Internet protocol, IPv6 which 
+uses 128 bits Internet addresses will replace the current IPv4 
+protocol gradually from 2005. After 2010 IPv6 will be the main 
+ocean of Internet or network. But until completely transition to 
+IPv6, IPv4 and IPv6 will coexist and network devices must 
+support IPv4 and IPv6 at the same time. Especially general users 
+want to use Internet and applications without big changes even if 
+networks are changed to IPv6. This paper describes ALG 
+(Application Layer Gateway) for IPv6 which translates 
+application layer data in NAT-PT transition mechanism. With 
+the design and implementation of DNS-ALG and FTP-ALG, we 
+research the application layer gateway and examine the 
+relationship between IP layer translation and application layer 
+translation. As IPv6 is more deployed, not only 1P layer 
+translation, but also application layer translation has more 
+necessity. 
+Keywords-IPv6, IPv?,!IPv6 Translalion, ALG, FTP 
+I. INTRODUCTION 
+As IPv6 is introduced in the IPv4 based Intemet, several 
+general issues to start IPv6 networking in a predominant IPv4 
+world are being discussed, such as IPv6 routing, IPv6 
+addressing, DNS issues, etc. One important key to a successful 
+IPv6 transition is the compatibility with the large installed base 
+of IPv4 hosts and routers. This issue had been already studied 
+in IETF Ngtrans Working Group. In addition, various kinds of 
+Ngtrans mechanisms have been developed to migrate to IPv6 
+network. The NAT-PT (Network Address Translation-Protocol 
+Translation) among 1Pv6 transition mechanism enables the 
+communication between IPv4 host and IPv6 host with 
+translating IPv4 address and.IPv6 address [I, 21. But for DNS 
+and FTP, another specific mechanism is needed when internet 
+addresses are included in a packet payload area. The NAT-PT 
+only handles the translation of an IP, ICMP layer, hut it can not 
+translate the transport data in TCPLJDP area. With the relation 
+to application layer, translation of data payload area is called as 
+ALG (Application Layer Gateway). Each application needs 
+each different ALG. The,reason that there is no common use 
+ALG is that application programs such as DNS, FTP and SIP 
+use different procedures, different data pansmission methods 
+and different data format. So there is a need of ALG for each 
+application. 
+This paper describes the characteristic of ALG and 
+considerations of ALG when design and implementation. With 
+the experience of design and implementation of DNS-ALG and 
+FTP-ALG, we describe the method of making ALG and the 
+relation between ALG and NAT-PT. And also we look over the 
+0-7803-8114-9/03/$17.00 02003 IEEE. 
+interoperability of interconnection behveen ALG and NAT-PT. 
+The rest of the paper is organized as followers. Section 2 
+addresses the related researches of the aspects of application 
+layer in many'IPv6 transition mechanisms. Section 3 describes 
+the characteristics of application layer gateway for applying to 
+various applications. Section 4 describes the design and 
+implementation of FTP-ALG as one kind of ALG and analysis 
+of operations of ALG hetween IP layer translation and 
+application layer translation. Finally, Section 5 summarizes of 
+this paper and discusses jobs for our fuhire research. . 7 
+11. RELATED &SEARCH FOR APPLlCAT1,ON LAYER 
+TRANSITION 
+If we research IPv6 transition mechanisms at aspects of 
+application layer, IPv6 transition mechanisms are divided into 
+as follows [3]. First, to enable communication between an IPv4 
+application and an IPv6 application, it is located at host level to 
+translate application layer. Second, not host level but router and 
+gateway level takes the responsibility of the translation of 
+application layer. Third, with using,tunneling mechanism, it is 
+possible to communicate between IPv4 application and IPv4 
+application and communicate between IPv6 application and 
+IPv6 application even if 1Pv4 network and IPv6 netwoFk 
+coexist in the middle way. 
+A .  
+Using BIA (Bump-In-the-API) [4], BIS (Bump-In-the- 
+Stack) [SI. it is possible for IPv4 application on dual stack host 
+to communicate to other IPv6 applications. In these 
+mechanisms, an application layer transition is. done at host 
+level. In case of BIA, the function mapper plays a role in 
+converting between IPv4 socket API and IPv6 socket API. If 
+there is a need for changing application layer, the function 
+mapper does this. 
+B. Application luyer transition at Router level 
+This'mechanism.is that router or gateway which is located 
+between IPv4. network and 1Pv6 network translates an 
+application data. The benefit of~this mechanism is that current 
+IPv4 native application programs and IPv6 native applications 
+does not have to he changed to communicate between IPv4 
+applications and 1Pv6 applications. The ALG which is 
+described in this paper.is belonged in this category. The router 
+or gateway knows the timing or point of translation with 
+watching the specific (well-known) port 'number at the 
+houndaIy between IPv4 network and IPv6 network: 
+Application layer transition ut Host level 
+. .  
+' 
+203 
+C. Application layer transition using Tunneling mechanism 
+This mechanism does not modify the IPv4 packets or IPv6 
+packets at application layer. Even if there are mixed IPv4 
+network and IPv6 network at the middle way, it enables to 
+communicate between IPv4 applications and IPv4 applications. 
+And it also enables to communicate between IPv6 applications 
+and IPv6 applications. In case of DSTM (Dual Stack Transition 
+Mechanism) transition mechanism, 1Pv4 applications in a 
+DSTM client which is located in IPv6 network have the ability 
+to communicate the other IPv4 application which is located at 
+another IPv4 network. By contraries, in case of 6t04 or 
+ISATAP (Intra-Site Automatic Tunnel Addressing Protocol) 
+mechanism, even if there is IPv4 network in the middle way, it 
+enables to communicate hetween IPv6 applications and 1Pv6 
+applications which are located in another IPv6 network. These 
+mechanisms in this categoly mainly use IPv4-in-IPv6 or 1Pv6- 
+in-IPv4 tunneling. 
+111. CHARACTERISTICS OF ALG 
+Because each application has different procedures, data 
+transmission operations and data format, it is impossible to 
+make an ALG program for common purpose. A SIP ALG 
+programs handles only the translation SIP data. It can’t handle 
+other translation of application data such as FTP, DNS. But we 
+found some common characteristics of ALG and design 
+algorithms with the experiences of making DNS-ALG and 
+FTP-ALG. This paper shows the characteristics and 
+consider$* of ALG and helps to design another application 
+ALG..  
+A .  Operations o/ALG - 
+As said previously, if we want to make another new 
+application ALG, we must analyze the operations of target 
+applications. When we analyze them we must consider the 
+following items. . 
+7 .  
+. 
+. 
+Many intemet applications use TCPRlDP connections. 
+An ALG must exactly know the timing and point of 
+establishment of new connections and termination of 
+using connection. 
+When IP addresses or port numbers are included in 
+packet data payload, the ALG must know these facts 
+and handle properly. 
+The difference of IPv4 application and IPv6 
+application is that they use different commands or 
+keywords for each application. For example, in FTP at 
+IPv4, the “PORT” and “PASV” commands and 
+“PORT command successful” response are used for 
+making another data connection. But in FTP at 1Pv6, 
+the “EPRT” and “EPSV” commands and “EPRT 
+command successful” are used for same thing. 
+If the checksum, sequence number and acknowledge 
+number fields in TCPRiDP header are changed 
+because of the modifying of intemet addresses and 
+IPv4nPv6 specific commands/responses ‘and 
+keywords, an ALG must take the responsibility to 
+change these fields. 
+An ALG must consider the case when the application 
+makes two more connections. In .DNS service, there 
+need to make only one UDP connection and the DNS- 
+ALG must only observe one related UDP connection. 
+But for FTP service, there need to consider another 
+TCP connection (data connection) plus to one control 
+TCP connection (control connection). Different from 
+DNS-ALG, a FTP-ALG must consider the two TCP 
+connections together and make the interconnection 
+between the two TCP connections. In implementation, 
+it is a more difficult job. 
+If the TCPKJDP header is translated f r s t  and the next 
+the IP header is translated, there is no need for 
+considering the checksum .and header length fields in 
+IP header. But other case, when the IP header is 
+translated first and the TCPAJDP header is translated 
+the next, an .ALG must take ‘the responsibility to 
+change the checksum and header length fields in IP 
+header. 
+B. 
+For the communications between IPv4 application and IPv6 
+application, it needs for not only an ALG which translates the 
+TCPLJDP data but also translation of IP layer. The NAT- 
+PT/SIIT is one mechanism among the IP  layer transition 
+mechanism. An ALG must be interdonnected with the NAT- 
+PT/SIIT very closely. 
+NAT-PT is a little more active transition method than a 
+general tunneling mechanism for IPv6 transition. This 
+mechanism uses a kind of router which has function that can 
+translate IPv6 packet into IPv4 packet and vice versa. NAT-PT 
+has two functions. The one is to manage IPv4 address pool and 
+the other is to translate IP header. To manage IPv4 address 
+pool, NAT-PT uses same way as what NAT does and to do 
+protocol translation NAT-PT uses SIIT. SIIT describes issues 
+about translation of IP header, fragmentation related to MTU of 
+IPv4flPv6 network and translation ICMP messages. 
+I 
+Interconnection with translation o/IP layer 
+v.4- Wnnd 
+: 0“tto”nd Inbound 1 
+Figure 1. Procedure of NAT-PTISIIT 
+While NAT-PT/SIIT intercepts all the packets which pass 
+through and modifies for some rules, an ALG only intercepts 
+the targeted packets and modifies them. To do this, an ALG 
+makes concem to. specific port (well-known port) of the 
+packets because all TCPRiDP applications use intemet 
+addresses and port numbers to ‘make a connection and 
+204 
+distinguish them with others. For example, DNS use well- 
+known port 53 and the DNS-ALG always watches the packets 
+contain the port number 53. On the other side, FTP-ALG 
+always concerns the packets with port number 2 1, 
+Anbther consideration is that the operation .order between 
+NAT-PTISIIT and ALG. The designer for an ALG must decide 
+which job does first, translation of IP layer or translation of 
+application layer. Until now, there are no rules or theories for 
+that and it depends on each application. For DNS service, in 
+case of from IPv4 application to IPv6 application, we do the 
+translation of application layer first and translation of IP layer 
+the next. But in case of from IPv6 application to IPv4 
+application, we do the translation of IP layer first and the 
+translation of application layer the next. For FTP service, we 
+do the translation of IP layer first and the translation of 
+application layer in case of from IPv4 application to IPv6 
+application and from 1Pv6 applicatio? to IPv4 application. 'Of 
+course, we can make the reverse of the order. And the result is 
+not much different. In the next section, the paper shows the 
+results of each case. When design and implement of new ALG 
+for other application, the implementer must carefully analyze 
+the operations of applications and then make the decision of the 
+order case by case. 
+IV. ALG FOR FTP 
+As described in section 3,. we designed and implemented 
+the two ALGs, one is DNS-ALG for DNS service and the other 
+is FTP-ALG for FTP service. In this section, design methods 
+and implementation of FTP-ALG are described with detail 
+procedures. And the considerations for order between 
+translation of IP layer and translation of application layer are 
+examined with laboratory experiments. 
+A .  Analysis of FTP service 
+To design and implement FTP-ALG, we first analyze the 
+FTP service and understand the operations and procedures of 
+FTP. FTP (File Transfer Protocol) is the internet standard for 
+.file transfer. It uses TCPIIP connections and 32 bits IPv4 
+intemet address for the uniqueness of its source and 
+destination. But as IPv6 is deployed, 32 bits IPv4 address and 
+128 hits IPv6 address are used at same time for its address, 
+Now FTP must consider the two IPv4 and IPv6 and some client 
+FTP programs support IPv4 and IPv6 at the same time (ncFTP, 
+ftpd-BSD, proftpd, etc) 
+FTP uses two TCP connections to transfer a tile, it is the 
+big difference compared to other applications. The control 
+connection is established in the normal client-server fashion. 
+The server does a passive open on the well-known port for FTP 
+(21) and waits for a client connection. The client does an active 
+open to TCP port 21 to establish the control connection. The 
+control connection stays up for the entire time that the client 
+communications with this server. This connection is used for 
+commands from the client to server and for the server's 
+response. The data connection is created each time a tile or 
+directory information are transferred between client and server 
+The commands  and replies sent across the control 
+connection between the client and servers are in NVT ASCII. 
+[5,61. 
+.,. i"t6111 < m a l 2 9 1 5  
+This'requires a CR, LF pair at the end of each line. The 
+commands are 3 or 4 bytes of uppercase ASCII characters, 
+some with optional arguments. The replies are 3-digits 
+numbers in ASCII, with an optional message following the 
+number. Normally each FTP command generates a one-line 
+reply. If a multi line reply is needed, the first line contains a 
+hyphen instead of a space after the.3-digit reply codesand the 
+final line contains the same 3-digit reply code, followed by a 
+space. 
+B. DesignofFTP-ALG , .. 
+Because FTP carries IP address and TCP port number in 
+packet payload area, we must change the IP address and TCP 
+port number to enable FTP service between IPv4 application 
+and IPv6 appli?ation. FTP in IPv4 application uses PORT and 
+PASV commands and FTP in IPv6 application uses EPRT and 
+EPSV commands, so we must also translate these FTP 
+commands to enable FTP service. When we change FTP 
+command, 1P address and port number in packet payload area, 
+the length of packet is changed. A FTP-ALG must consider 
+this change of packet length. After change of packet length, the 
+sequence number of acknowledge number are changed. A FTP- 
+ALG must also consider these changes of 'sequence number 
+and acknowledge number. 
+First, consider the FTP ,from IPv4 application (client) to 
+IPv6 application (server). If the PORT and PASV commands 
+are included in a packet payload area, FTP-ALG translates 
+PORT command.to EPRT command and PASV command to 
+EPSV command. It also translates IPv4 type source and 
+destination address to IPv6 type source and destination address. 
+During there translation, the length of .payload and the 
+sequence number are changed.. A FTP-ALG modifies the 
+length of payload area and sequence and acknowledgement 
+number. Figure 2 shows this procedure. 
+, .  
+ea 21 _._ ~I lar . ." .11?.z&, '9  
+205 
+of payload area and sequence and acknowledgement number. 
+Figure 3 shows this procedure. 
+- - .  .- 
+EPRT PORT 
+U :U 
+mmy,xs.zt2 
+S A  o* sir DiP **lad , P o a r r o w o ~ r ( r * ~  - wnu*r -?!!m-J I ~.IlS~Z%.Z9.1$~ 1 2 8 2 5 4 1 6 5 . ! 1 ~ / 6 d ~  21 1 ,  1 ~ ~ T 1 2 8 . 2 s l . l 6 5 , 1 1 2 . 2 6 . 2 ~ ~  I 
+Y i l  o,* 911 DiP 8W4c.d 
+Figure 3. FTP from IPv6 to IPv4. ' : 
+. .  
+Because address pool which is used during translation of.1P 
+layer is more important in NAT-PTISIIT, it is needed- to 
+manage connections which pass through NAT-PT/SIIT.'This is 
+same to a FTP-ALG. 'In NAT-PT/SIIT, connection tracking 
+mechanism handles this job. For connection's management, a 
+FTP-ALG ensures that usage of different kinds of connections 
+such as control connection.and data connection. A FTP:AL(3 
+must find an IP address in data payload area 'and check that 
+. whether this connection. is a child connection related to 
+previous connection. ' . 
+For the packets which are come into port number 21, a 
+FTP-ALG registers connection. tracking module to manage 
+connections when the system is initialized. For the data 
+connection which is made after control connection, a~ FTP- 
+. . ALG records the characteristic of the connection which is 
+interested in when control connection and uses this information 
+when data connection is established. 
+Figur64. Procedure of FTP-ALG 
+. .  
+.If the connection tracking is generated, the module of 1P 
+layer translation searches its hest matching fule and makes 
+manipulation -information. and stores its information in 
+-- ~ 
+connection tracking. After these steps, a FTP-ALG translates 
+packets with this information. 
+For the packets which are come into the port number 21, a 
+FTP-ALG reeisters manipulation module to modify packets - . .  
+when the system is initialized. Figure 4 show the steps of a 
+FTP-ALG with NAT-PTISIIT. 
+C. Implementation ofALG 
+To implement a FTP-ALG, we modify the Linux Netfilter 
+framework with the module of IP layer translation which is 
+already implemented by us. Packet filtering module such as 
+ipfwadm, ipchains before Linux kemel 2.4.x is integrated to 
+Netfilter now. Netfilter framework manages 5 packet hooking 
+points (PEROUTING, LOCAL INPUT; FORWARDING, 
+LOCAL OUTPUT, POSTROUTING) in kemel. Netfilter 
+registers appropriate processing module for each' packet 
+handling application at appropriate hooking point. For example 
+NAT, packet filtering and packet mangling. Processing 
+modules registered at same hooking point has its priority. 
+Processing order of modules in, same hooking point was 
+decided by its priority [9]. 
+Whether packet will he processed or not is depend on 
+packet matching rule which is stored in kemel structure named 
+as "iptahle". Each entry of iptahle is composed of 'match' and 
+'target'. Match describes packet select conditions whether 
+capture this packet or not to handle it. Target describes how to 
+handle selected packet. When a packet arrives at certain 
+processing module. registered at a hooking point, iptahle is 
+looked up to find rule which has match entry matched to 
+packet's characteristics. If rule is found, the packet is processed 
+by target of that rule. Kemel maintains iptable per each 
+Netfilter application. 
+As said that in the design part of ALG, we implement a 
+FTP-ALG in Linux Netfilter framework. And this module is 
+installed in PC-Router which is located in the boundary 
+between IPv4 network and IPv6 network. . . 
+D. Results of FTP-ALG Operations 
+To test the implemen@tion, we~make the testbed as follows. 
+The FTP-ALG module is installed in PC-Router with NAT- 
+PTMIT module and some IPv4 hosts are located in IPv4 
+network and some 1Pv6 hosts are located in IPv6 network. 
+Figure 5 shows the environment of testbed. 
+Figure 5 .  Testbid of FTP-ALG 
+To initiate the ftp service from IPv4 flp client to IPv6 ftp 
+server, we use a general Microsoft DOSftp program as client 
+and linux proftpd 1.2.5 ,as ftp server. In the opposite, to initiate 
+the flp service from IPv6 ftp client to IPv4 Rp server, we use . .. - .  
+,206 
+linux ncftp program for client and RhinoSoft's S e w 4  program 
+as ftp sewer. Figure 6 is the capture of linux ethereal progrim 
+in PC-Router when IPv4 ftp client opens the ftp service to lPv6 
+ftp server and the user want to list the directory information 
+(type "Is" in ftp prompt). At this figure, the sentence "PORT 
+129.254.112.199,6,128" is translated to "EPRT 
+~2~aaaa:bhhbcccc:dddd:eeee:ffff% lfe:70c711754" and we can 
+find the following successful ftp operations. 
+. 2 . a  
+Figure 6. Capture ofpackets in FTP-ALG 
+E.' Considerations wirh translation ofIP layer 
+In the previous section, we said that there are two ways 
+order between translation of IP layer and translation application 
+layer. The order of DNS-ALG and FTP-ALG is different 
+because there are no rules for that order. We examined the 
+throughput of each order. One case is that first the translation 
+of fP layer is executed and next the translation of application is 
+executed. The other case is that translation of application is 
+executed prior to translation of IP layer. Figure 7, 8 shows the 
+result of the examination. 
+2 5  
+2 
+4 ,  
+1 2 3 1 5 
+Trial Number 
+Figure 7. Test result from 1Pv6 application to IPv4 application 
+In these results, we can find that the difference time 
+between each order is not big. The time for translation of IP 
+layer after translation of application layer is nearly similar to 
+the time for translation of application layer after translation of 
+IP layer. Although the order of translation of each layer is 
+..... . ~ e ~ ~ ~  ~ .. . , ~ ,  ..... 
+, . . .  .~~~ ~~~~ ~ ~. 
+0 r 
+2 3 5 
+Trial Numbs, 
+Figure 8. Test re& from IPu4 application to IPv6 application 
+different, the processing module and the sequence of each 
+translation are same. So, there is,'no benefit when which 
+translation of some layer is executed prior to another layer. But 
+for some applications, there may he an effect that influence the 
+processing time when the order of translation of layer is 
+changed. 
+V. CONCLUSION 
+As IPv6 is more deployed, IPv4 and 1Pv6 will coexist for 
+many years and the importance of the interoperability between 
+IPv4 application and IPv6 application will be more increasing. 
+General users want to use same application as before even if 
+the internet protocol is changed. Therefore the developer or 
+programmer of application must take the needs of users and 
+prepare these requirements. For the appearance.of IPv6 and the 
+requirement of general users, it needs to consider the 
+translation at application layer. , 
+This paper'descrihes the characteristics of an ALG and 
+shows the design and implementation of a FTP-ALG for 
+example. And it shows the relationship between translation of 
+IP layer and translation of application layer. In future, we will 
+research the more general application layer gateway' for other 
+applications and make the better throughput of ALG. . ' 
+. .. REFERENCES 
+G.Tsirlsis, P .  Sdsuresh, "Network Address Tra?slaIion - Protocol 
+Translation (NAT-PT)", RFC 2166,2000.2. 
+E.Nordmark, "Stateless IPIICMP Translation Algorithm (SIIT)", RFC 
+2168,2000.2. 
+Next Generation lntemet Protocol : IPv6, IPv6 Forum Korea, 2002. 
+%Lee, M-K.Shin, Y-J.Kim, E-Nordmark, A.Durand,. "Dual Stack Hosts 
+Using"Bump-in-the-AP1 (BIA)", RFC 3338. 2002.10. 
+Tsuchiya, K., Higuchi, H. and Y.  Amashi, "Dual Stack Hosts using the 
+"Bump-In-the-Stack" Technique (BIS)", RFC 2161,2000.2. 
+RFC959 : File Transfer Protocol (FTP) 
+TCPIIP Illusfratcd, Volume I ,  W.Richard St&vvens, Addison Wesley, 
+1994. 
+RFC2428 : FTP Extensions for IPv6 and NATs 
+h t t p : l l ~ w w . n e t f i l t e r . a r g / d o c u m e n t a t i a n i H k i ~ g -  
+HOWTO.html 
+. 
+207 

@@ -1,0 +1,512 @@
+A Measurement Correlation Algorithm for
+ Line-of-Bearing Geo-Location
+ Michael T. Grabbe
+ The Johns Hopkins University
+ Applied Physics Laboratory
+ 11100 Johns Hopkins Road,
+ Laurel, Maryland 20723
+ 443-778-4056
+ michael.grabbe@jhuapl.edu
+ Brandon M. Hamschin
+ The Johns Hopkins University
+ Applied Physics Laboratory
+ 11100 Johns Hopkins Road,
+ Laurel, Maryland 20723
+ 443-778-6314
+ brandon.hamschin@jhuapl.edu
+ Andrew P. Douglas
+ Raytheon Missile Systems
+ 1151 Hermans Road,
+ Tucson, Arizona 85756
+ 520-794-3000
+ apdouglas@raytheon.com
+ Abstract—This paper develops an algorithm that can be used
+ to solve the data association problem faced by a surveillance
+ aircraft using Direction of Arrival angle measurements to locate
+ a stationary RF signal source. The algorithm is based on statisti-
+ cal clustering of measurements with clusters being formed using
+ a Mahalanobis distance association criterion. This approach
+ accounts for angle measurement error statistics and avoids the
+ computational complexity of an exhaustive combinatorial as-
+ signment. The optimal cluster is the one that maximized the
+ target position log-likelihood function. This cluster is used to
+ compute a target position estimate then removed from the set
+ of measurements. The process is repeated until no additional
+ clusters can be formed. Simulation results are shown where 100
+ measurements are distributed randomly across 7 target signal
+ sources.
+ TABLE OF CONTENTS
+ 1 INTRODUCTION . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1
+ 2 SIMULATION EXAMPLE . . . . . . . . . . . . . . . . . . . . . . . . . 1
+ 3 GEOMETRY . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 2
+ 4 SENSOR MEASUREMENTS . . . . . . . . . . . . . . . . . . . . . . . 2
+ 5 STEP 1 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 2
+ 6 STEP 2 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 4
+ 7 STEP 3 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 4
+ 8 STEP 4 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 4
+ 9 REMAINING STEPS . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6
+ 10 SUMMARY . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6
+ REFERENCES . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6
+ BIOGRAPHY . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 8
+ 1. INTRODUCTION
+ Passive geo-location of ground targets is commonly per-
+ formed by surveillance aircraft using Direction Finding (DF)
+ angles. These angles define the line-of-sight from the aircraft
+ to the target and are computed using the response of an
+ antenna array on the aircraft to the target’s RF emissions.
+ Aircraft that depend entirely upon DF angles for geo-location
+ will often convert each DF angle measurement to a Direction
+ of Arrival (DOA) angle measurement and use these values
+ for geo-location. DOA is the angle equivalent to azimuth
+ or Angle of Arrival (AOA) when defined relative to a local-
+ level coordinate frame at the current aircraft position. DOA is
+ computed using azimuth or AOA, an estimate of the elevation
+ 978-1-4577-0557-1/12/$26:00 c 2013 IEEE.
+ 1 IEEEAC Paper #2054, Version B, Updated 13Aug2012.
+ 2 DISTRIBUTION STATEMENT A. Approved for public release; distribu-
+ tion is unlimited.
+ angle to the target, the antenna array mounting angles on the
+ aircraft, and aircraft navigation system output. Associated
+ with each angle measurement is a Line-of-Bearing (LOB)
+ that originates at the aircraft and, if perfect, passes through
+ the target’s position. See reference [1] for additional DF angle
+ details.
+ Most geo-location scenarios faced by surveillance aircraft
+ involve the existence of multiple target signal sources within
+ the area of operation. As a result, each new LOB/DOA
+ measurement must be correlated with a specific target emitter
+ before that target’s position estimate can be updated by the
+ geo-location algorithm. Geo-location performance is typi-
+ cally degraded in a dense emitter environment due to the
+ difficulty of correlating each LOB with the correct target,
+ and of preventing the generation of numerous false or ”ghost”
+ targets.
+ LOB correlation for stationary targets is addressed in ref-
+ erences [ 2–6]. In [5], clusters are formed by solving a
+ combinatorial assignment problem with the number of sensor
+ positions limited to 3 due to computational complexity. Once
+ clusters are formed, the optimal cluster is defined to be the
+ one that maximizes a likelihood function. In [6], clusters are
+ formed using Euclidean distance between LOB intersection
+ points as the metric for measurement association. The opti-
+ mal cluster is then defined simply as the one having the most
+ measurements. References [7–9] address LOB correlation for
+ moving targets.
+ This paper presents an algorithm that can be used to solve
+ the LOB correlation problem for stationary targets and uses a
+ geo-location simulation example to illustrate each step of the
+ algorithm. The algorithm is based on statistical clustering
+ of measurements but does not require that the number of
+ clusters be specified in advance, as with methods such as k-
+ means clustering [10]. This algorithm determines the cluster
+ of LOBs that maximizes the target position log-likelihood
+ function when compared to all candidate clusters. The
+ candidate clusters are those that pass a Mahalanobis distance
+ association criterion - an exhaustive search over all possible
+ measurement combinations is not performed. Once the op-
+ timal cluster of LOBs has been determined, a target position
+ estimate is computed using the cluster, the cluster is removed
+ from the set of all measurements, and the process is repeated.
+ This continues until no additional clusters can be formed.
+ 2. SIMULATION EXAMPLE
+ MATLAB R [11] was used to simulate the correlation algo-
+ rithm developed in this paper for the following geo-location
+ scenario. An aircraft is receiving RF transmissions from
+ 1
+multiple stationary ground target emitters within its area
+ of operation. The number and positions of the targets are
+ unknown. The received RF transmissions will be processed
+ to generate measurements of DOA, which in turn will be used
+ to locate the targets. The values of the scenario parameters are
+ given in the table below.
+ Scenario Parameter Units Value
+ aircraft speed knots 300
+ collection time minutes 10
+ approximate range to targets nautical miles 20
+ number of targets n/a 7
+ number of DOA measurements n/a 100
+ DOA measurement error sigma degrees 1:5
+ 3. GEOMETRY
+ Definitions
+ We will construct a fixed plane tangent to the earth’s surface
+ within the area of operation. The coordinate frame within
+ this plane will have its origin at the point where the plane
+ intersects the earth’s surface and will be oriented such that
+ the x axis points east and the y axis points north. The aircraft
+ positions will be represented in this coordinate frame by a
+ gnomonic projection into the tangent plane. The DF angle
+ measurements will be converted to DOA measurements in
+ the local-level coordinate frame at each aircraft position, then
+ converted to DOA values in the fixed tangent plane. Let ai
+ be the aircraft’s 2  1 position vector in the plane for i =
+ 1; 2; : : : ; N , where N is the number of DOA measurements.
+ We will assume that there is exactly one DOA measurement
+ at each aircraft position. Let  i be the true DOA value
+ at aircraft position ai for a signal transmitted from the true
+ target position xi. The components of the aircraft and target
+ position vectors are given by
+ ai =
+  
+a1i
+ a2i
+  
+(1)
+ and
+ xi =
+  
+x1i
+ x2i
+  
+(2)
+ DOA is defined as shown in Figure 1.
+ Simulation Example
+ TheN = 100 aircraft positions and 7 true but unknown target
+ positions are shown in Figure 2.
+ 4. SENSOR MEASUREMENTS
+ Definitions
+ Let hi be the function that gives the true DOA value in terms
+ of the true target position. Then from (1), (2), and Figure 1
+ we see that
+  i = hi (xi) = tan 1
+  
+x2i  a2i
+ x1i  a1i
+  
+(3)
+ Let zi be a measurement of  i. We will assume that the
+ measurement errors are unbiased and Gaussian with known
+ variances. As a result, we have
+ zi =  i +  i = hi (xi) +  i (4)
+ Figure 1. Direction of Arrival in Tangent Plane
+  i  N
+  
+0;  2i
+  
+(5)
+ where N represents a Gaussian distribution,  i is the mea-
+ surement error, and  i is the known measurement error sigma
+ value. From the above we have
+ zi  N
+  
+hi (xi) ;  2i
+  
+(6)
+ and therefore that
+  
+zi  hi (xi)
+  i
+  2
+   2 (1) (7)
+ where  2 (1) represents a chi-square distribution with 1 de-
+ gree of freedom.
+ Simulation Example
+ At each of the 100 aircraft positions, a random draw was
+ made to determine which of the 7 targets was transmitting
+ a signal. For that aircraft position and target, the true DOA
+ value was computed using (3). The measured DOA value
+ was computed as in (4) and (5) using a random draw with
+  = 1:5 degrees.
+ The resulting DOA measurements are shown by the 100
+ LOBs in Figure 3.
+ 5. STEP 1
+ Algorithm
+ The first step of the LOB correlation algorithm is to compute
+ all 2-LOB intersection points within specified distances from
+ the aircraft. Each 2-LOB intersection is computed as follows.
+ From Figure 1 we see that the unit vector along the measured
+ LOB from aircraft position ai is
+ ui =
+  
+cos (zi)
+ sin (zi)
+  
+(8)
+ The LOBs from aircraft positions ai and aj will intersect at
+ the point p such that
+ p = ai + riui = aj + rjuj (9)
+ 2
+Figure 2. Aircraft and Targets in Tangent Plane
+ Figure 3. Lines-of-Bearing
+ 3
+where ri and rj are the ranges from the aircraft positions to
+ the intersection point. From the above we have
+ [ ui  uj ]
+  
+ri
+ rj
+  
+= (aj  ai) (10)
+ and therefore that
+  
+ri
+ rj
+  
+= [ ui  uj ]
+  1 (aj  ai) (11)
+ If either of the computed ranges falls outside of the specified
+ minimum and maximum allowed values, then this intersec-
+ tion point is discarded. The intersection point is computed
+ using either of the computed ranges and (9). Note that
+ a negative range indicates that the 2 LOBs intersect on the
+ wrong side of the aircraft. We will let M be the number of
+ computed intersection points.
+ Simulation Example
+ The 2-LOB intersection points were required to lie between
+ 10 and 50 nautical miles from the aircraft positions. The
+ resulting M = 2651 2-LOB intersection points are shown in
+ Figure 4.
+ 6. STEP 2
+ Algorithm
+ The second step of the algorithm is to determine the set of
+ LOBs that can be associated with each 2-LOB intersection
+ point based on Mahalanobis distance [12]. The Mahalanobis
+ distance between DOA measurement zi and 2-LOB intersec-
+ tion point pj is
+ mij =
+  
+zi  hi
+  
+pj
+  
+ i
+ !2
+ (12)
+ for i = 1; 2; : : : ; N and j = 1; 2; : : : ;M . Note from (7) that
+ if pj is the true target position associated with zi, then mij
+ has a  2 (1) distribution. This fact is the basis for the LOB
+ association criterion. Our null hypothesis is that pj is the
+ target position associated with zi. Let  be the probability
+ of a Type 1 error, i.e., the probability of rejecting the null
+ hypothesis when it’s true. Let k be the critical value from a
+  2 (1) distribution such that
+ Pr
+  
+ 2 (1)  k
+  
+= 1  (13)
+ The association criterion is that LOB/DOA measurement zi
+ can be associated with pj if mij  k. The set of indices of
+ LOBs that can be associated with pj is
+ Sj = fi : mij  kg (14)
+ Several facts about (14) are worth noting. One is that
+ each LOB can typically be associated with numerous 2-LOB
+ intersection points. Another is that the elements in each set
+ Sj are not necessarily unique: Sj1 and Sj2 may contain the
+ same elements for j1 6= j2. Finally, the number of elements
+ in Sj , jSj j, is at least 2 for each j since 2 LOBs were used to
+ compute pj . We will require that jSj j  3 in order for Sj to
+ be a candidate cluster for LOB correlation.
+ Simulation Example
+ The value of used was 0:05, which means that k used in (13)
+ and (14) is the 95% critical value from a  2 (1) distribution.
+ Of the 2651 2-LOB intersection points, 2644 produced a
+ candidate cluster for LOB correlation.
+ 7. STEP 3
+ Algorithm
+ The third step of the algorithm is to determine which of the
+ candidate clusters gives the largest log-likelihood function
+ value when the LOBs in that cluster are combined to compute
+ a target position estimate. Let Sj be a candidate cluster
+ and let z be the vector containing all zi such that i 2 Sj .
+ We will assume that all such zi are associated with the same
+ true target position x. Using (6) gives that the conditional
+ probability density function for the measurements given the
+ target position x is
+ f (z j x) =
+ Y
+ i2Sj
+ f (zi j x) =
+ Y
+ i2Sj
+ 1
+  i
+ p
+ 2 
+exp
+  
+ 
+ 
+1
+ 2
+   
+zi  hi (x)
+  i
+  2
+ !
+ (15)
+ The Maximum Likelihood Estimate of x is
+ x^ = argmax
+ x
+ f (z j x) = arg max
+ x
+ ln (f (z j x)) =
+ arg min
+ x
+ X
+ i2Sj
+  
+zi  hi (x)
+  i
+  2
+ (16)
+ This value can be found numerically using Iterated Least-
+ Squares [1]. The log-likelihood function value associated
+ with candidate cluster Sj is
+ lj = ln (f (z j x^)) (17)
+ The cluster giving the largest log-likelihood function value is
+ Sjmax , where
+ jmax = argmax
+ j
+ lj (18)
+ Simulation Example
+ Of the 2644 candidate clusters, 15 achieved the maximum
+ log-likelihood function value. These 15 clusters all contained
+ the same 20 LOBs. The optimal LOB cluster is shown in
+ Figure 5.
+ 8. STEP 4
+ Algorithm
+ The fourth step of the algorithm is to compute a target
+ position estimate (16) using the optimal LOB cluster, then
+ remove the LOBs from the set of all measurements. Note
+ that the position estimate has already been computed as an
+ intermediate step in determining the log-likelihood function
+ value (17).
+ Simulation Example
+ The target position estimate for the optimal cluster and the
+ 95% confidence error ellipse are shown in Figure 6. The 20
+ LOBs in the optimal cluster have been removed.
+ 4
+Figure 4. 2-LOB Intersection Points
+ Figure 5. Optimal LOB Cluster
+ 5
+Figure 6. Target Position Estimate and Error Ellipse for Optimal LOB Cluster
+ 9. REMAINING STEPS
+ Algorithm
+ The remaining steps of the algorithm involve repeating steps
+ 1-4 above until no additional LOB clusters are formed.
+ Simulation Example
+ The final target position estimates and 95% confidence error
+ ellipses are shown in Figures 7 and 8. Note that 1 LOB was
+ not assigned to a cluster and 1 error ellipse did not contain the
+ true target position.
+ 10. SUMMARY
+ The purpose of this paper was to present an algorithm that can
+ be used to solve the LOB correlation problem for stationary
+ targets. LOB clusters were formed using a Mahalanobis
+ distance association criterion. This approach accounts for
+ angle measurement error statistics and avoids the computa-
+ tional complexity of an exhaustive combinatorial assignment.
+ Once clusters were formed, the optimal cluster was defined to
+ be the one that maximized the target position log-likelihood
+ function. This cluster was used to compute a target position
+ estimate then removed from the set of measurements. The
+ process was repeated until no additional clusters could be
+ formed. The algorithm was shown to provide good corre-
+ lation and geo-location performance in a scenario where 100
+ LOBs were distributed randomly across 7 targets.
+ REFERENCES
+ [1] M. T. Grabbe and B. M. Hamschin, “Geo-location using
+ direction finding angles,” Johns Hopkins APL Technical
+ Digest, Oct. 2012.
+ [2] A. Bishop and P. Pathirana, “Localization of emitters via
+ the intersection of bearing lines: A ghost elimination
+ approach,” Vehicular Technology, IEEE Transactions
+ on, vol. 56, no. 5, pp. 3106–3110, Sept 2007.
+ [3] B. M. Hamschin, “A comparison of two data associa-
+ tion algorithms,” L-3 Communications Integrated Sys-
+ tems, Greenville, TX, Tech. Rep. G3074.1205.01E, Oct.
+ 2007.
+ [4] ——, “Probabilistic data association applied to bearing-
+ only geolocation,” L-3 Communications Integrated Sys-
+ tems, Greenville, TX, Tech. Rep., Jan. 2008.
+ [5] K. Pattipati, S. Deb, Y. Bar-Shalom, and R. Washburn
+ Jr., “A new relaxation algorithm and passive sensor data
+ association,” Automatic Control, IEEE Transactions on,
+ vol. 37, no. 2, pp. 198–213, Feb 1992.
+ [6] J. Reed, C. da Silva, and R. Buehrer, “Multiple-source
+ localization using line-of-bearing measurements: Ap-
+ proaches to the data association problem,” in Military
+ Communications Conference, 2008. MILCOM 2008.
+ IEEE, Nov 2008, pp. 1–7.
+ [7] M. Beard and S. Arulampalam, “Comparison of data
+ association algorithms for bearings-only multi-sensor
+ multi-target tracking,” in Information Fusion, 2007 10th
+ International Conference on, Jul 2007, pp. 1 –7.
+ [8] L. Paradowski, “Qualitative and quantitative charac-
+ teristics of deghosting in advanced radar systems,” in
+ Africon Conference in Africa, 2002. IEEE AFRICON.
+ 6
+Figure 7. Final LOB Correlation and Geo-Location Results
+ Figure 8. Final Target Position Estimates and Error Ellipses
+ 7
+6th, vol. 1, Oct 2002, pp. 19 – 24.
+ [9] D. Schwartz, Progress on Angle-Only Tracking and
+ Deghosting, Johns Hopkins APL, Laurel, MD, Apr.
+ 2011, Memo GVE-11-0028.
+ [10] R. O. Duda, P. E. Hart, and D. G. Stork, Pattern
+ Classification (2nd Edition). Wiley-Interscience, 2000.
+ [11] MATLAB R . The MathWorks Inc., 2010, version
+ 7.10.0 (R2010a). [Online]. Available: http://www.
+ mathworks.com
+ [12] Y. Bar-Shalom, P. Willett, and X. Tian, Tracking and
+ Data Fusion, A Handbook of Algorithms. YBS Pub-
+ lishing, 2011.
+ BIOGRAPHY[
+ Michael T. Grabbe Grabbe is a Senior
+ Staff Member in the Weapon and Tar-
+ geting Systems Group at the Johns Hop-
+ kins University Applied Physics Labora-
+ tory. His work is primarily in the areas
+ of ground emitter geo-location, target
+ tracking, signal processing, and missile
+ navigation. Prior to joining APL, he
+ worked in these areas at L-3 Communi-
+ cations and Raytheon Missile Systems.
+ He received a B.S. degree in Engineering from the U.S. Naval
+ Academy, an M.S. degree in Electrical Engineering from
+ Southern Methodist University, an M.S. degree in Applied
+ Mathematics from the University of Arkansas, and a Ph.D. in
+ Mathematical Sciences from Clemson University. He holds
+ three geo-location and tracking algorithm patents and is a
+ Senior Member of the Institute of Electrical and Electronics
+ Engineers.
+ Brandon M. Hamschin joined APL
+ in 2011 as a member of the Weapon
+ and Targeting Systems Group within the
+ Force Projection Department. While
+ with APL his work is primarily in the
+ areas of geo-location and RADAR signal
+ processing. Prior to joining APL, he was
+ a graduate student at the University of
+ Pittsburgh conducting research in the ap-
+ plication of joint time-frequency signal
+ processing methods to detection, classification, and signal
+ design for SONAR applications related to buried mines in
+ littoral environments. Previous work experience includes
+ time at the University of Washington Applied Physics Lab
+ and L-3 Communications, where he developed algorithms for
+ target geo-location, target tracking, and data association. He
+ has a B.S. in both Mathematics and Electrical Engineering
+ from Penn State (Erie). He received an MSEE degree in
+ 2011 and is currently working toward a Ph.D. in Electrical
+ Engineering, both at The University of Pittsburgh.
+ Andrew P. Douglas joined Raytheon
+ Missile Systems (RMS) in 1997, and
+ is currently an Engineering Fellow in
+ the Guidance, Navigation and Control
+ Department. He has made significant
+ contributions in software and simula-
+ tion, sensor fusion, target tracking, and
+ navigation fields. He has also served
+ as an Adjunct Professor in the Com-
+ puter Science Department of Chapman
+ University, and helped to revitalize the near-Earth asteroid
+ tracking telescope, Pan-STARRS, lead by the University of
+ Hawaii. Dr. Douglas holds B.S. and M.S. degrees in Electri-
+ cal Engineering from the California State University system,
+ and matriculated with a Ph.D. in Electrical Engineering from
+ the University of Oklahoma. Dr. Douglas is a former United
+ States Marine and an Eagle Scout. He has published papers
+ on target tracking, probabilistic optimization, time series
+ analysis, and meteorology.
+ 8

@@ -1,0 +1,849 @@
+226 •  2013 IEEE International Solid-State Circuits Conference
+ ISSCC 2013 / SESSION 12 / NON-VOLATILE MEMORY SOLUTIONS / 12.9
+ 12.9 Unified Solid-State-Storage Architecture with NAND 
+Flash Memory and ReRAM that Tolerates 32? Higher 
+BER for Big-Data Applications
+ Shuhei Tanakamaru1,2, Masafumi Doi1, Ken Takeuchi1
+ 1Chuo University, Tokyo, Japan, 2University of Tokyo, Tokyo, Japan
+ Unified solid-state storage (USSS) provides high error tolerance with four tech-
+ niques: reverse-mirroring (RM), error-reduction synthesis (ERS), page-RAID,
+ and error-masking (EM). The acceptable raw bit-error rate (ABER) of NAND flash
+ memory is enhanced by 32?, or endurance or data-retention time effectively
+ extends by 4.2 or 34?, respectively. ABER is defined to realize BER after ECC
+ below 10-15.
+ Big-data enterprise storage is escalating demand for SSD, because of SSD’s high
+ speed, low power and small form factor. A conventional storage system has four
+ basic levels of hierarchy: server, disk array, SSD, and NAND flash. ECC and
+ redundancy provide reliability. For performance, in addition to reliability, stripe
+ and mirror everything (S.A.M.E.) has been proposed [1] in which RAID-1 (mir-
+ roring) is applied to disk arrays. Big-data tends to become copied among differ-
+ ent layers. Since controllers at each level are optimized independently of each
+ other, the resulting system has inefficient duplications and overhead.
+ The developed unified storage controller integrates all ECCs and redundancy
+ functions (Fig. 12.9.1). First, the data from the host is encoded by the ECC
+ encoder. Next, the page-RAID sequencer generates parity-bits based on XOR
+ calculation. Then, data is written to both the primary and mirrored NAND by the
+ reverse-mirroring unit. During read, data from the primary and mirrored NAND
+ is transferred to the error-reduction synthesizer. Next, the error-location infor-
+ mation is transferred from the ECC decoder to the error-masking unit, which
+ keeps a record of previous error-location information, and then the corrected
+ data is read out. The ReRAM and NAND hybrid SSD has been previously pro-
+ posed to eliminate the data fragmentation [2]. In this work, ReRAM also
+ improves memory system reliability. ReRAM’s scalability below 50nm, non-
+ volatility, speed, page re-writability, and high endurance are needed for storage
+ of the memory system’s mirroring information, parity and error record [3].
+ Figure12.9.2 depicts RM. In program disturb, measured BER in the upper page
+ is smaller than that in the lower page. In data retention, measured BER in the
+ smaller page number (cells close to the source-line) is lower than that in the
+ larger page number. The key idea of RM is that the data stored in a higher BER
+ cell of the primary NAND is stored in a lower BER cell of the mirrored NAND. To
+ minimize errors for both program disturb and data retention, RM unit modifies
+ the write address of both lower/upper pages and page number for the mirrored
+ NAND, to minimize BER within the primary and mirrored data pair. For example,
+ the data is allocated in Lower Page0/Upper Page255, Upper Page1/LowerPage254
+ of primary/mirrored NAND, respectively (Fig.12.9.2(a)). Since NAND operation
+ is limited to writing in ascending order from Page0, ReRAM temporarily stores
+ the re-ordered write data, and then the mirrored NAND is written. During read,
+ either the primary or mirrored NAND can be selected, based on whichever is
+ expected to have fewer errors. As a result, the program-disturb and data-reten-
+ tion BER decreases by 69% and 41%, respectively (Fig.12.9.2(b)).
+ Figure12.9.3 describes ERS. Measurement of program-disturb error shows that
+ in the lower page, 1?0 errors dominate with no observable 0?1 errors; and in
+ the upper page, 0?1 errors occur more than 1?0 errors (Fig.12.9.3(a)) [4].
+ Figure12.9.3(b) presents the algorithm of ERS. During write with RM, the lower
+ page data in the primary NAND is stored in the upper page of the mirrored
+ NAND, which means that the dominant error directions (1?0 or 0?1 error) in
+ primary NAND and mirrored NAND are opposite. In order to reduce bit errors
+ and maintain RM compatibility, write data to the mirrored NAND should be bit-
+ flipped. During read, primary NAND and mirrored NAND data are compared. If
+ mismatch, ERS outputs “1” or “0” when the lower or upper page of primary
+ NAND is selected, respectively. Based on the trend for error direction in the
+ upper/lower page, the mismatch can be corrected. False decision may also
+ occur, but rarely, as this would require a simultaneous bit error in both the pri-
+ mary and mirrored NAND. As a result, with RM and ERS, the measured BER
+ decreases by 91%, which corresponds to a 100/(100-91)=12? ABER improve-
+ ment.
+ Figure12.9.4 provides 2X and 1Xnm NAND measurements. Immediately after
+ writing, program disturb error is dominant. In that case, RM w/ ERS achieves
+ 91% and 85% BER reduction in 2X and 1Xnm NAND’s, respectively
+ (Fig.12.9.4(a)). After retention, RM w/ ERS improves BER by 56% and 30% in
+ 2X and 1Xnm NAND’s, respectively (Fig.12.9.4(b)).
+ Page-RAID is explained in Fig.12.9.5. RAID-4 like protection is realized without
+ performance degradation; data is protected in the bitline direction in addition to
+ conventional ECC (Fig.12.9.5(a)). Block parity is calculated by XOR-ing the data
+ in a NAND string and storing the result in ReRAM. Only one parity page is need-
+ ed per NAND chip, because the unified storage controller programs blocks in
+ round-robin with page-level logical/physical address translation. When an ECC
+ failure is flagged, the victim page can be recovered by calculating XOR of the
+ other existing pages in the NAND block. The block-parity in ReRAM is updated
+ every time when a page is written in a NAND block. Repeated parity updating is
+ feasible because high endurance, page over-write is available in ReRAM [2].
+ When the NAND block is almost full, the block-parity data is transferred from the
+ ReRAM to the last page of the NAND block.
+ During one block NAND write, the block-parity in ReRAM is overwritten 
+(Npage – 1)-times. Npage is the number of pages in a block. Considering NAND’s
+ endurance (4000 cycles), the required ReRAM endurance is 255?4000=106
+ cycles, which can be realized by using program verification and optimizing the
+ program pulse shapes [5]. If MLC or SLC NAND were to be used for the parity
+ buffer, the write time overhead and required capacity would be unacceptably
+ large (Fig.12.9.5 (b)). When ReRAM is used as the parity buffer, the required
+ parity buffer capacity is less than 0.1% of the storage (NAND) capacity. With
+ page-RAID, ABER of NAND is increased by 45% (Fig.12.9.5(c)).
+ Figure12.9.6 shows EM. Over time, memory cell VTH decreases, and once an
+ error occurs, it is irrecoverable. In error-recording sequence, the error address
+ is marked as “1” in the error-location table, then stored to ReRAM with compres-
+ sion. In error-masking sequence, errors are masked by comparing the read-data
+ and pre-recorded error-location table (Fig.12.9.6(a)). Since BER is below a few
+ percent, the number of error flag “1”’s in the error-location table is small. If the
+ NAND BER is 1%, the error-location table can be efficiently compressed to 16%
+ by run-length encoding (Fig.12.9.6(b)). With EM, the measured BER decreases
+ by 67%, corresponding to 3? ABER improvement (Fig.12.9.6(c)).
+ Figure12.9.7 depicts the photograph of the measured storage. The USSS with
+ RM, ERS, page-RAID and EM increases ABER by 32? compared with the con-
+ ventional mirroring scheme, which corresponds to an increase in write/erase
+ endurance of 4.2?, or increase in retention time of 34?. ABER of NAND is 6.7%,
+ assuming 40b correction per 1KB ECC. The presented techniques can also be
+ applied with other ECC schemes such as asymmetric coding [4] and LDPC codes
+ [6].
+ Acknowledgements:
+ This work is partially supported by CREST/JST. The authors appreciate T.O.
+ Iwasaki, K. Johguchi, S. Hachiya, and K. Miyaji for their support.
+ References:
+ [1] “Oracle and RAID Usage,” 
+http://www.dba-oracle.com/oracle_tips_raid_usage.htm
+ [2] H. Fujii et al., “x11 Performance Increase, x6.9 Endurance Enhancement,
+ 93% Energy Reduction of 3D TSV-Integrated Hybrid ReRAM/MLC NAND SSDs
+ by Data Fragmentation Suppression,” IEEE Symp. VLIS Circuits, pp. 134-135,
+ 2012.
+ [3] “64Mbit 50nm ReRAM Prototype,” 
+http://www.elpida.com/ja/news/2012/01-24r.html
+ [4] S. Tanakamaru et al., “95%-Lower-BER 43%-Lower-Power Intelligent Solid-
+ State Drive (SSD) with Asymmetric Coding and Stripe Pattern Elimination
+ Algorithm,” ISSCC Dig. Tech. Papers, pp. 204-205, 2011.
+ [5] K. Higuchi et al., “Investigation of Verify-Programming Methods to Achieve
+ 10 Million Cycles for 50nm HfO2 ReRAM,” IEEE Int. Memory Workshop, pp.119-
+ 122, 2012.
+ [6] S. Tanakamaru et al., “Over-10x-Extended-Lifetime, 76%-Reduced-Error
+ Solid-State Drives (SSDs) with Error-Prediction LDPC Architecture and Error-
+ Recovery Scheme,” ISSCC Dig. Tech. Papers, pp. 424-425, 2012.
+ 978-1-4673-4516-3/13/$31.00 ©2013 IEEE
+227DIGEST OF TECHNICAL PAPERS  •
+ ISSCC 2013 / February 19, 2013 / 4:45 PM
+ Figure 12.9.1: Concept of the unified solid-state storage (USSS). USSS solves
+ the issues of unnecessary duplications and inefficient functions in the conven-
+ tional scheme caused by the copying of the big-data between many layers.
+ Figure 12.9.2: Reverse-mirroring (RM). By cross-pairing upper/lower page
+ and re-ordering the large/small page numbers into the mirrored NAND 
+memory, 69% BER reduction is experimentally demonstrated.
+ Figure 12.9.3: Error-reduction synthesis (ERS). For RM w/ERS, the measured
+ BER is reduced up to 91%.
+ Figure 12.9.5: Page-RAID. XOR parity of the programmed data is calculated
+ vertically, temporarily stored in ReRAM, and finally written to the last page of
+ the block. Figure 12.9.6: Error-masking (EM). Measured BER is reduced by 67%.
+ Figure 12.9.4: Measured results of conventional mirroring, RM w/o ERS, RM
+ w/ ERS for 2X and 1Xnm NAND flash memories.
+ Conventional storage Proposed
+ unified solid-state storage (USSS)
+ A
+ B
+ C
+ D
+ RAID
+ A
+ B
+ C
+ D
+ A
+ B
+ C
+ D
+ A
+ B
+ E
+ F
+ A
+ R
+ T
+ Z
+ Server 0 Server 1 Server N-1
+ Host
+ ECC,
+ Redundancy
+ (Mirror server)
+ ECC
+ Redundancy
+ (Mirror array/drive)
+ NAND
+ flash
+ memory
+ Solid-State Drive
+ Redundant server
+ ECC,
+ Redundancy
+ (Spare space)
+ SSD
+ controller
+ RAID controller
+ Primary Mirror
+ Unified storage controller
+ Host
+ ReRAM - Mirroring buffer
+ - Parity buffer
+ - Error-location
+ table
+ (1) Reverse-mirroring (RM)
+ (2) Error-reduction synthesis (ERS)
+ (3) Page-RAID
+ (4) Error-masking (EM)
+ NAND
+ A
+ B
+ C
+ NAND
+ A
+ B
+ C
+ Mirroring (RAID-1)
+ Primary Mirror
+ 0
+ 0.02
+ 0.04
+ 0.06
+ 0.08
+ 0.1
+ 0.12
+ 0.14
+ 0.16
+ 0 64 128 192 256
+ Data number in a block
+ Da
+ ta
+  
+re
+ te
+ n
+ tio
+ n 
+BE
+ R Worst BER for Conv.
+ Worst BER for RM
+ -41%
+ Lower page
+ Upper page
+ SSL
+ BL
+ Upper page
+ Lower page
+ P.D. BER
+ DSLWL0 WL1 WL126 WL127
+ Program 
+data
+ Page0(Data0)
+ Page2(Data2)
+ Page252(Data252)
+ Page254(Data254)
+ Page1(Data1)
+ Page3(Data3)
+ Page253(Data253)
+ Page255(Data255)
+ SSL
+ BL
+ DSL WL0WL1WL126WL127
+ Page254(Data1)
+ Page252(Data3)
+ Page2(Data253)
+ Page0(Data255)
+ Page255(Data0)
+ Page253(Data2)
+ Page3(Data252)
+ Page1(Data254)
+ P.D. BER
+ Lower
+ Upper
+ Lower
+ Upper
+ 2Xnm, 506 hours @ 85?C
+ Primary NAND
+ Page #D.
+ R.
+  
+BE
+ R
+ RM
+ Conv.
+ Mirrored NAND
+ Page #
+ D.R.
+  
+BER
+ Pair Pair
+ Write from Page0
+ 0
+ 0.004
+ 0.008
+ 0.012
+ 0.016
+ 0 64 128 192 256
+ Data number in a block
+ Pr
+ o
+ gr
+ am
+  d
+ is
+ tu
+ rb
+  
+BE
+ R Worst BER for Conv.
+ Worst BER for RM
+ -69%
+ Conv.
+ RM
+ Mirroring 
+buffer
+ (ReRAM)
+ Page 
+position 
+inversion
+ (a)
+ (b)
+ 0
+ 0.005
+ 0.01
+ 0.015
+ 0.02
+ 1 2 3 4 5 6 7 8
+ Pr
+ o
+ gr
+ am
+  d
+ is
+ tu
+ rb
+  
+BE
+ R 2Xnm
+ L1 L2 L3 L4 U1 U2 U3 U4
+ L: Lower page
+ U: Upper page
+ 3s2"gttqt
+ 2s3"gttqt
+ Read primary 
+NAND data
+ Read mirrored 
+NAND data
+ Data 
+match?
+ Yes
+ Output 
+primary data
+ No
+ Comparison
+ Decision
+ Most "1"-data 
+is correct
+ Most "0"-data 
+is correct(a)
+ (b)
+ Read method
+ Write primary 
+NAND data
+ Write mirrored 
+NAND data
+ Reverse-
+ mirroring Bit-flip
+ Write request 
+from host
+ Write method
+ Is lower/upper 
+page selected in 
+primary NAND?
+ Output 
+"1"
+ Output 
+"0"
+ Upper page
+ Lower page
+ Error direction
+ (1) (2)
+ Flip-back
+ ex.) "1 0 1 1"
+ ex.) "0 1 0 0"
+ ex.) "1 0 1 1" ex.) "0 1 0 1"
+ Error
+ ex.) "1 0 1 0"
+ W/E: 10k
+ VTH
+ # of cells
+ 1 1 0 1 0 0 1 0
+ 0å 1 error
+ (Upper page)
+ 1å 0 error
+ (Lower page)
+ 1å 0 error
+ (Upper page)
+ Conventional mirroring (Place same data to same page of primary/mirrored NAND.)
+ Reverse-mirroring with error-reduction synthesis (RM w/ ERS)
+ Reverse-mirroring without error-reduction synthesis (RM w/o ERS)
+ 0
+ 0.002
+ 0.004
+ 0.006
+ 0.008
+ 0.01
+ 0.012
+ 0.014
+ 0 2 4 6 8 10W
+ o
+ rs
+ t p
+ ro
+ gr
+ am
+  d
+ is
+ tu
+ rb
+  
+BE
+ R 
+o
+ f a
+  
+pa
+ ge
+  
+in
+  a
+  
+bl
+ oc
+ k
+ Write/erase cycles
+ 2k k 6k 8k 10k
+ 2Xnm
+ 0
+ 0.05
+ 0.1
+ 0.15
+ 0 2 4 6 8 10
+ W
+ o
+ rs
+ t d
+ at
+ a 
+re
+ te
+ n
+ tio
+ n
+ BE
+ R 
+o
+ f a
+  
+pa
+ ge
+  
+in
+  a
+  
+bl
+ oc
+ k
+ Write/erase cycles
+ 0 2k 4k 6k 8k 10k
+ 2Xnm
+ 506 hours @ 85?C
+ -69%
+ -91%
+ Program disturb
+ Data retention
+ 0
+ 0.005
+ 0.01
+ 0.015
+ 0.02
+ 0 2 4 6W
+ o
+ rs
+ t p
+ ro
+ gr
+ am
+  d
+ is
+ tu
+ rb
+  
+BE
+ R 
+o
+ f a
+  
+pa
+ ge
+  
+in
+  a
+  
+bl
+ oc
+ k
+ Write/erase cycles
+ 2k 4k 6k
+ 1Xnm
+ 0
+ 0.02
+ 0.04
+ 0.06
+ 0.08
+ 0.1
+ 0 2 4 6
+ W
+ o
+ rs
+ t d
+ at
+ a 
+re
+ te
+ n
+ tio
+ n
+ BE
+ R 
+o
+ f a
+  
+pa
+ ge
+  
+in
+  a
+  
+bl
+ oc
+ k
+ Write/erase cycles
+ 0 2k 4k 6k
+ 1Xnm
+ 194 hours @ 85?C
+ -45%
+ -85%
+ Program disturb
+ Data retention
+ -56%
+ -41% -14%
+ -30%
+ (a)
+ (b)
+ 1 0 1 0 1 0 0 0
+ 1 1 0 1 1 1 0 0
+ 0 1 1 0 1 0
+ XOR (Page-RAID)
+ (BL direction)
+ ECC (Conv.)
+ (WL direction)
+ 0 0 0 1 1 1 1 0
+ 0 1 1 0 1 0 1 0
+ ReRAM (Parity buffer)
+ Write block-parity to NAND
+ User data
+ ECC
+ (for ReRAM)
+ ECC
+ 0.01
+ 0.1
+ 1
+ 10
+ 100
+ 1.00E+031.00E+041.00E+051.00E+061.00E+071.00E+08108107106105104
+ Re
+ qu
+ ire
+ d 
+pa
+ rit
+ y 
+bu
+ ffe
+ r 
+ra
+ tio
+  
+to
+  
+st
+ o
+ ra
+ ge
+  (%
+ )
+ 1E-17
+ 1E-15
+ 1E-13
+ 1E-11
+ 1E-09
+ 1.00E-03 1.00E-02
+ 10-9
+ 10-11
+ 10-13
+ 10-15
+ 10-17
+ 1 2 3 4 5 6 7 8 9 10
+ Raw BER of NAND (x10-3)
+ Market requirement
+ +45%
+ 40bit correction per 
+1KByte + proposed 
+page-RAID
+ N
+ page
+ -1
+ NAND block
+ Npage: Page number in a block (e.g. 256)
+ WL0
+ WL1
+ WL126
+ WL127
+ 103
+ ReRAM
+ NAND (SLC)
+ NAND (MLC)
+ x1/100
+ Acceptable write/erase
+ cycle of parity buffer
+ BE
+ R 
+af
+ te
+ r 
+EC
+ C
+ Block-parity
+ (a)
+ (b)
+ (c) 0
+ 0.01
+ 0.02
+ 0.03
+ 0.04
+ 0.05
+ 0.06
+ 0.07
+ 0 100 200 300 400
+ 0 0 1 0 0 1 1 0
+ Error-
+ location flag
+ (“1”)
+ Data 
+compression
+ Error-
+ location data
+ Write to ReRAM
+ Error-location 
+table
+ Step1
+ Step2
+ Step3
+ (Efficiently compressed to 
+16% by run-length 
+encoding when BER is 1%)
+ Read from 
+NAND
+ Error-recording sequence
+ Error-masking sequence
+ ECC decode
+ (Error location
+ is obtained)
+ Data output
+ Read from 
+NAND
+ Compress error 
+location (see (c))
+ Write error 
+location to ReRAM
+ Read error location
+ from ReRAM
+ Decompress 
+error location
+ ECC 
+decode Data output
+ Error-elimination
+ (a)
+ (b) (c)
+ Retention time (hour)
+ BE
+ R 
+of
+  
+NA
+ ND
+  fl
+ as
+ h 
+m
+ em
+ o
+ ry
+ Error-
+ masking
+ -67%
+ -55%
+ Conv.2Xnm
+ 85?C
+ Error-
+ recording
+ sequence
+ Error-
+ masking
+ sequence
+ NAND page size
+ No error 
+(“0”)
+ 12
+•  2013 IEEE International Solid-State Circuits Conference 978-1-4673-4516-3/13/$31.00 ©2013 IEEE
+ ISSCC 2013 PAPER CONTINUATIONS
+ Figure 12.9.7: Photograph of the measured storage and summary of this work.
+ 0.0001
+ 0.001
+ 0.01
+ 1 10 100 1000
+ Prop. ABER for D.R. (1.3%)
+ Conv. ABER
+ (0.21%)
+ x2
+ (Acceptable
+ W/E cycles)
+ x34
+ (Acceptable
+ D.R. time)
+ Data retention time (hour)
+ 2Xnm 85 ˚C
+ x6.2
+ Da
+ ta
+  
+re
+ te
+ n
+ tio
+ n 
+BE
+ R 
+(%
+ )
+ 1
+ .1
+ .01
+ (for P.D. error)(for D.R. error)
+ 0.1
+ 1
+ 10
+ 1 2 3 4 5 6ECC+
+ +
+ +
+ +
+ RM
+ ERS
+ Page-
+ RAID
+ EM
+ ECC
+ +
+ +
+ Page-
+ RAID
+ EM
+ ECC
+ +
+ Page-
+ RAID
+ ECC
+ (Conv.)
+ x32
+ 40bit correction per 1KByte
+ ECC
+ +
+ Mirroring
+ (Conv.)
+ w/o Mirroring w/ Mirroring
+ x6.2
+ 6.7%
+ 1.3%
+ 0.21%x1.45
+ x3 x2.6
+ x12
+ 0.001
+ 0.01
+ 0.1
+ 1
+ 10
+ 0 10 20 30
+ Pr
+ o
+ gr
+ am
+  d
+ is
+ tu
+ rb
+  
+BE
+ R 
+(%
+ ) Prop. ABER for P.D. (6.7%)
+ Conv. ABER (0.21%)
+ x4.2
+ (Acceptable
+ W/E cycles)
+ 2Xnm
+ 0 10k 20k 30k
+ Write/erase cycles
+ x32
+ ECC
+ +
+ +
+ +
+ +
+ RM
+ ERS
+ Page-
+ RAID
+ EM
+ Ac
+ ce
+ pt
+ ab
+ le
+  
+ra
+ w
+  
+BE
+ R
+ (A
+ BE
+ R)
+  
+o
+ f N
+ AN
+ D 
+(%
+ )Extension board 
+for storage
+ (NAND flash)
+ Storage 
+controller
+ board
+ Extension board 
+for storage
+ (NVMs)
+ Storage 
+controller
+ chip

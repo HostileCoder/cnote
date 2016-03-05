@@ -1,0 +1,557 @@
+Softening the Object-Oriented Database Model: 
+Imprecision, Uncertainty, and Fuzzy Types * 
+1.J. Blanco, N. Marin, 0. Pons, M.A. Vila 
+Department of Computer Science and A.I., University of Granada 
+Granada, Andalucia, Spain 
+{ iblanco,nicm,opc,vila} @ decsai .ugr.es 
+Abstract 
+Object-oriented databases have proved to be a good al- 
+ternative to the relational ones of Codd when dealing 
+with applications characterized by their complexity and 
+dynamism. In the last few years, a big part of the effort 
+of researchers in the field of object-oriented databases 
+(OODB) has been focused on the study of the addition 
+of vagueness to this database model. There are differ- 
+ent levels where vagueness can arise: uncertain and im- 
+precise attribute values, fuzzy extents in classes, vague 
+relationships between classes (including inheritance), 
+and soft type definitions. In this paper, we summarize 
+our proposal in this area, showing how these different 
+soiirces of vagueness can be managed over a traditional 
+OODB system. We explain the new structures to be con- 
+sidered in order to incorporate vagueness and we use the 
+Unified Modeling Language (UML) to make the con- 
+ceptual representation of this structures clear because 
+of' its direct translation to an object-oriented model. 
+1 Introduction 
+Since the relational database model was proposed by 
+Codd, there have been lots of applications where this 
+database model has been used in order to obtain good 
+solutions for managing data. Nevertheless, for some 
+time now, the new necessities of the information sys- 
+tems have claimed for a more complete model capa- 
+ble of facing the complexity and dynamism of the cur- 
+rent real world problems. The object oriented database 
+model 12, 81 has proved to be a suitable tool for dealing 
+with this kind of requirements. One of the evidences 
+of  the success of this database model is the increasing 
+interest put on the development of a standard that al- 
+lows designers and programmers work with a reference 
+guide [ I ] .  
+~ 
+'This work was partially supported by Spanish R&D project 
+TlC90-0558 "lmplantaci6n de I&\ Tecnicas de la Coinputaci6n Flex- 
+ihle en Aplicocioneh de Gesribn Empresarial. Aplicacibn a la Real- 
+izacidn de tin Mdtlulo de Gestidn de Ofena Inmobiliaria". 
+Frequently, the information existing in the rcal world is 
+affected by imperfection of very different types. The 
+problem of vague information in databases has been 
+widely studied throughout the last decades. Fuzzy 
+Logic and Fuzzy Sets Theory 1201 have proved to he 
+very useful to face the diverse kinds of lack of precision 
+and certainty that may appear in real world data. 
+At the moment, object-oriented databases are being ex- 
+tended to include fuzzy capabilities in the same way as 
+other database models were. The addition of vague- 
+ness at different levels has led to fuzzy object-oriented 
+database (FOODB) models. 
+Many relevant works can be found in this research 
+area. G .  Bordogna et al. [4, 51 have proposed a com- 
+plete graph-based object-oriented model considering a 
+wide survey of the situations where data imperfection 
+can arise. N. Van Gyseghem et al. 19, IO] have de- 
+veloped UFO, a fuzzy object-oriented database model 
+capable of dealing with imprecision and uncertainty in 
+data, managing this imperfection even in the data life- 
+time, taking into account the effect of vagueness over 
+the methods execution. A. Yazici et al. 16, 1 1, 19, 1 S] 
+are currently extending their FOOD (Fuzzy Object Ori- 
+ented Database model) with certain capabilities for flex- 
+ible querying. The concept of typicality is exposed 
+in the hierarchical model of fuzzy classes proposed by 
+J. P. Rossazaet al. [14]. 
+In this paper we present a complete proposal in this area, 
+considering different strategies to manage the diverse 
+kinds of vagueness that may appear in data in an OODB 
+system. The basis of our proposal is to consider that the 
+traditional object oriented database model is wide and 
+general enough to be the base for developing a FOODB 
+Model. Thus, we face the representation on this model 
+of the different kinds of imperfections that may arise 
+when a database is being designed in an object oriented 
+paradigm, according to the level where these imperfec- 
+tions may occur. 
+Section 2 describe the management of vagueness at the 
+attribute level. Section 3 deals with fuzzy extents in 
+classes. Section 4 is devoted to study specialization and 
+Page: 2323 
+gixmxlization processes in inheritance hierarchies. Un- 
+certain definitions in objects and classes are explained 
+in section 5. Finally, the use of precision levels in type 
+dctinition is explained in section 6. Somc concluding 
+remarks end the paper. 
+2 Attribute Level 
+Taking into account the description exposed by Rus- 
+pini [ I 51, tlirec differcnt types of imperfect information 
+may appear in an attribute value: the value may be ill- 
+dcfinccl, i t  may bc atleckd by uncertainty, or both things 
+may happcn at thc same time. 
+2.1 Imprecise Attribute Domains 
+The reason why an attribute value can be ill-defined may 
+be assorted, from an actual ill-knowledge of the datum, 
+t i l l  an imprecision in nature affecting the domain of the 
+attribute. For instance, let us consider the following ex- 
+amples: 
+1 .  Mikc’s prospects are good. 
+2. The mark of Mike is good. 
+3. Mike is in his.final academic years. 
+In the two last examples, there exists an underlying do- 
+main for the attribute, which is perfectly defined. How- 
+ever, the other case is different, because it  is not easy to 
+tind an underlying domain where the label good could 
+be represented in a natural way. So then, at this point, 
+we can distinguish two types of imprecise values, that 
+is, with and without semantic representation. 
+In this last situation, the most appropriate solution is not 
+to represent the labels as fuzzy sets, but to consider that 
+a resemblance relation is defined over the set of labels 
+that conform the attribute domain. In case that an at- 
+tribute has inore than one value, we propose not to con- 
+sider them in a disjunctive sense, but to include them as 
+a new label in the domain, modifying the resemblance 
+relation in a suitable manner [ 171. 
+In the other two examples, the underlying domain al- 
+lows us to detine labels by means of possibility distri- 
+butions. However, we must take care about the mean- 
+ing given to these possibility distributions since it may 
+happen that the real attribute value can take only one of 
+the values included in the distribution (e.g. the mark of 
+Mike) or its real value is a combination of such values 
+(e.g. his academic year): 
+, 
+If the possibility distribution has a disjunctive in- 
+terpretation, the situation is very similar to the one 
+0 
+2.2 
+of the exainplc 1 ,  from the domain structure point 
+of view. We have an attribute with an atomic do- 
+main, but now is the union of the basic domain and 
+a suitable set of labels. We can face this problem 
+also considering a fuzzy resemblance relation, but 
+now defined as an extension of the natural equality 
+which exists in any numerical set [ 171. 
+Otherwise, we arc dcaling with an attribute whose 
+value is a fuzzy subset of a specific basic domain. 
+There is an implicit conjunctive meaning under thc 
+label used to express the value. In these siluations. 
+we h a w  to deal with a suitable representation for 
+the fuzzy set. 
+Uncertainty in Attributes Values 
+Data, besides being imprecise, may be uncertain. Think 
+about those situations where data may be perfectly cle- 
+fined, but we are not sure whether they are true or not 
+(e.g. it is very possible that Mike lives in Granada). For 
+these values, a level of truth must be considered. 
+Different measure scales for the uncertainty may be 
+considered: it is possible to use probability (w.r.1. pos- 
+sibility) measures defined within the [0, I ]-interval or to 
+use linguistic probabilities (w.r.t. possibilities) whose 
+labels may, in turn, have a semantic representation as a 
+disjunctive fuzzy set. 
+To consider that some kind of uncertainty is associated 
+to some attribute implies to assume that the attribute do- 
+main is an aggregation of the actual attribute domain 
+and the scale where this uncertainty is measured. No- 
+tice that, in case either the actual domain or the scale 
+(or both) are fuzzy, the corresponding classes must be 
+previously defined and the uncertainty feature must he 
+taken into account when calculating similarities[3, 71. 
+Figure 1 shows a complete example where vagueness is 
+managed when appearing at the attribute level. Classes 
+ProspectLabe1 and ExtendedMark are very similar, Iiav- 
+ing as main difference the method used to create new in- 
+stances: ExtendedMark has an underlying domain (e.g. 
+[0- lo]) and new labels can be obtained giving their rep- 
+resentation over such domain. We have used a set of 
+possibilistic labels in order to express the value of 14171- 
+City (short for uncertainty measurement of city). The 
+academic year of each student is represented by means 
+of a label whose type FuzzyYear is made up of fuzzy 
+sets defined over the basic year domain. 
+2.3 Uncertain Objects Relationships 
+Semantic data models usually offer two ways for con- 
+necting objects: The concept of attribute, which in- 
+volves a functional approach and i t  is used to relate a 
+Page: U24 
+Create( ... ) 
+1 Imperiecyear ,city , jmembershtp : Float01 i 'year .Year 1 Uncertaincity ! name : Strin 
+1 i, omctiv 
+label : Siring 
+a : Float01 
+b : Float01 
+c : Float01 
+CompuleSimi(op1 ' PossibiliSticLabel) : FloalOl 
+Figwe  1. Mike's examplc 
+class with the domains of its attributes and the aggre- 
+gation construct, which is used to model those relation- 
+ships not included in the form of attributes. 
+In the previous section, we have explained how to deal 
+with the vagueness affecting to the functional connec- 
+tion among objects. However, if the relationship must 
+be represented by means of an aggregation construct 
+some appreciations have to be taken into account: 
+3 
+The 
+If we have partial knowledge about whether two 
+objects are related, we can include in the class a 
+new attribute standing for the truth level in the cor- 
+responding aggregation, using the different truth 
+scales we have commented previously. 
+On the other hand, instead of a truth level, we can 
+consider that the existing connection admits de- 
+grees of importance. This situation arises when 
+not all the relationship instances have the same 
+strength. In these situations, we can use numeri- 
+cal or linguistic levels to express this strength. Re- 
+garding linguistic scales, it should be noted that the 
+labels should have a different meaning from that 
+used to express uncertainty. For example, we can 
+consider the set {"high", "medium", "low"}, with 
+each label represented as a disjunctive fuzzy set in 
+[0,11. 
+Instance Relationship Level 
+presence of vagueness in the attribute values that - 
+characterize any object, could lead to some kind of un- 
+certainty associated to the membership of each object 
+with respect to a given class. This fact is translated into 
+a membership degree valued within interval [O, I ] ?  in- 
+stead of the traditional crisp one. The class does not 
+have a clear extent of objects, but a fuzzy onc. 
+The representation of this feature in our object oriented 
+model is vcry simple: we only have to add an cxtra at- 
+tribute to the class wc want to extend in a fuzzy way. 
+Normally this attributc should be [O,  I]-valued, hut to 
+consider the use of a set of labels may result interesting 
+too. Constructor methods can be defined implementing 
+the policy used to calculate the membership dcgrec. 
+4 Inheritance Relationship Level 
+At this point we must considcr both specialization and 
+generalization processes that may appear in the hierar- 
+chy of classes of a given problcm. 
+4.1 Fuzzy Subclasses 
+Specialization processes create subclasses from an ex- 
+isting class by constraining the description of-a property 
+(e.g. an attribute domain) or hy specifying an additional 
+set of properties. Both kinds of mechanisms could lead 
+to imprecise structures by considering flexible ways for  
+characterizing the corresponding subclasses. This Rex- 
+ihility results in a fuzzyfication of the membership de- 
+gree of each possible object to the subclass, which can 
+be represented taking into account the guidelines stated 
+in section 3. 
+In the first situation, when the subclass is expressed by 
+constraining the description of a property, what we actu- 
+ally have is an intensive class in the sense of [ 161, since 
+it is defined by means o f a  fuzzy predicate. Therefore, it 
+will not be necessary to represent it as a separate struc- 
+ture and a suitable procedural management will suffice 
+in most cases. 
+If the subclass is not defined using any explicit impre- 
+cise restriction, but specifying an extra set of proper- 
+ties, i t  must be represented separately as an independent 
+structure. A less than one membership degree for some 
+object will usually come from some of its attributes to 
+be null or undefined. 
+For example, we may consider a subclass Goodstudent 
+from the class Student. To accomplish the creation of 
+such a class we only need to compute some heuris- 
+tic rule over his marks and then determine the degree 
+of goodness of the student. An extra attribute good- 
+nessLevel will suffice. On the other hand, let LIS con- 
+sider the creation of a subclass Employee from an ex- 
+isting class Person. Extra properties would characterize 
+the new class, but at the same time the kind of joh may 
+result in a fuzzyfication of the extent of the class. Figure 
+2 shows both cases. 
+0-7803-7078-3/0l/$10.00 (C)U)ol IEEE. Page: 2325 
+m mark : Mark 
+A 1.: 
+! record 
+name ' String 
+age : Age 
+acdYear : FuzzyYear 
+1 goodnessLevel : Float01 
+Person 
+age : Age 
+salary : Salary 
+md : FloatOl 
+I I 
+If jabType=' housewfe" c 
+lhen salary-null and md-0 8 
+Figure %. Siibclass cwation 
+4.2 Fuzzy Categories 
+In ii generalization process we usually construct a super- 
+class by means of the union of different classes existing 
+in the schema. Any object of the subclasses must belong 
+to the created superclass. 
+Additionally, some semantic data models use the cute- 
+g o r ~  concept, i.e. a class defined as a subset of a su- 
+perclass. The process of defining a new category can be 
+smoothed by considering classes as fuzzy subsets of the 
+union of the involved classes. 
+The representation of a fuzzy category in an object ori- 
+ented data model context is similar to the one described 
+above, that is, an additional attribute is included to- 
+gether with some integrity constraints conceming the 
+inclusion of the fuzzy category in the union ofthe initial 
+classes. 
+Think for example in two classes Student and Teacher. 
+We can create the fuzzy category Researcher from this 
+two classes: any student or teacher could be considered 
+a researcher with a certain degree. This degree is con- 
+strained by the membership degree of every object to 
+the classes Student and Teacher: 
+/ln,,.sr.or.c/rrr, (0) L ~ ~ t u d e n t  (0) V ~ ~ e n c h e r ( 0 ) .  
+5 Uncertain Definitions 
+Now, let us have a look to those situations where vague- 
+ness affects either the definition of the object or the def- 
+inition of the class itself (or both of them). 
+5.1 Uncertain Object Definition 
+We can distinguish two different situations with respect 
+to uncertainty affecting the definition of a given object: 
+Those situations where we are not sure about the 
+value of some attributes: this situation corresponds 
+to the attribute level, and does not actually involve 
+any change in the detinition of the object. 
+Those situations where we arc not sure ahoiil 
+whether and object has or not a certain attributc. 
+This fact does concern the definition of the object 
+and has to be managed in a suitable manner. 
+The direct way to manage the uncertainty about thc ap- 
+plication of an attribute (or in general a method) to a 
+given object is to consider an extra property that in- 
+forms us about the applicability level associated to this 
+attribute. Thc scale of applicability may be, as usual, of 
+several types (possibilistic, probabilistic, etc.). 
+It results quite hard to distinguish the semantics of this 
+uncertainty: in some situations it could be very difficult 
+to make a distinction between the lack of certainty about 
+whethcr an attribute characterizes an object or not, or 
+the lack of certainty about the reliability of the source 
+that provides us the value for the attribute. 
+Thinking deeply, an important part of the situations 
+where the use of uncertainty in the applicability of a 
+property seems to be necessary, may be due to a inap- 
+propriate definition of the class. 
+5.2 Uncertain Class Definition 
+The presence of uncertainty at this level involves some 
+considerations that have to be taken into account: 
+0 If we create an object of a class defined with un- 
+certainty, this uncertainty must be propagated to 
+the object definition, and, even, to the object mem- 
+bership to this class. That facts make much more 
+complex data manipulation. 
+0 With the time, this uncertainty may change, and 
+this may affect not only the schema but the objects 
+in the database. 
+The presence of uncertainty in the definition of our 
+structures must be avoided. Precisely, one of the most 
+important aims of a designer is to eliminate uncertainty 
+in the schema, trying to find the best hierarchy of classes 
+that represents the problem that is being solved. 
+Conversely, a good knowledge of the problem could 
+lead us to manage different levels of precision in our 
+structures. Next subsection is devoted to study this idea. 
+0-7803-7078-3/0U$10.00 (C)2001 IEEE. Page: 2326 
+6 Fuzzy Types 
+The kist subject that remains untrcatcd from the targets 
+exposed in the introduction of this paper is the presence 
+of diffcrcnt levels of precision in the definition of the 
+classes. 
+We can consider the possibility of defining the structure 
+and the behavior of a class (i.e., its type), in a soft or 
+fuzzy way, in order t o  improve the modeling of complex 
+real world problems. 
+FUZZY Types are a new kind of types that allows us to 
+define the class type hy means of different levels of pre- 
+cision. Each property hclongs to the type with a certain 
+membership degree at interval [O-I]. That is, a Fuzzy 
+Type is a fuzzy sct of properties. Actually, it is a pair 
+of fuzzy sets: a fuzzy set of attributes that characterize 
+the structure of the type and a fuzzy set of methods that 
+determine the behavior associated to this structure. 
+The set of properties that can be used to characterize 
+the type at any inoinent is the support sct of the fuzzy 
+set associated to the type. The kernel-set contains the 
+basic attributes characterizing the type. Finally, each 
+one of thc a-cuts defines a precision degree with which 
+the type can be considered. 
+According to the precision required by every object, the 
+programmer choose the right a-cut of the class type in 
+order to represent it. A inethod new(a) is used to carry 
+out this task, using as receptor the involved class and as 
+argument the level of the desired a-cut. 
+To appropriately deal with Fuzzy Types, the inheritance 
+inechanism must enable part of the class structure and 
+behavior to be inherited by its subclasses. A threshold 
+is added to indicate what part of the properties we want 
+to be inherited. Two different forms of inheritance can 
+be considered: 
+0 Incorporating inherited attributes and methods to 
+the kernel set of the structural and behavior com- 
+ponents of the subclass, respectively. In this way, 
+the vagueness of the inherited properties will be 
+eliminated. This type of inheritance is called in- 
+heriraricr without vagueness propagation Hcrisp. 
+Keeping the vagueness, by inheriting both prop- 
+erties and methods affected by the correspond- 
+ing membership degree. This type of inheritance 
+is called inheritance with vagueness propagation 
+Hftc;?,. 
+Let see an example. We can describe the concept of im- 
+age by means of the following three levels of precision: 
+Minimum features: theme, file, format, and ver- 
+sion. 
+Figtire 3. Rizzy Type Image 
+0 First level of precision: horizontal resolution, ver- 
+tical resolution, and palette. 
+0 Second level of precision: histogram, frontiers, 
+bands .and convolution. 
+This structure can be expressed using the following 
+S = Utheine + Ilfle + I/fonnat + 
++ 1 /version + 0.9/horres + 0.9/verres + 
++0.9/palette + 0.8/bands + 0.Whistogram + 
++0.8/convolution + 0.8/frontiers 
+fuzzy sct: 
+So, we have the following relevant a-cuts: 
+SI ={theme, file, format, version} 
+SO.~=S~U { horres, ver-res, palette} 
+So.e=So,,U {bands, histogram, convolution, frontiers) 
+To represent a FUZZY Type in an classical object- 
+oriented database, we can use a 1 -ramified hierarchy of 
+classes. This kind of hierarchy is defined as a series of 
+classes CI, ..., C,--l, Ci, Cz+I, ..., C,, verifying the 101- 
+lowing properties: 
+0 Subci = {Ci+l},z = l..n - 1 (Subci stands for 
+the set of subclasses of Ci). 
+0 SupcZ = {Ci-,},i = 2..n ( S ’ u p ~ i  stands for the 
+set of superclasses of Ci). 
+0-7803-7078-3/0V$10.00 (C)U#)l IEEE Page: 2327 
+A finite sequence of values {cy,) exists, associated 
+to thc hierarchy. such that ai = 1. a,, > 0 and 
+0 ,  > C I , + I .  
+Using this kind of hierarchies we can model easily 
+the instatintion mcchanism (we only have to chose the 
+right class ol’ the hierarchy and apply the normal new 
+mcthod). Thc implementation of the two kinds of in- 
+heritance i s  a hit inore complicated. Figure 3 shows the 
+hierarchy associated to the example type image. More 
+about the problems where fuzzy types can be useful, and 
+ii detailed presentation of the conccpt, can be found in 
+II3. 121. 
+7 Conclusions and Further Work 
+This paper summarizes a coinplete proposal for rep- 
+resenting vagueness in an object oriented database 
+inodel. Vagueness inay appear at differcnt levels in 
+our database: we have to distinguish between uncer- 
+tainty (i. e. vagueness affecting to thc source that pro- 
+vides data) and imprecision (i.e. vagueness affecting the 
+data themselves). Moreover, these two situations may 
+happen at the same time. In this paper we have stud- 
+ied several suitable strategies to face the representation 
+of the different kinds of imperfections that may arise 
+when a database is being dcsigncd in an object oriented 
+paradigm, according to the level where these imperfee- 
+tions inay occur. We consider that the traditional ob- 
+ject oriented database model is wide and general enough 
+to be the base for developing a Fuzzy Object Oriented 
+Database Model. 
+One of the topics that remain untreated in this paper is 
+the modeling of the behavior of the objects when vague- 
+ness affects the values of their properties. Though some 
+approaches have been proposed in the literature[9] [lo], 
+we think that this matter still needs deeper study. Fu- 
+ture works may go towards the development of a general 
+Fuzzy Object Oriented Database System built on the ba- 
+sis of an existing object oriented database system, and 
+capahle of managing vagueness from different sources 
+in data. At this moment, our research effort is aimed 
+to the study of the development of such a System. To 
+accomplish this goal, a prototype is being implemented. 
+References 
+[ I 1  M.  Berler, J .  Eastman, D. Jordan, C. Russell, 
+0. Schodow, T. Stanienda, and F. Velez. The object data 
+sttrndnrd: ODMG 3.0. R.G.G. Cattell and Douglas K. 
+Barry, Morgan Kaufmann. 2000. 
+[2] E. Bertino and L. Martino. Object-Oriented Database 
+Systcn~s. Concepts orid Architectures. International 
+Computer Science Series. Addison-Wesley, 1993. 
+[3] G. Bordogna and G. Pasi. Management of linguistic 
+qualification of uncertainty in fuzzy databases. In Pro- 
+reedings of Irlforrnotion Proresing wid Manogerneiii qf 
+Uncertuinty in Knowledge Bmrd Systenis, 199% 
+Typicality hased on soll 
+aggregations in  fuzzy object orientcd datahases. I n  
+Proreedings of EUSFLAT. pagcs 480-492, Mnllorca, 
+Esparia, 1999. 
+[SI G. Bordogna, G. Pasi, and D. Lucarella. A fuzzy objecl 
+oricntcd data model for managing vague and uncertain 
+information. l/itetnniioiiol ./ortriicil of’ lnt t~l l i ,yc~ni  .Sx.s- 
+tt’nls, 1909. 
+[6J R. Gcorgc, B. Bucklcs, and F. Petry. Modelling clnss hi- 
+erarchies in the fuzzy objcct-oriented data model. Firzz! 
+Sets and Systems, 60:259-272. 1993. 
+[7] A. Gonzalez, 0. Pons, and M.  Vila. Dealing with uncer- 
+tainty and imprecision by means of fiizzy numhers. I i r -  
+rernarionnl Jorrrnol oj I r r r r l l i , ~ r n r  .Sj~stcni.s, 2 I :23?-256. 
+1999. 
+[8] P. Grey. K .  Kulkarni, and N. Paton. 06ject-0,-icrir(~l 
+Datn6ases. A Senlairtic Darn Model Approrrch. Inmma- 
+tional Series in Computer Sciencc. Prcntice Hall, 1992. 
+Fuzzy ohject- 
+oriented databases: Somc hchaviaral issues. In Prowed- 
+bigs of EUFIT, pages 361-364, 1994. 
+[ I O ]  N. V. Gyseghem and R. D. Caluwe. Imprecision and 
+uncertainty in  the ufo database model. Joirrnol of the 
+Aniericon Society for Infor~riotion Science. 49:236-252, 
+1998. 
+[ I  I ]  M. Koyuncu, A. Yazici, and R. George. Flexible query- 
+ing in an intelligent object-oriented database environ- 
+ment. In  Proceeding ofFQAS, 2000. 
+[I21 K. Marin, M. Vila, 1. Blanco, and 0. Pons. Fuzzy types 
+as a new layer on an object oriented database system. In 
+Proceedings of IPMU, Madrid, Espafia, 2000. 
+[ 131 N. Marin, M. Vila, and 0. Pons. Fuzzy types: Softening 
+structures. In Proceedings of’ FUZZ-IEEE, San Ant o n  i o, 
+Usa, 2000. 
+[ 141 J.-P. Rossazza, D. Dubois, and H. Prade. Frrzzy c t n d  U I I -  
+certain Object-Oriented Databases. Concepts ond Mod- 
+els., volume 13, chapter A hierarchical model of fuzzy 
+classes, pages 21-61, Advances in Fuzzy Systems- Ap- 
+plications and Theory, 1998. 
+Fuzzy Logic trnd Knowledgr Engir~rer-  
+ing,  chapter Imprecision and Uncertainty in the Entity- 
+RelationshipMOdel, pages 18-28. H. Prade and C.V. 
+Negiota eds. Verlag TUV Reheiland, 1986. 
+[I61 M. Vila, J. Cubero, J .  Medina, and 0. Pons. F I I Z ~  Sets 
+and Possibility Theoty in Dotobosc Mnn~rgcinerr/ .S\:s- 
+reins. chapter Logic and fuzzy relational databases: A 
+new language and a new delinition, pages I14-lX P. 
+Bosc and J. Kacprzyk, 1995. 
+[I71 M. Vila, J.  Cubero, J .  Medina, and 0. Pons. A concep- 
+tual approach for dealing with imprecision and uncer- 
+tainty in object-based data models. Infematiorml ./ow- 
+nal of Intelligenr Sysrenis, I 1:791-806, 1996. 
+[I81 A. Yazici, R. George, and D. Aksoy. Design and im- 
+plementation issues in the fuzzy object-oriented datu 
+model. Journal of fnformnrion Sciences, I08:24 1-260. 
+1998. 
+1191 A. Yazici and M. Koyuncu. Fuzzy object-oriented 
+database modeling coupled with fuzzy logic. Frczzy Scts 
+ond Systems. 89: 1-26, 1997. 
+[20] L. Zadeh. Fuzzy sets. Infor-nrotiort mid C.’onim/, 8:338- 
+353. 1965. 
+141 G. Bordogna and G .  Pasi. 
+191 N. V. Gyseghem and R.  D. Caluwe. 
+[ 151 E. Ruspini. 
+0-7803-7078-3/0U$l0~00 (C)U#)l IEEE Page: 2328 

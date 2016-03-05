@@ -1,0 +1,532 @@
+Robust and sparse estimation of tensor
+ decompositions
+ Hyon-Jung Kim, Esa Ollila, Visa Koivunen
+ Dept. of Signal Processing and Acoustics
+ Aalto University
+ P.O.Box 13000, FI-00076 Aalto, Finland
+ Christophe Croux
+ Faculty of Business and Economics
+ K.U. Leuven
+ B-3000 Leuven, Belgium
+ AbstractÑWe propose novel tensor decomposition methods
+ that advocate both properties of sparsity and robustness to
+ outliers. The sparsity enables us to extract some essential features
+ from a big data that are easily interpretable. The robustness
+ ensures the resistance to outliers that appear commonly in high-
+ dimensional data. We first propose a method that generalizes
+ the ridge regression in M -estimation framework for tensor
+ decompositions. The other approach we propose combines the
+ least absolute deviation (LAD) regression and the least absolute
+ shrinkage operator (LASSO) for the CANDECOMP/PARAFAC
+ (CP) tensor decompositions. We also formulate various robust
+ tensor decomposition methods using different loss functions.
+ The simulation study shows that our robust-sparse methods
+ outperform other general tensor decomposition methods in the
+ presence of outliers.
+ I. INTRODUCTION
+ Tensors, being multi-way arrays in a simple definition,
+ accommodate high-dimensional data sets naturally. Various
+ tensor decompositions based on multilinear models are pow-
+ erful tools to explore a high-dimensional data in many areas
+ of science and engineering [8].
+ The well-known regularization methods such as ridge re-
+ gression or the LASSO [4] [9] can form a sparse estimation
+ for tensor decompositions, which is highly useful in reducing
+ dimensionality, simplifying visualization, and variable selec-
+ tion [15], [6]. It also improves interpretability of models often
+ decreasing the estimation uncertainty.
+ Outliers often occurring in multi-dimensional data obscure
+ the model assumptions and add difficulty in data analysis.
+ Most of the tensor decomposition methods are based on the
+ optimization with a least squares criterion which is severely
+ lacking robustness to outliers. Surprisingly, the use of robust
+ estimators has been largely neglected in the tensor (signal
+ processing) research community. We are aware of only few
+ studies on the robust tensor estimation such as [13], [14], and
+ [3], other than some work in the medical imaging.
+ Instead of using the least squares estimation which is highly
+ sensitive to outliers, robust alternatives can be obtained with
+ different loss functions such as absolute deviation (L1), least
+ trimmed squares (LTS), or M -estimation (e.g., using HuberÕs
+ or TukeyÕs biweight) loss function [11].
+ In Section II-A, we first formulate various robust tensor de-
+ composition methods using different loss functions. In Section
+ II-B and II-C, we propose two robust and sparse methods in the
+ context of CP tensor decompositions extending our previous
+ work (encouraging only sparsity) [6].
+ The fist method we propose called the CP alternating ridge
+ M -regression (CPA-RMR) is to minimize the penalized robust
+ objective function formed by an M -estimation loss function
+ (HuberÕs ?-functions) with the L2-penalty. This CPA-RMR can
+ be used not only as a stand-alone method but also as a reliable
+ method to facilitate good initializations for any alternating
+ tensor decomposition algorithms.
+ The second method we propose called the CP alternating
+ LAD-LASSO combines the LAD regression and the LASSO
+ in the context of CP tensor decompositions. To our knowledge,
+ our method is the first that incorporates robustness and sparsity
+ simultaneously in tensor decompositions. Such work can be
+ found recently only in other areas of regression analysis [1].
+ The simulation study shows that our methods depict good
+ estimation of sparsity of factor matrices and give highly
+ improved performance over the conventional tensor decom-
+ position method especially in the presence of outliers.
+ Notations: A tensor of order d as a d-way array is denoted
+ by a boldface Euler script letter, A whereas low-order tensors
+ such as matrices by A, vectors by a and scalars by a. For
+ a m ? n matrix A, we write its ith row (resp. column)
+ vector by ai (resp. a÷i) i.e., a matrix can be expressed as
+ A = (a÷1 . . . a÷n) = (a1 . . . am)> and aij denotes its (i, j)th
+ element. Let ? á ?2 (resp. ? á ?1) denote the `2-norm (resp.
+ `1-norm) defined as ?A?22 = Tr(AA>) = ·i·j a2ij (resp.?A?1 = ·i·j |aij |) for any matrix A. Let ? denote the
+ outer product, i.e. a ? b = ab> and (a ? b ? c)ijk = aibjck.
+ A. Sparse CP decompositions
+ For simplicity, we illustrate all the methods for 3-way
+ tensors, but extensions to multiway tensors are straightforward.
+ The CANDECOMP/PARAFAC (CP) decomposition [2], [7]
+ approximates a tensor X ? RI?J?K by a predicted tensor öX
+ consisting of a sum of R ? N+ rank-1 tensors [8]:
+ X = öX+ E =
+ R·
+ r=1
+ ?ra÷r ? ÷br ? c÷r + E (1)
+ where a÷r ? RI , ÷br ? RJ and c÷r ? RK for r = 1, . . . , R
+ form the unit-norm column vectors of the factor matrices A ?
+ RI?R, B ? RJ?R, and C ? RK?R and the tensor E ?
+ RI?J?K contains the error terms.
+ 965978-1-4799-0248-4/13/$31.00 ©2013 IEEE GlobalSIP 2013
+Unfolding the tensorX along the first mode yields a I?JK-
+ matrix denoted as X(1)
+ X(1) = A?(CB)> +E(1), (2)
+ where ? = diag(?1, . . . , ?R) and E(1) denotes the unfolded
+ matrix of E. Note that the Khatri-Rao product for B ? RJ?R
+ and C ? RK?R, C  B is a JK ? R matrix C  B =(÷
+ c1 ? ÷b1 á á á c÷R ? ÷bR
+ )
+ , where ? denotes the Kronecker
+ product. The mode-2 and mode-3 unfoldings of the tensor
+ X are obtained similarly. For the notational convenience, we
+ write Z = C  B, X = X(1), n = JK and m = I so that
+ X is m? n matrix and A is a m?R matrix. Let ?r = ?a÷r?
+ taking the scales of the columns of A.
+ The conventional CP decomposition seeks to minimize
+ Q(A,B,C) = ?X?AZ>?22 =
+ m·
+ i=1
+ n·
+ j=1
+ (xij ? z>j ai)2. (3)
+ To enforce sparsity, we add the L2-norm penalty as in [6] to
+ find the minimum of the penalized objective function:
+ m·
+ i=1
+ n·
+ j=1
+ (xij ? z>j ai)2 + ?1?A?qq + ?2?B?qq + ?3?C?qq, (4)
+ where ? = (?1, ?2, ?3)> and ?i ³ 0, i ? {1, 2, 3} denote the
+ fixed penalty (shrinkage, regularization) parameters and q ?
+ {1, 2} is the chosen norm of the penalty. A computationally
+ convenient form of (3) for the alternating algorithm (estimating
+ one factor matrix at a time) is
+ m·
+ i=1
+ { n·
+ j=1
+ (xij ? z>j ai)2 + ?1?ai?qq
+ }
+ + ?2?B?qq + ?3?C?qq.
+ Here we first estimate the factor matrix A keeping other
+ factor matrices (C and B) fixed. Then, finding the minimum
+ öA = (aö1 á á á aöm)> is equivalent to solving the m separate
+ penalized L2-objective functions, for each i = 1, . . . ,m:
+ aöi = min
+ ai
+ { n·
+ j=1
+ (xij ? z>j ai)2 + ?1?ai?qq
+ }
+ . (5)
+ With the L2-norm (q = 2) for the penalty, öA has a closed form
+ solution öA = XZ(Z>Z + ?1I)?1. This method is called the
+ CP alternating Ridge Regression (CP-ARR) in [6]. If ?i = 0
+ ?i, then the approach reduces to the well-used CP alternating
+ least squares (CP-ALS) method. With the L1-norm (q = 1)
+ penalty, the solution to (5) is the LASSO estimate, which leads
+ to our method called the CP alternating LASSO in [6].
+ II. ROBUST AND SPARSE CP-ALS METHODS
+ A. Robust CP decompositions
+ Disregarding outliers in data sets or heavy-tailed errors can
+ mislead the analysis and inference. One of the most popular
+ robust approaches may be to replace the L2-loss function by
+ the L1-loss as in [13], [3] yielding an objective function
+ QL1(A,B,C) = ?X?AZ>?1 =
+ m·
+ i=1
+ n·
+ j=1
+ |xij ? z>j ai|.
+ However, the L1-loss function is not bounded and large
+ outliers can still have a considerable influence on the esti-
+ mation. To achieve better robustness, we can consider the M -
+ estimation [5] type objective function
+ Q?(A,B,C) =
+ m·
+ i=1
+ ?ö2i
+ n·
+ j=1
+ ?
+ (xij ? z>j ai
+ ?öi
+ )
+ , (6)
+ where ?öi is a preliminary robust scale estimate (to be dis-
+ cussed later) and ? is an even (?(e) = ?(?e)) nondecreasing
+ function for e ³ 0. The multiplying factor ?ö2i is used so that
+ Q?(A,B,C) becomes (3) when ?(e) = e2. A popular robust
+ choice for ?(á) is HuberÕs ?-function defined as
+ ?k(e) =
+ {
+ 1
+ 2e
+ 2
+ , for |e| ² k
+ k|e| ? 12k2, for |e| > k
+ (7)
+ where k is a user-defined tuning constant that affects robust-
+ ness and efficiency of the method. Note that ?k(e) ? ?(e) =
+ e2 as k ? °. Thus, the solution to minimizing (6) converges
+ to the CP-ALS solution as k ? °. With k = 0.7317,
+ 85% asymptotic efficiency is attained for Gaussian errors in
+ the multiple regression model. Since HuberÕs ?-function is
+ not bounded, TukeyÕs biweight ?-function is often preferred.
+ However, this ?-function is non-convex and causes difficulty
+ in finding a global minimum in the regression setting.
+ A high-breakdown estimator can be derived by utilizing the
+ LTS loss function. For the vector of squared residuals r2i (a) =(
+ r2i1(a), . . . , r2in(a)
+ )>
+ where rij(a) = xij ? z>j a, for i =
+ 1, . . . ,m, j = 1, . . . , n, the LTS objective function is
+ QLTS(A,B,C) =
+ m·
+ i=1
+ h·
+ j=1
+ (
+ r2i (ai)
+ )
+ j:n (8)
+ where (r2i (a))1:n ² á á á ² (r2i (a))n:n are the order statistics
+ of the squared residuals and dn/2e ² h ² n.
+ B. The CP alternating Ridge M -Regression (CPA-RMR)
+ We propose a robust and sparse CP tensor decompositions
+ using the alternating ridge M-regression abbreviated as CPA-
+ RMR. The ridge regression inducing sparsity is adjusted to the
+ robust version using the M -regression (hence, called RMR).
+ The objective function (6) with the L2-norm penalty is
+ m·
+ i=1
+ {
+ ?ö2i
+ n·
+ j=1
+ ?
+ (xij ? z>j ai
+ ?öi
+ )
+ +?1?ai?22
+ }
+ +?2?B?22+?3?C?22.
+ For B and C fixed, the minimum öA = (aö1 á á á aöm)> can be
+ found by
+ aöi = min
+ a
+ {
+ ?ö2i
+ n·
+ j=1
+ ?
+ (xij ? z>j a
+ ?öi
+ )
+ + ?1?a?22
+ }
+ (9)
+ for i = 1, . . . ,m. We center xi and columns of Z to have
+ median zero to keep the results invariant. Furthermore, the
+ columns of Z are scaled to have median absolute deviation
+ (MAD) equal to one. After obtaining aiÕs for the standardized
+ variables using the efficient Òiteratively (re)weighted ridge
+ 966
+regression (IWRR) algorithmÓ explained below, we can trans-
+ form the solutions back to the original scale. The initial value
+ of ai (in the IWRR) is aö(0)i calculated as the LAD regression
+ estimate when regressing xi on Z:
+ aö
+ (0)
+ i = LAD(xi,Z) = argmina
+ n·
+ j=1
+ |xij ? z>j a|.
+ The scale estimate ?öi is computed as MAD of residuals:
+ ?öi = 1.4286 ámedian{|rij(aö(0)i )|}nj=1
+ IWRR algorithm. Let ?(e) = ??(e) and w(e) = ?(e)/e
+ with the convention that w(e) = 0 for e = 0. For example,
+ if HuberÕs ?-function is used in (7), then the respective ?-
+ function is ?k(e) = max[?k,min(k, e)]. By setting the
+ derivatives of the objective function in (9) to zero, shows that
+ aöi solves the following estimating equation:
+ (Z>WiZ+ 2?1I)aöi = Z>Wixi (10)
+ where Wi = diag({wij}n1 ) with wij = w
+ (
+ rij(aöi)/?öi). This
+ leads us to iterative computation of solving the weighted ridge
+ normal equations:
+ (Z>Wi,tZ+ 2?1I)aö(t+1)i = Z>Wi,txi (11)
+ where Wi,t = diag({wij,t}nj=1) and wij,t = w
+ (
+ rij(aö(t)i )/?öi
+ )
+ and t indicates the iteration step (until convergence).
+ Following [11], it can be shown that the objective function
+ (9) descends at each iteration. Thus, for convex problems (e.g.,
+ using HuberÕs ?), the IWRR algorithm can be used to find the
+ global minimum. It is important to note that (11) can be solved
+ efficiently as follows. Let
+ xi,t =
+ (
+ W1/2i,t xi
+ 0
+ )
+ and Zt,?1 =
+ (
+ W1/2i,t ZÃ
+ 2?1I
+ )
+ ,
+ where 0 is a R ? 1 vector of zeros, I denotes an R ? R
+ identity matrix and W1/2i,t is a square-root matrix of Wi,t,
+ i.e., W1/2i,t = diag({Ãwij,t}nj=1). With these notations, (11)
+ becomes
+ Z>t,?1Zt,?1 aö
+ (t+1)
+ i = Z
+ >
+ t,?1xi,t (12)
+ which is in line with the conventional normal equations. Con-
+ sequently, aö(t+1)i can be solved efficiently without inverting
+ (nor computing) Z>t,?1Zt,?1 .
+ The procedure for the CPA-RMR method is the same as
+ the one for the CP alternating LAD-LASSO given in Table I
+ except that aöi, öbi, cöi are computed by the IWRR algorithm.
+ C. The CP alternating LAD-LASSO method
+ We propose here another method called the CP alternating
+ LAD-LASSO, which is robust with the L1-penalty inducing
+ sparse (exactly zero) estimates. We note that this method is
+ computationally more demanding than the CPA-RMR due to
+ the L1 objective function. The aim is to minimize the objective
+ function QL1(á) with the L1-norm penalty
+ m·
+ i=1
+ { n·
+ j=1
+ |xij ? z>j ai|+ ?1?ai?1
+ }
+ + ?2?B?1 + ?3?C?1.
+ TABLE I
+ CP ALTERNATING LAD-LASSO METHOD.
+ Input: X, rank R, shrinkage parameters ?1, ?2 and ?3.
+ 0) Initialize B and C by öB and öC using CPA-RMR solution.
+ 1) Set X = X(1), Z = öC  öB, n = JK and m = I . Compute
+ öA> = (aö1 á á á aöm) by solving aöi = LADLASSO(xi,Z, ?1)
+ (using the LAD-LASSO algorithm.)
+ 2) Set X = X(2) and Z = öC  öA, n = IK and
+ m = J . Compute öB> = (öb1 á á á öbm) by solving öbi =
+ LADLASSO(xi,Z, ?2).
+ 3) Set X = X(3), Z = öB  öA, n = IJ and m = K. Compute
+ öC> = (cö1 á á á cöm) by solving cöi = LADLASSO(xi,Z, ?3).
+ 4) Repeat steps 1)Ð3) until ? = ?öX? öXold?2/?öX?2, the relative
+ change between the current and previous CP fits is small.
+ The minimum öA = (aö1 á á á aöm)> can be found by
+ aöi ? LADLASSO(xi,Z, ?1)
+ = min
+ a
+ { n·
+ j=1
+ |xij ? z>j a|+ ?1?a?1
+ }
+ (13)
+ for i = 1, . . . ,m, when B and C are fixed. Similarly as in
+ CPA-RMR algorithm, centering the xi and standardizing the
+ columns of Z are done in computation. The CP Alternating
+ LAD-LASSO method is summarized in Table I with the
+ initialization using the CPA-RMR solution.
+ LAD-LASSO algorithm. The objective function in (13)
+ is
+ ·n
+ j=1 |xij ? z>j a| +
+ ·R
+ r=1 |0 ? ?1ar|, where a =(a1, . . . , aR)>. This form illustrates that the LAD-LASSO
+ criterion can be recast as the ordinary LAD criterion for
+ augmented data sets:
+ x?i =
+ (
+ xi
+ 0
+ )
+ and Z?1 =
+ (
+ Z
+ ?1I
+ )
+ ,
+ where 0 above is a R-vector of zeros and I denotes an R?R
+ identity matrix. Then, minimizing (13) is equivalent to solving
+ the ordinary LAD estimation for the augmented data sets,
+ namely aöi = LAD(x?i ,Z?1 ).
+ D. Selection of the shrinkage parameter
+ We estimate the shrinkage parameter ? using the Bayesian
+ information criteria (BIC)
+ BIC(?) = 2N ln ?ö + w á df(?) á lnN (14)
+ where N = I á J á K , ?ö is a scale estimate of the residuals
+ rij = (X(1) ? öAöZ>)i,j with öZ = öC  öB (i = 1, . . . , I ,
+ j = 1, . . . , JK), df(?) is the degrees of freedom of the
+ model and w ³ 1 is a weight that can be assigned by
+ the user. The default is w = 1 and w =
+ Ã
+ 2 was used
+ in our simulations. Note that w > 1 favors sparsity. In the
+ case of LASSO, the scale is estimated by ?ö2 = avei,j{r2ij}
+ where rij = xij ? zö>j aöi, for LAD-LASSO ?ö = avei.j{|rij |}
+ i.e. the mean absolute deviation estimate, and for RMR
+ ?ö2 = 1.4286 ámediani,j{|rij |}, the median absolute deviation
+ estimate. Regarding the CP alternating LASSO and LAD-
+ LASSO, df(?) is defined as the sum of the number of non-
+ zero elements in factor matrices ( öA, öB and öC). In calculating
+ the number of non-zeros in a factor matrix (e.g. öA after
+ 967
+normalizing the columns to be of unit norm), the element aöij
+ is considered to be zero if aöij ² 10?11. In respect to the
+ ridge (M -)regression, df(?) = I áTr{öZ(öZ> öZ+?1)?1 öZ>}+
+ J áTr{öZ2(öZ>2 öZ2+?2)?1 öZ>2 }+K áTr(öZ3(öZ>3 öZ3+?3)?1 öZ>3 ),
+ where öZ2 = öC öA and öZ3 = öB öA.
+ III. SIMULATIONS
+ We consider the CP model whose true noise-free three-
+ way tensor X0 is sparse. The observed three-way tensor is
+ generated as X = X0+E, where X0 =
+ ·R
+ r=1 ?rar?br?cr, E
+ is the noise tensor and the rank R is assumed to be known. The
+ accuracy of the obtained estimate öX is calculated by the nor-
+ malized mean squared error NMSE(öX) = ?X0? öX?22/?X0?22.
+ In our simulation we set I = 1000, J = 20, K = 20,
+ and R = 3 with one sparse factor matrix A ? R1000?3
+ whose half of the elements (1500) are randomly chosen to
+ be zero. The other half of the elements of A are independent
+ random deviates from N(0, 1). The entries of factor matrices
+ B ? R20?3 and C ? R20?3 are independently drawn from
+ the N(0, 1) distribution. The columns of A, B and C are then
+ normalized to have unit length and the values of the loadings
+ are ?1 = 1000, ?2 = 500 and ?3 = 500. We generated
+ M = 50 tensors according to the setup above and first added
+ the noise tensor E ? R1000?20?20 from N(0, 1). Then, the
+ heavy-tailed noise tensor E ? R1000?20?20 from the Cauchy
+ distribution with symmetry center 0 and scale parameter 1/2
+ is added in place of the normal noise tensor for comparison.
+ The penalty parameter is selected by minimizing the BIC in
+ (14) with the weight w = Ã2 over a grid of ? = ?1 = ?2 = ?3
+ values. Note that an equal penalty parameter ? for each factor
+ matrix was used simply for the computational feasibility. Natu-
+ rally, using different penalty parameters for each factor matrix
+ would be more appropriate yielding improved estimates, since
+ only one factor matrix is sparse in this simulation. However,
+ this would require the BIC evaluation over the 3-dimensional
+ grids of all possible (?1, ?2, ?3) combinations and adds more
+ computational burden. For our proposed CPA-RMR method,
+ we considered three values of ? ? {1, 10, 100} representing
+ mild, medium and hard-shrinkage. A small selection of ? can-
+ didates are used for CPA-RMR, since we used this algorithm
+ only to obtain good initializations for the other (LAD)LASSO
+ methods in the simulation study. In the case of LASSO (resp.
+ LAD-LASSO) we used ? ? {0.001}?{0.01, . . . , 0.09}. (resp.
+ ? ? {0.01} ? {1.0, 1.5, . . .5.0}.)
+ The results of the study are summarized in Table II. The
+ RER (recovery rate) is another measure for performance
+ which estimates the rate of correctly classified zero/non-zero
+ elements for a sparse factor matrix (A) It is defined as the
+ sum of entries correctly estimated (classified) zeros/non-zeros
+ divided by the number of all entries (in A). Thus, RER = 1
+ implies the case of perfect classification.
+ From Table II, both the CP-ALS and the CP alternating
+ LASSO methods poorly estimate the factor matrices for the
+ tensors with the heavy-tailed Cauchy noise, whereas our robust
+ sparse methods, LAD-LASSO and RMR, show excellent per-
+ formance. For the tensors with the normal noise, all the sparse
+ TABLE II
+ SIMULATION RESULTS FOR GAUSSIAN NOISE (UPPER TABLE) AND
+ CAUCHY NOISE (LOWER TABLE)
+ CP Alt.- Classifying zeros RER Average
+ method correct incorrect NMSE (std)
+ LS 0 0 50 % 0.0685 ( 0.1152)
+ RMR 0 0 50 % 0.0312 (0.0608)
+ LASSO 77.3% 3.7 % 86.8% 0.0057 (0.0015)
+ LAD-LASSO 83.60 8.0 % 87.8% 0.0153 (0.0398)
+ LS 0 50 % 1.0á107 (7 á107)
+ RMR 0 0 50 % 0.0487 (0.073)
+ LASSO 61.2 % 53.2% 54.0% 1.0 á 107 (7 á107)
+ LAD-LASSO 93.40 % 11.7 % 90.9 % 0.0232 (0.044)
+ methods (CPA-RMR, LASSO, LAD-LASSO) outperform the
+ conventional CP-ALS method. In terms of NMSE values (for
+ the normal noise) the CPA-RMR reveals 2.19 times better
+ accuracy than CP-ALS, the CP alternating LASSO 12.02 times
+ better, and the CP alternating LAD-LASSO 4.47 times better.
+ The best (NMSE) performance of the LASSO in the case
+ of Normal noise is expected, since the sum of the squared
+ residuals (in the objective function) is optimal for the Normal
+ distribution. It can be noted that the weight w =
+ Ã
+ 2(= 1.414)
+ on the penalty term produces the higher value of ? (assigning
+ more zeros) for the LAD-LASSO compared to the LASSO.
+ REFERENCES
+ [1] A. Alfons, C. Croux, and S. Gelper, ÒSparse least trimmed squares
+ regression for analyzing high-dimensional large data sets,Ó Annals of
+ Applied Statistics Vol. 7, No. 1, 226-248, 2013.
+ [2] J. D. Carroll and J. J. Chang, ÒAnalysis of individual differences in
+ multidimensional scaling via an N-way generalization of Eckart-Young
+ decomposition,Ó Psychometrika, vol. 35, pp. 283Ð319, 1970.
+ [3] E. Chi and T.G. Kolda, ÒMaking Tensor Factorizations Robust to Non-
+ Gaussian Noise,Ó Sandia National Laboratories, CA, Technical Report
+ No. SAND2011-1877, 2011.
+ [4] A. E. Hoerl and R. W. Kennard, ÒRidge regression: biased estimation for
+ nonorthogonal problems,Ó Technometrics, vol. 12, pp. 55Ð67, 1970.
+ [5] P. J. Huber, ÒRobust Estimation of a Location ParameterÓ, Annals of
+ Mathematical Statistics, Vol. 35, No. 1, 73-101, 1964.
+ [6] H.-J. Kim, E. Ollila, and V. Koivunen, ÒSparse regularization of tensor
+ decompositions,Ó in Proc. IEEE Int. Conf. on Acoustics, Speech, and
+ Signal Processing (ICASSPÕ13), Vancouver, May 26 - 31, 2013, pp. 1Ð5.
+ [7] R. A. Harshman, ÒFoundations of the PARAFAC procedure: models
+ and conditions for an explanatory multi-modal factor analysis,Ó UCLA
+ working papers in phonetics, vol. 16, pp. 1Ð84, 1970.
+ [8] T. G. Kolda, and B. W. Bader, ÒTensor Decompositions and Applica-
+ tions, SIAM Review, 51(3), pp. 455-500, 2009.
+ [9] R. Tibshirani, ÒRegression shrinkage and selection via the lasso,Ó J.
+ Royal Stat. Soc., Ser. B, vol. 58, pp. 267Ð288, 1996.
+ [10] B. Efron, T. Hastie, I. Johnstone, and R. Tibshirani, Òleast angle
+ regression,Ó Ann. Statist., vol. 32, no. 2, pp. 407Ð451, 2004.
+ [11] R.A. Maronna, R.D. Martin and V.J. Yohai, ÒRobust Statistics: Theory
+ and Methods,Ó Wiley and Sons, 2011.
+ [12] P. Stoica and Y. Selen, ÒModel-order selection: a review of information
+ criterion rules,Ó IEEE Signal Proc. Mag., vol. 21, no. 4, 36 Ð 47, 2004.
+ [13] S. Vorobyov, Y. Rong, N. Sidiropoulos, and A. Gershman, ÒRobust
+ iterative fitting of multilinear models,Ó IEEE Transactions on Signal
+ Processing, 53, pp. 2678Ð2689, 2005.
+ [14] Y. Pang and Y. Yuan, ÒRobust tensor analysis with L1-norm,Ó IEEE
+ Transactions on Circuits and Systems for Video Technology, VOL. 20,
+ NO. 2, pp. 172 - 178, 2010.
+ [15] N. D. Sidiropoulos and E. E. Papalexakis, ÒCo-clustering as multilinear
+ decomposition with sparse latent factors,Ó Proc. IEEE Int. Conf. on
+ Acoustics, Speech, and Signal Processing, pp. 2064 Ð 2067, Prague, Czech
+ Republic, May 22 - 27, 2011.
+ 968

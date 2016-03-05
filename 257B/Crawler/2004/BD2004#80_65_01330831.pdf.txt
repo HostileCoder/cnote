@@ -1,0 +1,856 @@
+A fuzzy-optima definition based Multiobjective 
+optimization of a racing car tyre-suspension system 
+Marco Farina 
+STMicroelectronics 
+SST Corporate R&D 
+Agrate Brianza, Italy 
+Email: marco.farina@st.com 
+Abstract- When dealing with multiobjective optimization of 
+the tyre-suspension system of a racing car, a large number of 
+design variables and a large number of objectives have to be 
+taken into account. Two dflerent models have been used, both 
+validated on data coming from an instrumented car, a differential 
+equation based physical model and a neural network purely 
+numerical model. Up to 13 objective functions have been defined, 
+at least 14 of which showing to be in strict clash each other. 
+The equivalent scalar function based formulation is intentionally 
+avoided due to its well known limitations. A fuzzy definition of 
+optima, being a generalization of Pareto-optimality, is applied to 
+the problem. The result of such an approach is that subsets 
+of Pareto-optimal solutions (being on such a problem a big 
+portion of the entire search space) can be properly selected as a 
+consequence of inputs from the designer. The obtained optimal 
+solutions are compared with the reference vehicle and with the 
+optima previously obtained with design of experiments techniques 
+and different MO optimization strategies. 
+1. INTRODUCTION 
+The notion of Pareto Optimality and the related notion of 
+Pareto dominance, are the basic concepts for the development 
+of multiobjective optimization theory and algorithms, both in 
+the community of ”classical” multiobjective optimization [ I ]  
+and in the community of evolutionary multiobjective optimiza- 
+tion (EMO) [2].  When looking at both classical multiobjective 
+optimization and at the twenty years of E M 0  history, it can 
+be easily concluded that almost all algorithms have aimed at 
+converging towards either a particular Pareto-optimal solution 
+(classical methods) or towards the entire Pareto-optimal front, 
+which is the set of optimal solutions in the Pareto sense 
+(EM0 methods) [3]. This is essentially due to the fact that 
+both classical and evolutionary multiobjective optimization 
+algorithms have been mostly developed and addressed to 
+engineering design problems. In such area the number of 
+objectives is usually not huge hut the computation of such 
+objectives is time-consuming and highly complex [4]. 
+Nevertheless, when problems with a number of objectives 
+relatively larger than two or three were considered in the 
+above framework, the limitations of Pareto optimality came 
+out-both for classical and evolutionary methods-to give an 
+unmanageable and large set of Pareto Optimal solutions; re- 
+searchers subsequently developed a wide variety of techniques 
+for the visualization, additional classification and choice of 
+Pareto optimal solutions [SI. 
+0-7803-85 15-2/04/$20.00 02004 IEEE 9 
+Massimiliano Gohhi 
+Politecnico di Milano. 
+Department of Mechanical Engineering 
+Milan, Italy 
+Email: massimiliano.gobbi@polimi.it 
+The reason for the limitations that one encounters when 
+using the PO definition in multi-criteria optimization problems, 
+is that Pareto’s definition [6] captures the notion of “optimal- 
+ity” in a narrowly prescribed sense, several different concepts 
+of “optimality” can thus be introduced and considered 171. 
+More into details, in Pareto’s definition, when comparing two 
+solutions, the following three aspects are not taken into con- 
+sideration: the number of improved (or decreased) objectives, 
+the relevance of such improvements (or decreases) and the 
+decision maker’s preferences between objectives (if any). All 
+three issues are crucial in the human decision making process 
+and may lead to several degrees of dominance, when two 
+solutions are compared and, consequently, to several degrees 
+of optimality among Pareto optimal solutions. 
+The first issue, regarding the number of improved objectives, 
+is tackled in [SI where the authors also consider an additional 
+weighting procedure for the incorporation of preferences (the 
+third issue) as crisp weighting coefficients. The joint consid- 
+eration of both the number of improved objectives and prefer- 
+ences gives a very compact definition of optimality, but a more 
+simple and effective way for a proper numerical formalization 
+of decision maker’s preferences, is the use of the fuzzy set 
+theory. This leads to a very general definition of fuzzy dom- 
+inance and optimality where the decision maker’s linguistical 
+knowledge of preferences is numerically formalized; a widely 
+developed theory on this is already available in literature [9],  
+and [IO]. The natural application of such work is in the field 
+of many-criteria decision making (MCDM) problems where 
+the decision maker’s preferences have a leading role in the 
+decision making process; an example of such a preference- 
+based linguistic decision making procedure can be found in 
+Differently, the aim of the present work is to exclude 
+preferences from the optimization process and to consider 
+fuzzy memberships as a tool for the numerical formalization 
+and treatment of the size of improvements in the domi- 
+nance definition [12]. The natural field of application of such 
+an approach is mostly multiobjective optimal design with 
+several criteria (more than three), where objective functions 
+are numerical crisp functions, being eventually very complex 
+and computationally very expensive. In the case of problems 
+where preferences are to be included in the optimization, 
+[ I l l .  
+a good overview of current research on this topic in the 
+EM0 community is given in [I31 and [14] and a technique 
+for transforming non-crisp (qualitative) relationships between 
+objectives into quantitative attributes is presented in [15]. 
+Moreover, when tackling conflicting design problems with 
+multiobjective optimization, it is often important to remove 
+any bias deriving from the decision maker's preferences and to 
+compute "unbiased" solutions. An example of such a problem, 
+can be found in [16] where the optimal design of a controller 
+for a gas turbine is formulated as a 6-objective multiobjective 
+optimization problem. 
+Another example, related to industrial design, can be found 
+in 151, where a 4-objective problem is tackled and a complex 
+strategy, based on self-organizing maps, is developed for the 
+visualization of PO solutions and for the a posteriori selection. 
+Unlike what happens in multi-criteria decision making, when 
+dealing with MO, even four objectives only are sufficient for 
+an unaffordable complexity in the space of Pareto-optimal 
+solutions. Several examples of design problems with a huge 
+number of objectives can be found in the automotive design 
+field [17]. In [I81 a 17 objective problem is tackled, for 
+the design of a full car chassis where no preference-biased 
+solutions are required. PO solutions are computed and the 
+difficulty encountered in the choice among them is clearly 
+outlined. The same happens in [I71 where a 14 objective 
+problem is formalized for the optimal design of the tyre- 
+suspension system of a racing car. When dealing with such 
+problems, the automotive expert would be strongly interested 
+in computing a sampling of the entire Pareto front, with- 
+out introducing any preference-based bias, but this may be 
+unpractical due to the high number of objectives. For this 
+reason, the computation of a proper suh-set of the PO front, 
+corresponding to a higher degree of optimality and based 
+on the definitions given in the present paper, gives a wide 
+variety of choice possibilities with no preference based biases. 
+The extended definitions of k-optimality and fuzzy-optimality 
+can be applied to multiobjective optimization problems at 
+two levels. Level 1: a-posteriori selection of non-dominated 
+solutions obtained via available MOEAs. Level 2: development 
+of new algorithms directly converging towards the k-front 
+(or fuzzy front) Results will be shown related to the first 
+approach. Fuzzy-optimality and k-optimality are thus linked 
+to a complex set of techniques in order to make practical 
+the procedure of automated optimal design on such problems. 
+The entire' procedure requires the exploitation of differential 
+modelling, NN modelling, design of experiments, statistical 
+correlation analysis, Evolutionary multiobjective optimization 
+and validation (through comparison with real data) of each 
+step. The overall schema of the computational procedure is 
+shown in figure 1. Although the main subject of the paper is 
+fuzzy and k optimality, some details about the entire procedure 
+and its blocks will be given. 
+Design d experiments 
+I 
+Objedivr corfelatlon analysis l = I 
+k-opt based selection 
+Fig. 1. 
+optimization + validation strategy. 
+Block diagram of the modelling + design of experiments + 
+11. FUZZY DEFINITION OF OPTIMA FOR MULTIOBJECTLVE 
+OPTIMIZATION 
+The following multi-objective optimization problem is con- 
+Def 2.1 (Multi-criteria optimization problem): Let V 
+sidered [I], [19], [ZO]: 
+K1 x KZ x . . .  x KN and W C O1 x Oz x . . _  x On4 be 
+vector spaces, where Ki,Oj (with i = 1,. . . , N and j = 
+1,. . . , M) are (continuous or finite) fields. Let N ,  M E W, and 
+f : V H W be a mapping. A Non-linear constrained mulri- 
+criteria (minimum) optimization problem with M objectives is 
+defined as: 
+where S2 is a nonempty subset of V. 
+The set f? is referred to as design (domain) search space, 
+or feasible region. Its image n o  = f(n) is referred to as 
+objective (domain) search space, or feasible objective region. 
+The set f? is defined and bounded by two constraintfunctions 
+g : V H RP, h : V U Wq, where p ,  q E N as follows: 
+n= {V E V 1 g(v) I 0 A h(v )  = 0). (2) 
+When design optimization is concerned, V = W N  and 
+W = P'; consequently each f i  is a mapping from W N  
+to Iw. Moreover, for better clarity and simplicity and with 
+no loss of generality, we assume that all objective functions 
+are to be minimized. If an objective function f i  is to be 
+maximized, all formulas still holds for the minimization of 
+- f,. For the reader's convenience, we recall here the well 
+known definition of Pareto dominance (definition 2.2), Pareto 
+optimum (definition 2.3) and Pareto set and front (definition 
+2.4 in a multi-criteria ( M  criteria) optimization problem. v 
+is the decision (or design) variables vector, it belongs to the 
+search space R. 
+Def 2.2 (Pareto dominance): For any two points (candi- 
+date solutions) v1,vz E 0, v1 is said to dominate vz in 
+10 
+the Pareto sense (P-dominate) if and only if the following 
+conditions hold 
+fi(v1) 5 ft(vz) for all i E {1 ,2 ,  ..., M }  
+fj(v1) < fj(v2) for at least one j (3) { E {1,2,  ..., M }  
+Def 2.3 (Pareto optimality): v* E fl is Pareto-optimal (P- 
+optimal) if there is no v E R such that v P-dominates v*. 
+De$ 2.4 (Pareto set andfront): We call Pareto Optimal Set 
+(Sp) and Pareto Optimal Front ( 3 p )  the set of Pareto-optimal 
+solutions in design variables domain and objective functions 
+domain, respectively. 
+When considering a big number of objectives, the Pareto def- 
+inition of optimality in a multi-criteria optimization problem 
+can be unsatisfactory due to essentially three reasons: 
+P I  the number of improved objective functions values is not 
+taken into account, 
+P2 the (normalized) relevance of the improvements is not 
+taken into account. 
+P3 no preference among objectives is considered. 
+Such issues are essential decision elements when looking for 
+the best solution, and they are implicitly included in the 
+common-sense notion of optimality. 
+When no preferences are prescribed by the designer (P3), in 
+order to account for P1 and P2, in the following sections we 
+will give two more general definitions of optimum for a multi- 
+criteria optimization problem. One Pi issue at a time will be 
+taken into account, and the definitions will be introduced in 
+such a way that the classical Pareto optimum definition will 
+be a special case for both the definitions. 
+A. PI: Taking into account the number of improved objectives: 
+k-optimality 
+When the Pareto optimality definition is considered, two 
+solutions VI and v:! (to be compared) are equivalent, if at least 
+in one objective the first solution is better than the second one, 
+and at least in one objective the second one is better than the 
+first one (or if they are equal in all the objectives). Indeed 
+a more general definition, being able to cope with a wider 
+variety of problems, should take into account the number of 
+objectives where the first candidate solution is better than the 
+second one and viceversa. Let us first introduce the following 
+functions, which relate a natural number to each couple of 
+points in R. 
+%(vi,v:!) E Nli 5 M A  f<(vi) < fdvz)}l (4) 
+n,(vl,vz) H i  E NIi 5 M A  f i ( v ~ )  = f<(v~)}l (5)  
+nw(Virv2) l{i E Nli S M A  f , ( v ~ )  > f , (v~)}l  (6) 
+For each couple of points V I ,  v:! E R, the function nb counts 
+those objectives where VI is better than v2, ne counts those 
+objectives where the two solutions are equal, and nul counts 
+those objectives where VI is worse than v2. To lighten the 
+mathematical notation, from now on we will consider a generic 
+couple of points and we will write simply nb,n, and n, 
+instead of nb(vl,vz),n,(vi,vz) and nW(v1,vz). Obviously, 
+the following inequalities hold 
+natn ,+n ,  = M ,  (7) 
+0 < nb,n,,n, < M (8) 
+We are now able to give a first new definition of dominance 
+and optimality, namely (1-k)-dominance and k-optimality: 
+De$ 2.5 ((I-k)-dominance): v1 is said to (I-k)-dominate 
+v2 if and only i f  
+where 0 5 k 5 1. 
+As can be easily seen, 1-dominance (i.e., k = 0) is nothing 
+else than Pareto-dominance (definition 2.2). Ideally k may 
+assume any value in [0,1], but because na has to be a natural 
+number, only a limited number of optimality degrees need to 
+be considered. In fact in equation (9) the second inequality is 
+equivalent to 
+M - ne 
+nb [TTTl’ 
+where r.1 is the ceiling operation (1.1 is the smallest integer 
+greater than the real 2). After defining (1-k)-dominance, the 
+following definition of optimality can be given: 
+Def 2.6 (k-optimality): v* is k-optimum if and only if 
+there is no v E R such that v k-dominates v* 
+The meaning of the terms “(1-k)-dominance” and “k- 
+optima1ity”is that the former is a loose version of Pareto 
+dominance (1-dominance), while the latter is a strong version 
+of Pareto optimality (0-optimality). Concepts of S p  and 3p 
+can be now easily extended in the following way: 
+Def 2.7 (k-optimal set and front ): We call the k-optimal 
+set ( S k )  and the k-optimal front ( 3 h )  the set of k-optimal 
+solutions in the design variables domain and in the objective 
+functions domain, respectively. 
+Several Sk sets and 3 h  fronts are thus introduced, one for each 
+value of k ;  moreover, as evident, SO is the Pareto Optimal set 
+(Sp), and 30 is the Pareto Optimal Front (Fp). 
+B. P2: Taking into account the size of improvements: Fuzzy 
+optimality 
+A simple and effective extension of of (I-k)-dominance and 
+k-optimality is to substitute crisp relations in Eqs. 6 with fuzzy 
+ones. As a first step, for each objective function, the degree 
+of improvement (or equality) between two points v1 and v2 
+is taken into account. In order to do this fuzzy numbers and 
+fuzzy arithmetic will be considered. As a second step, we 
+extend the dominance relation itself to a fuzzy relation. We 
+remark that, in this work, fuzzy set theory is not related to 
+treatment of preferences among objectives, but it is related to 
+the size of the improvements, with the underlying hypothesis 
+that all objectives have equal importance. 
+The standard way to introduce fuzzy arithmetic (here being 
+the objective domain search space Ro), is to relate to each 
+point in no three fuzzy sets (fuzzy number), one for equality, 
+one for “greater than” and one for “less than”. For coherence 
+with the terminology used so far, we refer to the membership 
+function as be, pw (where w means “worst” and where we 
+are talking about minimization problems) and p b  respectively. 
+The fuzzy definition of nb, nu, and ne (now with superscript 
+F )  are the following 
+M 
+nF(v1,Vz)  d Cpt’(f i (v1)  - ~ z ) )  
+nc (Vl rVZ)  4 Cw$’(f;(vl) - f d v z ) )  
+n r ( v 1 , V z )  CpP’(fi(~1) - f i W )  (12) 
+(10) 
+,=I  
+M 
+(11) 
+i=l  
+M 
+i= l  
+In order n [ , n z  and n: to be a meaningful extension 
+of nb,n,  and n e ,  the membership functions p r ) , p $ )  and 
+p?’ have to satisfy the Ruspini condition [21] and thus, 
+in all the domain, they must sum up to 1 (For a detailed 
+description of the Ruspini condition role in fuzzy membership 
+function definition, see [22]). In fact, under this hypothesis, the 
+following holds 
+M 
+n r  + n,” + ng = X ( p !  + pLy + p:) = M 
+Two possible different membership shapes, linear and gaus- 
+sian, can be considered. For both of them The shape definition 
+requires some parameters being E,  and yi for the linear 
+one and ui for the gaussian one. Although the definition of 
+such parameters is to he carefully considered, their intended 
+meaning is clear and closely related to the physical properties 
+of the system. They thus can be provided by the human 
+decision-maker knowledge on the system. 
+(13) 
+i=l 
+ci defines in a fuzzy way the practical meaning of 
+equality and it can thus be considered the tolerance on 
+the i-th objective, that is the interval within which an im- 
+provement on objective i is meaningless (in other words 
+the maximum imperceptible improvement on objective i). 
+T~ can be defined as a relevant, but not big, size improve- 
+ment for objective i. 
+ui evaluation requires a combination of the two afore- 
+mentioned parameters &) and -/,; the following formula 
+for the membership pe can be used: 
+C. k-optimalily with fuzzy numbers of improved objectiws: 
+fuzzy optimalily 
+At first the following extended definitions of k-dominance 
+and k-optimality can be given. l i b .  n. and nul a e  replaced by 
+n:, n% and n; in definitions 2.5 and 2.6. 
+De$ 2.8 ((1-kp)-dominance): V I  is said to ( I - k F ) -  
+dominate v2 if and only i f  
+1: 15) 
+where 0 5 kp 5 1. 
+With the above definition, once k p  is provided, it is easy 
+to check whether a candidate solution (I-kp)-dominates or 
+not another solution. A simple extension can be given for 
+definition 2.6 as follows: 
+De$ 2.9 (kp-optimality): v* is kp-optimum if and only if 
+there is no v E R such that v kp-dominates v* 
+The parameter k (now called k,~) has the same meaning as in 
+the previous case (0 5 5 l), but now continuous degrees 
+of optimality and dominance are introduced (kp-domin;ince 
+and kf-optimality). 
+Moreover, an extension of Sk and 3 k  can be defined as 
+follows: 
+De$ 2.10 (kF-optimal set andfront): We call S k r  and 
+FkkF the set of kp-optimal solutions in the design variables 
+domain and in the objective functions domain, respectively. 
+111. THE SYSTEM MODELS AND OPTIMIZATION PROBLEM 
+A. Differential equation based model 
+A vehicle model, divided into modules, has been con- 
+structed. Each module is an object which interacts with the 
+other ones by means of inpuvoutput variables. The result is a 
+18 d.0.f. model that simulates satisfactory the actual vehicle 
+dynamic behavior. The car chassis is considered as a rigid body 
+(6 d.0.f.). The tyre forces transmitted by the suspension system 
+are applied to the vehicle body by considering two resultant 
+forces and two torques. The vehicle body is subject to aerody- 
+namic lift and drag forces. Front and rear independent suspen- 
+sion systems have a double wishbone layout. Shock absorbers 
+are modelled as non-linear components; the forces transmitted 
+by the shock absorber are function of the deformation speed. 
+The non-linearity due to bump stop characteristics has been 
+included. The torques-speed characteristic of the differential 
+has been accurately modelled. A model of braking system is 
+included by considering different distribution of braking force 
+at the front and rear axle. The tyre characteristics have been 
+implemented by using the Pacejkn’s Magic Formulre[23]. The 
+transient tyre behavior (relaxation length effect) is given by 
+~~ 
+(16) 
+dk’ 
+dt +vFy = ~ F y , s t a i  ( a , F z , ~ )  where x is an arhitrary parameter (0.8 i x < 0.99). 
+p b  and pw be univocally derived from Ruspini’s 
+condition. 
+With such a fuzzy definition of n[, n: and n$ both (I-k)- 
+dominance and k-optimality definition can be easily extended. 
+where sigma is the relaxation length, Fy is the lateral force, 
+cy is the slip angle, F, is the vertical load acting on the tyre 
+and -/ is the camber angle. Combined effects of longitudinal 
+and lateral slip have been considered as described in [24]. The 
+I’ 
+TABLE I 
+ERROR AVERAGE p. AND STANDARD 6.DEVIATIONS FOR NN 
+APPROXIMATION OF TWELVE OBJECTIVES, er: RELATIVE, .a: ABSOLUTE. 
+.“:ON VALIDATION SET. 
+I500W.O 
+1oooO.O 
+IwoO.0 
+5000.0 
+2owo.o 
+5000.0 
+2 m . o  
+-0.0015 
+0.0015 
+-0.005 
+fl.CUlS 
+vehicle model has been extensively validated, see [25j, [I81 
+for more details. 
+B. Design of Experiments and NN based model 
+Once a satisfactorily uniform and large set of training points 
+has been selected through a proper design of experiments 
+technique (see 1261, 1271 for more details), three MLPs (Multi- 
+Layer Percept”) have been trained for the approximation 
+of objectives being grouped into three sets (being defined by 
+common features of objectives belonging to the sets). Mean 
+values and standard deviations on both training and gener- 
+alization errors are shown in Table I. When using the MLPs 
+model for the optimization the one-shot approach (compute the 
+model Once and then optimize) can be very time consuming 
+due to the high accuracy required in the model that cannot be 
+improved once the optimization is started. This is why results 
+obtained with an iterative interpolation-optimization strategy 
+[28] will be shown in the conference presentation. 
+C. Optimization problem formulation 
+The design variables that have be considered in the optimi- 
+sation process are 22, as reported in Table U. The objective 
+functions are obtained from the simulation of a total number 
+of six running situations. The maneuvers considered are the 
+steady state cornering with a path radius of 50m and 120771 
+respectively (IS0 4138 standard), j-turn maneuver (IS0 7401 
+standard), power on-off while steering, braking on a bend and 
+passing over a non symmetric kerb. A total of 23 objective 
+functions have been considered, as they are reputed fully 
+representative of the actual vehicle behavior. The objective 
+functions are reported in Table 111. From a general point of 
+view, when such a big number of objective is considered, 
+some of them may be treated as constrains. The approach has 
+been discarded due to the arbitrariness in the choice and for 
+35oooO.O 
+7oooO.O 
+7owO.O 
+25wO.O 
+1 m . o  
+25wO.O 
+100000.0 
+-0.002618 
+0.002618 
+-0.010472 
+0 
+miable name 
+kant 
+kpost 
+krolant 
+krdpost 
+smbumpant 
+smrebant 
+smbumppast 
+smebpost 
+twant 
+toeant 
+toepost 
+twpost 
+camberant 
+camberant 
+camberpost 
+camberpast 
+biant 
+biposl 
+ciant 
+cipost 
+maxfrant 
+maxfzpost 
+0.05236 
+0.06 0.0872665 
+0.0 0.043633 :I 1 0.0785398 
+0.9 1.1 
+0.9 I 1.1 
+0.85 1.15 
+TABLE 11 
+DESIGN VARIABLES. LOWERIUPPER VARIATION RANGES, 
+steering wheel angle 
+0 
+-1 
+5 10 15 20 , 25 30 35 
+lateral acceleration 0 
+I 
+25 30 35 
+lo l5 yaw vP8city 0 5 
+’ . -  - simulated 
+0 5 10 15 20 25 30 35 
+t IS1 
+Fig. 2. Example of the vehicle model validation. 
+the same reason the scalar function approach has k e n  also 
+discarded. 
+D. Objective correlation analysis 
+In order to reduce, if possible, the number of performance 
+indexes that have to be taken into account, the correlation 
+between performance indices has been investigated. The statis- 
+tic we used to measure correlation between each objective 
+couple is the Spearman’s non-parametric correlation statistic 
+[29j. Spearman’s correlation is used in preference to the 
+other commonly applied non-parametric correlation statistics 
+(e. g. Kendall’s tau [29]) because the latter proved to be too 
+13 
+. -  . . .  1 response time 
+Y"I 0 0  I Sideslip angle at centre of gravity over- I Minimise 
+Y'" 
+Y L c  
+Y17 
+Y l S  
+shoot 
+gravity 
+time 
+O*<> Centripetal acceleration overshoot Minimise 
+MAX,, Maximum centripetal acceleration Maximise 
+SS,. Steady state centripetal acceleration Maximise 
+RMS(BI ROO( mean sonare of d ld t  sideslio an- Minimisr 
+Y" 
+YPr 
+Y r d  
+, I 1 gle at c.g. I 
+Pawer on-off 
+Ylq  I RMS(+) I Root mean square of dJdt sideslip an- 1 Minimise 
+wheel 
+wheel 
+Passing on a non symmetric kerb 
+RMS(F,,, )Root mean square of the vertical load 
+of the excited front wheel 
+RMS(F,, ,)Root mean square of the vertical load 
+of the excited rear wheel 
+6Fz Vertical load variation on the rear SX Maximise 
+Minimise 
+Minimise 
+I 1 gle a1 c .g  I 
+Braking on a bend 
+Yrul 6F, I Venicd load variation an the rear DX I Maximise 
+computationally demanding for the analysis of large distance 
+matrices. Calculation of Spearman's correlation statistic is 
+based on the ranking of the distances within each of the 
+two distance matrices. Two alternative algorithms can be used 
+to calculate Spearman's statistic, the choice depends on the 
+mesence of ties in the rankine of the two matrices. In case of 
+- 
+0.4742 . 0.9177 
+-0.2890 
+0.4027 
+0.9170 
+-0.2888 
+0.5064 
+-0.4047 
+0.8402 
+0.7186 
+0.7124 
+0.9622 . 0.9544 
+0.3006 
+0.4941 
+0.8778 
+0.8246 
+I .m 
+F I B  
+-0.0324 
+0.4558 
+0.0455 
+0.0179 
+0.4626 
+0.0234 
+0.0922 
+-0.048 
+0.2647 
+0.2109 
+0.2199 
+0.3913 
+0.3942 
+-0.0243 
+0.21 16 
+0.2834 
+0.2503 
+0.4467 
+1 .ow0 
+F Z O  
+0.0528 
+0.1424 
+.0.0807 
+0.0884 
+0.1387 
+-0.0828 
+0.0815 
+-0.0653 
+0.1037 
+0.0609 
+0.3404 
+0.1732 
+0.1315 
+-0.0768 
+0.5390 
+0.2203 
+0.1004 
+0.2033 
+0.1707 
+1.oooO 
+0.1914 
+-0.1248 
+0.0613 
+-0.0737 
+0. I275 
+0.0759 
+0.3531 
+0.2140 
+0.1753 
+-0.1105 
+0.5703 
+0.2481 
+0.1228 
+0.2522 
+0.2090 
+0.9842 
+1 .om 
+-0.1789 -0.0984 
+-0.0338 0.0506 
+0.0505 0.01:55 t- -0.1208 -0.0889 
+TABLE IV 
+SPEARMAN CORRELATION COEFFICIENTS MATRIX (PARTIAL), 0: NO 
+CORRELATION, 1: TOTAL CORRELATION 
+F , - l  F 7 - 0  
+Fig. 3. 
+.: nadir projection. *: distapia projection. +: utopia projection 
+Preliminary objective search space sampling (some 2D projections). 
+- 
+relevant incidence of ties, the following general formula can r is calculated as follows: T = 1 - 6 . Some correlation 
+analysis results are shown in table IV. A correlation parameter 
+close to 1 means maximum correlations. Once an element is 
+found (say line i column j, see in Table N ) to be close 
+D 
+he used n3-n 
+(17) 
+1 - (6D + (Tz + Ty)/2) /(m3 - n) 
+(1 - &)U - A) T =  
+to one, one of the two objectives is purged from the final set 
+t:sY - t z s y x  of truly conflicting criteria. This procedure allows to selcct 13 
+objective from the initial set of 24. 
+where 
+tz,y being the number of ties of a particular value of variable 
+x or y and where the summation is over all tied values of 
+is the number Of elements' Tz.y = 
+- 
+variable x or y respectively, where D = ~ ( R Z ,  - Ry;)'. 
+Rzi being the vector of ranks of the observation x. Ties are 
+treated by midranking. If on the other hand there are no ties, 
+1V. RESULTS 
+i=l 
+At first NSGAII [30] has been run on the entire 13 ob- 
+jective functions space and a big number of non-dominated 
+14 
+O(Pareta) 631701 
+0.65 
+n, 
+O(Pareto) 16152 
+0.5 1052 
++ 0.6 256 
+0.5 115 
+5 0.55 
+0.6 
+0.7 2 7.412 
+3 0.8 1 8 
+" . . , , ,  ' . .  ,:. " "  ...,,, ... ... ... .... TABLE V 
+EFFECTS OF K-OPTIMALITY AND FUZZY-OPTIMALITY BASED 
+A-POSTERIORI SELECTION ON PARETO-BASE0 NON-DOMINATED 
+SOLUTIONS FROM SEARCH SPACE SAMPLING (ABOVE) A N 0  FROM 
+OPTIMIZATION (BELOW). K:LEVEL OF K-OPTIMALITY. F: LEVEL OF FUZZY 
+OPTIMALITY. n s :  NUMBER OF K-OPTIMAL (OF FUZZY-OPTIMAL) 
+Fig. 4. 
+of equivdent scalar function value. 
+Comparison in objective functions space of !he selected k-optimal 
+SOLUTIONS, n p :  M I N I M A L  NUMBER OF IMPROVED OBJECTIVES WITHIN 
+THE CORRESPONDING K-OPTIMAL (OF FUZZY-OPTIMAL) SET. 
+solution wilh the refenace vehicle and with minima 
+solutions (16152) have been obtained. Moreover utopia, 
+distopia, nadir and payoff matrix have been computed through 
+single-objective evolutionary computation (ES). After that k- 
+dominance and fuzzy-dominance has been considered as an 
+a-posteriori selection rule among Pareto-based non-dominated 
+solutions. The results of different selections at different values 
+of k and k.r are shown in table V. For the sake of comparison 
+a selection has also been done on a set of 631701 non- 
+dominated solutions corresponding to a search space sampling 
+of lo6 points. As can he seen the number of selected non- 
+dominated solutions becomes smaller for high values of k, 
+making possible the final solution selection. Moreover column 
+three of table V shows the meaning of k-optimality that is the 
+minimum number of improved objective functions that one 
+counts when considering all possible couples of k-optimal so- 
+lutions at different values of k. When fuzzy optimality is used 
+for the selection na becomes a real number (see section 11). 
+Focusing the attention on results corresponding to k=0.6 (Table 
+V, +), a comparison in objective space domain is shown in 
+figure 4 between k-optimal solutions, reference vehicle and 
+two different optima corresponding to previously computed 
+minima by using scalar function approach. One possible com- 
+bination of three among the 13 conflicting objectives is shown. 
+As it can be seen, almost all k-optimal solutions dominates 
+the reference solution and are significantly close to the utopia 
+point. Moreover a set of 256 solutions is in some way practical 
+for the final choice by the designer. kp-optimality can be used 
+for the choice of one final solution. This can be seen from the 
+last line in Table V (f = 0.8). The selected solution is shown 
+in figure 5 and 6 in the phenotypic space of the sideslip angle 
+at c.g. (versus time) and centripetal acceleration (versus time) 
+respectively. The compasison is performed with the reference 
+vehicle and with previous optima (see above). The selected 
+th 
+:rad] 
+0 0.4 1 1.5 2 2.5 3 3 5  4 4.5 5 
+[SI 
+Fig. 5. 
+c.g. 
+One k-aplimd solution in the phenotipic space of sideslip angle at 
+k-optimal solution shows a relevant improvement on both the 
+objectives with respect to the reference vehicle and to both 
+previously computed optima. 
+V. CONCLUSION 
+The multiobjecive optimization of the tyre-suspension sys- 
+tem of a racing car has been tackled. The problem has shown 
+to be highly challenging mainly due to the high number of 
+objectives to be considered (totally 24 with 13 conflicting each 
+other). Several approaches have been followed involving state 
+of the art evolutionary optimization algorithms (NSGAII) both 
+on the differential model and on the NN model. Nevertheless 
+the number of objectives is so large, that a huge number of 
+non-dominated solutions have been obtained among which it 
+is difficult to make any a-posteriori choice. In order to solve 
+the problem a different definition of optimality (previously 
+15 
+N.C., : : 
+~... . ~ . . i  ........ 
+*... : ..... 
+I . .  . .  . .  . .  ,~ ........ .i. ...... . :...i: .... I... ..... j ........... .\... C..!l.:..:b.l"~~""~2... : I 1 ~ : EC'I.,hmi a...dopnm"ml : ,  . .  I ; :  i 
+.... :..I .. ...I ......... i... ........................... : ........... f ........ .j . .  . .  ~. . .  . .  . .  . :  : :  . .  . . .  .... ...... ...................... ................................. ........ i /  : , : : : :  I . .  ..,......... i~ & i . .  ~ ~ ; . {  ~ 
+; J  i i i . .  
+%- 
+I 1-1 
+Fig. 6. 
+acceleration. 
+One k-optimal solution in the phenotipic space of cenolpetal 
+developed) has been applied to the problem. It has shown to 
+be significantly flexible both as an a-posteriori selection rule 
+among non-dominated solutions and as an extension to Pareto 
+dominance definition to be included in the available mul- 
+tiohjective evolutionary algorithms. Some results are shown 
+and compared to the actual vehicle behaviour and to some 
+additional optima obtained through a classical scalar function 
+approach. 
+ACKNOWLEDGMENT 
+The authors would like to thank Alessandro Benedetti for 
+the execution of all the numerical calculations. 
+REFERENCES 
+I11 K. Miettinen, Nonlinear Multiobjective Optimization. Kluwer Academic 
+Publishers, Dordrechr THE NEDERLANDS, 1999. 
+121 "http://www.lania.mx/ Ccoello/EMOO:' . 
+131 Eckart Zitzler and Lothar Thiele, "Multiobjective Evolutionary Algo- 
+rithms: A Comparative Case Study and the Strength Pareto Approach." 
+IEEE Trmwtionr on Evolutionnry Computation. vol. 3. no. 4, pp. 257- 
+271, November 1999. 
+141 C.M. Fonseca, P.J. Fleming. E. Zitzler. K. Deb. and L. Thiele (Eds.), 
+a.. Evolutionory Mulri-Criterion Optimization Second Internotional 
+Conference, EM0 2003, Fom, Ponugol, April 8-I / .  2003. Pmceedings, 
+vol. 2632 of LNCS. Springer, 2003. 
+151 S. Obayashi and D. Sasalti, "Visualization and data mining of pareto 
+solutions using self-organizing map:' in Evolutionmy Multi-Criterion 
+Optimizarion Second International Conference, E M 0  2W3, Fam. Por- 
+tugal. April 8-11. 2003. Pmceedings, C.M. Fonseca. P.J. Fleming, 
+E. Zitzler. K. Deb, and L. Thiele (Fds.). Eds. 2003, vol. 2632 of LNCS, 
+Springer. 
+161 V. Pareto. Course d'Economie Politique. Libraire Drox. Geneve, 1964, 
+fin1 edition 1896. 
+171 M. Zelenv. "Multiule criteria decision makine: eieht conce~ts of .~ 
+optimalit;." H u m  System Management, vol. li: pp.>7-107, i998. 
+[SI Ian C. Parmee. Dragan CvetkoviE. Andrew H. Watson, and Chnsto- 
+pher R. Banham, "Multi-bjective Satisfaction within an Interactive 
+Evolutionary Design EnviranmenL" Evolutionary Computation, vol. 8. 
+no. 2, pp. 197-222, 2oW. 
+[91 R.R. Yager, "On ordered weighled averaging aggregation operators in 
+multicriteria decision making:' IEEE Trans. on SMC, vol. 18, pp. 183- 
+190. 1988. 
+[ I  I] P. Gupta and R. Nagi, "Process-partner selection in agile manufacturing 
+using linguistic decision making:' / /E  Transactions on Design and 
+Manufacturing, special issue on Agile Manufacturing. May 1995. 
+[I21 M. Farina and P. Amato. "A f u r y  definition of "optimality" for niany- 
+criteria decision-making and optimization problems," submirted to IEEE 
+Tram on Sy$. Man and Cybern.. 2002. 
+[I31 Carlos A. Coella Coello, "Handling Preferences in Evolutionary hlulti- 
+objective Optimization: A Survey," in 2000 Congress on Evolutionary 
+Computation, Piscataway, New Jersey, July 2 m .  vol. 1, pp. 31k-37. 
+IEEE Selvice Center. 
+[141 Dragan Cvetkovif and Ian C. Pannee. "Preferences and their Application 
+in Evolutionw Multiobiective @timisation:' IEEE Transnctio,u on 
+Evolutionary Computnti&, vol. 6;no. 1, pp. 42-57. February 20Cl2. 
+[15] D. Cvetkovic and I. Parmee. "Designer's preferences and multi-objective 
+preliminary design processes:' Pmceeding o/ACDM2WO, 26-28 April 
+ZWO, Playmouth, UK. 
+[16] Carlos M. Fonseca and Peter I .  Fleming, "Multiobjective Optimization 
+and Multiple Constrain1 Handling with Evolutionary Algorithms-Pan 
+I 1  A Application Example:' IEEE Trmactions on Systems, Man, and 
+Cybemetics, Port A: Systems and H u m s .  vol. 28. no. 1, pp. 38-47, 
+1998. 
+1171 M. Gabbi, G. Mastinu. A. D'Orazia. M. Caudano, and G. Faustini, 
+"On the optitnisatian of a double cone synchroniser far improved 
+manual transmission shiftability," Pmceedings of IMECE2002 ASME 
+International Mechanical Engineering Congress & Exposition Noamber 
+17-22, 2002, New Orleans, Louisiana. 
+1181 M. Gobbi, G. Mastinu, and C. Doniselli, "Optimising a car chsssis:' 
+Vehicle System Dynamics, vol. 32, pp. 149-170. 1999. 
+[I91 T. Hanne, Intelligent strategies for mefn multiple criteria decision mok- 
+ing ,  Kluwer Academic Publishers, Dardrechl, THE NEDERLANDS, 
+2001. 
+[201 P.P. Chakrabarti P. DaSgupta and S. C. DeSarkar, Multiobjective 
+Heuristic Search. Vieweg. 1999. 
+[21] E. Ruspini, "A new approach to clustering," In/ormation and Contml, 
+vol. 15. pp. 22-32, 1969. 
+[221 P. Amam and C. Manara, "Relating the theory of panitions in MV-logic 
+to the design of interpretable fuzzy systems:' in Interpretnbilify Issues 
+in F u u y  Modeling. 1. Casillas, 0. Cord6n. F.Hemra and L.Magdalenq 
+Eds.. vol. 128 of Studies infuuines  and fofi computing, pp. 499-523. 
+Springer-Verlag. 2003. 
+[23] E. Bakker H.B. Pacejka, "The magic formula tyre model." ,Suppl. 
+to Vehicle Syzrem Dynamics, vol. 21, 1993, Proceedings 1st tyre 
+colloauium.Delfl.Oct 1991. .~~ 
+1?11 U I S;hulnng. W P d 7 ,  m d  %I ti Pottmgcr. "A inodel fdr mmihined 
+liic c.menng mJ braking force\:' SAL Paper (60180. I9Y6 
+[ ? S I  C M Midnu. M Gubhi. (i Mdunu,  and R C e m n i .  "On the integrated 
+design of the tyre-suspension system of a racing car:' Pmc&dirrgs 
+of 2oW ASME International Mechanical Engineering Congrerr and 
+Exposition NovembesZWO , Orlando, FL. 
+"A tutorial on p s e n t  
+and future global approximation issues with application to a \.chicle 
+design problem:' Pmceedings of 2001 ASME Internotional Mechanical 
+Engineering Congress and Exposition November II-16.2WI , New York 
+NY, vol. IMECE2001IDE-23264. 
+[27] 1.B. Matusov, Multicrireria Optimization md Engineering, Chapman & 
+Hall, New York, NY, 1995. 
+[28] H. M. Gulman, A Radial Barisfimclion method for global Optimization, 
+Phd thesis, University of Cambridge. D e p m e n t  of Applied Mathemat- 
+ics, 1999. 
+[291 David L. Banks (Associate Editor) Samuel Kotz (Editor-in Chien. 
+Campbell Read (Executive Edilor). Ed., Encyclopedin of Statistical 
+Sciences, vol. 3. Wiley, 1999. 
+[30] Kalyanmoy Deb, Multi-Objective Optimiinrion using Evolutionary 
+Algonthm, John Wiley & Sons. Chichester, UK. 2001. ISBN 0-471- 
+87339-X. 
+[26] C. M. Miano. M. Gobbi, and G. Mastinu. 
+[lo] S.A: Orlovsky, "Decision making with a fuzzy preference relation:' 
+F u u y  Sets and System. vol. I ,  pp. 155-167. 1978. 
+16 

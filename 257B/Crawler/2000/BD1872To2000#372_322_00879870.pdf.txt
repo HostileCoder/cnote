@@ -1,0 +1,1431 @@
+Ground Target Tracking - a Historical Perspective1 
+Chee-Yee Chong David Garren Timothy P. Grayson 
+Science Applications International 
+4001 North Fairfax Dr, Suite 300 
+Booz Allen & Hamilton, Inc. 
+101 California St., Suite 3300 Corp. Agency 
+San Francisco, CA 941 11 
+Defense Advanced Research Projects 
+3701 North Fairfax Dr. 
+41 5-28 1-4948 
+chongchee @ bah.com 
+Arlington, VA 22203 
+david.a.garren@cpmx.saic.com 
+703-558-2768 
+Arlington, VA 22203 
+tgrayson@darpa.mil 
+703-248-1519 
+Abstract - Airborne sensor platforms such as Joint STARS 
+provide a capability for ground surveillance and monitoring 
+target movements. Because of the high target density and 
+maneuverability, high clutter, low visibility due to terrain 
+masking, etc., ground target tracking presents unique chal- 
+lenges not present in tracking other types of targets. This 
+paper reviews major developments in multi-target tracking 
+over the past four decades and discusses how algorithms 
+developed primarily for tracking air targets can be used for 
+tracking ground targets. The similarities and differences 
+between ground and air target tracking are first compared. 
+We then discuss how simple target state estimation algo- 
+rithms such as Kalman filtering have evolved into more 
+complicated algorithms for tracking maneuvering targets. 
+Similarly, we discuss how association algorithms have pro- 
+gressed from nearest neighbor to joint probabilistic data 
+association (JPDA), multiple hypothesis tracking (MHT), 
+and multi-dimensional assignment. The adequacy of these 
+techniques for tracking ground targets is discussed. 
+TABLE OF CONTENTS 
+1. INTRODUCTION 
+3. TARGET STATE ESTJMATION 
+4. DATA ASSOCIATION 
+5.  CONCLUSIONS 
+2. TRACKING ROUND VERSUS AB TARGETS 
+1. INTRODUCTION 
+Over the past four decades, multiple target tracking has 
+developed into a fairly mature technology. Applications now 
+include diverse areas such as air traf!k control, air and mis- 
+sile defense, avionics, ocean surveillance, port monitoring, 
+etc. Sensors that provide data include radar, infrared, acous- 
+tic, etc. However, until recently, there has not been much 
+emphasis on tracking ground targets due to the lack of sen- 
+sors. 
+The introduction of the Ground Moving Target Indicator 
+(GMTI) radar has drastically changed the situation. A GMTI 
+radar can provide detections on moving ground vehicles 
+over a large area. During Operation Desert Storm in 1991, 
+Joint Surveillance Target Attack Radar System (Joint 
+STARS) aircraft proved to be extremely valuable in pro- 
+viding the commander with a ground picture of the battle- 
+field. An example of its capability is the now famous picture 
+that shows “The Mother of All Retreats”. In addition to Joint 
+STARS, GMTI have been considered for other platforms 
+such as Unmanned Aerial Vehicles (UAVs). References [31] 
+and [34] trace the development of GMTI for ground sur- 
+veillance from some early programs to Joint STARS and 
+other potential future platforms. 
+Besides providing a global picture of vehicle movements, 
+GMTI measurements can be used to track individual targets. 
+Thus, there has been increasing interest in ground target 
+tracking and government programs have been started to 
+develop tracking algorithms for ground targets [47]. How- 
+ever, ground target tracking has characteristics that are quite 
+different from tracking other types of targets, in particular 
+air targets. Specific differences include high target density, 
+high clutter, possible terrain obscuration, etc. Thus, many 
+tracking approaches that have been developed for air targets 
+may perform poorly when used to track ground targets. The 
+objective of this paper is to review the progress of multi- 
+target tracking over the past 40 years and discuss its appli- 
+cability to tracking ground targets. 
+We focus primarily on tracking non-cooperative targets over 
+a large area. Thus we have excluded the tracking of vehicles 
+with onboard locators (e.g., a global position system re- 
+ceiver) such as those used in vehicle location and navigation 
+systems [ S I .  Also excluded from our review are algorithms 
+that track vehicles over a small area using video sensors 
+[19], [35], [44]. This paper is not intended to be a compre- 
+hensive survey of multi-target tracking. Good surveys and 
+overviews can be found in the survey paper [3], and the 
+books [4], [5], [9]-[11], [17], [20]. Instead, it is an overview 
+of the major developments in tracking technology and their 
+relevance to tracking ground targets. 
+The rest of this paper is structured as follows. In Section 2, 
+we discuss differences between tracking ground and air 
+targets such as target dynamics and density, and provide a 
+numerical comparison of the difficulty. Section 3 reviews 
+0-7803-5846-5/00/$10.00  2000 IEEE 
+433 
+the development of target state estimation which is needed 
+to support association, from Kalman filtering to multiple 
+models for maneuvering targets. Section 4 contains a review 
+of data association approaches including nearest neighbor, 
+joint probabilistic data association, multiple hypothesis 
+tracking and multi-dimensional assignment. This is followed 
+by conclusions in Section 5. 
+Environment 
+Dynamics 
+2. TRACKING GROUND VERSUS A I R  TARGETS 
+Even though tracking problems can be found in many appli- 
+cations, e.g., ocean surveillance and submarine tracking, 
+most tracking algorithms have been developed for air tar- 
+gets. Air tracking algorithms are potentially applicable to 
+ground targets because both have relatively high revisit 
+rates. Thus, a comparison of the characteristics of ground 
+and air tracking will be useful in assessing whether current 
+tracking algorithms are adequate for ground targets. 
+3 D 2 D o r l D  
+Less mobile, can- Highly mobile, 
+2. I Qualitative Comparison 
+A tracking problem is defined by the targets of interest, the 
+sensors that collect the measurements, and the environment 
+in which the targets move and sensors observe the targets. 
+4 
+Environment - Aircraft move in a three dimensional space 
+while ground vehicles move over the surface of the earth. 
+Thus the motion of ground targets is generally two dimen- 
+sional. For a vehicle that moves on roads, the space becomes 
+one dimensional on a road segment until it reaches an inter- 
+section, when it moves to other road segments. The region 
+where the vehicles can move may be further constrained, 
+e.g., rough terrain may limit accessibility. The same con- 
+straint may apply to air targets since mountains and ground 
+have to be avoided. 
+Target Dynamics - Ground targets can accelerate, slow 
+down and stop completely, and remain stationary for an 
+indefinite period of time. Except for helicopters, aircraft 
+dynamics is far more restricted with a minimum speed below 
+which the aircraft will stall. Furthermore, some vehicles can 
+move from off-road to on-road and back. The actual dy- 
+namics depend on the local condition, e.g., slope, terrain 
+type, type of road, etc. Thus ground target motion is far 
+more variable than air target motion. 
+Target Density - Except in very rare cases, air targets 
+maintain reasonable separation from each other for safety 
+reasons. Ground targets, however, can move very close to 
+each other. When stationery, the vehicles can be parked side 
+by side. Thus the density of ground targets is much higher 
+than air targets. 
+Sensor Detection - Because of the observation geometry, 
+ground targets can be obscured by terrain. Furthermore, 
+MTI radars can only detect targets with radial velocities 
+above the minimum detection velocity (MDV). There is no 
+detection when vehicles stop or move perpendicular to the 
+line of sight of the radar. Thus the detection of ground tar- 
+gets depends on dynamics and may not be continuous. On 
+the other hand, the detection of air targets depends mostly 
+on the radar cross section and less on the target dynamics. 
+Synthetic Aperture Radar (SAR) has been proposed for 
+imaging stopped targets, thus providing continuous tracking 
+capability. 
+Clutter - Air target operates in a low clutter environment 
+while ground targets move in heavy clutter. The need to 
+remove such clutter also results in lower detection of ground 
+targets. 
+Table 1 summarizes the differences between air and ground 
+target tracking. 
+Table 1: Ground versus Air Tracking 
+I I AirTargets I Ground Targets 
+not sto 
+probability observation and 
+I Clutter I Low I High 
+2.2 Quantitative Comparison 
+Basic Tracking Functions - One approach of characterizing 
+a tracking problem is in terms of the difficulty of performing 
+the tracking functions. The basic functions in multi-target 
+tracking are shown in Figure 1 and consist of prediction, 
+association, and estimation. When measurements are re- 
+ceived, the current tracks are predicted to the time of the 
+measurements and associated with the measurements. Then 
+the associated measurements are used to update the state 
+estimates of the tracks. Although these functions are not 
+always performed sequentially, they are present in most 
+tracking algorithms. 
+Association 
+Figure 1 : Basic Tracking Functions 
+Estimation Performance - Prediction and estimation are 
+single target state estimation functions in the absence of 
+measurement uncertainty. Prediction difficulty depends on 
+target dynamics and sensor revisit time. Highly maneuver- 
+able targets will result in large prediction uncertainty while 
+fairly static targets with high revisit rates will result in small 
+prediction uncertainty. 
+120 - 
+Figure 2 compares the prediction and estimation perform- 
+ance between air and ground tracking assuming a four di- 
+mensional ( 2  D position and velocity) linear target motion 
+model. The acceleration noise for air targets and ground 
+targets are assumed to be lg  and 0.1 g respectively. The 
+RMS measurement errors are assumed to be 60 m x 60 m for 
+air targets and 100 m x 10 m (case 1) and 10 m x 10 m (case 
+2 )  for ground targets. The investigation of two separate 
+cases for ground targets is intended to model the potential of 
+using a single sensor versus two sensors with orthogonal 
+vantage points. The prediction and estimation errors are 
+computed using steady state Kalman filter equations and 
+thus do not consider maneuvers. However, they represent 
+the typical values in air and ground tracking. Thus, with 
+perfect association, air target tracking is more difficult than 
+ground tracking. However, as we shall see shortly, the main 
+difficulty with ground tracking is association. 
++Air Prediction 
++Air Estimation i - +Ground Prediction - 
+100 
+E 
+6 80 
+& 
+- 
+L 
+60 
+LT 
+40 
+*Ground Estimation (1) 1-1 H 
+I *Ground Estimation (2) I 
+20 
+0 
+0 5 10 15 20 25 
+Revisit Period (s) 
+Figure 2: Estimation Performance 
+Association Per$ormance - Association performance de- 
+pends on target density, prediction performance and meas- 
+urement accuracy. However, high target density does not 
+necessarily result in poor association performance if the 
+target state can be predicted accurately or the measurements 
+are accurate. One way of representing association difficulty 
+is in terms of the normalized target density which is the 
+number of targets in the measurement validation gate. These 
+are basically the measurements that can be confused with the 
+true measurement from the target. The normalized target 
+density can be computed as (see [65] for details) 
+where D, and D, are the target and false alarm densities 
+respectively, is the error covariance matrix for the pre- 
+dicted target position, and R is the measurement error co- 
+variance matrix. The normalized target density as a function 
+of the revisit period is shown in Figure 3, where the average 
+target separation is assumed to be 2 Km for air targets and 
+50 m. for ground targets. Note that the normalized target 
+density for ground targets increases rapidly with the revisit 
+period. 
+The normalized target density represents the intrinsic diffi- 
+culty in association. The actual performance depends on the 
+specific association algorithm used and is hard to predict 
+analytically. For single scan optimal assignment algorithms, 
+an approximate formula for predicting the probability of 
+correct association is given by [65]: 
+I 
+PcA =exp(-D) ( 2 )  
+where E is the normalized target density. Figure 4 shows 
+the probability of correct association as a function of nor- 
+malized target density. It can be seen from Figures 3 and 4 
+that the association performance for ground target tracking 
+is expected to be much lower than air target tracking. In 
+order to achieve reasonable performance, we need accurate 
+target estimation algorithms and association algorithms that 
+can handle high target density. 
+12 I 
+0 5 10 15 20 25 
+Revist Period (sec) 
+Figure 3: Normalized Target Density 
+0.01 0.1 1 10 
+Normalized Target Density 
+Figure 4: Probability of Correct Association 
+3. TARGET STATE STIMATION 
+Target state estimation is an important component of any 
+multi-target tracking algorithm. The association of meas- 
+urements to tracks requires the prediction of the target state 
+of each track to the time of the measurements so that the 
+435 
+measurement to track likelihood can be computed. Accurate 
+state prediction is a key to good association Performance. 
+Once an association decision has been made, the output of 
+the tracker consists of updated state estimates of the tracks 
+using the associated measurements. In this section, we re- 
+view the development of target state estimation algorithms 
+and discuss their applicability to ground target tracking. 
+Although the target state can include features, we will focus 
+on the kinematics target state, i.e., the position and velocity. 
+Target state algorithms can be grouped into linear algo- 
+rithms that compute the means and covariances of the target 
+state estimate, nonlinear algorithms that compute the condi- 
+tional probability distributions, and adaptive algorithms that 
+address target maneuvers. 
+3.1 Linear Estimation Algorithms 
+These algorithms assume linear target motion and observa- 
+tion models and provide estimates of the target state by 
+means of linear transformations. 
+Alpha-Beta-Gamma Filters - These constant coefficient 
+filters [14], [76] estimate the target position and velocity 
+from position measurements only. The alpha-beta filter 
+assumes a second order model driven by white noise for the 
+target dynamics while the alpha-beta-gamma filter assumes a 
+third order model. In either case, the fixed coefficients can 
+be shown to be related to the steady state Kalman filter 
+gains. 
+These filters are simple to implement and were popular in 
+the early days of tracking when computation resources were 
+limited. However, they do not provide accurate estimates 
+and have problems in high clutter or low detection probabil- 
+ity situations. Thus, they have been mostly replaced by Kal- 
+man filters in recent years. 
+Kalman Filter - The Kalman filter has been the standard 
+approach to filtering for linear systems since its develop- 
+ment in the early sixties [40], [41]. It is based upon the fol- 
+lowing linear model for the state and measurements: 
+State equation: 
+X k + ,  = FkXk + GkWk ( 3 )  
+Measurement equation: 
+Z, = H,x, + v ,  (4) 
+where xk is the target state (position, velocity, etc.) at sam- 
+pling instant k, z ,  is the measurement, w, is a zero-mean 
+white process noise with covariance Q , and v ,  is a zero- 
+mean white measurement noise with covariance R . Kalman 
+filtering consists of two steps: prediction of the current esti- 
+mate and error covariance to the next time (time update) and 
+combining the prediction with the measurement to update 
+the target state estimate and error covariance (measurement 
+update). In the following i k l j  and Pklj  are the estimate and 
+error covariance at time k given all the observations up to 
+time j .  
+Measurement update: 
+iklk = i,,-, + W,Vk (7) 
+where v, = z ,  - i,,,-, = 6, -HA&,,-, is the measurement 
+residual or innovations, W, = ~ k I & ~ H k ' s ~ '  is the Kalman 
+filter gain and SA = H,P,,,-,H,'+R is the covariance of the 
+residual. 
+Kalman filtering reduces the design of the filter to choosing 
+the appropriate target dynamics and measurement models. 
+For kinematic states, the standard models are 
+Almost constant velocity. The target states are position 
+and velocity, and the state equation is a 2"d order system 
+driven by acceleration noise. 
+Almost constant acceleration. The target states are po- 
+sition, velocity, and acceleration, and the state equation 
+is a 31d order system driven by white noise. 
+Singer acceleration model [771. Since the acceleration 
+typically lasts over a certain time interval, a first order 
+Markov model has been used to model this correlation: 
+a ( k  +I) = e - T / ' a ( k ) + J - m ( k )  (9) 
+where T i s  the measurement update interval, z is the accel- 
+eration time constant, Q is the standard deviation of the 
+acceleration, and Q is now one. 
+These linear models are the basic models used for tracking 
+air targets which are not maneuvering. These same models 
+can be used for non-maneuvering ground targets moving on 
+a single road segment (2-D) or in open terrain (2-D). As an 
+example, a second order 1-D model has been used to track 
+vehicles on a road with imaging sensors so as to monitor the 
+traffic density and separation [44]. However, when the tar- 
+gets maneuver or reach an intersection, these simple linear 
+models are no longer adequate. 
+3.2 Adaptive Filters 
+The Kalman filter performs well when the target dynamics 
+match the model used in the filter. When a target maneuvers, 
+the model no longer matches the dynamics and performance 
+will degrade. One approach of dealing with target maneu- 
+436 
+vers is to increase the process noise in the target model. This 
+will usually decrease the tracking accuracy since the state 
+estimate will depend more on the current measurement and 
+not utilize the information accumulated from previous meas- 
+urements. Increasing the prediction uncertainty will also 
+make association more difficult. Thus several approaches 
+have been developed to detect maneuvers and adapt the 
+filter to the target dynamics in real time. 
+Parameter adjustment [18], [61] - The structure of the filter 
+(and the underlying model) is fixed. However, the filter will 
+monitor its own performance (such as the size of the residu- 
+als) and adapt parameters (such as the process noise covari- 
+ance or the Kalman filter gain) when a maneuver is detected. 
+State Augmentation [6] - This approach recognizes that 
+there is a penalty in using a model which tries to work in all 
+situations. Instead, the dimension of the state is changed 
+when a maneuver has been detected. For example, before 
+maneuver, a constant velocity model is used. When a ma- 
+neuver has been detected, the filter switches to an accelera- 
+tion model with higher state dimension and switches back to 
+the original model when the maneuver is determined to have 
+ended. 
+3.3 Multiple Models 
+The state augmentation approach discussed above makes a 
+hard decision on the target dynamic model that is valid at 
+any particular time. This is similar to making hard associa- 
+tion decisions to be discussed later. When the measurement 
+does not contain sufficient information, an incorrect decision 
+may be made, resulting in poor performance. Thus algo- 
+rithms that maintain multiple target dynamic models have 
+been developed. These algorithms compute the probability 
+of each model being true given the measurements and gen- 
+erate a target state estimate as a weighted sum of the esti- 
+mates given the individual models. 
+A description of multiple model estimation can be found in 
+the books [lo], [11], [20] , the survey paper [60] and the 
+review [54]. Mathematically, multiple model estimation is 
+the estimation of a hybrid state system [82]. The discrete 
+state mk is the model in effect at time k and has value in 
+the model set M ={mi] ;= ,  . The discrete or model state 
+evolves according to the Markov model 
+A semi-Markov chain can also be used to include the de- 
+pendence on the sojourn time. Given the model m', the 
+continuous state xk of the target evolves according to the 
+dynamic system 
+with the measurement equation 
+The basic idea of multiple model estimation is to run a bank 
+of filters corresponding to the number of models, compute 
+the probability of each model being valid, and then obtain 
+the overall estimate using a combination of the estimates 
+from these filters. Let 5' be the measurement sequence up 
+to time k . Then the optimal estimate is given by 
+r k  
+i,,, = E[x, I z k ]  = C E [ x ,  I m'A9'),~A]P{m'k.' ' I zA} (13) 
+( , , / ) = I  
+where m'k7" is one of the r A  model sequences up to time k . 
+Static Multiple Models - The early work [53], [56] on mul- 
+tiple models assumes that the true target motion model is 
+static and contained in a fixed set of models, i.e., pii = 0 for 
+i # j . Since the model dose not switch, the model sequence 
+consists of only one model, the number of filters is fixed at 
+r , and equation (1 3) becomes: 
+2.kk = E[x, 15'3 = x E [ x ,  I m',~!']P{m' I z ' }  (14) 
+,=I 
+Because the target model does not change with time, this 
+approach is not appropriate for maneuvering targets, al- 
+though it can be used to determine what discrete state the 
+system is in. 
+Model Sequence Pruning - The optimal multiple model 
+estimator given by (13) requires a filter for each possible 
+model sequence hypothesis. Since the number of model 
+sequences and thus the number of filters increases exponen- 
+tially with time, the optimal estimator is not practical. An 
+obvious sub-optimal approach is to prune the least likely 
+model sequences according to their probabilities. However, 
+this has been shown to have inferior performance relative to 
+other approaches [84]. 
+Generalized Pseudo Bayesian Estimator - The Generalized 
+Pseudo Bayesian (GPB) method [l], [27], [83] is a sub- 
+optimal approach that reduces the number of filters by 
+merging model sequences that end up with the same fixed 
+length sub-sequences. A GPB algorithm of order k , called 
+GPBk requires a bank of r A  filters. Thus the first order GPB 
+estimator, GPB1, will re-initialize the filters with the esti- 
+mates: 
+(15) -i _k-1 xk-llk-1 = E b k - ,  14 I =&-l,k-l 
+Interacting Multiple Models - This alternative merging 
+approach was first developed by Blom [21], [22] and has 
+become very popular. It is conceptually similar to the GPB2 
+algorithm but has only GPBl complexity. Let pL-uk-l be the 
+conditional probability of mk-, = m' given the cumulative 
+measurements zn-l, and x,-,,-, and be the state Ai 
+437 
+estimate and error covariance of xk-l for filter with model 
+m' . Each cycle of the IMM algorithm consists of the fol- 
+lowing steps: 
+1. Interaction or model-conditioned re-initialization 
+Predicted model probability: 
+p;,,-, = P(nz: I ?-I } = c Pjip;-un-l (16) 
+j=l 
+Mixing weight: 
+pL!!,k-l = P(mL-, I mi, & I }  = p j i p ~ - u , - l / p ~ k - l  (17) 
+Mixing estimate: 
+Fl-l,,-l = E[x,-, I mi., ;'-'I = ~ ~ ~ - l k - l p / ! ! l ~ - l  (18) 
+j=l 
+Mixing covariance: 
+A j  - j  jli EL, = ~[P;:l,k-l +(%&I - X , - , k - l ) ( ~ ~ - l I k - l  - % 4 - 1  YlPk-l,k-I 
+j=l 
+(19) 
+Model-conditioned filtering. For each i = 1,2,. . . , r , the 
+estimate Fl-llk-l and covariance are used to ini- 
+tialize a standard Kalman filter to process the measure- 
+ment zk to obtain the updated state 2LIk and covariance 
+according to equations (7) and (8). 
+Model probability update. The model likelihood 
+tk = p ( z ,  I mb,zk-')  = N(v, ;O,S:) ,  where N(v;O,S)  
+denotes a normal distribution in v with zero mean and 
+covariance S. The model probability is then updated by 
+Estimate fusion. The overall estimate and covariance 
+are given by 
+r 
+i,,, = E[x, I Z k ]  = z i ; , , p ; , k  (21) 
+i=l 
+I 
+pklk = Z[G,, +<i,,, - qIk )(2klk - 2 l l k  )'I&. (22)  
+i=I 
+The IMM algorithm is one of the most popular algorithms 
+for tracking maneuvering targets because of its relatively 
+simple implementation and its ability to handle complicated 
+dynamics. 
+Variable Structure Interacting Multiple Models - While 
+IMM has been successfully used in several applications, 
+having a fixed model set has its disadvantages. The applica- 
+ble target motion models will depend on the situation. 
+Keeping all the needed models throughout the tracking pe- 
+riod can incur extra computational load and degrade accu- 
+racy. In tracking multiple targets, the same estimator with 
+the same set of models is used for all targets even though 
+each target may need different models. 
+The variable structure multiple model (VSMM) estimator 
+has been proposed [54], [55] for situations where the model 
+space is large and the set of likely models varies with time or 
+state. Since the optimal VSMM estimator is infeasible, a 
+variable structure interacting multiple model (VS-IMM) 
+estimator has been developed. It has a two level structure: 
+Model set adaptation. This determines which model set 
+to use at each time using both information contained in 
+the measurements as well as prior knowledge. Different 
+ways of terminating existing models and initializing 
+new models have been proposed. 
+Model set conditioned estimation. This consists of the 
+same steps as fixed model set IMM and an additional 
+step to assign initial probabilities to the new models and 
+initialize the filters. 
+In [48], [49], the VSIMM approach is used to track ground 
+targets moving over roads and open field. The target motion 
+models reflect the mobility of a target for different condi- 
+tions. In open field, the process noise has equal covariances 
+in both X and Y directions. For a target moving on a road, 
+the noise is higher along the road and lower orthogonal to 
+the road due to the road constraint. 
+Models are added or removed by examining the location of 
+the target track. At each time, the track is tested for proxim- 
+ity to road segments, intersections, etc. For example, when 
+the track moves from one road segment A into a road seg- 
+ment B, the model corresponding to segment B is added. 
+Similarly, when a target moves near an intersection, the 
+models for the roads at the intersection are added to the 
+model set. 
+3.4 Nonlinear Estimation 
+The Kalman filter is the basis of the single target state esti- 
+mation algorithm described above. For the Kalman filter to 
+be applicable, both the target motion model and the sensor 
+measurement model have to be linear. Strictly speaking, for 
+the Kalman filter to be a conditional mean estimate, the 
+noises also have to be Gaussian. Since many dynamic mod- 
+els or observation models do not satisfy the linear assump- 
+tions, approaches for estimating the state of nonlinear sys- 
+tems have been developed. The following sub-subsections 
+review some of these approaches. 
+Extended Kalman Filter - When the non-linearity of the 
+dynamic and observation models is not too severe, these 
+models can be linearized about a nominal trajectory, and 
+then a Kalman filter can be developed with the linearized 
+model. Specifically, let the target motion model and meas- 
+urement model be 
+438 
+xk+l = f k  (xk) -I- gk (’k )wk 
+z ,  = h, (x, ) + v, 
+(23) 
+and 
+(24) 
+In the extended Kalman filter, the nominal target trajectory 
+is usually chosen to be the best estimate of xk given the 
+cumulative measurements z’ . Thus time update is given by 
+(25) %+Ilk = f, ( - 4 K  ) 
+where F, (x) and G, (x) are the derivatives of f ,  (.) and 
+g, (.) evaluated at x . The measurement equation is ap- 
+proximated by 
+Z, = h, (3kik-i ) + H ,  ( 2 k l k - l  )(xk - fi,I,-,) + V ,  (27) 
+where H ,  (x) is the partial derivative of h, (.) evaluated at 
+x . The standard Kalman filter measurement update equation 
+can then be used to updated estimate. 
+The extended Kalman filter is the most popular nonlinear 
+filter commonly used. Its operation is similar to the usual 
+Kalman filter except that the Kalman filter gain depends on 
+the most recent estimate and thus cannot be computed ahead 
+of time. For target tracking, if the appropriate coordinate 
+system is used, the target motion equation is linear. For 
+radar measurements, the measurement equation is nonlinear 
+because the range and azimuth are nonlinear functions of the 
+target coordinates in x and y. 
+Gaussian Sum Approximation [2], [80] - The extended 
+Kalman filter assumes that the conditional probability distri- 
+bution can be approximated reasonably accurately by a 
+Gaussian distribution. When this approximation is not valid, 
+e.g., when the conditional distribution is multi-modal, the 
+conditional probability distribution of x given the cumulative 
+measurements z k  can be approximated by a sum of Gaus- 
+sian distributions, i.e., 
+where the weights a:,’s of the individual Gaussian 
+distributions with means ELl, and covariance Bilk sum to 
+one. The Gaussian sum filter operates as a collection of 
+extended Kalman filters. In time update, the weights stay the 
+same and the mean and covariance of each Gaussian 
+distribution is propagated by the time update equation. In 
+measurement update, the means and covariances are updated 
+by the usual Kalman filter, but the weights are updated using 
+the innovations of the measurements for the different filters. 
+Note that the Gaussian sum filter has almost the same 
+structure as the static multiple model filter, except that there 
+is only one model evaluated at different nominal trajectories. 
+Nonlinear Filtering - In a Bayesian framework, nonlinear 
+estimation is conceptually very simple [38]. The target dy- 
+namics is represented by the Markov transition probability 
+p ( ~ , + ~  I x,) and the measurement model is given by the 
+conditional probability p ( z ,  I x, ) . Then the optimal Baye- 
+sian estimate is given by the following equations: 
+Time update: 
+Measurement update: 
+p(x ,  I 2 )  = C-’p(e ,  I x,)p(x, I 2 - 1 )  (30) 
+where C is a normalization constant. 
+This optimal nonlinear filtering algorithm has nice features 
+such as the ability to update the probability distribution of 
+the states due to non-detections (so called negative evi- 
+dence). However, implementation is computationally inten- 
+sive since it requires discretization of the state space and 
+performing the integration by a summation. Thus even 
+though the algorithm has been known for many years, it has 
+seldom been used. Reference [74] describes how this algo- 
+rithm can be used to track targets moving over terrain. The 
+time update equations propagate the probability distribution 
+by considering the effects of terrain on target speed and 
+direction of movement. The measurement update equations 
+update the distributions when measurements are received. 
+This general algorithm was also discussed in [64] and used 
+to formulate the multiple hypothesis tracking problem. Ref- 
+erence [81] presents more details on this approach and its 
+use in multiple target tracking motivated by work in tracking 
+submarines. 
+4. DATA ASSOCIATION 
+When the origins of the measurements are uncertain, e.g., 
+when clutter or multiple targets are present, the measure- 
+ments have to be associated with other measurements or 
+tracks before the target state estimates can be generated. 
+Association is what distinguishes target tracking from tradi- 
+tional state estimation and establishes tracking as a separate 
+discipline. 
+Association can be between two sets of measurements to 
+establish target tracks (track initiation or formation), be- 
+tween measurements and existing tracks (track continuation 
+or maintenance), or between tracks from different sensors 
+(track fusion in a distributed architecture). Historically, track 
+formation (initiation) and maintenance (continuation) were 
+at first treated as separate problems. However, the more 
+recent algorithms usually integrate these functions into a 
+single framework. 
+439 
+Algorithms can also be classified according to whether they 
+focus on single targets (uncoordinated association) or con- 
+sider explicitly the presence of multiple targets (coordinated 
+association) and whether association decisions are made 
+using single or multiple scans of data. The early algorithms 
+tend to focus on single scan and uncoordinated associations, 
+while the recent algorithms deal with multiple scans of data 
+and coordinated association. In general, algorithms that 
+consider multiple targets and use multiple scans of data 
+perform better but require more computations. 
+4.1 Single Target (Uncoordinated) Track Formation 
+These track formation algorithms initiate tracks from se- 
+quences of measurements without considering competition 
+from other tracks. Thus the resulting tracks may share the 
+same measurements. 
+M out of N Test - The earliest track formation algorithms 
+[25] are based on the following simple logic. A track is 
+tentatively initiated from a single measurement. A validation 
+gate is then established around this measurement and a 
+measurement falling inside this gate becomes part of the 
+track. When there are m detections out of I? scans of meas- 
+urements, then the track is formed or confirmed. This 
+method is very simple but does not provide a score on the 
+confidence of the track. 
+Likelihood (Ratio) Test - Let Ok3' be a track 1 consisting of 
+the measurement sequence z'.' = { z ~ , ~ ' ,  z ~ , ~ ,  , . . ., qj ,  1 . A 
+tentative track can be scored by the likelihood of the track, 
+[78] defined as 
+where p ( q j ,  I zk-l.',Ok*') = N(vi.jf ;0,Si, , )  is the probability 
+distribution of the innovations process. The log likelihood 
+can be computed recursively from the previous log likeli- 
+hood and the measurement residual. Alternatively, one can 
+compute the likelihood ratio given by 
+where p ( z k J  IFA) is the likelihood that all the measure- 
+ments in the sequence are false alarms. Again, the likelihood 
+ratio is converted to a log likelihood ratio. In the likelihood 
+tests, tracks are declared as confirmed (or deleted) when the 
+likelihood or ratio exceeds (or falls below) a certain thresh- 
+old. 
+4.2 Single Target (Uncoordinated} Track Maintenance 
+As in Sections 4.1, these algorithms associate measurements 
+with the existing tracks without considering the presence of 
+other tracks. Thus a measurement may be associated with 
+multiple tracks. 
+Nearest Neighbor - When there are multiple measurements 
+within the validation gate of a track, the measurement that is 
+closest (according to some distance measure) to the track is 
+associated with the track. This approach makes a hard deci- 
+sion based on a single scan and is very easy to implement. 
+However, it does not perform well in high density situations. 
+Track Splitting [79] - This is basically applying the likeli- 
+hood function (or ratio) approach to track maintenance. For 
+every measurement that falls in the validation gate, the track 
+is split. Each track is scored using a likelihood as discussed 
+before. The track is pruned when the likelihood falls below a 
+threshold. This approach makes soft decisions based upon 
+multiple scans of data. Because of its computational re- 
+quirements and limited performance, this approach is no 
+longer popular. 
+Probabilistic Data Association (PDA) [ 121, [13] - Instead 
+of associating a single measurement with a track, this ap- 
+proach probabilistically associates all measurements in the 
+validation gate. If the number of validated measurements is 
+mk , the updated state estimate for the track is 
+(33) 
+i=O 
+where pl P{Oi I Z k  1 is the conditional probability of the 
+event 0: that measurement z,,~ is the correct measurement 
+(originating from the target) and Rl,, = E[x,  I 0: ,Zk ] is the 
+updated state estimate given the association. The state esti- 
+mate update has the same form as the usual Kalman filter, 
+i.e., 
+R,, = Rk,k- ,  + WkV,  (34) 
+except that the measurement residual is the weighted sum of 
+the measurement residuals 
+'"k 
+v, = c p : v :  
+i=O 
+(35) 
+The covariance update equation is also similar to the Kal- 
+man filter update equation except for another term which 
+depends on the measurement residuals. Thus the Kalman 
+filter gain cannot be computed a priori. The need to associ- 
+ate measurements has turned the problem into a nonlinear 
+estimation problem. 
+The PDAF is an all-neighbors association algorithm. Its 
+logic is similar to GPBl where a single "lumped" state esti- 
+mate is used as sufficient statistics. It is fairly easy to im- 
+plement and has been shown to perform better than the near- 
+est neighbor approach in high clutter. Augmented PDAF's 
+that use features in addition to kinematics measurements 
+have also been developed. 
+440 
+The PDA approach was originally developed for track 
+maintenance for a fixed number of targets. By combining 
+with interacting multiple models in the so called interacting 
+multiple models PDAF (IMMPDAF) [7], it has been modi- 
+fied to handle track formation as well. 
+Optimal Bayesian Approach [77] - The PDAF is a subopti- 
+mal approach since the association event only considers the 
+current measurements. The optimal approach will consider 
+all possible association hypotheses up to the current time. 
+Let the total number of measurement sequences of possible 
+tracks up to time k be 
+k 
+LL = n ( l + n z j )  (36) 
+j=l 
+The additional 1 in the product corresponds to the absence 
+of measurement from that scan in the track. Then the state 
+estimate is 
+(37) 
+where p"' E P(Ok,' I Z k  ] is the conditional probability that 
+the measurement sequence is the correct sequence (origi- 
+nating from the target), and 
+;ilk = E [ ~ ,  iek,/,zk] = E [ ~ ,  I zk.'] (38) 
+is the updated state estimate given the association sequence. 
+The optimal algorithm is not feasible since the number of 
+filters grows exponentially, as in the optimal multiple model 
+algorithm. One approximate solution approach is the n-scan 
+algorithm that combines all tracks with identical measure- 
+ment sequences during the previous n scans, similar to 
+GPBn in multiple models estimation. The PDAF corre- 
+sponds to the situation when n=O. 
+4.3 Multiple Target Track Maintenance 
+Association performance can be improved when the algo- 
+rithms consider explicitly the presence of multiple targets 
+and recognize that a single measurement cannot belong to 
+multiple tracks. 
+Optimal Assignment - The optimal assignment approach, 
+also sometimes called global nearest neighbor, is the coordi- 
+nated version of nearest neighbor. Instead of selecting the 
+measurement that is closest to a track, this approach selects 
+the set of measurements that is closest to the set of tracks 
+according to some global distance measure subject to the 
+constraint that two tracks do not share a single measurement, 
+and two measurements do not appear in the same track. The 
+likelihood of a measurement zkTj  originating from the track 
+i with previous measurement sequence z ~ . ~  is 
+where v ~ , ~ ~ ~ , ~  and Sk,jlk,i are the residual or innovations and 
+covariance of measurement z ~ , ~  in track i . The joint likeli- 
+hood of each set of associations is given by 
+By taking the logarithm and substituting in the Gaussian 
+distribution, the log likelihood function of the joint associa- 
+tion is 
+i,i 
+With the constraint that each track can be associated with at 
+most one measurement, and each measurement with at most 
+one track, the optimization problem is the so called assign- 
+ment problem which has been solved by methods such as the 
+Munkres [66], [23] or Hungarian [50] algorithms. Recent 
+algorithms such as the JVC algorithm first proposed in [39] 
+and enhanced in [24] and the auction algorithm [15] have 
+been shown to be highly effective in solving the assignment 
+algorithm arising from data association problems. 
+Optimal assignment is a single (coordinated) hypothesis, 
+single scan approach to track maintenance. It is generally 
+used in conjunction with a track formation approach dis- 
+cussed before. Measurements that are not assigned to any 
+existing tracks are used to initiate new tracks. This approach 
+is still very popular because of its simplicity and the avail- 
+ability of good assignment algorithms. 
+Joint Probabilistic Data Association (JPDA) [32], [33] - 
+This is the extension of PDA to multiple targets. The tracks 
+for a known number of targets are assumed to have been 
+initiated and the problem is to associate the measurements to 
+the tracks. As in PDA, the estimate for each target is given 
+by a single mean and covariance. 
+The state estimation equation looks exactly the same as 
+PDA, except that the measurement and target association 
+probabilities are now computed jointly across all targets. 
+Specifically, for target t, the estimate is 
+where mk,r is the number of measurements in the validation 
+gate for target t ,  pi" is the (marginal) probability for the 
+event that measurement j originates from target t ,  and 2;; is 
+the estimate obtained by updating the target state with meas- 
+urement j .  The key to JPDA is computing the probability for 
+the joint association event 
+j=l 
+(43) 
+441 
+such that all the associations are feasible, i.e., each meas- 
+urement can originate from at most one target and each 
+target can generate at most one measurement. 
+JPDA can be viewed as a special case of the multiple hy- 
+pothesis approach when hypotheses are combined as soon as 
+they are formed. As in PDA, it is an all neighbors approach, 
+as compared to optimal assignment, which is global nearest 
+neighbor. The JPDAF is a very popular association algo- 
+rithm with many applications. One of its disadvantages is 
+that since models interference is assumed to be random, it 
+does not work well when there is persistent interference, 
+e.g., from another nearby target. 
+4.4 Multiple Scan Coordinated Association 
+The track maintenance algorithms in Section 4.3 base the 
+association decisions on only one scan of measurements. 
+Since both the measurement and the target motion models 
+have uncertainty, the single scan decisions may not be the 
+correct associations. Thus association performance can be 
+improved by using multiple scans of data. 
+The core of all multiple scan algorithms is the evaluation of 
+track likelihoods, which can be used for both track forma- 
+tion and maintenance. Thus multiple scan algorithms gener- 
+ally can be used for both track formation and association. 
+Znteger Programming - The earliest multiple scan algorithm 
+was found in [62]. Let N be the total number of measure- 
+ments and L be the total number of tracks formed (the tracks 
+are assumed to satisfy the constraint that each track cannot 
+contain more than one measurement from the same scan). 
+For each track i , let cpi be an N-dimensional indicator vec- 
+tor whose k-th element is 1 if the k-th measurement is in the 
+track, and 0 otherwise. Let p be a Ldimensional vector 
+with elements 1 or 0 that indicate whether a particular track 
+is in the scene hypothesis. Then the feasibility condition that 
+a single measurement cannot belong to two tracks becomes 
+A p  [cp, ....cp,]p I 1 (44) 
+Let the score of a track i be Ai.  This score can be com- 
+puted as before (31), e.g., as a likelihood. The total score 
+for a particular assignment is given by A’ p and the problem 
+of finding the best scene hypothesis is the integer program- 
+ming problem 
+min A’p (45) 
+P 
+subject to Ap I 1  (46) 
+This integer programming problem can be solved by branch 
+and bound or other methods. Although this approach was the 
+fist multiple scan algorithm, interest soon shifted to other 
+multiple scan algorithms such as multiple hypothesis track- 
+ing described below. 
+Multiple Hypothesis Tracking (MHT) - Multiple hypothesis 
+tracking delays making hard decisions when there is not 
+sufficient information to make a good decision. Alternative 
+hypotheses are formed to represent the ambiguities and each 
+hypothesis is evaluated. MHT originated with the work in 
+[75] and a general formulation was given in [63], [64]. In 
+MHT, there are two levels of hypotheses: track hypotheses 
+containing measurements originating from the same targets 
+and scene hypotheses of consistent tracks (with no meas- 
+urements) that explain the origins of all cumulative meas- 
+urements. 
+There are two alternative implementations of MHT: the 
+original hypothesis-oriented approach of [75] and expanded 
+in [64] and the track-oriented approach in [Sl]. Both ap- 
+proaches require the formation and evaluation of hypotheses 
+at the track and scene level. Received measurements are first 
+associated with the current tracks to form new track hy- 
+potheses. A measurement may be associated with a current 
+track (i.e., from a previously detected target), used to form a 
+new track (i.e., from a target that has not been detected be- 
+fore), or not used in a track at all (i.e., false alarm). At the 
+same time, a track may not be associated with any measure- 
+ments (i.e.. not detected). The result is a set of updated track 
+hypotheses along with the likelihoods of these associations. 
+These track hypotheses are then used to form scene hypothe- 
+ses by incorporating the feasibility constraints and the prob- 
+abilities of the hypotheses evaluated. One formula for recur- 
+sively computing the probability of the scene hypothesis is 
+given by [64]: 
+where C is a normalization constant, A is a scene level 
+hypothesis given the cumulative measurements Z , X is the 
+parent hypothesis given the previous measurements Z , 
+L y  ( Z ,  I x) is the likelihood of the false alarms in the cur- 
+rent measurements Z,  as hypothesized by A ,  and 
+Lk (zk.[ Iekk-’.’,Z) is the likelihood of associating the meas- 
+urement z,,/ with the track . The hypothesis evaluation 
+equation can also be expressed in batch form in terms of the 
+track likelihoods. 
+The MHT is conceptually simple but computationally inten- 
+sive since the number of hypotheses grows exponentially. 
+Thus sophisticated hypothesis management techniques are 
+needed to reduce the combinatorics. Common techniques 
+include pruning to remove low probability hypotheses, 
+clustering to decompose the problem, and combining or 
+merging to replace similar hypotheses by a single hypothe- 
+sis. 
+In the hypothesis oriented approach [75], [64], the most 
+current scene hypotheses and the measurements are used to 
+generate new scene level hypotheses. Most of the hypothesis 
+442 
+management operations are performed on scene hypotheses. 
+The track oriented approach [51], [20] does not maintain 
+scene hypotheses from scan to scan. Only high likelihood 
+track hypotheses are maintained and used to form scene 
+hypotheses. The probabilities of the scene hypotheses are 
+then used to further prune the track hypotheses. 
+The track-oriented approach is computationally more effi- 
+cient since scene hypotheses are only formed for high likeli- 
+hood tracks. In the hypothesis-oriented approach, the expan- 
+sion of the hypothesis may result in the generation of many 
+low probability hypotheses which will eventually be pruned 
+any way. However, the use of Murty’s method [67] for 
+finding the n-best solutions of an assignment problem can be 
+used to find high ranking scene hypotheses directly without 
+having to expand all hypotheses [28], [29]. 
+In recent years, MHT has become quite popular because of 
+advances in computing hardware and algorithms. Simulation 
+studies have shown that it can produce much better perform- 
+ance than more traditional algorithms in difficult situations 
+[26]. MHT has also been combined with more sophisticated 
+models to handle maneuvering targets, e.g., IMM/MHT as 
+discussed in Chapter 16 of [20]. 
+Multi-Dimensional Assignment - Traditional MHT requires 
+the explicit expansion and evaluation of many hypotheses. 
+Successful implementation requires the use of sophisticated 
+hypothesis management techniques to handle the combinato- 
+rics. During the last decade, alternative optimization based 
+methods that do not require the explicit expansion and 
+evaluation of hypotheses have been developed [30], [68]- 
+[72]. Such algorithms are easier to implement and computa- 
+tionally more efficient. 
+Suppose that there are N scans of data with m, measure- 
+ments in each scan. To account for missing detections, we 
+define an additional dummy measurement indexed by 0 in 
+each set k. A track hypothesis can be represented by an 
+indicator function ziliz,,.iN where: 
+if measurements i, , i2 ,..., i, belong to track 
+otherwise 
+z . .  , = 
+ill? ... IN 
+Let cili2,,,iN be the cost of forming the track ziIiz ,,,; , e.g., the 
+negative of the logarithm of the track likelihood define in 
+(31). Then the problem of selecting the scene hypothesis to 
+maximize the probability or likelihood of the hypothesis can 
+be formulated as the following optimization problem: 
+for all i, = 1,2, ....., m, , and k = 1,2 ,....., N . The constraints in 
+(49) specify that each measurement can belong to only one 
+track. There are no constraints on the dummy measurements 
+since several tracks may be undetected in a single scan. The 
+cost coo,.,, is defined to be zero. 
+Equations (48) and (49) define an N dimensional assignment 
+which is a natural extension of the two dimensional assign- 
+ment problem described in Section 4.3. While the 2-D as- 
+signment problem can be solved in polynomial time, the N- 
+D assignment is N-P hard, i.e., the solution time cannot be 
+bounded by a polynomial of fixed order. Thus sub-optimal 
+approaches have been developed to solve the assignment 
+problem. 
+Although there are differences in the specific steps, the 
+existing approaches to N-D assignment are all based upon 
+Lagrangian relaxation. The main idea is to use Lagrangian 
+multipliers to move constraints into the cost to be minimized 
+until the problem becomes a 2-D assignment problem which 
+can be solved efficiently by algorithms such as the auction 
+algorithm. A main challenge in Lagrangian relaxation is 
+updating the Lagrangian multipliers so that the constraints 
+are satisfied. Different approaches of handling this problem 
+are discussed in [68]-1721. 
+Multi-dimensional assignment can be used for both track 
+initiation and track continuation by using a sliding window 
+over the different scans of data. The solution from one time 
+can be used as a “warm start” for the solution of the next 
+time [7 11. Multi-dimensional assignment has become quite 
+popular during the last few years because it provides a com- 
+putationally attractive alternative to MHT when there is a 
+need to use multiple scans of data for association. Algo- 
+r i t h m s  for finding the m-best assignments have also been 
+developed for situations when knowing the best assignment 
+is not enough [73]. 
+4.5 Tracking Without Data Association 
+Most multi-target tracking algorithms follow the structure of 
+Figure 1 and perform association before target state estima- 
+tion. In recent years, several approaches have been proposed 
+to perform tracking without an explicit association function. 
+Instead of dealing with individual target states and individ- 
+ual measurements, these approaches treat all targets and 
+measurements as components of one system, and estimate 
+the system state directly without explicitly forming associa- 
+tion hypotheses. 
+Symmetric Measurement Equations (SME) [42]-[43]- In this 
+approach the original measurements on the targets are con- 
+verted into a new set of measurements that are symmetric 
+functions of the original measurements. For example, for 
+two targets with measurements y ,  and y 2 ,  the symmetric 
+measurement vector Z = ( z ,  , z 2 )  is given by 
+443 
+Since the new measurements do not depend on specific 
+origins of the measurements, data association is not neces- 
+sary for estimating the target state. Because the new meas- 
+urement model Z = f ( X ) + V  is always nonlinear in the 
+joint state X of all the targets, the extended Kalman filter is 
+used to estimate the joint target state. 
+The SME approach assumes that the number of targets is 
+known a priori. Thus it is really an algorithm for track con- 
+tinuation or maintenance. The cost of avoiding data associa- 
+tion is a nonlinear estimation problem with higher dimen- 
+sion. Thus, even though the SME approach has potential, it 
+may be applicable only to tracking problems with a small 
+number of targets. 
+Multi-target Nonlinear Filtering [45], [46], [57]-[59], [81] - 
+Suppose the individual target states are replaced by a multi- 
+target state X , ,  and the individual measurements are re- 
+placed by a joint measurement Z, . Suppose the individual 
+target motion and measurement models can be aggregated 
+into a multi-target motion model given by the conditional 
+probability p(X,+ ,  I X,) and a measurement model given 
+by the likelihood p ( Z ,  I X,) . Then, the same nonlinear 
+filtering equations (29), (30) developed for a single target 
+can be used (conceptually at least) for tracking multiple 
+targets, i.e., 
+P(X,+,  I zk) = ~ P ( X , + ,  I X , ) P ( X ,  I Z ’ M X ,  (52) 
+p ( X ,  I Zk) = c - ’ p ( z ,  I X , ) p ( X ,  I zk-l) (53)  
+The simplicity of these equations is deceptive. Discretization 
+of the target state space is needed to represent the probabil- 
+ity densities. Since the joint target state space is the direct 
+product of the individual target spaces, the number of cells 
+needed can be very high. For example, if each target state is 
+discretized into N cells, the joint state space for two targets 
+will have N 2  cells. Also, if the number of targets is un- 
+known, the joint target state needs to represent that informa- 
+tion. 
+The prior conditional probabilities also need to be defined. 
+In particular, the likelihood function p ( Z ,  I X,) now con- 
+tains all the information on association. The Unified Track- 
+ing Algorithm approach [81] computes the likelihood di- 
+rectly using fairly basic probability techniques and applies it 
+to situations when ordinary association is not meaningful, 
+e.g., measurement strength that depends on two targets. On 
+the other hand, the Finite-Set Statistics (FISST) approach 
+[57], [58] is based on random set theory. 
+Although multi-target nonlinear filtering has potential, its 
+mathematical foundation is quite complicated and not 
+widely understood. Reference [59] presents some issues in 
+problem formulation and compares some algorithms. The 
+computational requirements are quite substantial. Reference 
+[8 I] states that the algorithm “is computationally infeasible 
+for problems involving even moderate numbers of targets”. 
+It also suggests that the algorithm should be part of a system 
+with a standard tracking method and used only when targets 
+cross or merge. 
+5 .  CONCLUSIONS 
+Ground target tracking has become an important problem 
+recently because airbome platforms such as Joint STARS 
+can provide measurements on vehicles moving over a large 
+area. Since such measurements have become available only 
+recently, very few tracking algorithms have been developed 
+specifically for ground targets, and most tracking algorithms 
+have their origins in air targets. 
+Ground target tracking is considerably more difficult than 
+air target tracking because of higher target motion variabil- 
+ity, higher target density, and possible miss-detection due to 
+terrain masking and minimum detection velocity for MTI 
+measurements. Thus, many tracking algorithms developed 
+for air targets will not be suitable for ground targets. 
+Our review of tracking algorithms over the last four decades 
+suggests that the state-of-the-art in tracking is such that high 
+performance tracking of ground targets is possible. Target 
+state estimation algorithms have progressed from Kalman 
+filters for targets with fairly stationary dynamics to multiple 
+models estimation for highly maneuverable targets. At the 
+same time, multiple scan association algorithms are now 
+available to handle the high target density typically found 
+for ground targets. Thus we believe that ground tracking 
+algorithms can be developed using the more advanced tech- 
+niques currently available. 
+REFERENCES 
+[ l ]  G. A. Ackerson and K. S. Fu, “On State Estimation in 
+Switching Environments,” IEEE Trans. on Automatic Con- 
+trol, vol. AC-15, pp. 10-17, Feb. 1970. 
+[2] D. L. Alspach and H. W. Sorenson, “Nonlinear Baye- 
+sian Estimation Using Gaussian Sum Approximations,” 
+IEEE Trans. Automatic Control, vol. AC-17, no. 4, pp. 439- 
+448, Aug. 1972. 
+[3] Y. Bar-Shalom, “Tracking Methods in a Multi-Target 
+Environment,” IEEE Trans. on Automatic Control, vol. AC- 
+24, pp. 618-626, Aug. 1978. 
+[4] Y. Bar-Shalom, Multitarget-Multisensor Tracking: 
+Advanced Applications, Nonvood, M A  Artech House, 
+1990. 
+444 
+[5] Y. Bar-Shalom, Multitarget-Multisensor Tracking: 
+Applications and Advances Vol. 11, Nonvood, MA: Artech 
+House, 1992. 
+[6] Y. Bar-Shalom and K. Birmiwal, “Variable Dimensional 
+Filter for Maneuvering Target Tracking,” IEEE Trans. on 
+Aerospace and Elect. Systems, vol. AES-18, pp. 621-629, 
+Sept. 1982. 
+[7] Y. Bar-Shalom, K. C. Chang, and H. A. P. Blom, 
+“Automatic Track Formation in Clutter with a Recursive 
+Algorithm,” Chapter 2 in Multitarget-Multisensor Tracking: 
+Advanced Applications, Y. Bar-Shalom, ed., pp. 25-42, 
+Norwood: Artech House, 1990. 
+[8] Y. Bar-Shalom and A. Jaffer, “Adaptive Nonlinear 
+Filtering for Tracking with Measurements of Uncertain 
+Origin,” in Proc. 1972 IEEE C O I ~  Decision and Control, 
+pp. 243-247, New Orleans, LA, Dec. 1972. 
+[9] Y. Bar-Shalom and T. E. Fortman, Tracking and Data 
+Association, Orlando, FL: Academic Press, 1988. 
+[lo] Y. Bar-Shalom and X. R. Li, Estimation and Tracking: 
+Principles, Techniques and Software, Artech House, 1993. 
+[ l l]  Y. Bar-Shalom and X. R. Li, Multitarget-Multisensor 
+Tracking: Principles and Techniques, Storrs, CT: YBS 
+Publishing, 1995. 
+[12] Y. Bar-Shalom and E. Tse, “Tracking in a Cluttered 
+Environment with Probabilistic Data Association,” in Proc. 
+4“’ Symp. Nonlinear Estimation, San Diego, CA, Sept. 1973. 
+[13] Y. Bar-Shalom and E. Tse, “Tracking in a Cluttered 
+Environment with Probabilistic Data Association,” Auto- 
+matica, vol. 11, pp. 451-460, 1973. 
+[14] T. Benedict and G. Bordner, “Synthesis of an Optimal 
+Set of Radar Track-While-Scan Equations,” IRE Trans. on 
+Automatic Control, vol. AC-7, pp. 27-32, July 1962. 
+[15] D. P. Bertsekas, “The Auction Algorithm for Assign- 
+ment and Other Network Flow Problems: a Tutorial,” In- 
+t e ~ a c e s ,  vol. 20, pp. 133-149, 1990. 
+[16] D. Beymer and J. Malik, “Tracking Vehicles in Con- 
+gested Traffic,” in Proc. 1996 IEEE Intelligent Vehicles 
+Symposium, pp. 130-135, 1996. 
+[17] S. S. Blackman, Multiple Target Tracking with Radar 
+Applications, Nonvood, MA: Artech House, 1986. 
+[I81 S. S .  Blackman, T. J. Broida, and M. F. Cartier, “Ap- 
+plications of a Phased Array Antenna in a Multiple Maneu- 
+vering Target Environment,” in Proc. of 1981 IEEE Con$ 
+on Decision and Control, pp. 1413-1418, San Diego, CA 
+1981. 
+[19] S. S. Blackman, M. T. Busch, S. W. Cantrell, and C. J. 
+Musial, “Applications of Signal and Data Processing Tech- 
+nology to Vehicular Traffic Monitoring,” Signal and Data 
+Processing of Small Targets 1994, Proc. SPIE, vol. 1954, 
+pp. 361-375, May 1993. 
+[20] S. Blackman and R. Popoli, Design and Analysis of 
+Modern Tracking Systems, Nonvood, MA: Arctech House, 
+1999. 
+[21] H. A. P. Blom, “An Efficient Filter for Abruptly 
+Changing Systems,” in Proc. 23rd IEEE Cor$ on Decision 
+and Control, pp. 656-658, Las Vegas, NV. Dec. 1984. 
+[22] H. A. P. Blom and Y. Bar-Shalom, “The Interacting 
+Multiple Model Algorithm for Systems with Markovian 
+Switching Coefficients,” IEEE Trans. on Automatic Control, 
+vol. AC-33, pp. 780-783, Aug. 1988. 
+[23] F. Bourgeois and J. C. Lassalle, “An Extension of the 
+Munkres Algorithm for the Assignment Problem to Rectan- 
+gular Matrices,” Comm. of the ACM, vol. 14, pp. 802-804, 
+Dec. 1971. 
+[24] D. A. Castanon, “New Assignment Algorithms for 
+Data Association,” in Proc. SPIE, vol. 1698, pp. 3133-323, 
+1992. 
+[25] F. R. Castella, “Sliding Window Detection Probabili- 
+ties,’’ IEEE Trans. Aerospace and Elect. Systems, vol. AES- 
+12, pp. 815-819, NOV. 1976. 
+[26] D. S. K. Chan, “Tracking in a High-Clutter Environ- 
+ment: Simulation Results Characterizing a Bi-Level MHT 
+Algorithm,” in Proc. Signal and Data Processing of Small 
+Targets, SPIE, vol. 1954, pp. 540-551, 1993. 
+[27] C. B. Chang’and M. Athans, “State Estimation for 
+Discrete System with Switching Parameters,” IEEE Trans. 
+on Aerospace and Elect. Systems, vol. AES-14, pp. 418- 
+425, May 1978. 
+[28] I. J. Cox and S. L. Hingorani, “An Efficient Imple- 
+mentation of Reid’s Multiple Hypotheses Tracking Algo- 
+rithm and Its Evaluation for the Purposes of Visual Track- 
+ing,” IEEE Trans. Pattem Analysis and Machine Intelli- 
+gence, vol. PAMI-18, no. 2, pp. 138-150, Feb. 1996. 
+[29] I. J. Cox and M. L. Miller, “On Finding Ranked As- 
+signments with Application to Multitarget Tracking and 
+Motion Correspondence,” IEEE Trans. Aerospace and 
+Elect. Systems, vol. 31, no. 1, pp. 486489, Jan. 1995. 
+[30] S. Deb, M. Yeddanapudi, K. R. Pattipatti, and Y. Bar- 
+Shalom, “A Generalized S-D Assignment Algorithm for 
+445 
+Multisensor-Multitarget State Estimation,” IEEE Trans. 
+Aerospace and Elect. Systems, vol. 33, no. 2, pp. 523-538, 
+April 1997. 
+[31] J. N. Entzminger, Jr., C. A. Fowler, and W. J. Ken- 
+neally, “JointSTARS and GMTI,” IEEE Trans. Aerospace 
+and Elect. Systems, vol. 35, no. 2, pp. 748-761, April 1999. 
+[32] T. E. Fortman, Y. Bar-Shalom, and M. Scheffe, 
+“Multi-Target Tracking Using Joint Probabilistic Data As- 
+sociation,” in Proc. 1980 IEEE Con$ Decision and Control, 
+Albuquerque, NM, Dec. 1980. 
+[33] T. E. Fortman, Y. Bar-Shalom, and M. Scheffe, “Sonar 
+Tracking of Multiple Targets Using Joint Probabilistic Data 
+Association,” IEEE Joumal Ocean Engineering, vol. OE-8, 
+pp. 173-184, July. 1983. 
+[34] C. A. Fowler, “The Standoff Observation of Enemy 
+Ground Forces; from Project PEEK to JointSTARS,” IEEE 
+AES Systems Magazine, vol. 12, no. 6, pp. 3-17, June 1997. 
+[35] J. F. Gilmore, and D. A. Garren, “Airbome Video 
+Surveillance,” in Proc. SPIE Coifererice on Automatic 
+Target Recognition VIII, vol. 3371, pp. 2-10, 1998. 
+[36] I. R. Goodman, R. P. S. Mahler, and H. T. Nguyen, 
+Mathenzatics of Data Fusion, Boston: Kluwer Academic 
+Publishers, 1997. 
+[37] Y. C. Ho, and R. C. K. Lee, “A Bayesian Approach to 
+Problem in Stochastic Estimation and Control,” IEEE Trans. 
+Automatic Control, vol. AC-9, pp. 333-339, 1964. 
+[38] 
+Theory, New York Academic Press, 1970. 
+A. H. Jazwinki, Stochastic Processes and Filtering 
+[39] R. Jonker and A. Volgenant, “A Shortest Augmenting 
+Path Algorithm for Dense and Sparse Linear Assignment 
+Problems,” Computing, vol. 38, pp. 325-340, 1987. 
+[40] R. E. Kalman, “A New Approach to Linear Filtering 
+and Prediction Problems,” Joumal of Basic Engineering 
+(ASME), vol. 82D, pp. 35-45, March 1960. 
+[41] R. E. Kalman and R. Bucy, “New Results in Linear 
+Filtering and Prediction,” Joumal of Basic Engineering 
+(ASME}, vol. 83D, pp. 95-108,1961. 
+[42] E. W. Kamen, “Multiple Target Tracking Based on 
+Symmetric Measurement Equations,” IEEE Trans. Auto- 
+matic Control, vol. AC-37, pp. 371-374, 1992. 
+[43] E. W. Kamen and C. R. Sastry, “Multiple Target 
+Tracking Using Products of Position Measurements,” IEEE 
+Trans. on Aerospace and Elect. Systems, vol. AES-29, No. 
+2, pp. 476-493, April 1993. 
+[44] W. Y. Kan, J. V. Krogmeier, and P. C. Doerchuk, 
+“Model-Based Vehicle Tracking from Image Sequences 
+with an Application to Road Surveillance,” Optical Engi- 
+neering, vol. 35, pp. 1723-1729, June 1996. 
+[45] K. Kastella, “Event-Averaged Maxmum Likelihood 
+Estimation and Mean-field Theory in Multitarget Tracking,” 
+IEEE Trans. Automatic Control, vol. AC-40, no. 6, pp. 
+1070-1074, 1995. 
+[46] K. Kastella, “Joint Multitarget Probabilities for Detec- 
+tion and Tracking,” in Proc. SPIE Coilf: Acquisition Track- 
+ing and Pointing XI, vol. 3086, pp. 122-128, Apr. 1997. 
+[47] D. R. Kirk, T. Grayson, D. Garren, C. Y. Chong, and J. 
+Brandstadt, “AMSTE Precision Fire Control Tracking 
+Overview,” in Proc. 2000 IEEE Aerospace Cor$erence, 
+March 2000. 
+[48] T. Kirubarajan, Y. Bar-Shalom, K. R. Pattipati, I. 
+Kadar, B. Abrams, and E. Eadan, “Tracking Ground Targets 
+with Road Constraints Using an IMM Estimator,” Proc. 
+1998 IEEE Aerospace Conference, vo1.5, pp. 5-12, March 
+1998. 
+[49] T. Kirubarajan, Y. Bar-Shalom, K. R. Pattipati, and I. 
+Kadar, “Ground Target Tracking with Topography-Based 
+Variable Structure IMM Estimator,” Proc. SPIE Conf on 
+Signal and Data Processing of Small Targets, vol. 3373, pp. 
+222-233, 1998. 
+[50] H. W. Kuhn, “The Hungarian Method for the Assign- 
+ment Problem,” Naval Research Logistics Quarterly, no. 2, 
+pp. 83-97, 1955. 
+[51] T. Kurien, “Issues in the Design of Practical Multitar- 
+get Tracking Algorithms,” Chapter 3 in Multitarget- 
+Multisensor Tracking: Advanced Applications, Y. Bar- 
+Shalom, ed., pp. 43 - 84, Artech House, 1990. 
+[52] T. Kurien and R. B. Washbum, “Multiobject Tracking 
+Using Passive Sensors,” in Proc. 1985 American Control 
+Con$, Boston, MA, June 1985. 
+[53] D. G. Lainiotis, “Partitioning: A Unifying Framework 
+for Adaptive Systems, I: Estimation,” Proc. IEEE, vol. 64, 
+pp. 1126-1143, Aug. 1976. 
+[54] X. R. Li, “Engineers’ Guide to Variable-Structure 
+Multiple-Model Estimation for Tracking,” in MuZtitarget- 
+Multisensor Tracking: Applications and Advances, ed. by Y. 
+Bar-Shalom, Norwood: Artech House, 1999. 
+[55] X. R. Li and Y. Bar-Shalom, “Multiple Model Estima- 
+tion with Variable Structure,” IEEE Trans. Automatic Con- 
+trol, vol. AC-41, pp. 478-493, April 1996. 
+446 
+[56] D. T. Magill, “Optimal Adaptive Estimation of Sam- 
+pled Stochastic Processes,” IEEE Trans. on Automatic 
+Control, vol. AC-IO, pp. 434-439, Oct. 1965. 
+[57] R. Mahler, “Global Integrated Data Fusion,” in Proc. 
+7’“ National Symp. on Sensor Fusion, vol. 1, pp. 187-199, 
+Albuquerque, NM, Mar. 1994. 
+[58] R. Mahler, “Global Optimal Sensor Allocation,” in 
+Proc. 9’“ National Symp. on Sensor Fusion, vol. 1, pp. 347- 
+366, Monterey, CA, Mar. 1996. 
+[59] R. Mahler, “Why Multi-Source Multi-Target Data 
+Fusion is Tricky,” in Proc. 1999 IRIS Symp. on Sensor and 
+Data Fusion, Laurel, MD, May 1999.h 
+[60] E. Mazor, A. Averbuch, Y. Bar-Shalom, and J. Dayan, 
+“Interacting Multiple Model Methods in Target Tracking: A 
+Survey,” IEEE Trans. on Aerospace and Elect. Systems, vol. 
+AES-34, No. 1, pp. 103-123, Jan. 1998. 
+E611 R. McAulay and E. Denlinger, “A Decision-Directed 
+Adaptive Tracker,” IEEE Trans. on Aerospace and Elect. 
+Systems, vol. AES-9, pp. 229-236, March 1973. 
+[62] C. L. Morefield, “Application of 0-1 Integer Program- 
+ming to Multitarget tracking Problems,” IEEE Trans. Auto- 
+matic Control, vol. AC-22, pp. 302-312, June 1977. 
+[63] S. Mori, C. Y. Chong, R. P. Wisher, and E. Tse, 
+“Multi-Target Multi-Sensor Tracking Problems: a General 
+Approach,” in Proc. I983 American Control Col$ San 
+Francisco, CA, June 1983. 
+[64] S. Mori, C. Y. Chong, E. Tse, and R. P. Wishner, 
+“Tracking and Classifymg Targets without A Priori Identifi- 
+cation,” IEEE Trans. Automatic Control, vol. AC-31, no. 5, 
+pp. 401-409, 1986. 
+[65] S. Mori, K. C. Chang, and C. Y. Chong, “Performance 
+Analysis of Optimal Data Association with Applications to 
+Multiple Target Tracking,” Chapter 7 in Multitarget- 
+Multisensor Tracking: Applications and Advances, Vol 11, 
+Y. Bar-Shalom, ed., pp. 183 - 235, Artech House, 1992. 
+[66] J. Munkres, “Algorithm for the Assignment and Trans- 
+portation Problem” J. SIAM, vol. 5, pp. 32-48, 1957. 
+[67] K. G. Murty, “An Algorithm for Ranking All the As- 
+signments in Order of Increasing Cost,” Operations Re- 
+search, vol. 16, pp. 682 - 687, 1968. 
+[68] K. R. Pattipati, S. Deb, Y. Bar-Shalom, and R. B. 
+Washburn, “Passive Multisensor Data Association Using a 
+New Relaxation Algorithm,” Chapter 7 in Multitarget- 
+Multisensor Tracking: Advanced Applications, Y. Bar- 
+Shalom, ed., pp. 219 - 246, Artech House, 1990. 
+[69] K. R. Pattipati, S. Deb, Y. Bar-Shalom, and R. B. 
+Washbum, “A New Relaxation Algorithm and Passive Sen- 
+sor Data Association,” IEEE Trans. Automatic Control, vol. 
+AC-37, no. 2, pp. 197-213, Feb. 1992. 
+[70] A. B. Poore, “Multidimensional Assignment Formula- 
+tion of Data Association Problems Arising from Multitarget 
+and Multisensor Tracking,” Computational Optimization 
+and Applications, vol. 2, pp. 27-57, 1994. 
+[71] A. B. Poore and 0. E. Drummond, “Track Initiation 
+and Maintenance Using Multidimensional Assignment 
+Problem,” in Network Optimization, P. M. Pardalos, D. 
+Hearn, and W. Hager, ed., Spring-Verlag, 1996. 
+[72] A. B. Poore and A. J. Robertson 111, “A New Lagran- 
+gian Relaxation Based Algorithm for a Class of Multidimen- 
+sional Assignment Problems,” Computational Optimization 
+and Applications, vol. 8, pp. 129-150, 1997. 
+[73] R. L. Popp, K. R. Pattipati, and Y. Bar-Shalom, “m- 
+best SD Assignment Algorithm with Application to Multi- 
+target Tracking,” in Proc. SPIE Con$ on Signal and Data 
+Processing of Small Targets 1998, vol. 3373, pp. 475- 495, 
+Orlando, FL, April 1998. 
+[74] D. B. Reid, “A Non-Gaussian Filter for Tracking Tar- 
+gets Moving Over Terrain,” Proc. 121h Asilomar Conference 
+on Circuits, Systems & Computers, pp. 112-1 16, Nov. 1978. 
+[75] D. B. Reid, “An Algorithm for Tracking Multiple 
+Targets,” IEEE Trans. Automatic Control, vol. AC-24, no. 
+6, pp. 843-854, 1979. 
+[76] H. R. Simpson, “Performance Measures and Optimi- 
+zation Conditions for a Third-Order Sampled Data Tracker,” 
+IEEE Trans. on Automatic Control, vol. AC-8, pp. 182-183, 
+April 1983. 
+[77] R. A. Singer, R. G. Sea, and K. Housewright, “Deriva- 
+tion and Evaluation and Improved Tracking Filters for Use 
+in Dense Multitarget Environment, IEEE Trans. Inform. 
+Theory, vol. IT-20, pp. 423-432, July 1974. 
+[78] R. W. Sittler, “An Optimal Data Association Problem 
+in Surveillance Theory,” IEEE Trans. Mil. Electron., vol. 
+MIL-8, pp. 125-139, Apr. 1964. 
+[79] P. Smith and G. Buechler, “A Branching Algorithm for 
+Discriminating and Tracking Multiple Objects,” ZEEE 
+Trans. Automatic Control, vol. AC-20, pp. 101-104, Feb. 
+1975. 
+[SO] H. W. Sorenson and D. L. Alspach, “Recursive Baye- 
+sian Estimation Using Gaussian Sums,” Automatica, vol. 7, 
+no. 4, pp. 465-479, July 1971. 
+447 
+[81] L. D. Stone, C. A. Barlow, and T. L. Corwin, Bayesian 
+Multiple Target Tracking, Norwood, M A :  Artech House, 
+1999. 
+[82] D. D. Sworder and J. Boyd, Estimation Problems in 
+Hybrid Systems, Cambridge University Press, 1999. 
+[83] J. K. Tugnait, “Detection and Estimation for Abruptly 
+Changing Systems,” Automatica, vol. 18, no. 5, pp. 607- 
+615,1982. 
+[84] J. K. Tugnait and A. H. Haddad, “A Detection- 
+Estimation Scheme for State Estimation in Switching Envi- 
+ronments,” Automatica, vol. 15, pp. 477-481, 1979. 
+[85] Y. Zhao, Vehicle Location and Navigation Systems, 
+Norwood, MA: Artech House, 1997. 
+Chee-Yee Chong received his S.B., S.M., and Ph.D. de- 
+grees in electrical engineering from the Massachusetts 
+Institute of Technology. Currently he leads fusion technol- 
+ogy development at Boo: Allen & Hamilton. His research 
+interests include centralized and distributed tracking and 
+fusion, resource planning and scheduling, reasoning with 
+uncertainty, distributed decision making, integration of 
+system techniques with artijkial intelligence, and the appli- 
+cation of the above to large scale systems. Previously he 
+was with Advanced Decision Systems in Mountain View, 
+CA, and before that on the faculty of the Georgia Institute of 
+Technology. In addition to being an IEEE member for many 
+years, he also helped to start the International Society of 
+bzformation Fusion in 1998. 
+David A. Garren earned the B.S. degree in mathematics 
+and physics from Roanoke College in 1986 and the M.S. 
+and Ph.D. degrees in physics from the College of William 
+and Mary in 1988 and 1991. He has thirteen years experi- 
+ence in analysis and algorithms of multi-sensor multi-target 
+tracking, imagehipal processing, and physics. He is cur- 
+rently the U S .  Government core team lead for the Precision 
+Fire-Control Tracking segment of DARPA‘s Affordable 
+Moving Su$ace Target Engagement (AMSTE) program. 
+Timothy P. Grayson received his B.S. degree from the 
+University of Dayton, and M.A. and Ph.D. degrees from the 
+University of Rochester. Currently he is DARPA program 
+manager, Special Projects Ofice supporting various pro- 
+grams in the general area of moving target engagement, 
+including the Affordable Moving Sullface Target Engage- 
+ment (AMSTE) program. His technical interests include 
+statistical GMTI and SAR radar processing, tracking, com- 
+plex signal processing, combat ID systems, electro-optic 
+sensors, lasers and fundamental statistical optics. Previ- 
+ously he worked for SAIC as a senior system engineer and 
+before that for  Wright Laboratory, Wright-Patterson AFB. 
+448 

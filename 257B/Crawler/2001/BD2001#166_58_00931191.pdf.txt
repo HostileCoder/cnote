@@ -1,0 +1,867 @@
+\ Evolutionary Mechanisms for Smart On-board Adaptive 
+Sensing applied to the MECA Electrometer 1 
+Didier Keymeulen, Adrian Stoica, Martin Buehler, Ricardo Zebulwn and Vu Duong 
+Jet Propulsion Laboratory 
+California Institute of Technology 
+4800 Oak Grove Drive 
+Pasadena, CA 91 109 
+didier.keymeulen@jpl.nasa.gov 
+8 18-354-4280 
+Abstract- In-situ exploration as required for example by 
+missions to comets and planets with unknown 
+environmental conditions, has recently been approached 
+with new ideas, such as the use of biology-inspired 
+mechanisms for hardware sensor adaptation. The 
+application of evolution-inspired formalisms to hardware 
+design and self-configuration lead to the concept of 
+evolvable hardware (EHW). EHW refers to selg 
+reconfiguration of electronic hardware by 
+evolutionaqdgenetic reconfiguration mechanisms. In this 
+paper we describe the initial development of efficient 
+mechanisms for smart on-board adaptive sensing, 
+adaptively controlling the reconfigurable pre-processing 
+analog electronics using evolvable hardware, which will 
+lead to higher quality, lean data. 
+1. 
+2. 
+3. 
+4. 
+5. 
+6. 
+TABLE OF CONTENTS 
+INTRODUCTION 
+ADAPTIVE SENSOR ARCHITECTURE 
+EVOLUTION-ORIENTED DEVICES AND ENVIRONMENT 
+CONCLUSION 
+ELECTROMETER SENSOR ARRAY ' 
+ADAPTIVE SENSORS EXPERIMENT 
+1. INTRODUCTION 
+High data rates provided by modem sensors surpass on- 
+board real-time processing capabilities. This is addressed 
+by imposing large on-board storage memory and high 
+communications bandwidth; there is however no godd 
+solution to using the data in real-time control situations 
+such as fast entry, descent and landing, or within sensor 
+webs. Only a small fraction of the data carries quality 
+information, yet current pre-processing electronics is not 
+smart enough to eliminate uselesdredundant data. In fact 
+more information could be obtained from the sensor if the 
+electronics would adapt to incoming signals and the context 
+of the measurement. 
+The concept of reconfigurable and adaptive electronics for 
+signal conditioning has led to a series of recent chips that 
+allow programmable adjustment of amplifier gains, 
+memory-based compensation of sensor nonlinearity, etc 
+[25] .  However, the flexibility of these programmable 
+devices is limited by the high level of reconfiguration 
+granularity, and require that all compensation data is 
+predetermined through lab experiments and then stored in 
+ROM; also no later changes in sensor characteristics or 
+electronics itself could be considered once the sensor is in 
+operation. 
+A complementary technique, called evolvable hardware 
+(EHW), allows the automatic determination of optimal 
+electronic circuit configurations. In particular a chip 
+designed for evolvable hardware experiments, the Jet 
+Propulsion Laboratory (JPL) Field Programmable 
+Transistor Array (FPTA) has high flexibility by 
+reconfiguration at transistor level [28]. Evolutionary 
+algorithms allow for automatic determination of optimal 
+configuration. In the narrow sense EHW refers to self- 
+reconfiguration of electronic hardware by 
+evolutionaqdgenetic reconfiguration mechanisms as in our 
+application. In a broader sense EHW refers to various forms 
+of hardware, from antennas to complete evolvable space 
+systems that could adapt to changing experimental 
+environments and, moreover, increase their performance 
+during the mission. 
+In this paper we describe the initial development of 
+efficient mechanisms for smart on-board adaptive sensing, 
+adaptively controlling the reconfigurable pre-processing 
+analog electronics using evolvable hardware, which will 
+lead to higher quality, lean data. The target is to 
+demonstrate the mechanisms on an adaptive electrometer 
+providing the same or more information content than the 
+MARS01 MECA (Mars Environmental Compatibility 
+Assessment) Electrometer with a significant reduction in 
+the total amount of transmitted data. The electrometer was 
+part of MECA project and has as objective of the project to 
+gain a better understanding of the hazards related to the 
+human exploration of Mars. 
+In the paper we identify one application of adaptive sensor 
+0-78034599-2/01/$10.00 0 2001 IEEE 
+5-2309 
+array device for which the reduction of the data can be 
+considerable: discrimination task of materials with different 
+triboelectric properties. The discrimination task requires a 
+sophisticated analysis of the multiple responses in order to 
+extract differences in signal as well as an adaptation 
+mechanism to deal with the high sensitivity of the sensor 
+array to ambient conditions. The analysis and sensitivity 
+are translated to requirements and fitness evaluation 
+metrics that are used by an evolutionary algorithm to 
+determine the optimal adaptation mechanisms. 
+This paper reports on experiments that illustrate how 
+evolutionary algorithms can design analog circuit 
+integrated in the sensing elements and adapted to the 
+experimental conditions. The search for an electronic 
+circuit realization of a desired transfer characteristic can be 
+made in software as in extrinsic evolution, or in liardware 
+as in intrinsic evolution. In extrinsic evolution, the final 
+solution is downloaded to (or becomes a blueprint for) the 
+hardware. In intrinsic evolution the hardware actively 
+participates in the circuit evolutionary process and is the 
+support on which candidate solutions are evaluated. In this 
+paper we will only look at the extrinsic approach . 
+This paper is organized as follows: Section 2 presents a 
+description of the electrometer sensor array. Section 3 
+presents the adaptive sensor architecture. Section 4 presents 
+an evolution-oriented architecture for reconfigurable 
+hardware based on the concept of FPTA and the details of 
+the evolutionary design tool. Section 5 presents the 
+experiments and results obtained for the adaptive 
+electrometer for a discrimination application in a changing 
+environment. Section 7 presents some lessons learned from 
+the experiments and section 8 concludes the paper. 
+2. ELECTROMETER SENSOR ARRAY 
+The electrometer is part of MECA project. The objective 
+was to gain a better understanding of the hazards related to 
+the human exploration of Mars. The MECA project also 
+has a material patch experiment to determine the effects of 
+dust adhesion, a wet chemistry laboratory with ion selective 
+electrodes to characterize the ionic content of the soil, and 
+microscopy station with optical and atomic force 
+microscopes to determine particle size and hardness. 
+The electrometer was built into the heel of the Mars 01 
+robot arm scoop as seen in Fig. 1. The instrument has four 
+sensor types: (a) triboelectric field, (b) electrbfield, (c) ion 
+current, (d) temperature. The triboelectric field sensor 
+array contains five insulating materials to (determine 
+material charging effects as the scoop is dragged through 
+the Martian regolith. The insulating materials were chosen 
+after Earth-based tests in Mars simulant soils. 
+During digging operation the electrometer is out of the 
+way. After digging, the scoop is rotated so the electrometer 
+head is pointing down toward the Martian soils allowing it 
+to be rubbed against the Martian soil. 
+Temperature 
+Sensor: TMP (Inside) 
+Electiic Field 
+Sensor Array 
+16.5cm A 
+Figure 1. Electrometer sensor suite mounted in the heel of 
+the Mars'Ol scoop 
+In the rubbing sequence, depicted in Fig. 2, the scoop is 
+first lowered against the Martian soil. During the start of 
+the traverse, the electrometer is zeroed by closing a switch 
+which will be discussed later. After reaching the end of its 
+traverse, the scoop is abruptly removed from the soil at 
+which time the triboelectric sensor response is measured. 
+I 1  
+I CHARGED 
+A- 
+X 
+7 
+U 3  = ZERO 
+Figure 2. Operational scenario for the scoop and charge 
+distribution in the electrometer during rubbing (le ft) and 
+after removal from the surface (right). 
+As seen on the left in Fig. 2, charge'is generated 
+triboelectrically across capacitor C3 as the insulator is 
+rubbed on the Martian surface. Since the charges are in 
+close proximity across C3, no charge appears across 
+capacitors C1 or C2. As the insulator is removed from the 
+surface, the charges redistribute themselves across C1 and 
+C2 according to the charge relationship Q1 = 4 2  and 
+provide the signal for the amplifier. 
+This electrometer is an induction field meter [19] operated 
+in a direct current mode, where the operational amplifier 
+input ciurrent charges C1. The electrical schematic of the 
+non-adaptive component of the triboelectric sensors is 
+shown in Fig. 3. The design of the electric field sensor 
+follows fiom the traditional electrometer [20]. The 
+instrument is composed of a capacitive divider where C2 is 
+the field sensing capacitor and C1 is the reference 
+capacitor. The point between the capacitors is connected to 
+the positive terminal of the first stage amplifier (terminal 
+5-2310 
+t5 of U3) operated in the follower mode. The sensing 
+electrode is protected by a driven guard that is connected to 
+the negative terminal of the first stage amplifier (terminal - 
+6 of U3). A second operational amplifier (U4) is added to 
+provide additional amplification., At the beginning of the 
+measurements, C1 is discharged using the solid-state 
+switch, S1 which has very low leakage. In the TRI sensor, 
+C2 has an insulator dielectric which acquires charge during 
+rubbing. 
+c2 
+V I 1  
+8 JS1 
+Figure 3. Schematic circuit representations for the non - 
+adaptive component of the Triboelectric sensor (TRI) fully 
+characterized before field use. 
+Four different insulating materials were loaded into the 
+titanium triboelectric sensor head. A typical experiment 
+consists of manually rubbing a wool felt on the triboeletric 
+head at room temperature. The results are shown in Figure 
+4. The falling period between 10 and 20 seconds represents 
+the rubbing period. The large negative response is for the 
+Rulon-J which is to be expected for RulorrJ rubbed on 
+wool. 
+Tek 5.00 S/S 1 ACqS 
+[-> __ ] 
+1 
+200mv it32 L O O ~ V  m 10.0s Chl f 500mV 31 oct 2000 
+200mv < I ? . ?  Ifmw: 12:43’19 
+3. ADAPTIVE SENSOR ARCHITECTURE 
+The triboelectric sensor array is an example of a hybrid 
+integrated array devices where the sensors are grouped on 
+the same devices but where the signal processing is done on 
+a separate device as we will describe later [21]. This sensor 
+array employs similar sensors (in terms of the measurand) 
+but sensors have subtle differences (i.e. partially correlated 
+outputs) related to the triboelectric properties of materials, 
+known as the triboelectric series. The triboelectric sensors 
+have poor specificity and so respond to a very wide range of 
+materials. The signal processing must then carry out a 
+sophisticated analysis of the responses to extract the subtle 
+differences in signals. The approach we have chosen, as 
+shown in Fig. 5 ,  is to use an evolvable hardware classifier 
+connected to the triboelectric sensor array and that will be 
+able after evolution to discriminate with high precision the 
+response of different materials. 
+Another important reason to use an adaptation mechanism 
+is to be able to do in-situ self-calibration [22]. Indeed the 
+sensors are very sensitive to ambient conditions, such as 
+temperature, humidity, atmospheric and contact pressure, 
+ambient gas, materials. They are also sensitive to the 
+material and surface condition of the sensors. For example 
+the dust cling on the insulator surface affect considerably 
+the response of the triboelectric sensor arrays. Finally the 
+array sensor has poor ageing characteristic, that is the 
+triboelectric sensing element is slowly corroded and thus 
+changes its response characteristics with time. To remedy 
+this high sensitivity to the ambient conditions and sensors 
+conditions, we performed an in-situ self-calibration: 
+calibrate the sensors right at site with the current 
+environmental conditions and a set of given sensor 
+materials. 
+Fig 5 shows the basic arrangement of an adaptative 
+electrometer array sensor system for discriminating 
+different materials. The triboelectric property of the 
+material is sensed by an array of sensors, each with its 
+response which is converted to an electrical signal via 
+suitable transduction circuitry. The voltage signal VAi is 
+then injected to the evolvable hardware specially designed 
+for the current environment and a set of materials. The 
+prediction of the triboelectric property of the material is 
+given in terms of voltage. In the next section, we describe 
+the evolvable hardware developed by JPL, called FPTA and 
+the mechanism to find the best circuit configuration to 
+perform the ‘classification task. 
+Figure 4. Response of triboelectric sensor array to white 
+wool felt (For all figures: response C1 is ABS (TRIl), 
+response C2 is Polycarbonate (TRI2), response C3 is 
+Teflon (TRI3) and response C4 is Rulon-J (TRI4)). 
+5-2311 
+1 
+p v a b l e  Hardware I 
+OUTPUT 
+MATERIAL e DISCRIMINATOR 
+SAMPLES 
+Current 
+output 
+Configuration 
+bits 
+v 
+Genetic 
+Algorithm 
+Current Functionality: 
+Discnmination Material 
+I I 
+Figure 5. Schematic arrangement of am adaptive 
+electrometer sensor array device 
+4. EVOLUTION-ORIENTED DEVICES AND 
+ENVIRONMENT 
+The idea of a FPTA was introduced first by Stoica in [ 1 11. 
+The FPTA is a concept design for hardware reconfigurable 
+at the transistor level. As both analog and digital CMOS 
+circuits ultimately rely on functions implemented with 
+transistors, the FPTA is a versatile platfonn for the 
+synthesis of both analog and digital (and mixed-signal) 
+circuits. Further, it is considered a more suitable platform 
+for synthesis of analog circuitry than existing FPGAs or 
+FPAAs, extending the work on evolving simulated circuits 
+to evolving analog circuits directly on the chip. 
+The FPTA module is an array of transistors 
+interconnected by programmable switches. The status of the 
+switches (ON or OFF) determines a circuit topology and 
+consequently a specific response. Thus, the topology can be 
+considered as a function of switch states, and can be 
+represented by a binary sequence, such as “1 0 1 1.. . ”, where 
+a 1 represents an ON switch and a 0 represents a OFF 
+switch. The FPTA architecture allows the implementation 
+of bigger circuits by cascading FPTA modules with external 
+wires. To offer sufficient flexibility the module has all 
+transistor terminals connected via switches to external 
+terminals (except for power and ground). Issues related to 
+chip expandability were treated in elsewhere [ 111. Figure 6 
+illustrates an example of a FPTA module consisting of 8 
+transistors and 24 programmable switches. In this example 
+the transistors P1-P4 are PMOS and N5-NS are NMOS, 
+and the switch-based connections are in sufficient number 
+to allow a majority of meaningful topologies for the given 
+transistor arrangement, and yet less than the total number 
+of possible connections. Programming the ON and OFF 
+switches defines a circuit. The effects of non-zero, finite 
+impedance of the switches can be neglected in the first 
+approximation. One FPTA module was fabricated as a Tiny 
+Chip through MOSIS, using 0.5-pm CMOS technology. 
+We build a testbed for future development with a test board 
+with four chips mounted on it and connected with the 
+electrometer (Fig. 7). 
+s7 
+s3 
+SI 1 
+s20 
+7 t N*l  
+V ’  
+Figure 6. Module of the Programmable Transistor Array 
+5-2312 
+Figure 7. Module of the Programmable Transistor Array 
+connected to the electrometer. 
+In the context of electronic synthesis on reconfigurable 
+devices such as the FPTA, the architectural configurations 
+are encoded in ”chromosomes” that define the state of the 
+switches connecting elements in the reconfigurable 
+hardware. The main steps in evolutionary synthesis of 
+electronic circuits are illustrated in Figure 8. First, a 
+population of chromosomes is randomly generated to 
+represent a pool of circuit architectures. The chromosomes 
+are converted into control bit strings, which are 
+downloaded onto the programmable hardware. In the 
+particular case of the FPTA cell, the chromosome has 24 
+bits that determines the state of the 24 switches (Figure 6). 
+Circuit responses are compared against specifications of a 
+target response using as fitness the root mean square error. 
+The individuals are ranked based on their fitness; that is, 
+how close they come to satisfying the target. Preparation for 
+a new iteration loop involves generation of a new 
+population of chromosomes from the pool of the best 
+individuals in the previous generation. Individuals are 
+selected probabilistically based on their fitness. Some are 
+taken as they were and some are modified by genetic 
+operators, such as chromosome crossover and mutation. 
+The process is repeated for a number of generations, 
+resulting in individuals with increasingly better fitness. The 
+genetic algorithm is usually ended after a given number of 
+generations, or when the closeness to the target response 
+has been reached. In practice, one or several solutions may 
+be found among the individuals of the last generation. 
+In addition to the procedure described above, which is 
+called intrinsic Evolvable Hardware or hardware evolution, 
+Figure 8 also shows an alternative way to carry on 
+evolutionary circuit synthesis, by the use of simulators 
+instead of reconfigurable chips. In this particular case, the 
+chromosome is mapped into a SPICE circuit model, which 
+is simulated and evaluated. This later procedure is called 
+extrinsic Evolvable Hardware or sofmare evolution. The 
+mapping of the chromosome into the circuit netlist is 
+accomplished by examining the chromosome values bit by 
+bit. According to each bit value (0 or l), the state of its 
+corresponding switch will be set in the circuit netlist. After 
+all the switches’ states are determined, the circuit is 
+simulated. The extrinsic approach’has been used for the 
+experiments of the adaptive electrometer sensor array. The 
+intrinsic approach is currently under development. 
+An evolutionary design tool EHWack (Figure 8) was 
+developed to facilitate experiments in hardware and 
+software evolution [lo], as defmed in the previous section. 
+This tool incorporates the public domain Parallel Genetic 
+Algorithm package PGAPack as genetic engine running on 
+a UNIX workstation. Referring to software evolution, we 
+incorporated in the EHWPack, the SPICE 3F5 as circuit 
+simulator. In the case of hardware evolution, the tool 
+proved very useful in testing architectures of reconfigurable 
+hardware and demonstrating evolution on FPTA 
+reconfigurable chips. An interface code links the GA with 
+the hardware where potential designs are evaluated, while a 
+Graphical User Interface (GUI) allows easy problem 
+formulation and visualization of results. At each generation 
+the GA produces a new population of binary chromosomes, 
+which get converted into configuration bits downloaded 
+into the 4 FPTAs reconfigurable chips or into Netlists that 
+describe candidate circuit designs, and are further 
+simulated by SPICE. 
+A variety of circuits have been synthesized through 
+evolutionary means. For example, Koza used Genetic 
+Programming (GP) to grow an ‘kmbryonic” circuit to one 
+that satisfies desired requirements [l]. This approach was 
+used for evolving a variety of circuits, including filters and 
+computational circuits. An alternative encoding technique 
+for analog circuit synthesis, which has the advantage of 
+reduced computational load was used in [2] for automated 
+filter design. On-chip evolution was demonstrated by 
+Thompson [3] using an FPGA as the programmable device, 
+and a Genetic Algorithm (GA) as the evolutionary 
+mechanism. More details on current work in evolvable 
+hardware are found in [4], [5], [6],  [7]. Current 
+programmable analog devices are very limited in 
+capabilities and do not support the implementation of the 
+resulted design (In principle, one can test their validity in 
+circuits built from discrete components, or in an ASIC). 
+More recently, evolutionary experiments were performed on 
+COTS FPAA [18] and an ASIC [I I]. 
+5-2313 
+~~ ~ 
+Evolutionary Hardware Environment 
+Extrinsic Intrinsic 
+PGAPACK 
+Genetic Algorithm 
+I I;; 
+Desired Data 
+VAI, VA2. VA3 and VA4 
+from electrometer for 
+materiail, material2 8. material3 
+Inputs Signals: 
+Desired Output Signals: 
+Voutl (materiall), Vout2 
+.c 
+t Fl 
+simulation 
+t 
+Fitness of 
+individual 
+devicfddrcuit 
++ 4  
+1 of256pmcesors 
+U e s h  supemmputer 
+(Hp =ww 
+t 
+t 
+individual 
+eontrolled by LabVicv 
+Comuectedu, 
+Elemomtor 
+Figure 8. Environment for evolutionary desip. 
+5 .  ADAPTIVE SENSOR EXPERIMENT 
+Two experiments were conducted. The first experiment 
+shows that the evolvable hardware approach finds a FPTA 
+circuit that is able to discriminate between the responses of 
+the electrometer to three different materials. The second 
+experiment shows that the same evolvable hardware adapts 
+the FPTA circuit to the changes in the electrometer 
+responses due to a modification of the environmental 
+conditions. 
+The experiments used three rubbing material samples (wool 
+felt, Teflon and Polyester) and used only two insulating 
+materials of the electrometer (Teflon and Rulon-J). The 
+experiments start by an initialization procedure which puts 
+the electrometer in a known state: the five electrometer 
+insulators were cleaned by brushing followed by Am241 
+alpha particle deionization. The deionization process was 
+observed by running a trace and noting when the response 
+no longer changed. After cleaning and deionization, the 
+samples were placed in the apparatus as seen in Figure 7. 
+The data acquisition was started and five points were 
+acquired every second. The first fifty points are baseline 
+points. During the next 200 points, the samples were 
+rubbed by the apparatus from left to right. During the final 
+data points, the rubbing was stopped and the rubbing 
+material was no longer in contact with the electrometer 
+insulating materials. 
+At this stage of the research, the response of the 
+electrometer to three materials was obtained by rubbing the 
+materials on the electrometer. The resulting data 'was used 
+to find a circuit able to discriminate between the response 
+of the electrometer to the different materials by extrinsic 
+evolution using the SPICE simulator. 
+First Eqeriment: Learning Discriminating Circuit 
+The first evolutionary experiment was conducted in air at a 
+pressure of 970mb, relative humidity of 33 percent and a 
+temperature of 21OC. The evolvable hardware system used 
+one FPTA cell. The circuit had two inputs and one output. 
+At the two inputs, we injected the sensor responses of the 
+insulating material TR13 (Teflon, response C3) and TR14 
+(Rulon-.I, response C4) to the three rubbing materials in 
+addition to the baseline as shown in Fig.4, 9 and 10. The 
+outputs are collected as a voltage signal. 
+Tek m l 5 . 0 0  S/s 1 ACqS ' $ 1  [ "  r---- 1 '  
+c1 LOW - 
+l - i w k  1 72mV 
+31 OCt 2000 
+16:33:35 Ch3 
+Figure '3. Response of triboelectric sensor array toTeflon 
+(C1 is ABS, C2 is Polycarbonate, C3 is Teflon, C4 is 
+Rulon-J). The four material samples are rubbed after 15[s]. 
+Tet Run: 5.00 S/s Sample 
+1 3  1 
+t 
+Cl LOW 
+-56mV 
+histogram unstable 
+5 2  LO% 
+i UnIV 
+c3 LOW - 124mV 
+i 4 I O'V 
+272m\> 
+k 2OOmV C.liZ 203m; M 1 0 . 0  s ' Chl 2 5 OOmV ' 31 oct 2000 
+15:44:07 Ch3 200mV 2O:nV 
+Figwe 10. Response of triboelectric sensor array to 
+Polyester (C1 is ABS, C2 is Polycarbonate, C3 is Teflon, 
+C4 is Rulon-J). 
+The following GA parameters were used: Population: 40, 
+Chromosome size: 24 bits for 1 FPTA, Mutation rate: lo%, 
+5-2314 
+Crossover rate: go%, exponential Selection, Elite Strategy: 
+20% population size. The fitness function seeks to 
+maximize the voltage difference at the output when 
+different materials are used for rubbing. It can be described 
+by the following equation: 
+2.6 
+1 Fitness = ; IClvi<t> - vj(t)l 
+- 
+1 i#j  
+where the indexes i and j sweep the four patterns of the 
+three materials and the baseline and Tis the period of time 
+used to evaluate the fitness. 
+The main task of evolution is to synthesize a circuit able to 
+discriminate among the three materials and the baseline by 
+amplifying the voltage differences among the materials 
+measured by the sensors. Figure 12 depicts the evolved 
+circuit: 
+i i I 
+Figure 12. Evolved circuit able to discriminate among 3 
+materials and 1 baseline. 
+3 
+2 4  
+1 8  
+FPTA 
+output (v) 2 1 2  e 
+a 0  
+8 Q6 
+Input (V) 1 responses) (sensor 0 6  
+0 5 10 15 20 25 30 35 40 45 50 
+-1 8 
+"e (SI 
+Figure 13. Response of the evolved circuit for 3 materials 
+and 1 baseline. The time starts when the material sample is 
+rubbed on the isolating materials of the electrometer. 
+Figure 13 shows the response of the evolved circuit. In the 
+negative part of the graph are the responses of the 
+electrometer to the 3 materials and the baselines. Before 
+being applied to the FPTA, they pass through a unit gain 
+inverter stage (Fig. 12). In the positive part of the vertical 
+axis the circuit response for the four pattems is shown. 
+There is an average separation .of 0.6V between the 
+adjacent materials, except for the wool felt and teflon 
+materials, for which the difference is 1.2V. The overall 
+output range achieved a value around 2.3V, whereas the 
+input range given by the responses of the sensor is around 
+0.7V. Thus the circuit improved the discrimination margin 
+for different materials. 
+To assess the generalisation of the circuit solution we have 
+tested the evolved circuit with sensor responses with 
+slightly different environmental conditions which resulted 
+in a decrease in the response of the sensors. As expected, 
+the difference in response of the evolved circuit was smaller 
+but it still captured the correct order of the pattems 
+corresponding to the triboelectric series [26,27] (Figure 14). 
+2.4 
+E 
+1 c 
+2 2.2 
+a - 
+s 2  - 
+0 c 1.8 - 
+Wml fen "in) 
+1 6  
+i A  ... 
+0 10 20 30 40 50 60 70 80 90 
+Time (s) 
+Figure 14. Response of the evolved circuit for 3 materials 
+for slightly different environmental conditions than for 
+experiment of Figure 13. The output measures the output 
+current I,,, at the drain of transistor P4. 
+Second Experiment: Adaptation to Environmental 
+Conditions 
+The second evolutionary experiment was conducted in air 
+at 970mb, relative humidity of 33 percent and 21C but the 
+ambient atmosphere was artificially ionized using an air 
+ionizer having an effect to rapidly discharge the insulators 
+of the electrometer. 
+The evolvable hardware used one P T A  cell. The circuit 
+had two inputs and one output. At the two inputs, we 
+injected the sensor responses of the insulating material 
+TRI3 (Teflon, response C3) and TRT4 (Rulon-J, response 
+C4) to the three rubbing materials in addition to the 
+baseline as shown in Fig. 15, 16 and 17. 
+5-2315 
+TeK 5.00 s/s 1 ACqS 
+[ :  1 
+I 1 
+- 
+c1 LOW 
+-20mV 
+1-1 
+c3 LOW 
+-4oinv 
+\Instable 
+histogiam 
+t i 
+Tek 5.00 S/s 1 AcqS 
+1 .  I 
+c1 LOW 
+-84mV 
+. . . . . . . 
+1 2OOmV C l i L  ZObriiV M 1 0 . 0 5  Chl f 5 oomv 
+Ch3 ZOOmV *'i 8lnzr 
+3 Nov 2000 
+00:55:04 
+Figure 16. Response of triboelectric sensor array to Teflon 
+in ionized atmosphere. 
+Tek 5.00 S/s 1 ACqS 
+r r  1 
+20l\rlIti M 10.0 5 Chl J SOOmVj To Ref4 
+2 1011: active 
+t I 
+Save File U osave 
+&$e OFF seq p : ~ ~ ~ ~ c e  utilities 
+In contrast to the first experiment, the output was now 
+taken as a current signal. The fitness function differed from 
+the one used in the first experiments: in this case the ratio 
+between the average current at the output was maximized 
+by this evaluation function: 
+where Iii(t) and Ij(t) are the currents at the drain of transisto r 
+P4 of the FPTA resulting from the application of the sensor 
+signals for two materials i andj. We point out that the ratio 
+of the average currents is always checked to be greater than 
+or equal to 1 (otherwise the fraction is inverted). 
+I 
+K 
+Figure 18. Evolved circuit able to discriminate between 3 
+materials and 1 baseline in new environemtal condition 
+0 5 10 15 20 25 30 35 40 45 50 
+Time@) 
+Figure 19. Response of the evolved circuit for 3 materials 
+and 1 baseline in new enviromental condition. The output 
+measures the voltage at the drain of the second transistor of 
+the current mirror. 
+Figure 17. Response of triboelectric sensor array to 
+Polyester in ionized atmosphere (C1 is ABS, C2 is 
+Polycarbonate, C3 is Teflon, C4 is Rulon-.I). 
+Figure 18 shows the best circuit evolved. The GA 
+parameters were the same as in the first experiment, but the 
+number of generations was reduced to 20. As can be seen 
+from Figure 18, the current output of the FPTA is applied 
+5-2316 
+to a current mirror of gain 4. The current mirror output 
+goes to an integrator stage. The role of the FPTA in this 
+system is to perform voltage to current conversion and to 
+increase the discrimination margin of the system by 
+providing gain. The current mirror gain provides an 
+additional increase of the discrimination margin. As the 
+sensors’ signals are not constant in time in this case, an 
+integrator is necessary to give the final answer of the 
+system. Figure 19 shows the current mirror output (voltage 
+at the drain of the second transistor of the pair) for the 
+three materials and base line. After being integrated, the 
+final response is displayed in Figure 20. 
+0 
+4.4 
+0 .8  
+-1.2 
+E 
+O -2 
+- 
+$ -1.6 
+-2.4 
+-2.8 
+-3.2 
+0 3 6 9 12 15 18 21 24 27 30 
+Time (s) 
+Figure 20. Response of the evolved circuit for 3 materials 
+and 1 baseline in new enviromental condition after 
+integration. The output measures the voltage V,,, at the 
+output of integrator 
+From Figure 20 it can be seen that at 30 seconds, the 
+integrater output reaches around -0.8V for the polyester 
+material, -1.7V for the wool felt material, -2.5V for the 
+teflon material and -2.9V for the base line. Thus the 
+evolved circuit improved the discrimination margin for 
+different materials. Moreover it kept the correct order of the 
+pattems corresponding to the triboelectric series [26,27]. 
+6. CONCLUSION 
+These initial experiments, while illustrating the power of 
+evolutionary algorithms to design analog circuit for 
+sophisticated analysis of responses of sensor array and to 
+maintain functionality by adapting to changing 
+environments, only prepare the ground for further 
+questions. Examples of further questions include addressing 
+how the evolutionary mechanism can be implemented in 
+hardware such that it can be integrated in the sensor, or 
+how should the sensors responses be stored to avoid 
+repeating the experiments for evaluating each circuit 
+configuration. 
+The long term results of the proposed research would allow 
+sensor electronics to adapt to incoming data and extract 
+higher quality data, making available information 
+otherwise not accessible. It will make sensor systems 
+adaptive and intelligent. It will increase the amount of 
+information available from sensors, while actually 
+decreasing the amount of data needed for downlink. 
+ACKNOWLEDGMENT 
+The research described in this paper was performed at the 
+Center for Integrated Space Microsystems, Jet Propulsion 
+Laboratory, California Institute of Technology and was 
+sponsored by the Defense Advanced Research Projects 
+Agency (DARPA) under the Adaptive Computing Systems 
+Program and the National Aeronautics and Space 
+Administration. 
+REFERENCES 
+[ 11 J. Koza, F.H. Bennett, D. Andre, and M.A Keane, “Automated 
+WYWIWYG design of both the topology and component values of 
+analog electrical circuits using genetic programming”, 
+Proceedings of Genetic Programming Conference, Stanford, CA , 
+[2] J. Lohn, J. and S. Colombano, “Automated Analog Circuit 
+Synthesis using a linear representation”, M. Sipper, D. Mange 
+and A. Perez-Unbe (Eds.) Evolvable Systems: From Biology to 
+Hardware, Springer-Verlag Lecture Notes in Computer Science 
+Berlin 1998, pp. 125-133 
+[3] A. Thompson, “An evolved circuit, intrinsic in silicon, 
+entwined in physics”. In Intemational Conference on Evolvable 
+Systems. Springer-Verlag Lecture Notes in Computer Science, 
+1996, pp. 390405. 
+[4] E. Sanchez and M. Tomassini (Eds.) Towards Evolvable 
+Hardware, LNCS 1062, Springer-Verlag, 1996 
+[5] T. Higuchi, M. Iwata, and W. Liu (Eds.) Evolvable Systems: 
+From Biology To Hardwarq Proc. of the First Intemational 
+Conference, ICES 96, Tsukuba, Japan, Springer -Verlag Lecture 
+Notes in Computer Science, 1997. 
+[6] M. Sipper, D. Mange, A. Perez-Uribe (Eds.) Evolvable 
+Systems: From Biology To Hardware Proc. of the Second 
+Intemational Confeence, ICES 98, Lausanne, Switzerland, 
+Springer-Verlag Lecture Notes in Computer Science, 1998. 
+[7] J. R Koza, F. H. Bennett m,, D. Andre and M. A. Keane, 
+Genetic Prog”ing  IJi - Darwinian Invention and Problem 
+Solving, Morgan Kaufman, San Francisco, 1999 
+[SI E. Vitoz, Analog VLSI Processing: Why, Where and How, 
+Joumal of VLSI Processing, Kluwer, 1993 
+[9] Stoica, A. On hardware evolvability and levels of granularity. 
+Proc. of the Intemational Conference ‘Tntelligent Systems and 
+Semiotics 97: A Leaming Perspective, NIST, Gaithersburg, MD, 
+Sept. 22-25, 1997 
+[lo] Stoica, A. Klimeck, G. Salazar-Lazaro, C. Keymeulen, D. 
+and Thakoor, A. Evolutionary design of electronic devices and 
+pp. 28-31,1996 
+5-2317 
+circuits, Proc. of the 1999 Congress on Evolutionary 
+Computation, Washington, DC, July 6-9, 1999 
+[ 111 Stoica, A. Toward evolvable hardware chips: experiments 
+with a programmable transistor array. Proceedings of 71h 
+International Conference on Microelectronics for Neural, Fuzzy 
+and Bio-Inspired Systems, Granada, Spain, April 7 -9, IEEE Comp 
+Sci. Press, 1999. 
+[12] Layzell, P. “ A New Research tool for Intrinsic Hardware 
+Evolution”, ICES98 , Lausanne, Switzerland, 1998 
+[13] P. Marchal et al. Embryological development on silicon. In 
+R. Brooks and P. Maes, editors, Artificial Life ZV, pages 365-366. 
+MIT Press, 1994. 
+[14] White R. and Miles F. Principles of Fault Tolerance. In 
+Proceedings of Eleventh Annual Applied Power electronic 
+Conference and Exposition, pages 18-25, Vol.1. IEEE Press, 
+1996. 
+[15] Thompson A. In Proceeding of the First Intemtional 
+Conference on Genetic Algorithms in Engineering Systems: 
+Innovations and Applications, page 524-529. IEEE Press, 1995. 
+[16] Layzell, P. In Proceedings of the First NASA/DoD Worshop 
+on Evolvable Hardware, pages 85-86. IEEE Computer Society 
+Press, 1999. 
+[17] Stoica A., Keymeulen D., Tawel R., Salazar-Lazar0 C., Li W. 
+In Proceedings of the First NAWDoD Worshop on Evolvable 
+Hardware, pages 76-84. IEEE Computer Society Press, 1999. 
+[18] Zebulum, R. et al., “Analog Circuits Evolution in Extrinsic 
+and Intrinsic Modes” In Proc. of the Second International 
+Conference, ICES 98, Lausanne, Switzerland, Springer -Verlag 
+Lecture Notes in Computer Science, 1998, pp 154-165. 
+[ 191 J. A. Cross, Electrostatics: Principles, Problems and 
+Applications, Adam Hilger (Bristol, UK). 
+[20] “Electrometer Measurements”, Keithley Ins truments 
+(Cleveland OH), 1972 
+[21] Julian W. Gardner, Microsensors: Priimjdes and 
+Applications. New York John Wiley & Sons, 1994. 
+[22] Gert van der Horn and Johan L. Huijsing, Zntegrded Smart 
+Sensors: Design and Calibration. New York: Kluwer Academic 
+Publishers, 1998. 
+[23] M. Buehler, Rocking Mineral Experiments, Intemal 
+Technical Report, JPL. 16 January 2000. Pasadena, CA. 
+[24] M. Buehler et al., MECA Electrometer: Initial Calibration 
+Experiments. In Proceedings of the I Oth Intemaltional Conference 
+(Electrostatics 1999). Institute of physics Conference Series No 
+163, pp 189-196, Institute of Physics ublishing, Bristol, UK, 
+1999. 
+[25] B. Schweber, Programmable analog ICS: designer’s delight or 
+dilemma ?. In EDN. April 2000. Cahners Publication. 
+[26] O.J. McAteer, Electrostatic Discharge Control. McGraw- 
+Hill, 1989. 
+[27] N. Jonassen, Electrostatics, Chapman & Hall, 1998. 
+[28] A. Stoica et al.. Reconfigurable VLSI Architectures for 
+Evolvable Hardware: from Experimental Field Programmable 
+Tmnsistcbr Arrays to Evolution-Oriented Chips. In IEEE 
+Transaclions on VLSI. April 2001, IEEE Press. 
+~ 
+5-2318 
+Didier Keymeulen is a Research 
+Engineer at the Jet Propulsion 
+Laboratory of the California Institute 
+of Technolog.. His interests are in 
+complex dynamical systems applied to 
+the de,.sign of adaptive embedded 
+systems. He obtained his M.Sc. and 
+Ph.D. in Computer Science from the 
+ArtiJicial Intelligence Laboratory of 
+the VriJe Universiteit Brussel, Belgium. 
+Adrian Stoica is a Senior Member of 
+Technical Stafs at Jet Propulsion 
+Laboratory, Califomia Institute of 
+Technor’ogy, Pasadena, CA. His 
+research interests include reaming 
+and adaptive hardware, evolvable 
+hardware, sensor fusion processors, 
+robot learning, and humanoid robots. 
+He has published more than 50 
+papers in these areas. He has a Ph.D. i 
+University of Technology, Melboume, 
+MSEE j>om Technical University of Iasi 
+n EEJi-om Victoria 
+Australia, and a 
+, Romania. 
+Martin Buehler is a Senior Research Scientist at the Jet 
+Propulsion Laboratory of the Califomia Institute of 
+TechnoZogy. He received the BSEE and MSEEfiom Duke 
+University in 1961 and 1963, respectively and the Ph.D. in 
+EE from Stanford University in 1966 specializing in Solid 
+State Electronics. He workd at Texas Instruments for six 
+years, ,at National Bureau of Standards (now NIST) for 
+eight years. At JPL he has developed p-FET radiation 
+monitors for CRRES, Clementine, TELSTAR and STR V,  E - 
+nose which jlew on STS-95, and an electrometer for the 
+Mars 01 robot arm. Martin is a member of the IEEE, Tau 
+Beta Pi, and Sigma Nu. He holds I2 patents and has 
+published over 100papers. 
+Ricardo Zebulum is Research Engineer at the Jet 
+Propu1:rion Laboratory of the Califomia Institute of 
+Technology. He received his Bachelor degree in Electronic 
+Engine<ering in 1992, his Msc. in Electrical Engineering in 
+1995, and his PhD in Electrical Engineering in 1999, all of 
+them at the Catholic University of Rio, Brazil. He stayed 
+two years at Sussex University, from I997 to 1999, as a 
+visiting PhD student. He has been involved with research 
+in Evor‘vable Hardware since 1996. His research interests 
+also include fault-tolerant systems, low power electronics 
+and anlalog VLSI design. 
+Vu Duong is a Master Student at U.C. Imine. He got his 
+BS in Computer Science from UCSD. During his internship 
+at JPL he programmed the evolutionary hardware test bed 
+using Lab View and integrated measurement instruments. 
+5-2319 

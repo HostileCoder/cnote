@@ -1,0 +1,530 @@
+IMPROVE - HDL, A DO-254 FORMAL PROPERTY CHECKER USED FOR 
+DESIGN AND VERIFICATION OF AVIONICS PROTOCOL CONTROLLERS 
+Samuel Dellacherie, WI-VALIOSYS, Caen, France 
+Lionel Burgaud, W I -  VALIOSYS, Toulouse, France 
+Philippe di Crescenzo, WI-VALIOSYS, Paris, France 
+Abstract 
+Today's airplane consists of a big network 
+linking embedded controllers to sensors / actuators 
+and communications equipment onboard. Efforts 
+made in recent years to simplify network wirings 
+have resulted in significant reductions in the aircraft 
+weight and labor required to run wiring hamesses. 
+This has often come at the cost of a more complex 
+data bus architecture @-directional protocol instead 
+of unidirectional protocol). As DO-178B is a 
+requirement for certifiable avionics SW design, 
+DO-254 is a set of design guidelines for airbome 
+HW electronics. DO254 considers the use of 
+Formal Methods and Requirements Traceability 
+when developing HW to support safety-critical 
+(Level A or B) functions. 
+that may be used, in combination with requirements 
+traceability features, to apply formal methods in the 
+design and verification of HW controllers to 
+support such protocols as ARINC 429, ARINC 629, 
+MIL-STD-l553B, etc. 
+Model simulation is today's standard practice 
+in verifying HW electronics. A major drawback in 
+simulation is the lack of exhaustive checking, since 
+simulation results are only a function of the 
+testbench scenario defined by the designers. For 
+example, using simulation one cannot guarantee 
+such system behaviors as "the controller shall 
+always respond to a request", "acknowledge shall 
+always amve no later than N cycles", "the 
+controller shall not drop any data", "the controller 
+shall not lock up", etc. 
+WROVE-HDL is a formal property checker 
+that complements simulation in performing 
+exhaustive debugging of VHDLNerilog Register- 
+Transfer-Level HW models of complex avionics 
+protocol controllers without the need to create 
+testbenches. Reqtify is used to track the 
+This paper presents a static formal approach 
+requirements throughout the verification process 
+and to produce coverage reports. 
+avionics HW designers are assured that their bus 
+controllers meet the most stringent safety guidelines 
+outlined in DO-254. 
+Using imPROVE-HDL coupled with Reqtify, 
+Overview of the imPROVE-HDL 
+Approach 
+imPROVE-HDL ideally fits in an assertion 
+based verification methodology by dramatically 
+cutting down the time spent in simulation. 
+imPROVE-HDL helps at the beginning of the 
+verification phase to find out "simple bugs" very 
+quickly without the need of a complex testbench 
+(see Figure 1). Assertion Based Verification means 
+that you express checkers, observers, from the 
+specification instead of writing testbenches. 
+Later in the verification cycle imPROVE-HDL 
+helps to catch "complex bugs" such as comer cases, 
+deeply embedded state transitions, . . . and last but 
+not least, imF'ROVE-HDL can help you to 
+exhaustively prove that something will never 
+happen in the circuit's life. 
+methodology helps to clarify the specification of a 
+block. It is easy to demonstrate that the quality of a 
+specification improves significantly when people 
+keep in mind that properties will be extracted from 
+the specification. This obviously helps the designer 
+to follow requirements and to link properties to 
+implementation requirements. 
+supported, allowing imF'ROVE-HDL to fit into 
+existing verification flow without changes. 
+model their RTL designs using Verilog or VHDL. 
+However, unlike simulation, there is no need to 
+spend weeks or months writing test benches or 
+Furthermore, an assertion based verification 
+Structural netlists and RTL VHDLNerilog are 
+Just as with current methodology, engineers 
+0-7803-7844-X/03/$17.00  2003 IEEE 
+l.A.l-1 
+vectors. Instead, the engineers write assertions 
+(properties) that specify the desired system behavior 
+and minimal environment constraints, using an easy 
+and intuitive set of constructs. Most of the time, 
+properties or assertions are already part of the 
+verification strategy. 
+Figure 1. imPROVE-HDL Flow 
+The properties can be as simple or complex as 
+desired. Some examples might be: 
+"is it ever possible for outputs A and B to 
+both be active at the same time?", 
+"does state machine A go through states 1,4 
+and 8 when input X is true?"; 
+"is it possible for a FIFO to overflow?"; 
+"when X occurs, does Y occur within N 
+clock cycles?" 
+Properties can be expressed in different 
+languages PEC, SUGAR, temporal "e", OVA, OVL 
+or HDL. Results can either be a proof to guarantee 
+100% correctness, or a counter-example to highlight 
+incorrect behaviors, which can include hard 
+catching errors, such as comer case conditions, 
+unreachable states or unintended features. 
+We are going now to examine one application 
+of imPROVE-HDL on industrial example: 
+Case study: Use *ROVE-HDL as a formal 
+debugger on simulation hard to find bug. Case of a 
+data cache controller 
+Case Study: Formal Debugging of a 
+Data Cache Controller 
+and memory access speed has always been an issue 
+in system design and the gap is increasing. Smaller 
+and faster memories, called caches, are placed 
+between the CPU and the slow extemal memory to 
+The difference between CPU core frequency 
+1 .A. 1-2 
+maintain performance and reduce overall power 
+consumption. However caches can only hold a 
+portion of the program or data. The tool has been 
+used to understand a bug and insure a better test . <. 
+coverage of a Data cache controller in a CPU 
+system. Cache coherence protocols are typically 
+specified as a collection of communication state 
+machines, making them natural candidates for 
+model checking. 
+Data-Cache Management Functionality 
+the CPU, the data cache and the extemal memory. 
+When data or instructions are not present in the 
+cache (cache miss), the cache controller fetches the 
+data or the instruction from the extemal memory 
+and updates the cache. 
+Figure 2 illustrates the main interfaces between 
+Figure 2. Data Cache Interface Top Level 
+In OUT study case, the data cache supports 
+multiple cache management policies such as write- 
+through and copy-back. A cache has a wrire- 
+through policy when the data modified by the 
+processor and present in the cache (cache hit) are 
+updated both in the cache and in the extemal 
+memory simultaneously (usually through a write 
+buffer to avoid latency). 
+modified by the processor and present in the cache 
+A cache has a copy-buck policy when the data 
+are only updated in the cache (1). To indicate that 
+data are only updated in the cache at a given time, a 
+flag called dirty (or modified) is associated to the 
+data or to a block of data. This flag is set on a write 
+cache hit. 
+To maintain coherency with extemal memories 
+these modified data are saved when selected as 
+victim during cache replacement (cache miss) (2) or 
+during clean operation under software control. 
+Limitations of standard validation approach 
+full validation of a module with standard validation 
+approach based on simulation does not enable to 
+find all comer cases without a huge effort. Besides, 
+validation relies usually on functional signatures. It 
+is hard to detect bugs impacting performance; for 
+instance, when an operation must be completed 
+after a given number of cycles whatever the context 
+or when redundant operations are done. In system 
+including memory controller, latencies or even real 
+memory behavior are not modeled with sufficient 
+accuracy to guarantee full verification. 
+replaced the flash memory model to speed up the 
+simulation and to reduce the model complexity. 
+Abnormal write in this memory could not be 
+detected. These abnormal writes were caused by 
+program constant located in the program space. 
+Constant data are loaded into the data cache for 
+address calculation. Because they are constants, 
+these data are never modified nor written back to 
+memory once in the data cache. However, due to a 
+bug in the management of the cache dirty 
+information, these constants were written back to 
+memory despite the fact that they were not 
+modified. Write operations on the flash memory 
+cormpted the flash status and forbid further 
+accesses. Write backs of unmodified data were also 
+done to other memory impacting performance but 
+were not detected during the validation because 
+they did not affect the behavior. What was initially 
+only a performance issue became a killing bug. 
+The first debugging step on the silicon enables 
+us to understand that dirty information was set 
+incorrectly but the root cause could not be identified 
+because we could not reproduce the problem with a 
+test case on RTL code. We decided to use a model 
+checker to verify the following property: "dirty is 
+set only on a write hit". 
+For example, in our case study, a SRAM core 
+l.A.l-3 
+Preparation Work io Formal Property 
+Checking 
+According to the module complexity in terms 
+of number of gates and registers and depending on 
+the interactions between those modules, the choice 
+of a design partition can make the description of the 
+environment constraints and the properties in PEC 
+language more or less difficult. In our case, the RTL 
+sub-module split had to he repartitioned to ease the 
+protocol description. As described on figure 3 A-B, 
+The intuitive solution is to synthesize the 
+memory core by using hanks of registers and to 
+keep the full address and data space. Today this 
+solution is not applicable with current model 
+checkers because run time would be dramatically 
+too long. Reducing the address and data space is 
+usually possible on control modules so that the 
+memory core can be limited only to few registers. 
+Today this is the most commonly used method to 
+handle memories. 
+gathering B and C enables to simplify the protocol 
+between A and B. D module was important in the 
+property that we wanted to verify because logic 
+included in D could bring some potential side 
+effects in B. 
+..$ B,C,D U 
+;; j 
+i. .......:.. ;;m 
+Figure A Figure B 
+Figure 3. Data Cache Verification Strategy 
+Obviously there is a compromise to find 
+between the system size that can handle the model 
+checker tool and the difficulty to write environment 
+system constraints. In OUT study case, three different 
+modules had to be combined. The main one was the 
+data cache itself and the others were the clock 
+generation module and the wait signals generation 
+block that was part of the protocol between the CPU 
+core and the data cache. Finally the system under 
+test consisted in 15K gates and more than 500 
+registers. 
+An other issue with current model checker 
+tools is that integrate memory cores in the design to 
+be tested can cause run time explosion or even tool 
+crashes, so that the implementation of memory 
+cores should be chosen to-limit their complexity. 
+Concerning the intemal data cache memory, various 
+options have been studied. 
+However, other implementations based on the 
+principle of a black box have been tried in order to 
+have the shortest run time, so that the multiple 
+iterations to set up correctly the environment 
+constraints are performed in the quickest way. The 
+idea was to go back to the previous register-based 
+approach once the environment constraints of the 
+data cache management block would be correct. 
+The fust trial with the black box strategy was 
+to describe the data cache memory core in formal 
+language by developing the memorization process 
+on a given number of simulation cycles. This 
+solution proved to he quite difficult to be integrated 
+smoothly with the other environment constraints hut 
+it could he a very interesting solution in the near 
+future as soon as specific macros would have been 
+developed for each type of memory. The final 
+implementation choice was to keep the internal data 
+cache memoty core as a black box and to add 
+specific constraints to its outputs in order to avoid 
+that the tool generates non-relevant scenario. 
+- 
+Results with imPROyE-HDL 
+management block was part of the overall 
+verification effort, which involved verification by 
+simulation and emulation. The goal was to 
+reproduce the killing bug on the silicon chip with 
+imPROVE-HDL tool and then to check the 
+correction in the RTL code. The following property 
+has been chosen: 
+The model checking of the data-cache 
+"dirty is set only on a write hit" 
+The PEC environment constraints required a 2 
+weeks development. More than 100 constraints 
+(assert in PEC language) have been defined many 
+of them were very simple such as stability 
+conditions or synchronism conditions with regard to 
+the input clocks. Meanwhile the constraints between 
+1.A.1-4 
+the various input wait signals and the protocol 
+description with the processor took more time to be 
+implemented correctly. 
+The PEC property has been written by using a 
+memorization variable, which enables to store a 
+valid memory hit: 
+assert dirty-check 
+local write-hit(t) = (write-hit(t-1) and 
+active-wait(t)) or( valid-hit(t-1) and 
+1 active-wait(t)) 
+if CLK’pe(t) and dirty-set(t) then write-hit@-1) 
+endassert 
+verify always dirty-check 
+The test vector finder engine of improve-HDL 
+tool has been tried with this property, which has been 
+applied successively on the 2 ways of the data cache. 
+As soon as the environment constraints have been 
+sufficiently accurate, a relevant test sequence has been 
+found in 5 minutes on 30 simulation cycles and it takes 
+5 additional minutes to generate the full activity of the 
+design in VCD format during this test sequence. 
+The design has been annotated through 
+Debussy graphical interface with the VCD file 
+issued from %ROVE-HDL. A scenario showing 
+an erroneous activation of the dirty flag has been 
+analyzed and then the bugged part of the RTL code 
+has been identified easily. Indeed the root cause of 
+the killing bug on the silicon chip has been 
+highlighted with the model checking technique. 
+has been verified successfully in ten minutes on 
+each way of the data cache: the test vector finder 
+engine did not generate any failing sequence on 30 
+simulation cycles. To achieve a complete 
+verification of the dirty flag, next step was to detect 
+potential missing dirty activation. The resulting 
+property looked like: 
+After the RTL correction, the same property 
+assert no-missing_dirty 
+if write-hit(t-1)and CLK’pe(t) then dirty-set(t) 
+endassert 
+verify always no-misingdirty 
+Like the first property, it has been checked in 
+ten minutes by the imPROVE-HDL tool with no 
+test sequence found on 30 simulation cycles. 
+Above is reported a formal verification 
+technique to verify data-cache memory controller 
+block. It is based on imPROVE-HDL used as a 
+formal debugger. Properties of the data-cache 
+controller have been derived &om the architecture 
+specification of the cache. The bug found in the 
+design block using model checking demonstrates 
+that model checking applied to this kind of 
+application is a valuable addition to the overall 
+verification methodology. The designers have 
+acknowledged that some of these problems would 
+never have been found in simulation or would have 
+required too much effort to be identified. This work 
+opens the way to a more efficient verification of 
+control-oriented blocks by combining simulation 
+with model checking technique. 
+It is also possible to use imPROVE-HDL 
+inductive proof engine in order to demonstrate a 
+correct behavior in regard to a property. More 
+information on that mode can be found on www.tni- 
+valiosvs.com 
+Compliance with DO254 Objectives 
+Formal Methods 
+advanced verification methods, described in section 
+3.3 of the appendix B ‘‘Design ussurance 
+considerations for Level A and B functions”. 
+As summarized in section 3.3.3 of the appendix B, 
+“There are several areas where application of 
+formal methods provides additional ussurance in 
+the design process. Although formal methods are 
+applicable throughout the design process, increases 
+in design assurance muy be obtained by targeted 
+application. The following list highlights some of 
+the possibilities: 
+DO254 considers the formal methods as 
+Formal methods may be applied at different 
+stages of the development life cycle. 
+Generally, applications of formal methods 
+are most effective at the early stages of the 
+life cycle, specifically during requirements 
+capture and high-level design. 
+1.A.1-5 
+Formal methods may be applied to the entire 
+design or they may be targeted to specific 
+components. The FFPA is used to determine 
+which FFPs to analyse with formal methods. 
+Protocols dealing with complex concurrent 
+communication and hardware implementing 
+fault-tolerant functions may be effectively 
+analysed with formal methods. 
+Formal methods may be applied to verify 
+system functionality or they may be used to 
+establish specific properties. Although 
+formal methods have traditionally been 
+associated with “proof-of-correctness,” that 
+is, ensuring that a component meets its 
+functional specification, they can also be 
+applied to only the most important 
+properties. Often, it is more important to 
+c o n f m  that a design does not exhibit 
+certain undesirable properties, rather than to 
+prove that it has full functionality. 
+When used, the formal methods must be 
+described in the Hardware Verification Plan 
+(section 10.1.4), and particularly: 
+described, 
+described, 
+be identified and described in the verification 
+environment. 
+B, the formal methods data (which have to be 
+included in the verification data) can be produced 
+The description of the formal method used 
+by imPROVE-HDL can be fully provided by 
+”NI-Valiosys, and also assistance to defme 
+where the method provides a maximum 
+added value in its application on 
+components or FFPs, 
+The formal statement of requirements can 
+easily be provided by the collaboration 
+between imPROVE-HDL and Reqtify, 
+The combined use of imPROVE-HDL and 
+Reqtify can make the correlation between 
+the properties to be proven, the proof results 
+The verification method must be fully 
+The verification data must be identified and 
+The tools (WROVE-HDL and Reqtify) must 
+As described in section 3.3.3.3 of the appendix 
+and the requirements. Reqtify can then 
+provide all the needed traceability data, 
+Both imF‘ROVE-HDL and Reqtify come 
+with a “Qualification kit” including all the 
+relevant information for tool assessment and 
+qualification after integration in the 
+customer process. 
+Tool Qualification Aspects 
+Practical application of formal methods 
+typically requires tool support. Tools used should 
+be assessed and, if necessary, qualified as described 
+in Section 11.4. 
+imPROVE-HDL is a verification tool, as it is a tool 
+“that cannot introduce errors, but may fail to detect 
+an error in the hardware item or hardware design.” 
+Prior to the use of the tool, a tool assessment 
+should be performed. The purpose of tool 
+assessment and qualification is to ensure that the 
+tool is capable of performing the particular 
+verification activity to an acceptable level of 
+confidence for which the tool will he used. 
+It is only necessary to assess those functions of 
+the tool used for a specific hardware life cycle 
+activity, not the entire tool. The assessment activity 
+focuses as much or more on the application of the 
+tool as the tool itself. 
+Venijication tool only needs to be qualified if 
+the function that i t p e r f o m  is not verified by 
+another activiw. 
+All the relevant information ahout tool 
+identification is available in the tool documentation. 
+When updating a tool, TNI-Valiosys provides a 
+release note assessing the potential impacts of tool 
+updates on existing results. 
+ImPROVE-HDL can be independently 
+assessed. It can be provided with a “qualification 
+set” composed of its operational requirements, 
+verification plan with a definition of tests coverage, 
+and a tests set. That means tool’s can he manually 
+reviewed. 
+As part of the “Qualification kit”, TNI- 
+Valiosys can provide a Verification Plan for 
+imPROVE-HDL, with generic test cases and 
+traceability with the Tool Operational 
+Requirements. 
+According to DO254 classification, 
+1.A. 1-6 
+In a certification context, what's important is 
+to define a customer test set using the same test 
+coverage and approach as the one defined in the 
+imPROVE-HDL Verification Plan, but applied on 
+customer projects. 
+Insertion in a Verification and Traceability 
+Process 
+formal verification in the flow, a rigorous link 
+between test plan, coverage, properties and 
+testbenches has to be set-up to meet DO254 
+objectives. ImPROVE-HDL can be inserted in 
+relation with the verification plan and provide 
+formal verification results at different stages of the 
+process: 
+As we recommend using both simulation and 
+In the specifcation phase 
+to understand and fa ambiguities in 
+the w i t f e n  specifcatiori 
+In the RTL design phase 
+to compute expected behaviours 
+to catch bugs quickly and easily 
+In the verifcation phase 
+to exhibit complex behaviours and 
+find dificult bigs 
+8 In IP deliveT process 
+8 To check protocol compliance 
+ImF'ROVE-HDL can also be inserted in a 
+global traceability process which could be managed 
+by Reqtify. (see Figure 4.) 
+A The test resun is known for each specification requirement 
+A rasuII is known 
+or each festbenc 
+A reson is known fo 
+each implemenlafion 
+Figure 4. Dependency in the Flow 
+Conclusion protocol controllers without the need to create 
+testbenches. Reqtify is used to track the 
+requirements throughout the verification process 
+and to produce coverage reports. 
+avionics HW designers are assured that their bus 
+controllers meet the most stringent safety guidelines 
+outlined in DO-254. 
+This paper presented a static formal approach 
+that may be used, in combination with requirements 
+traceability features, to apply formal methods in the 
+design and verification of Airbome Electronic 
+Hardware developed in a DO254 context. 
+Using imPROVE-HDL coupled with Reqtify, 
+imF'ROVE-HDL is a formal property checker 
+that complements simulation in performing 
+exhaustive debugging of VHDLNerilog Register- 
+Transfer-Level HW models of complex avionics 
+l.A.l-7 
+References 
+[I] RTCA, document DO-254iED-80 “Design 
+assurance guidance for Airborne Electronic 
+Hardware”, dated April, 2000. 
+[2] RTCA, document DO-178B/ED-l2B, “Software 
+Considerations in Airborne Systems and Equipment 
+Certification”, dated December 1, 1992 
+[3] FAA Notice N8110.91 “Guidelines for the 
+qualification of Software Tools using RTCA DO- 
+178B” dated January 16,2001. 
+[4] “An Inductive Approach for Formal Proof of 
+Hardware Designs” - article presented at DAC 2002 
+[5 ]  “Reqtify: Product compliance with D0254” 
+Technical note, May 2003 - Lionel Burgaud - TNI- 
+Valiosys & Tony Baghai - TekSci. 
+l.A.l-8 

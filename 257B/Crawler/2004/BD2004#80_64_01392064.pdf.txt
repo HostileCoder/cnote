@@ -1,0 +1,802 @@
+2004 IEEE International Conference on Mobile Ad-hoc and Sensor Systems 
+Dynamic Proxy Tree-Based Data Dissemination Schemes for 
+Wireless Sensor Networks 
+Wensheng Zhang, Guohong Cao, and Tom La Porta 
+Department of Computer Science and Engineering 
+The Pennsylvania State University 
+University Park, PA 16802 
+E-mail: {wezhang, gcao, tlp}@cse.psu.edu 
+Abstract 
+In wireless sensor networks, ejjiciently disseminating 
+data from a dynamic source to multiple mobile sinks is 
+important for applications such as mobile target detection 
+and tracking. The tree-based multicasting scheme can be 
+used. Howeves due to the short communication range of 
+each sensor node and the frequent movement of sources and 
+sinks, a sink may fail to receive data due to broken paths, 
+and the tree should be frequently reconfigured to reconnect 
+sources and sinks. To address the problem, wepropose a dy- 
+namic proxy tree-based frameworkin thispaper: A big chal- 
+lenge in implementing the framework is how to ejjkiently 
+reconfigure the proxy tree as sources and sinks change. 
+We model the problem as on-line constructing a minimum 
+Steiner tree in an Euclidean plane, and propose centrul- 
+ked schemes to solve it. Considering the strict energy con- 
+struints in wireless sensor networks, we further propose 
+two distributed on-line schemes, a shortest path-based (SP) 
+scheme and a spanning range-based (SR) scheme. Exten- 
+sive simulations are conducted to evaluate the schemes. The 
+results show that the distributed schemes have similar per- 
+formance as the centralized ones, and among the distributed 
+schemes, SR outperforms SP 
+1 Introduction 
+A wireless sensor network [2] consists of many tiny and 
+inexpensive sensor nodes that are distributed over a vast 
+field to obtain sensing data. These nodes are capable of 
+not only measuring real world phenomena, hut also storing, 
+processing and transferring these measurements. Due to 
+these attractive characteristics, sensor networks are adopted 
+in many military and civil applications such as battlefield 
+surveillance, environmental control, and security manage- 
+ment. In these applications, sensing data usually need to he 
+disseminated from a source to many sinks, where the source 
+and the sinks may frequently move. For example, a sensor 
+network may he deployed in a battlefield to detect and mon- 
+itor the enemy tanks and soldiers. When such a target is 
+detected, the sensing data about the target (e.g., its location, 
+velocity and the geographic characteristics of its surround- 
+ing area) should he sent to commanders and soldiers, who 
+may also move in the battlefield. 
+In recent years, many data dissemination schemes [ I  1, 
+11, 21, 19, 8, 9, 231 have been proposed for sensor net- 
+works, hut most of them can not efficiently support multi- 
+casting from adynamic source to multiple mobile sinks. For 
+example, the external storage-based scheme [ l  I], the data- 
+centric storage-based (DCS) scheme [I91 and the index- 
+based scheme [23] only consider the point-to-point com- 
+munication between a pair of source and sink. The directed 
+diffusion scheme [I31 and the two-tier data dissemination 
+W D D )  scheme [21] naturally support data multicasting, 
+hut they are not efficient when the source and the sinks are 
+mobile. In the directed diffusion scheme, a source needs 
+to flood availability information over the whole network. 
+Even though the flooding rates at different areas can he 
+adaptively changed according to the locations and the query 
+rates of the sinks, there still exist lots of redundancy. The 
+l T D D  scheme proactively maintains a grid-based propaga- 
+tion sttucture over the whole network in spite of the actual 
+locations of the sinks, and the structure should he updated 
+whenever the source location changes, which may cause 
+high maintenance overhead. 
+To avoid unnecessarily flooding information [ 131 or ex- 
+panding propagation structure over the whole network [ZI], 
+the tree-based multicasting scheme can he used. In this 
+scheme, the source and the sinks form a tree rooted at the 
+source, and the source pushes data to the sinks along the 
+tree branches. However, due to the short communication 
+range of each sensor node and the frequent movement of 
+sources and sinks, a sink may frequently fail to receive data 
+due to broken paths, and the tree should he frequently re- 
+0-7803-X815-1/04/$20.00 02004 IEEE 21 
+configured to reconnect sources and sinks. To address the 
+problems, we propose a dynamic pmxy tree-based frame- 
+work. In this framework, each source (sink) is associated 
+with a stationary sensor node called source (sink) proxy. 
+The proxies related to the same source form a proxy tree. 
+Facilitated by the tree, a source can push data to its proxy, 
+which further pushes the data to multiple sink proxies, and 
+a sink can query its proxy to get the data. 
+As a source changes or a sink moves, the associated 
+proxy should be changed to reduce the cost of pushing 
+(querying) data to (from) the proxy. Accordingly, the tree 
+should also be reconfigured to reduce the cost of multicast- 
+ing data from the source proxy to the sink proxies. Due to 
+the strict energy constraints in sensor networks, tree recon- 
+figuration should be conducted in an energy efficient way. 
+Many multicasting tree reconfiguration schemes have been 
+proposed for the existing wired and wireless networks such 
+as the Internet, the cellular network and the wireless ad hoc 
+network. However, these schemes can not be directly ap- 
+plied to the wireless sensnr network due to their large over- 
+head. For example, in the rearrangeable inexpensive edge- 
+based on-line steiner (ARIES) algorithm [3], a new node 
+joins an existing tree via the shortest path to the tree, and 
+the subtrees including newly added or deleted nodes are re- 
+configured every certain time. This algorithm requires each 
+multicasting member to know its distance to other mem- 
+bers. It is suitable for the Internet and the cellular network, 
+in which each router (base station) can naturally obtain the 
+information through the underlying topology advertisement 
+protocol (e.g., OSPF). However, i t  is not suitable for sensor 
+networks, where running the topology advertisement proto- 
+col may canse large overhead. On the other hand, the mul- 
+ticasting protocols [16, 17, IO] for mobile ad hoc networks 
+emphasize more on route robustness and pay less attention 
+to energy efficiency, since mobile ad hoc networks have fre- 
+quent path breaks due to high node mobility. 
+In this paper, we first formalize the tree recontigu- 
+ration problem as an on-line Euclidean steiner problem 
+[ I  81, and propose several Voronoi diagram-based central- 
+ized schemes to solve the problem. Considering the strict 
+energy constraints and the locality requirements in wire- 
+less sensor networks, we propose two distributed heuristic- 
+based schemes, the shortest path-based (SP) scheme and 
+the spanning range-based (SR) scheme. These schemes 
+are motivated by the following observations: First, the new 
+proxy of a snurce (sink) can utilize the information provided 
+by the previous proxy to efficiently join the tree. Second, lo- 
+calized adjustments can be conducted at individual nodes to 
+gradually optimize the tree structnre. With the SP scheme, 
+when a sink (source) changes its proxy, the new proxy uses 
+flooding to join the tree. The proxy changes also cause the 
+tree nodes to gradually adjusk their locations in a localized 
+way. Since SP still has large overhead due to flooding, es- 
+22 
+pecially when the tree nodes are far away from each other, 
+the SR scheme is proposed. In this scheme, each subtree 
+is associated with a certain spunning range, which is dy- 
+namically assigned and adjusted. With a few messages, a 
+new proxy can find the root of the smallest subtree whose 
+spanning range cnvers itself, and joins the subtree. 
+We use extensive simulations to compare the proposed 
+schemes in terms of data dissemination cost and tree recon- 
+figuration overhead. The results show that the centralized 
+schemes slightly outperform the distributed schemes, and 
+the SR scheme outperforms the SP scheme. 
+The rest of the paper is organized as follows: Section 
+I1 describes the system model and the dynamic tree-based 
+framework. Section 111 proposes centralized schemes for 
+tree reconfiguration. The distributed schemes are presented 
+in Section IV. Section V reports the performance evaluation 
+results, and Section VI finally concludes the paper. 
+2 Preliminaries 
+2.1 System Model 
+We consider a wireless sensor network that consists of 
+many stationary sensor nodes. These nodes are densely de- 
+ployed over a vast field to detect and continuously monitor 
+some mobile targets. The network is connected, and the 
+field can be completely sensed. Each sensor node knows 
+its own location through GPS [I]  or other inexpensive tech- 
+niques such as triangulation [51. Based on the location in- 
+formation, some location-based routing protocols [4, 151 
+can be used for multi-hop communication between sensor 
+nodes. 
+Some mobile hosts (e.g., PDAs) are moving within the 
+sensing field. They can query and receive sensing data from 
+sensor nodes. A mobile host can directly communicate with 
+a sensor node if it is within the transmission range of the 
+node. For simplicity, we do not consider the communication 
+between the mobile hosts. 
+When a mobile target of interest appears in the sensing 
+field, the sensor nodes surrounding it can detect it and the 
+leader (source) may exclusively detect the target [6] or ag- 
+gregate the related detections [22], periodically generates 
+sensing data about the target, and disseminates the data to 
+some mobile hosts (sinks) that have subscribed for the sens- 
+ing data. As the target m o v a  away from its current source, 
+the source is changed to be another node closer to the target. 
+To facilitate a sink finding a source of interest, the index- 
+based scheme proposed in [23] is adopted. In this scheme, 
+some index nodes maintain the locations of sources, and a 
+sink can query the appropriate index nodes to get the loca- 
+tion of a source. When a source is changed, its location is 
+updated at the related index nodes, such that the sinks can 
+still find it. 
+\ E- 
+t '.. 
+. ..&/ 0 & 
+'I 
+, : I  
+'h 
+k.2 
+Figure 1. I 
+Query 
+- Dam 
+ing proxy tree to support dynan 
+milticasting 
+2.2 Dynamic Proxy Tree-Based Framework 
+Due to the dynamic characteristics of sources and sinks, 
+it is difficult to maintain a tree that directly connects a 
+source and multiple sinks that are interested in the source, 
+or disseminate data directly from the source to the sinks. 
+To deal with the problem, we propose a proxy tree-based 
+framework. In the framework, as shown in Figure 1, a 
+source (sink) is associated with a stationary sensor node 
+called source (sink) proxy. As the location of the source 
+(sink) changes, its proxy does not change until its distance 
+to the source (sink) exceeds a certain threshold. A source 
+proxy and the proxies of the sinks that need to frequently 
+query the source form a proxy tree. Facilitated by the tree, 
+sensing data is periodically pushed from the source to its 
+proxy, and then is multicast to sink proxies in the tree. Each 
+sink can query data from its proxy. The change of a source 
+(sink) proxy may cause the proxy tree to he reconfigured to 
+reduce the cost for pushing data from the source proxy to 
+the sink proxies and from sink proxies to sinks. In the re- 
+maining of the paper, we focus on efficiently reconfiguring 
+the proxy tree to minimize the data dissemination cost and 
+the tree reconfiguration overhead. 
+3 Centralized Tree Reconfiguration Schemes 
+The problem of forming a minimum-cost proxy tree can 
+be formalized as constructing a minimum Steiner tree [I41 
+that connects a given set of terminals in a graph. Due to the 
+dense deployment of sensor nodes, we can further formalize 
+the problem as constructing a minimum Steiner tree in an 
+Euclidean plane. In this section, we describe a centralized 
+off-line scheme and several centralized on-line schemes to 
+address the problem. 
+3.1 An Off-Line Scheme 
+Constructing a minimum Steiner tree is known as a NP- 
+hard problem [ 121, and the exact solution of the problem has 
+very high computational complexity. Heuristic-based solu- 
+tions have been proposed to solve the problem, and many 
+of them are based on the idea of optimizing the minimum 
+spanning tree to approach a minimum steiner tree. Next, we 
+present an off-line scheme for constructing an approximated 
+minimum-cost proxy tree, which is similar to the algorithm 
+proposed by Smith et al. [20]. 
+The scheme makes use of the observation that a mini- 
+mum steiner tree (minimum-cost proxy tree) is a union of 
+fu l l  Steiner trees (FSTs), and each FST is a tree with the 
+following properties: 
+It spans k (k > 1) terminals (proxies) and has k - 2 
+steiner points. 
+Each Steiner points has three edges making 120' with 
+each other, and every proxy in the FST has degree one. 
+Based on the above observation, a minimum-cost proxy tree 
+is constructed in two steps: first, a minimum spanning tree 
+(denoted as T )  including all the proxies is constructed; sec- 
+ond, T is reconfigured to be a set of FSTs. The Kruskal's 
+algorithm [7] can be used to construct T ,  and the procedure 
+for reconfiguring T is described as follows: 
+1. T is decomposed into multiple components, each with 
+i (i = 2 , 3 , .  . . , m) proxies, where a 2-proxy compo- 
+nent is an edge of T ,  and an i-proxy ( i  > 2) component 
+is a comer that has (i - 1) edges. 
+2. For each i-proxy component T,, a FST (denoted as 
+FST(T,)) that consists of all the i proxies is con- 
+structed. All the generated FSTs are placed on a prior- 
+ity queue Q based on the value of 
+3. An approximated minimum-cost proxy tree is con- 
+structed by picking FSTs from Q in the same way as 
+the Kruskal's algorithm. 
+3.2 On-Line Schemes 
+When a sink joins (leaves) a multicasting group, or 
+moves far away from its current proxy, the proxy set has 
+to be changed by adding (removing) a proxy, and the tree 
+should also be reconfigured to reduce the data dissemina- 
+tion cost. Since it is overly expensive to totally reconstruct 
+the tree after each membership change, we borrow the idea 
+of ARIES [3] and propose an approximated on-line mini- 
+mum steiner tree (ONMST) scheme. 
+23 
+In ONMST, a new proxy (denoted as P,) is added to the 
+current proxy tree in two steps: first, P, is added to the 
+current tree via the shortest path that connects the tree and 
+P,; second, a small suhtree that contains P, is optimized 
+based on the locality property of the Voronoi diagram [14]. 
+Specifically, the procedure is described as follows: 
+0 
+1. The current proxy tree (denoted as TJ is divided into 
+multiple Voronoi cells. 
+2. Suppose P, is covered by the Voronoi cell of node P,. 
+We consuuct a node set y which includes E', and each 
+node that is either a vertex of the Voronoi cell or a 
+neighbor of a vertex of the cell. 
+3. In the subgraph (denoted as G,) of T, which contains 
+nodes in y ,  the off-line scheme presented in Section 
+3.1 is used to construct one or more approximated 
+Steiner trees. Note that, in the tree(s), a pair of nodes is 
+connected if and only if they are connected in T, (ex- 
+cept that P, is connected with P,). The reconfigured 
+subgraph is denoted as GL. 
+(a) (b) 
+Figure 3. A node leaves the tree. 
+conducts localized reconfigurations within the suhtree con- 
+taining itself and itsneighbors. Also, each node periodically 
+conduct localized reconfiguration to gradually optimize the 
+tree. 
+4.1.1 Proxy Join and Leave 
+When a sink wants to join the proxy tree, i t  selects a nearby 
+sensor node (P,) as its proxy. P, joins the tree by going 
+through the following three steps. 
+4. T, is replaced by a new tree TL, which is obtained by 
+replacing G, with G:. 
+When a proxy should leave the current tree, it is removed 
+only if it is a leaf. 
+The ONMST scheme can he further optimized by letting 
+each Steiner node (denoted as P,) on the tree to adjust its 
+location every certain time interval. Let Y denote a node 
+set containing the neighhors of P,. A FST that consists of 
+the nodes in Y is computed, and P, is replaced by the newly 
+introduced Steiner nodes in the FST. In the following, we 
+call the enhanced ONMST scheme E-ONMST. 
+4 Distributed Tree Reconfiguration Schemes 
+Even though the ONMST scheme and the E-ONMST 
+scheme have lower complexity than the off-line scheme, 
+they may not he suitable for sensor networks due to the fol- 
+lowing reasons: Each sensor node has only partial knowl- 
+edge of the multicasting group; i.e., it only knows its neigh- 
+bors in the tree. When a proxy changes from one node to 
+another, requiring the new proxy or its neighbor to collect 
+necessary information to construct Voronoi diagram and re- 
+configure the subgraph surrounding itself may cause large 
+overhead. To address the problem, we propose two dis- 
+tributed heuristic-based schemes in this section. 
+4.1 Shortest Path-Based (SP) Scheme 
+The SP scheme is based on the heuristic that a new proxy 
+(P,) should join the current proxy tree by attaching to the 
+tree node (Pi) that has the shortest distance to it. P, then 
+Step 1: Pre-searching. P, obtains the location of 
+the current source proxy (root) from the appropriate index 
+nodes (refer to Section 2), and then sends a join-req to the 
+root. On receiving the request, as shown in Figure 2 (a), the 
+root forwards the request to its neighbor that is closest to 
+P,, and the neighbor further forwards the request to its own 
+neighbor that is closest to Pn. The forwarding procedure 
+continues, until it reaches a node (Pj) which is closer to P, 
+than any of its neighbors, and a message join-rep is sent 
+from Pj to P,. 
+Step 2: Finding the closest node. On receiving the re- 
+ply, as shown in Figure 2 (b), P, floods a message discover 
+within a circle that is centered at itself and has a radios of 
+dpm3pi (i.e., the distance between Pi and P,). Every node 
+receiving the d i s m e r  replies its location to P,. Based on 
+the replies, P, finds the node (P,) which is closest to itself, 
+and sends a confirm message to Pi. 
+Step 3: Node join. On receiving the confirm message, 
+as shown in Figure 2 (c). Pi adds in P,, and reconfigures 
+the subtree containing itself and its neighbors into a FST. 
+When P, wants to leave, and i t  is a leaf in the tree, 
+as shown in Figure 3 (a), it leaves the tree and sends a 
+leavereq to its parent. Otherwise, P, has to stay in the tree 
+and mark itself as a Steiner node. On receiving leavereq, 
+the parent node removes P,. If the parent is a Steiner point 
+and has only two neighbors in the tree, as shown in Figure 3 
+(b), it removes itself and lets its neighbors directly connect 
+with each other. 
+24 
+(a) (b) (c) 
+Figure 2. A new node joins the tree: (a) Pre-searching; (b) Finding the closest node; (c) Joining the 
+node. 
+4.1.2 Sink (Source) Movement Initiated Tree Reconfig- 
+uration 
+As a sink (source) moves and becomes far away from its 
+proxy, the current proxy (P,) should be changed to another 
+node (PA) which is closer to the sink (source). The tree 
+reconfiguration initiated by a proxy change goes through 
+the following three steps. 
+Step 1: Establishing a temporary edge. As shown in 
+Figure 4 (a), PA sends a migrate-req to P,. On receiving 
+the message, P, establishes a temporary edge between PA 
+and its parent (denoted as X), and leaves the tree. 
+Step 2: Finding the closest node. As shown in Figure 4 
+(b), this step is similar to the Step 2 of the new proxy joining 
+procedure. If the found closest node (Ps) is not X, PA tears 
+down the temporary connection with X, and attaches to P,. 
+Step 3: Joining the tree. As shown in Figure 4 (c), 
+this step is the same as the Step 3 of the new proxy joining 
+process. 
+4.1.3 Periodic Localized Tree Reconfiguration 
+When a proxy moves, as shown in Figure 4, the subtrees 
+that it leaves or joins are reconfigured, but the remaining 
+p m  of the tree is untouched even after it has been affected 
+by the reconfigurations. To address the problem, we pro- 
+pose a periodic localized tree reconfiguration mechanism. 
+With this mechanism, each Steiner point node monitors the 
+changes of its neighbors. Every certain time, it computes 
+the FST of the subgraph including its neighbors and finds 
+the optimal location for itself. If the cost difference be- 
+tween transmitting data via the new FST and via the current 
+subtree exceeds a certain percentage (a), the node replaces 
+itself with the node closest to the calculated optimal Steiner 
+point. With the periodic localized reconfiguration scheme, 
+the tree can be gradually reconfigured with low cost. 
+4.2 Spanning Range-Based (SR) Scheme 
+In the SP scheme, a new proxy needs to flood discover 
+messages to find its position in the proxy tree. The flood- 
+ing overhead can be large, especially when the multicast- 
+ing members are far away from each other. To deal with 
+the drawback, we propose a spanning range-based (SR) 
+scheme. The basic idea of SR is illustrated in Figure 5. 
+As shown in Figure 5 (a), each subtree is assigned a certain 
+spanning range, and the nodes in the subtree tree should be 
+within the range. If a proxy (P,) in a subtree (Pi) is changed 
+to another one (PA), as shown in Figure 5 (b), PA should 
+leave subtree P; and join subtree Pj. During this process, 
+both subtrees should be reconfigured. In the following, we 
+first present the strategy to assign spanning ranges, and then 
+present the algorithms for adding (removing) a proxy and 
+dealing with source (sink) changes. 
+4.2.1 Spanning Range Assignment 
+Let P be the root of the tree, and Pi (i = 0,. . . , m - 1) be 
+the children of P. As shown in Figure 6 (a), the spanning 
+range for each P; is the halfplane that does not cover P and 
+is confined by the following three lines: 
+I : ,  which passes Pi and is perpendicularwith line PP;; 
+I t ,  which equally divides LPi-lPP,; 
+13, which equally divides LP,PP;+l 
+Here, Pi-1 (P;+l) is the anti-clockwise (clockwise) neigh- 
+boring sibling of Pi. 
+For a node Pi,? whose parent nodes is Pi, as shown in 
+Figure 6 (b), its spanning range is decided as follows: 
+case 1: P;,j is the most anti-clockwise child of Pi (e.g., 
+P1,o i n  Figure 6(b)). It is confined by 
+&, which passes Pi,j and is perpendicular with line 
+p.p. .. 
+I 2 , l  I 
+25 
+Figure 4. Sink (source) movement initiated tree reconfiguration 
+2 ' 1.1='1,0 I =I 1.2 1.1 
+Figure 6. Spanning ranges of nodes 
+l i , j , which equally divides LPi-lPP;; 
+which equally divides LPi,jPiP,,j+~ 
+case 2: P;,j is the most clockwise child of P; (e.g.,  PI,^ 
+in Figure 6(b)). It is confined by 
+L&, which is defined before: 
+1&. which equally divides L P ~ , ~ - I P ~ P ; , ~ ;  
+1&, which equally divides LP,PP,+1 
+case 3: otherwise (e.g., P I J  in Figure 6(b)).' It is con- 
+fined by 
+l : j ,  which is defined before; 
+&, which equally divides LP;,j-,PiP;,j; 
+l&, which cqually divides LPi,jP,Pi,j+l. 
+According to the spanning range assignment rule, each 
+node on the tree can decide the spanning range of its chil- 
+dren, and send the range to them. To reduce the overhead, 
+the range information can be piggybacked in data packets 
+sent from the node to its children. 
+4.2.2 Node Join 
+When a mobile sink wants to join thc multicasting tree, sim- 
+ilar to the SP scheme, i t  selects a nearby sensor node P, as 
+its proxy and asks P, to join the tree. P, obtains the current 
+location of the source proxy from some appropriate index 
+nodes, and then sends a joinxeq to the source proxy (P) .  
+On receiving the request, P decides the location of P,, as 
+follows: 
+( I )  P calculates the spanning ranges of its children. If P, 
+is covered by the spanning range of a child Pi, P for- 
+wards joinreq(P,) to P;. 
+(2) Otherwise, P adds P, as its child. In order to add 
+P,, at an appropriate position, P first finds a child Pj, 
+such that LP,PPj is no larger than LP,PP; (i = 
+0, .  ", m - 1). 
+(2.1) If LP,PPj < 120", then a FST for triangle 
+P - P, - Pj is calculated and replaces the subgraph 
+containing P,  P, and Pj. 
+(2.2) Otherwise, Pn is directly added as a child of P. 
+On receiving a jo inreq(P , )  forwarded by its parent, P; 
+follows the same procedure as its parent to decide whether 
+to add P, as its child or  to forward the join-req to one of 
+26 
+01 
+m ir 9 I , ,  ............ . 
+Figure 5. The basic idea of the SR scheme 
+(b) 
+Figure 7. Adding a new proxy (P,) 
+its children. The process continues until P, joins the tree. 
+Figure 7 shows an example of adding a new proxy. 
+4.2.3 Sink Movement-Triggered Tree Reconfiguration 
+As a sink moves and becomes far away from its current 
+proxy (P,J, P, should be  changed to another node (PA) 
+which is closer to the sink. To conduct the migration, PA 
+sends a message mzgratereq(PA) to P,. On receiving the 
+message, P, removes itself from the tree if it is a leaf, and 
+sends an add.req(PA) to its parent (denoted as PJ. 
+When P, receives the message, it checks if PA is in its 
+spanning range. If it is still in the range, P, follows the 
+procedure of adding a new proxy (as described in Section 
+4.2.2) to add PA to the tree rooted at P,. Otherwise, it sends 
+a message add-req(PA) to its parent. The process continues 
+until PA finally joins the tree. 
+4.2.4 Source Movement-Triggered Tree Reconfigura- 
+tion 
+When a source becomes far away from its current proxy 
+(P) ,  P should also be changed to another node (P') which 
+is closer to the source. P' becomes the new root of the 
+proxy tree, and P becomes its child. The change of root 
+causes the other nodes in the tree to change their spanning 
+ranges, and the information about the new spanning ranges 
+is passed from the root to leaves as the sensing data flow. 
+On receiving its new spanning range, each node P, checks 
+its children one by one in a certain order (e.g., clockwise 
+order), and decides whether the position of a child should 
+be changed. Specifically, if a child P,,e becomes outside of 
+the spanning range of P,, a message rearrange.req(Pn,t) 
+is sent to its parent, which decides the new position of P,,k 
+in the same way as described in Section 4.2.2. Otherwise, 
+the position of P,,k is unchanged. 
+5 Performance Evaluations 
+We first use MATLAB to simulate the proposed cen- 
+tralized schemes and the distributed schemes, and com- 
+pare their performance in terms of the average weight of 
+proxy trees, without considering the tree reconfiguration 
+overhead. After that, simulations based on NS2 are con- 
+ducted in more practical scenarios to evaluate the perfor- 
+mance of the proposed distributed schemes. 
+5.1 Comparing the Centralized and the Dis- 
+tributed Schemes 
+The MATLAB-based simulations are conducted in the 
+following settings: 516 (or 2064) nodes are uniformly dis- 
+tributed in a 500 x 500m2 (or 1000 x 1000m') square. One 
+27 
+target and 10 sinks move randomly within the sensing re- 
+gion. Data are sent from the source (whose location is the 
+same as the target) to the sinks every second. The proposed 
+centralized schemes, ONMST and E-ONMST, and the dis- 
+tributed schemes, SP and SR, are simulated. We use the 
+sum of the average tree weight as the metric to compare the 
+performance of these schemes. In the simulations, each ex- 
+periment lasts for 300s, and 60 experiments are conducted 
+for each scheme. The average results of these experiments 
+are shown in the figures. 
+-.-c 
+Figure 8. Comparing the tree weights of dif- 
+ferent schemes (average velocity=2.5m/s, lo- 
+calized reconfiguration interval= 1s) 
+As shown in Figure 8, the average tree weight is the 
+largest when the minimum spanning tree (MST) of the prox- 
+ies is used for data dissemination. When the ONMST 
+scheme is employed, the tree weight can he reduced by 
+about 25%. since ONMST can select some Steiner points 
+to reduce the tree wcight. The tree weight can be fur- 
+ther reduced by about 20% when using the E-ONMST 
+scheme, which can periodically optimize the tree reconfig- 
+ured by ONMST. The shortest path-based (SP) scheme and 
+the spanning range-based (SR) scheme have about 9% and 
+12% higher tree weight than the E-ONMST scheme, respec- 
+tively. This is due to the reasons that they use less informa- 
+tion to reconfigure the tree. 
+5.2 Evaluating the Distributed Algorithms 
+5.2.1 Simulation Model 
+In the NSZbased simulations, the IEEE 802.1 1 MAC layer 
+protocol and the location-based GPSR routing algorithm are 
+employed. We uniformly deploy 516 sensor nodes over a 
+500 x 500m2 field. Each sensor node has a communica- 
+tion range of 40m. One target and 10 sinks move randomly 
+in the field, and the way-point model is used to simulate 
+their movement. As a sink or a source (target) moves 80m 
+away from its current proxy, the sensor node closest to it is 
+selected as the new proxy, 
+We evaluate the following metrics: 
+, 
+28 
+Control message complexity: the number of control 
+messages transmitted in the network. 
+Data message complexity: the number of data mes- 
+sages transmitted in the network. 
+Overall message complexity: the sum of the control 
+message complexity and the data message complexity. 
+In the simulations, each experiment lasts for 300s, and 
+60 experiments are conducted for each scheme. The average 
+results of these experiments are shown in the figures. 
+5.2.2 Comparing SR and SP 
+Figure 9 (a) shows that SR has smaller control message 
+complexity than SP, which is due to the following rea- 
+sons: As a sink (source) changes its proxy, SP needs to 
+flood discover messages within a certain area to let the new 
+proxy join the proxy tree. After that, the new proxy also has 
+to exchange several messages with the tree nodes within the 
+flooding area to select the appropriate parent node. How- 
+ever, when SR is used, only a few messages need to be sent, 
+because the new proxy is usually still within the spanning 
+range of the parent of the previous proxy. So i t  can imme- 
+diately join the subtree rooted at the parent node. Even if 
+the new proxy is out of the spanning range, a reconfigura- 
+tion will be conducted in the smallest subtree that covers 
+the new proxy, and the process will not cause many control 
+messages. 
+Figure 9 (b) shows that SR has slightly larger data mes- 
+sage complexity than SP. This phenomenon is consistent to 
+that shown in Figure 8, which verifies that the shortest path 
+heuristic is slightly better than the spanning range heuristic. 
+However, as shown in Figure 9 (c), SR outperforms SP in 
+terms of the overall message complexity. 
+5.2.3 Impact of the Localized Reconfiguration (LR) 
+Mechanism 
+Figure 10 (a) shows that using the LR mechanism increases 
+the control message complexity. Also, the control message 
+complexity increases as the system parameter (Y decreases. 
+This is due to the reason that the localized reconfiguration is 
+conducted more frequently as a becomes smaller. However, 
+as shown in Figure 10 (h), using the LR mechanism can de- 
+crease the data message complexity, and the data message 
+complexity decreases as the system parameter a decreases. 
+Also, when a is very small (e.g., 0.05), decreasing the pa- 
+rameter does not significantly decrease the data complexity. 
+This is due to the reason that the node density is not large 
+enough, and hence there may not exist a node at the optimal 
+location to further minimize the cost, when a is too small. 
+Figure 10 (c) shows that, with an appropriate parameter a, 
+I 2  3 4 5 6 7 8 9 10 
+Armse movement vdaciiy ( d 5 )  
+(a) Control message complexity 
+I 2  3 4 5 6 1 8  9 10 
+AYCraggC rink"cloci,y(dr) 
+(a) Control message complexity 
+58 - 51.5 
+B 
+g 57 
+.B 56.5 
+: 55.5 
+- 
+6 80 
+f 70 
+- 
+r' - 56 I 
+0 
+55 
+54.5 i 60 
+50 - 
+1 1  3 4 5 6 7 8 9 10 
+Avcmse movcmmt vclacllylds) 
+54 -
+I 2  3 1 5  6 1 8  9 10 
+AYCmgc movcmcn, VElOsity ( d 3 )  
+@)Data message complexity (c) Total message complexity 
+Figure 9. Comparing SR and SP 
+M I  , . I 
+35 i i 
+55 - 
+1 2  3 4 5 6 1 8  9 10 
+30 
+I 2  3 4 5 6 1 P Y I U  
+nYemge sinl"claciry(dr1 hvcrngc s inkdoc i ty  ( d s )  
+(b) Data message complexity (c) Overall message complexity 
+reconfiguration) 
+using the LR mechanism can reduce the overall message 
+complexity. 
+5.2.4 Impact of the Source Movement-Initiated Tree 
+Reconfiguration (SoMTR) Mechanism 
+Figure 11 (a) shows that using the SoMTP mechanism in- 
+creases,the control message complexity, and the complex- 
+ity increases as the source velocity increases. This phe- 
+nomenon can be explained as follows: As the source moves, 
+the source proxy changes accordingly. When the SoMTP 
+mechanism is employed, changing the source proxy causes 
+some nodes migrate from one branch to another. To conduct 
+the reconfigurations, some control messages should be ex- 
+changed. Also, as the source velocity increases, the source 
+proxy changes more frequently, which introduces more con- 
+trol messages. 
+Figure 11 (b) shows that using the SoMTP mechanism 
+can reduce the data message complexity, which is due to the 
+following reasons: If the SoMTP mechanism is not used, 
+the tree is not reconfigured as the source proxy changes. 
+Thus. data should be transmitted from the source to the pre- 
+vious proxy (root) before being transmitted to the sink prox- 
+Figure 10. Impact of the localized reconfiguration mechanism ( SiMTRZSink movement-initiated tree 
+29 
+ies. However, when the SoMTP mechanism is used, the 
+tree structure is optimized as the source proxy changes, and 
+hence reduces the data dissemination cost. 
+Figure 1 1  (c) compares the overall message complexity 
+when the SoMTP mechanism is used or not. As shown 
+in the figure, as the source velocity increases, the SoMTP 
+mechanism can significantly reduce the overall message 
+complexity when the source velocity is not large. But the 
+reduction becomes smaller when the source velocity is very 
+large. The reasons can be found from Figure 11 (a) and (b). 
+As the source velocity is small, the increment of the con- 
+trol message complexity is much slower than the reduction 
+of the data message complexity. However, as the source 
+velocity becomes very large, the increment of the control 
+message complexity is similar to the reduction of the data 
+message complexity. 
+6 Conclusion 
+In this paper, we addressed the problem of efficient dy- 
+namic multicasting in wireless sensor networks. We pro- 
+posed a dynamic proxy tree-based framework, and focused 
+on the issue of efficiently reconfiguring the proxy tree as 
+SrMTR+I.R - 27 
+26 SiMlX+I.R+SoMlR - 
+23 
+20 
+0 2 4 6 8 1 0  
+- 65 
+64 
+B 63 
+62 
+2 61 
+z 22 
+= 57 
+56 
+” I ’  
+SihmRILR - 
+SiM’IX+l.R+Som - ~ * ~  
+0 2 4 6 8 1 0  
+76 
+0 2 4 6 8  
+(a) Control message complexity (h) Data message complexity 
+Figure 11. Impact of the SoMTP mechanism (average sink velocity=5.0m/s) 
+(c) Overall message complexity 
+proxies frequently change from one node to another. The 
+problem was modeled as on-line reconstructing a Steiner 
+minimum tree in an Euclidean plane. Some centralized on- 
+line schemes were proposed to solve the problem. Consid- 
+ering the strict energy constraints and the locality require- 
+ments in wireless sensor networks, w e  further proposed two 
+distributed schemes, the shortest path-based (SP), scheme 
+and the spanning range-based (SR) scheme. Extensive sim- 
+ulations were conducted to evaluate the proposed schemes. 
+The results showed that the distributed schemes can achieve 
+similar performance as the centralized schemes, and the SR 
+scheme outperforms the SP scheme. 
+References 
+[ I ]  “US Naval Observatory (USNO) GPS Operations,” 
+http://~cho.usno.navy.miUgps.html. April 2001. 
+[Z] 1. Akyildir, W. Su, Y. Sankarasubramaoiam, and E.Cayirci. 
+“Wireless Sensor Networks: A Sulvey,” Computer Net- 
+works. vol. 38, no. 4, March 2002. 
+[3] Fred Bauer and Anujan V m a ,  “ARIES: A Remangeable 
+Inexpensive Edge-Based On-Line Steiner Algorithm:’ IEEE 
+Joumal of Selected Areas in Communications, vol. 15, no. 3, 
+pp. 382-397, 1997. 
+[4] P. Bose, P. Morin, 1. Stojmenovic, and 1. Urmtia, “Routing 
+with Guaranteed Delivery in Ad Hac Wireless Networks,” 
+Wireless Network, vol. 7, no. 6, pp. 6 0 9 6  16, 200 I. 
+[SI N. Bulusu, 1. Heidemann, and D. Estrin, “GPS-less Low 
+Cost Outdoor Location For Very Small Devices,” IEEE Per- 
+sonal Commmicnrion, Special Issue on ” S m n  Space and 
+Emimnments”, October 2Mw). 
+[6] M. Chu, H. Haussecker and F. Zhao, “Scalable Information- 
+driven Sensor Querying and Routing for Ad Hoc Heteroge- 
+neous Sensor Networks:’ lnrernarional Journal of High Per- 
+formance Computing Applications, 2002. 
+[7] T. Connen, C. Leiserson and R. Rivest, “Introduction to Al- 
+gorithms,” The MITPress. pp. 514-543. 1990. 
+[XI A. Chose, I. Grobklags and 1. Chuang, “Resilient daw- 
+centric storage in wireless ad-hoc sensor networks,’’ Pro- 
+ceedings the 4th lntemarional Conference on Mobile Data 
+Management (MDM’03). pp. 4542,2003. 
+[9] B. Greenstein, D. Esmn, U. Govindan, S.  Ratnasamy and S. 
+Shenker, “DIFS: A Distributed Index for Features in Sensor 
+Networks:’ First IEEE Ineternational Workshop on Sensor 
+Network Pmrocols and Applications, May 2003. 
+[IO] H. Laboid and H. Moustafa, “Source Routing-based Multi- 
+cast Protocol (SRMP):’ Internet Draft, 2001. 
+[ I l l  W. Heinzelman, A. Chandrakasan, and H. Balakrishnan, 
+“Energy-Efficient Communication Protocal for Wireless Mi- 
+crosensor network.” Pmc. of the Hawaii Inrernational Con- 
+ference on System Sciences, January 2032. 
+[I21 E Hwang, D. Richards, and U. Winter, “The Steiner Tree 
+Problem:’ Annals of Discrete Mathemtics 53. Elsevier Sci- 
+ence Publishers, 1992. 
+[I31 C. Intanagonwiwat, R. Govindan, and D. Estrin, “Directed 
+Diffusion: A Scalable and Robust Communication,” Mobi- 
+COM ‘00, August 2000. 
+[I41 A. Ivanov and A. Tuzhilin, “Minimal Networks:’ CRCPress. 
+Inc., 1994. 
+[IS] B. Karp and H. Kung, “GPSR Greedy Perimeter State- 
+less Routing for Wireless Networks,” The Sixth Aunual 
+ACM/IEEE International Conference on Mobile Computing 
+and Networking (Mobicom 2000). Aug. 2ooO. 
+[I61 S. Lee, W. Su, and M. Gerla, “On-Demand Multicast 
+IEEE Routing Protocol (ODMRP) for Ad Hoc Networks, 
+ICNP’98.1998. 
+[I71 M. Liu, U. Talpade, A. Mcauley. and E. Bommaiah, “Ad Hoc 
+Multicast Routing Protocol (AMroute),” UMD TechReporr 
+99-8. 1999. 
+[I81 N. Alan and Y. Azar, “On-line Steiner Trees in the Euclidean 
+Plane,” 2ooO. 
+[I91 S. RatNasamy, B. k q ,  L. Yin, E Yu, D. Estrin, U. Govindan, 
+and S. Shenker, “GHT A Geographic Hash Table for Data- 
+Centric Storage,” ACM International Workshop on Wireless 
+Sensor Networks and Applications, September 2002. 
+[20] J. Smith, D. Lee, and J.  Liehman, “An O(nlogn) Heuristic 
+for Steiner Minimal Tree Problems on the Euclidean Mewic:’ 
+Nehvorb,pp. 11:12-29, 1981. 
+[211 F. Ye, H. Luo, J. Cheng. S. Lu, and L. Zhang, “A ’bo-Tier 
+Data Dissemination Model for Large-scale Wireless Sen- 
+sor Networks,” ACM Intemtional Conference on Mobile 
+Compuring and Networking (MOBICOM’O2). pp. 148-159, 
+September 2002. 
+[22] W. Zhang and G. Cao, “DCTC: Dynamic Convoy Tree- 
+Based Collaboration for Target Trackin g in Sensor Net- 
+works:’ IEEE Transactions on Wireless Communication, in 
+press, also available at: http://wwwcse,psu. edd-gcao. 
+[231 W. Zhang, G. Cao, and T. La Porta, “Data Dissemination 
+with Rmg-Based Index for Sensor Networks.” IEEE Interna- 
+tional Conference on Network Pmrocol (ICNP), also avail- 
+able at: http://www.cse.psu.edw“-gcao, November 2003. 
+30 

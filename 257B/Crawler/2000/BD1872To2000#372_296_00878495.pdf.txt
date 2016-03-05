@@ -1,0 +1,395 @@
+Gaussian Minimum Shift Keying Modulator 
+Ken Tsai, Tina Oyang, John Phan, Cheng Chih Yang, Neal Schneier 
+TRW 
+1 Space Park 
+Redondo Beach, CA 90278 
+neal.schneier@trw.com 
+310-814-2884 
+Abstract-Modem satellite systems must transmit ever 
+increasingly large amounts of digital data. A number of 
+techniques are available to do this: 1) higher transmit and 
+receive frequencies, 2) better management of existing 
+frequencies, 3) the use of efficient source encoding 
+techniques and 4) the use of spectrally efficient modulation 
+techniques. A relatively new satellite communication 
+scheme, Gaussian Minimum Shift Keying (GMSK), 
+addresses many of these techniques. GMSK’s main 
+attributes are constant envelope, spectral efficiency, error 
+rate performance and self-synchronizing capability. GMSK 
+is an especially desirable modulation technique where 
+satellite adjacent channel interference could be a significant 
+problem. However, GMSK requires greater on-board digital 
+processing which, due to advances in IC processing, has 
+become available only recently. This paper describes the 
+prototype implementation and test of a GMSK modulator. 
+TABLE OF CONTENTS 
+1. INTRODUCTION 
+2. GMSK COMMUNICATION 
+3. GMSK MODULATOR DESIGN 
+4. TESTRESULTS 
+5. SUMMARY 
+1. INTRODUCTION 
+Satellite to earth communication design is a compromise of 
+competing constraints. The user endeavors to transmit 
+(sometimes securely) as much information as possible 
+(maximize the data rate) with the fewest possible errors 
+(minimize the bit error rate [BER]). National and 
+international governments allocate radio frequency bands 
+and limited communication bandwidths. Rain, solar activity 
+and other natural interference imposes a widely varying 
+amounts and types of noise on the communication signal. 
+Further, poor satellite design can create additional signal 
+distortion. Satellite designers strive to minimize the onboard 
+processing and RF transmitter power dissipation. Finally, 
+older generation ground hardware may need to operate with 
+newer satellite communications signals. 
+Various techniques are available to modulate a digital signal 
+onto an RF carrier. Each modulation scheme requires a 
+minimum bandwidth and bit time intervals to transmit data. 
+The metric used to quantify both the time and frequency 
+constraints of broadcast symbols is the bandwidth efficiency, 
+defined in bits/s/Hz. Spectral efficiency is a measure of the 
+amount of data that can be sent per unit of bandwidth. 
+Original modulation schemes, such as BPSK and FSK, 
+transmit one bit of data per bit period and have a bandwidth 
+efficiency of 1 bit/s/Hz. Newer schemes, such as QPSK and 
+MSK, transmit two bits of data, a “symbol”, during one 
+period by modulating the bits on orthogonal signals (e.g. 
+sine and cosine of the IF carriers). These schemes are 
+considered spectrally efficient modulation and have a 
+bandwidth efficiency of 2 bits/s/Hz. Figure 1 depicts the 
+relative bandwidth of two modulation schemes. 
+Spectral density of QPSK and MSK 
+10 
+0 
+-1 0 
+-20 
+n 
+v 
+g -30 
+3 -40 *- 
+-50 
+-60 
+-70 
+ff 
+Figure 1. Frequency bandwidths of two modulation schemes. 
+The normalized 3dB bandwidth of MSK = 2.76. The 
+normalized 3dB bandwidth of GMSK is about 1. 
+In all of these schemes, each symbol was independent of 
+others, i.e. there was no history. Intersymbol interference 
+(ISI) occurs when symbols spread from their time period to 
+adjacent periods. Further, symbols are broadcast in specific 
+0-7803-5846-5/00/$10.00 0 2000 EEE 
+235 
+0 n boa  rd 
+processor 
+Figure 2. Satellite downlink from baseband processor to antenna. 
+IF 
+signa 
+frequency bands, called “channels”. Adjacent channel 
+interference (ACI) occurs when symbols spread from their 
+bandwidth to adjacent bandwidths. 
+Satellite to Earth signals (“downlinks”) consist of baseband 
+digital signals modulated onto intermediate frequency (IF) 
+carriers, upconverted to radio frequency (RF), amplified by 
+a travelling wave tube amplifier (TWTA) and transmitted to 
+Earth through an antenna (Figure 2). 
+Working backwards from the downlink signal, international 
+regulations require satellites to transmit at specific 
+frequencies. For example, one set of Ka band satellites will 
+broadcast over a 500 MHz bandwidth centered at 43 GHz. 
+Within the 500 MHz are 11 signal channels, each one 40 
+MHz wide and separated by 10 MHz. To minimize BER, 
+energy from one channel can not spill over to an adjacent 
+one. 
+The downlink signal power is amplified by a TWTA to 
+overcome over 200 dB attenuation between a 
+geosynchronous satellite and the earth. When operated at 
+peak amplification (just below saturation), the TWTA is a 
+highly nonlinear power amplifier. Amplitude modulation 
+would distort the downlink signal, creating signal harmonics 
+and cross products, resulting in a very wide downlink signal 
+bandwidth, cross channel interference and potentially energy 
+outside the allocated bandwidths. The constant RF envelope 
+signals are less sensitive to TWTA and other nonlinearities 
+due to the lack of fluctuations in the signal amplitude, 
+resulting in a more compact power spectrum. Side lobe 
+spreading, or “regrowth”, as compared with that of non- 
+constant envelope signals, is reduced hence improving the 
+bandwidth efficiency. For BPSK and QAM (digital 
+modulation schemes that vary the signal amplitude) the 
+TWTA must operate at least 6dB below saturation, lowering 
+the downlink power. FSK and MSK are digital modulation 
+techniques that feature constant RF amplitude. These 
+schemes transmit data by varying the frequency andor phase 
+Phase Shaping Filter, q(t) 
+of the RF carrier. 
+Continuous phase modulation (CPM) is a subset of the 
+constant envelope modulation schemes. In CPM, the phase 
+is constrained to be continuous. CPM signals are more 
+resistant to ACI due to their compact power spectrum so that 
+more of the energy is contained in the channel bandwidth. 
+However, a continuous phase requires each transmitted 
+symbol to depend on the previous ones, making memory 
+being present in the input to the phase or frequency 
+modulator. CPM signals may have ISI. GMSK is a CPM 
+modulation technique spreads the bits out over longer time 
+by deliberately causing IS1 in exchange for higher spectral 
+efficiency by compressing data over fewer Hz. 
+The transmitted CPM signal s(t) is given by: 
+s(t) = + cos(27Lfct + @(t, a)) (1) 
+where E is the transmitted energy per symbol, T is the 
+symbol period, f, is the carrier frequency and the transmitted 
+information (a) is contained in the phase term (+). 
+A digital frequency modulation signal can be produced by 
+applying a NRZ data sequence (q) to a filter having an 
+impulse response g(t) that spreads each data bit over a 
+number of bit intervals. The resulting signal is multiplied by 
+2nhF, where hF is the DFM modulation index and q(t) is the 
+time response of the premodulation filter. The arrangement 
+is shown in Figure 3, where the phase signal is: 
+t 
+~ t ,  a) = 2XhF J[. f w(T-~T)]~T (2) 
+1=-00 
+-00 
+Frequency s(t 1-44 modulator NRZ data a, 
+Figure 3. Block diagram of GMSK CPM 
+236 
+2T 
+T time T time 
+Figure 4. Impulse response (g(t)) and accumulated phase (q(t)) of a MSK system for one symbol. 
+The phase response described in equation 2 is a function of 
+the integral of the pulse q(t). The shape of q(t) determines 
+the smoothness of the transmitted information carrying 
+phase. The rate of change of the phase is linearly 
+proportional to the modulation index h. The pulse q(t) is 
+normalized over all time to 0.5: 
+00 
+Jq(t)dt = 0.5 (3) 
+The impulse response q(t) is given by: 
+t 
+s(t> = Jim dz 
+-00 
+(4) 
+MSK features a piecewise linear change in the carrier phase 
+trajectory. The effect of each chip is to add or subtract a 
+quantity d 2  to the phase of the signal. For MSK each chip 
+duration is T seconds and g(t) = 0 for t>T (Figure 4). MSK 
+is a “full response” CPM with a frequency deviation defined 
+in terms of the error function. 
+2T 
+2. GMSK MODULATION 
+LT 
+GMSK was invented as a means of improving the MSK 
+power spectrum. GMSK uses a low pass pre-modulation 
+Gaussian filter which makes the output power spectrum 
+more compact. The filter has narrow bandwidth and sharp 
+cutoff properties which are required to suppress the high- 
+frequency components. Moreover, it has a lower overshoot 
+impulse response which protects against excessive 
+instantaneous deviation. 
+The resultant signal is very bandwidth-efficient at the 
+expense of ISI. The chip duration becomes LT (where L is a 
+positive integer). Since g(t) # 0 for t>T, GMSK is called a 
+“partial response” CPM. The output is a series of 
+overlapping frequency deviation functions scaled so the area 
+under each one is d 2  (Figure 5). 
+CO 
+$(t, a) = 2nh Gq(t-iT) (5 )  
+1=-00 
+h(t) is the bandwidth of the Gaussian filter: 
+/- LLT 
+Figure 5. The time domain impulse response of a Gaussian filter to a rectangular pulse of width T and accumulated phase 
+of the GMSK system for one symbol. 
+237 
+The parameter 0 determines the BT product of the filter and 
+is given by 
+3. GMSK MODULATOR DESIGN 
+(7) 
+The transition from a continuous integration to discrete 
+summation of q(t) offers ways to simplify the GMSK design. 
+An approach that is easy to implement is to integrate the 
+data sequence (q) prior to filtering and apply the resultant 
+signal to a phase modulator. Standard GMSK takes the 
+convolution of the input step function with the GMSK filter 
+to get a response. Instead of calculating the convolution, 
+another simplification is to sum the known incremental 
+phase responses (also called A$). Since the Gaussian curve 
+is represented by a finite resolution, one system tradeoff is 
+the number of bits used to represent the Gaussian curve vs 
+the signal distortion. A higher number of bits results in less 
+distortion at the cost of a bigger adder/summer/integrator. 
+The adder must be sized so it wont overflow the summer 
+when all of the inputs bits are high. 
+Although the GMSK modulator was architected as a system 
+of functional blocks, the verification of the digital design 
+was performed block by block. We used SPW’s behavioral 
+simulation (running on a unix system) to verify digital logic 
+functions. We then used SPW’s Hardware Description 
+Language (HDL) to simulate the effects of limited bit 
+resolution. 
+The GMSK modulator was implemented using two 
+DynaChip DL5000 - Fast Field Programmable Gate Arrays. 
+FPGAs use programmable logic blocks to implement 
+desired logic functions, including: multi-input AND/ORs, 
+XORs, adder, multipliers, multiplexers, demultiplexers, flip 
+flops and PROMS. The logic functions are grouped in 
+blocks of electrically programmable logic called 
+Configurable Logic Blocks (CLBs). This specific FPGA 
+family features up to 528 CLBs and ECL or PECL interface 
+levels and differential outputs running at a clock speed 
+exceeding 100MHz. 
+The GMSK design was coded in VHDL. The CLBs were 
+manually programmed and routed to maximize the 
+operational speed. We achieved full functional operations 
+block-by-block and checked strategic test vectors of the 
+logic analyzer outputs against the logic behavior in the SPW 
+simulation. 
+The maximum clock speed of the full functional P G A  set 
+was 106 MHz with zero error. Rounding down to provide 
+small timing margin, we collected most data at 100 MHz 
+clock and 50 million chips per second (Mcps) data rate. 
+TEST SETUP 
+Figure 6 depicts one of the test setups. SPW generated test 
+vectors and determined the expected results. I and Q outputs 
+were mixed with a baseband carrier signal, upconverted, 
+downconverted and redigitized. Instead of building a 
+similar high speed demodulator, the depicted setup shows 
+we used software to characterize BER performance and 
+theoretical spectrum of the high speed GMSK modulator. 
+TEST RESULTS 
+The observation of the GMSK spectrum is quite 
+straightforward with a reasonably long pseudo-random 
+sequence. Using the spectrum analyzer such as HP 8563E, 
+we can see the compactness of such a spectrum (Figure 7). 
+Note the general Gaussian taper of the main lobe and 
+absence of any side lobes. For a 50 Mcps transmission, the 
+spectrum density rolls off -35dB from the peak at -30MHz 
+offset from the center. This hints at the potential channel 
+spacing of less than Rc, the channel data rate, especially 
+when channel user power can be equalized in the system. 
+Equalized channel power will minimize the adjacent channel 
+interference. 
+Figure 6. Block diagram of GMSK BER measurement test setup. 
+238 
+Figure 7. GMSK modulator output spectrum. In this run, the data was spread over seven bit periods (G-7). 
+A newer wide band vector signal analyzer, such as the 
+HPIAgilent E3830A, can process and characterize this 
+digital modulation in useful ways such as constellation 
+diagram in the trajectory (Figure 8). The blue dots mark the 
+waveform at the sample instant and the orange traces show 
+the trajectory. As claimed by the constant envelope nature 
+of GMSK, the trajectory closely resembles a unit circle. 
+I -B 
+300 
+/ d i v :  
+1'1 
+E r r  4.8163 k.HZ 
+f F s e t  = -34.336 dE 
+S t r i + - :  I :*z'tt S t o p :  '39 5.1'1 
+Figure 8. HP E3830A screen. Upper left: Constellation with trajectory. Lower left: Error vector linear magnitude. Upper 
+right: Data eye. Lower right: Summary sheet. 
+239 
+L=7 Test BER w. Radian BPF 
+(64 taps tesfset) 
+1 . o m 0  
+I , 
+1 .oE-01 
+U ; 1.oE-02 
+1 .OE-03 
+1 .OE-04 
+I I I I I I I I 
+X Rc=50,mM 
+Rc=50, IL 
+Rc=50 expected 
+I I 
+I I I I I I ' I  
+0 1 2  3 4 5 6 7 8 9 10 
+I EdNo (dB) 
+Figure 9. Graph of bit error rate (BER) as a function of the chip signal to noise ratio. Tests were run at three data rates: low 
+(lL), medium (mM) and high (hH). The data results are also compared to theory. 
+Verification of Performance 
+Another practical and realistic measurement of the GMSK 
+modulator is the BER performance under noise loaded 
+operation. Without a hardware demodulator, our approach 
+was to record 10,000 symbols worth of the digitized, down- 
+converted RF spectrum, and perform demodulation in SPW 
+simulation. In the case of our 50 Mcps modulator, we 
+down-convert the modulated spectrum back to 5OMHz 
+center and digitized with an 8 bit AID at 200 MHz. The 
+ratio of sample rate and the data rate and the IF frequency is 
+significant; because the sampled data sequence easily 
+provides baseband I and Q outputs. The software nature of 
+the demodulator provides easy signal to noise ratio 
+adjustment and software BER characterization (Figure 9). 
+The sample size of 10,000 is also significant in providing 
+adequate samples and errors at the expected SNR operating 
+point, for the measurement to be statistically sound. 
+7. SUMMARY 
+TRW has designed a Gaussian Minimum Shift Key 
+modulator. The design was implemented in FPGAs and 
+tested at 50 Mcps rate. The resultant signal was 
+upconverted and downconverted, emulating a full satellite 
+communication path. The resultant BER matched 
+theoretical expectations. 
+REFERENCES 
+[ 11 R. Gagliardi, Satellite Communications, Van Nostrand 
+Reinhold Company, New York, 1984. 
+[2] K. Hetling, GMSK for the Advanced EHF Wavefomz, 
+MilSatCom Conference, 1999. 
+USC. 
+Kenneth Tsai is a Technical 
+Specialist in the Digital 
+Communication and Synthesizer 
+Products Department of TRW. 
+His recent work includes 
+development of digital 
+modulator and high 
+performance frequency 
+synthesizers. He has a BSEE 
+from UCLA and MSEE from 
+Tina Oyang is a staff engineer 
+in the Telecommunication 
+Systems Department of TRW. 
+Her recent work includes 
+responsibility for the downlink 
+of a new generation of satellite 
+systems. She has a BS from 
+UCLA and MSEEfrom USC. 
+240 
+Jolzn Phan is a member of the 
+technical staff at the Digital 
+Communications & Synthesizer 
+Products Department at TR W. 
+His recent work designed and 
+tested demodulator subsystems, 
+particular1.y command, 
+telemetry and DSP hardware. 
+He has a BS iiz Engineering 
+from Harvey Mudd College and 
+is pursuing a MSEE at USC. 
+Cheng Chih Yang is a senior 
+staff engineer in the Microwave 
+& Millimeter-wave Systems 
+department of TRW, where he 
+joined in 1984. His recent work 
+is focused on microwave 
+subsystem hardware 
+development to support various 
+payload communications 
+systems. He received a PhD 
+degree in Electrical Engineering from UCLA. 
+Neal Schneier is a staff engineer 
+in the High Speed Digital and 
+Analog Products Department of 
+TRW. His recent work developed 
+f i l l  custom gallium arsenide 
+(GaAs) ICs and a satellite slice. 
+He has patents f o r  new digital 
+logic architectures in High 
+Temperature Superconductivity 
+(HTS) and GaAs. He has 
+published on topics of HTS, GaAs design, computer aided 
+design and su$ace acoustic waves.' He has a Masters in 
+Physics from the University of Califomia, Irvine. 
+241 

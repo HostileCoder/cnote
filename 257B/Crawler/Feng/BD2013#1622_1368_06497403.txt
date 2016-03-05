@@ -1,0 +1,956 @@
+   978-1-4673-1813-6/13/$31.00 ©2013 IEEE 
+ 1
+ IMU/Vision/Lidar Integrated Navigation System 
+in GNSS Denied Environments 
+Sukchang Yun, Young Jae Lee and Sangkyung Sung 
+Konkuk University 
+Department of  Aerospace Information Engineering 
+Seoul, Korea 
++82-2-458-0164 
+amerisan@konkuk.ac.kr 
+ 
+Abstract—This paper aims to develop IMU/Vision/Lidar 
+integrated navigation system which can provide accurate 
+relative navigation information in GNSS denied environments. 
+The developed integrated navigation system consists of an 
+IMU, a vision sensor and a Lidar sensor. In order to overcome 
+limitation of low accuracy of MEMS inertial navigation 
+solution when GNSS signal cannot be used, 2-dimensional 
+optical flow vector from vision sensor and Lidar range 
+information between the system and ground surface are used. 
+Two aided sensor data are complementarily employed in the 
+system integration. Basically, by using the optical flow vector 
+and relative height between vision sensor and ground surface, 
+accuracy of the horizontal position estimates is improved. At 
+the same time, by using compensated Lidar measurement, 
+accurate vertical position can be estimated. The overall 
+integrated navigation filter is constructed based on Extended 
+Kalman Filter approach. Feasibility of the navigation filter is 
+proven via simulation results. Finally, with real hardware 
+system, an outdoor test is carried out for analyzing 
+performance of the proposed integrated navigation system. 
+TABLE OF CONTENTS 
+1. INTRODUCTION ................................................. 1 
+2. SYSTEM ARCHITECTURE .................................. 3 
+3. INTEGRATED NAVIGATION SYSTEM................. 3 
+4. SIMULATIONS .................................................... 4 
+5. EXPERIMENTS ................................................... 5 
+6. CONCLUSIONS ................................................... 7 
+REFERENCES ......................................................... 7 
+BIOGRAPHY .......................................................... 9 
+ 
+1. INTRODUCTION 
+One of the most important technologies for operating 
+autonomous vehicles is to figure out their pose and attitude 
+information. There are a number of navigation systems used 
+for various autonomous platforms such as military 
+reconnaissance and surveillance UAV (Unmanned Aerial 
+vehicle), a guided missile, or an autonomous ground vehicle 
+for land exploration. Among navigation sensors, GNSS 
+(Global Navigation Satellite System) is a most essential 
+system as it can provide absolute position information 
+within a certain error boundary as well as velocity and time 
+information. Nevertheless, the information accuracy of 
+GNSS system is greatly affected by satellite observation 
+environments. For example, when a vehicle is surrounded 
+by skyscrapers and forestry, or blocked by indoor objects or 
+a jamming signal, it cannot provide reliable navigation 
+information. This availability problem is an inherent and 
+inevitable drawback to the GNSS based navigation system. 
+GPS/INS integrated navigation system is a representative 
+navigation system based on GNSS. This system has been 
+widely used in ground and aerial application for several 
+decades. This integrated system provides INS (Inertial 
+Navigation System) navigation solution when GPS (Global 
+Positioning System) signal cannot be used. In such case, the 
+accuracy of the navigation solution relies heavily on that of 
+inertial measurements. Thus, for providing reliable 
+navigation information, INS necessarily requires a high 
+performance IMU (Inertial Measurement Unit) with a 
+tactical or inertial grade for its construction. For this reason, 
+a number of researches on GPS-free navigation method 
+have been widely carried out. Among these, researches on 
+sensor fusion of IMU and vision sensor are noticeable [1-3].  
+These researches were generally performed using SLAM 
+(Simultaneous Localization and Mapping) technology based 
+on feature points [4-8]. The performance of this feature 
+point based system largely relies on the estimation accuracy 
+of the position of the feature points. In order to do that, 
+continuous tracking performance is required. However, 
+since it is difficult to track points continuously in 
+unconstructed outdoor environments, the feature point based 
+system is limited in outdoor application.   
+Meanwhile, development of another vision-aided navigation 
+system is attempted by using optical flow in image 
+sequences [10]. Optical flow is insect-inspired flow vector, 
+that is, an approximation of the local image motion based 
+upon local derivatives in a given sequence of images. That 
+is, in 2D it specifies how much each image pixel moves 
+between adjacent images [9]. Optical flow has been utilized 
+in a number of vision based ground and aerial navigation 
+system [11-15]. In [11], by applying optical flow to road 
+navigation, forward velocity and heading angular rate are 
+estimated to detect a moving car. Optical flow has been also 
+used in the field of aerial autonomous vehicle. Using optical 
+flow, UAV autonomously performs path planning in clutter 
+environments [12], and it can be also used to estimate 
+angular rate and aerodynamic angle of the aircraft [13]. 
+Additionally, this flow vector is used for autonomous 
+control of the MAV (Micro Aerial Vehicle) in indoor 
+corridor environments [14], and autonomous take 
+off/hovering/landing of the UAV [15]. Besides, two optical 
+chips in a mouse are used to estimate ground depth by using 
+ 
+ 2
+ high speed optical flow. But, the system has low depth 
+resolution due to limited total pixel and cannot avoid a 
+divergence problem in estimating horizontal positions 
+because of lack of observability [17]. 
+However, it is rarely reported optical flow is adopted for 
+estimating 6DOF (Degree of Freedom) navigation solution. 
+In [16], in order to overcome degradation of navigation 
+performance of GPS/INS system in GPS denied 
+environments, optical flow rate measurement is applied to 
+EKF fusion process. But, they could not avoid rapid 
+divergence of navigation solution after 20 seconds. 
+With the various vision based integrated navigation system, 
+Lidar sensor based navigation system has been developed in 
+GPS denied environments. The development of localization 
+and mapping system for a mobile robot and a quadrotor has 
+been mainly carried out.  In [18], scan matching based two 
+dimensional SLAM and INS were integrated by using 
+loosely coupled EKF approach and real hardware system 
+was developed to apply to various applications such as 
+UAV, USV (Unmanned Surface Vehicle) and small 
+handheld embedded systems.  Additionally, Lidar 
+measurement was applied to Graph-based SLAM for 
+autonomous navigation of small quadrotor [19] and 
+laser/IMU odometry was developed based on correlative 
+scan matching method [21]. However, these systems cannot 
+be used in unstructured outdoor environments since 
+obstacles are out of sensor detection range in outdoor 
+environments. 
+Several researches presented a fusion system of vision and 
+Lidar sensors. Although IR scanner, vision sensors and 
+encoders were integrated based on a particle filter for 
+localization of mobile robot, this system had previously 
+required map information. And in addition to research on 
+detecting moving car and pedestrians, research on UAV’s 
+indoor path planning was developed [23-25]. So far, no 
+published result practically touches an investigation of 
+vision sensor and Lidar sensor integrated navigation system 
+that can operate in unstructured outdoor environments. 
+In this paper, we developed IMU/Vision/Lidar integrated 
+navigation system that can operate in GPS denied 
+environments. In order to cope with the problem of the 
+divergence characteristics in estimating velocity and 
+position using INS system, consecutive downward optical 
+flow measurement and range information from Lidar sensor 
+are complementarily employed. Therefore, this system can 
+provide a reliable and robust navigation solution in those 
+limited environments. For this propose, integrated 
+navigation filter is constructed based on EKF approach. In 
+this system, horizontal velocity estimated of INS is 
+compensated by using optical flow measurement at the same 
+time while the vertical position of INS is compensated by 
+using range measurement. Operational limit height is 
+restricted within measuring range of the Lidar sensor. Thus, 
+this system can be applicable to low altitude UAV system. 
+The feasibility of the proposed system is proved via 
+simulation results by comparing INS only case and 
+IMU/DualVision integrated system that uses dual optical 
+flow as measurements. On the basis of the simulation results, 
+the performance of the proposed integrated navigation 
+system was verified via outdoor test with a real sensor 
+system. 
+The rest of the paper is organized as follows: section 2 
+describes concept of proposed integrated navigation and 
+operational environments. And after, INS error model, 
+sensor model and integration method are presented. Section 
+3 provides simulation results to verify its feasibility in GPS 
+denied environments. On the basis of the simulation results, 
+outdoor experimental result is presented in section 4. 
+Section 5 concludes the paper with a discussion on our 
+current research. 
+2. SYSTEM ARCHITECTURE  
+ Figure 1 – System concept of integrated navigation 
+ 
+ 3
+ Proposed integrated navigation system can operate in 
+limited environments, in which GPS signal cannot be used. 
+This system solves inevitable INS divergence problem that 
+velocity error gradually increase as time goes on. Thus, it 
+can provide reliable and robust navigation solution 
+System concept and coordinate system 
+Optical axis of the vision sensor is parallel to down axis of 
+the vehicle. And also, detection plane of the Lidar sensor is 
+heading for down axis of the vehicle, and scan direction is 
+in x-z plane. The performance of estimating horizontal 
+velocity based on optical flow depends on accuracy of 
+attitude of the vehicle and relative altitude between system 
+and ground. Therefore, this system can estimate accurate 
+altitude using range information from Lidar sensor at the 
+same time while it can estimate corrected horizontal 
+velocity. In this process, we assumed that ground surface is 
+flat and its height is zero meters, and vehicle motion has low 
+dynamics. 
+Figure 1 describes system concept and operational 
+environments. IMU/Vision/Lidar integrated navigation 
+system can provide reliable and robust navigation solution 
+without map information in the limited environments which 
+GPS signal cannot be used. In this system, body frame 
+follows right handed IMU coordinate system. X-axis of the 
+frame is equal to forward direction of the vehicle and y-axis 
+looks right direction. Lidar coordinate system is represented 
+using measured range (r) and measured angle (?) in x-z 
+plane of the body frame. In this system, we assume that the 
+three sensor coordinate system has same origin. Sensor 
+coordinate system is depicted in figure 2. 
+ 
+(a) IMU, Camera             (b) Lidar  
+Figure 2 – Sensor coordinate system 
+INS error model 
+Psi angle approach is used as an INS error model. The psi 
+angle error model is the most widely adopted approach and 
+has been implemented in many tightly coupled integration 
+systems [16, 26]. Psi angle error model is shown in equation 
+(1). 
+( )ie in
+ en
+ in
+ ? ? ? ? ?
+ ? ? ? ?
+ ? ? ? ?
+ = ? + ? ? ? + ?
+ = ? ? +
+ = ? ? +
+ v v ? f
+ r r v
+ ? ?
+ $
+ $
+ $
+                 (1) 
+where,  
+? r , ? v , ?? : Velocity, position, attitude error vectors 
+ie? : Earth rate vector 
+in? : Angular rate vector of the true coordinate system w.r.t. 
+        the inertial frame 
+en? : Angular rate vector of the true coordinate system w.r.t. 
+        the Earth frame 
+? : Accelerometer error vector 
+? : Gyro drift vector 
+f : Specific force vector 
+Sensor model 
+Direction of the optical flow vector in consecutive image 
+frame is opposite to the vehicle motion. With this principle, 
+optical flow vector is generated by translational velocity and 
+rotational angular rate of the vehicle. Equation (2), (3) 
+represent a relationship between optical flow vector, 
+translational velocity and rotational angular rate based on 
+pinhole camera model. In this equation, optical flow is a 
+mount of pixel movements that has pixel units.  
+( ) ( )_x fullx x y
+ x x
+ PixFL
+ OF V t t
+ H PixSize FOV
+ ?= ? ? ? ∆ + ? ? ? ∆
+ ?
+  (2) 
+( ) ( )_y fully y x
+ y y
+ PixFL
+ OF V t t
+ H PixSize FOV
+ ?= ? ? ? ∆ + ? ? ∆
+ ?
+   (3) 
+where, 
+ xOF , yOF : Optical flow measurements [pixel]   
+ xV , yV : Translational velocity w.r.t. the body frame [m/s] 
+x? , y? : Rotational angular rate w.r.t. the body frame [rad/s] 
+H : Ground height [m] 
+FL : Camera focal length [m] 
+xPixSize , yPixSize : Magnitude of the 1 pixel [m]  
+xFOV , yFOV : Field of view [rad] 
+_x fullPix , _y fullPix : Number of the total pixels  
+t∆ : Interval time [s] 
+A relationship between ground height and Lidar range 
+measurement is shown in equation (4). Ground height is 
+calculated using Lidar range measurement by compensating 
+roll, pitch angle. 
+( ) ( )cos cosLiDAR N E
+ H
+ H
+ ? ?
+ =                         (4) 
+ 
+3. INTEGRATED NAVIGATION SYSTEM 
+Integrated navigation filter is constructed using INS error 
+model and sensor model presented in the previous section. 
+State vector consists of position error, velocity error, 
+attitude error in INS error model. And additionally 
+acceleration and gyroscope bias error vectors are augmented. 
+Equation (5) represents 15-order state vector and system 
+model. Detail expression is shown in APPENDIX A. All 
+X 
+Y 
+Z 
+X 
+Z 
+r ? 
+ 
+ 4
+ process noises are modeled as zero-mean gaussian white 
+noises.  
+11 12 13
+ 22
+ 33
+ [ ]
+ 0 0
+ 0 0
+ T
+ nav acc gyro
+ nav nav nav
+ acc acc acc
+ gyro gyro gyro
+ F F F
+ F
+ F
+ =
+ ? ? ? ? ? ?? ?? ? ? ? ? ?? ?
+ = +? ? ? ? ? ?? ?? ? ? ? ? ?? ?? ?? ? ? ? ? ?
+ x x x x
+ x x w
+ x x w
+ x x w
+ $
+ $
+ $
+             (5) 
+Observation model is derived using equation (2), (3), (4). 
+Since three sensors have the same origin point, translational 
+velocity in equation (2), (3) can be obtained using global 
+velocity and heading angle as shown in equation (6).  
+( ) ( )
+ ( ) ( )
+ cos sin
+ sin cos
+ x D D N
+ y D D E
+ V V
+ V V
+ ? ?
+ ? ?
+ ? ?? ? ? ?
+ = ? ?? ? ? ?
+ ? ? ?? ? ? ?
+                (6) 
+When the optical flow measurement model (2), (3) are 
+perturbed, error model of the optical flow measurements can 
+be obtained. Observation vector consists of optical flow 
+error model and height difference between INS derived 
+height and corrected height measurement from Lidar sensor 
+as shown in equation (7).   
+T
+ INS Lidar
+ x
+ y
+ H H
+ OF
+ OF
+ ?
+ ?
+ ? ??? ?
+ = ? ?? ?? ?
+ z                               (7) 
+Figure 3 describes IMU/Vision/Lidar integrated navigation 
+filter structure. In this structure, integrated navigation 
+solution is obtained by compensating INS error estimated in 
+EKF correction step. 
+ 
+Figure 3 – Integrated filter structure 
+For the comparison of the navigation performance, 
+IMU/DualVision system is additionally used. This system 
+uses three dimensional optical flow vectors from the 
+forward and downward vision sensors. Observation model 
+of this system consists of three error models of the optical 
+flow measurement as shown in equation (9) Optical flow 
+vector in forward image is a function of vertical velocity 
+and pitch angular rate as shown in equation (8). In this 
+equation, we assume that the object in the forward image is 
+far enough from vision sensor.  
+( ) ( )_y fullz z y
+ y y
+ PixFL
+ OF V t t
+ PixSize FOV
+ ?= ? ? ∆ + ? ? ? ∆       (8) 
+T
+ x
+ y
+ z
+ OF
+ OF
+ OF
+ ?
+ ?
+ ?
+ ? ?? ?
+ = ? ?? ?? ?
+ z                                    (9) 
+ 
+4. SIMULATIONS  
+The feasibility of the proposed IMU/Vision/Lidar integrated 
+navigation filter in the previous section was verified via 
+simulation by comparing navigation performance of the 
+proposed system with that of INS and that of 
+IMU/DualVision system when GPS signal outage is 
+occurred. 
+Simulation environments 
+Navigation scenario is that vehicle makes a level flight with 
+GPS/INS navigation system at first, and then navigation 
+mode is changed to GPS-free navigation systems as soon as 
+GPS outage input is applied at 15 seconds and vehicle 
+navigates with integrated mode to the end. Flight trajectory 
+contains three flight modes such as level, ascending, turning 
+mode. Figure 4 shows reference trajectory of the vehicle. 
+ 
+Figure 4 – Reference flight trajectory 
+Simulation results 
+After GPS outage has occurred, navigation performance of 
+the three GPS-free system was compared. Figure 5 shows 
+horizontal position estimate results. Estimate error of the 
+INS system diverges as time goes on in this graph. However, 
+other two navigation systems suppress error divergence. 
+And, IMU/Vison/Lidar system well tracks the reference 
+trajectory than IMU/DualVision system.   
+0
+ 20
+ 40
+ 60
+ 80
+ 100
+ 120
+ -40
+ -20
+ 0
+ 40
+ 50
+ 60
+ 70
+ East (m)
+ North (m)
+ Up
+  
+(m
+ )
+ start 
+end 
+ 
+ 5
+  
+Figure 5 – Horizontal position estimate results 
+Figure 6 shows altitude estimate results. In this graph, INS 
+only system diverges as time goes on. On the other hand, 
+other two integrated systems well track the reference 
+altitude. But, the IMU/DualVision system has significant 
+error bound of meter level. It originates from the assumption 
+that distance between vision sensor and forward object in 
+image is infinite. Thus, estimate accuracy is degraded 
+because noise of the forward optical flow measurement is 
+amplified. 
+ 
+Figure 6 – Vertical position estimate results 
+Figure 7 shows velocity estimate results. Performance of the 
+IMU/Vision/Lidar integrated system is the most accurate in 
+the three navigation methods like the previous position 
+estimate results.  
+ 
+ 
+Figure 7 – Velocity estimate results 
+ 
+5. EXPERIMENTS 
+On the basis of the simulation results presented in the 
+previous section, with a real sensor system the performance 
+of the proposed integrated navigation system was verified 
+via outdoor test by comparing navigation performance of 
+the proposed system with that of INS. In this test, 
+IMU/DualVision system does not considered due to 
+experimental complexity.   
+Experimental environments 
+For this test we constructed a multi sensor data acquisition 
+system and performance analysis of our system was fulfilled 
+with the hardware system installed on a moving cart as 
+shown in figure 8. 
+ 
+ 
+Figure 8 – Sensor system and installation 
+-20 0 20 40 60 80 100 120
+ -60
+ -40
+ -20
+ 0
+ 20
+ 40
+ East (m)
+ No
+ rth
+  (m
+ )
+  
+Ref.
+ INS
+ IMU/DualVision
+ IMU/Vision/Lidar
+ 0 5 10 15 20 25 30 35 40
+ 25
+ 30
+ 35
+ 40
+ 45
+ 50
+ 55
+ 60
+ 65
+ 70
+ Time (s)
+ Up
+  
+(m
+ )
+  
+ 
+Ref.
+ INS
+ IMU/DualVision
+ IMU/Vision/Lidar
+ 0 5 10 15 20 25 30 35 40
+ -15
+ -10
+ -5
+ 0
+ 5
+ V N
+  
+(m
+ )
+ Time (s)
+ Ref.
+ INS
+ IMU/DualVision
+ IMU/Vision/Lidar
+ 0 5 10 15 20 25 30 35 40
+ -20
+ -10
+ 0
+ 10
+ 20
+ V E
+  
+(m
+ )
+ Time (s)
+ 0 5 10 15 20 25 30 35 40
+ -5
+ 0
+ 5
+ Time (s)
+ V D
+  
+(m
+ )
+  
+ 
+ 
+ 6
+ Sensor system consists of an IMU, a vision sensor, a Lidar 
+sensor. Specifications of these sensors are shown in table 1. 
+ 
+Table 1. Sensor specifications 
+Sensor Model (Manufacturer) Main feature 
+IMU ADIS16385 (Analog Devices) 
+Gyro. bias 
+stability 
+z-axis: 6 °/h[1?] 
+x, y-axis: 21 °/h[1?]
+ Acc. bias 
+stability 50 ?g [1?] 
+Vision 
+sensor 
+LifeCam Studio 
+(Microsoft) 
+Resolution 640 x 480 
+Type Color 
+Lidar UTM-30LX 
+(Hokuyo) 
+Scan Angle 270 ° 
+Detection 
+range 0.1~30 m 
+A wall is set up on a flat ground using office partitions. And 
+the cart moves along a certain two dimensional trajectory in 
+front of the wall surface over making vision sensor and 
+Lidar sensor look at the wall surface. If it is assumed that 
+the wall surface is the ground surface, the motion is in effect 
+equivalent to flight trajectory of an aerial vehicle, which 
+includes level, ascending and descending flight mode 
+without lateral motion. Reference trajectory of the moving 
+cart is depicted in Figure 9.  
+ 
+Figure 9 – Reference moving trajectory 
+Figure 10 shows experimental environments. Due to the 
+assumption that the wall surface is a ground surface, the 
+moving trajectory can be regarded as the vehicle initially 
+levels off at 3 meters and then is ascending to 6 meters and 
+descending to 3 meters, lastly levels off at 3 meters.  
+In this test, combined local-global (CLG) method is used to 
+calculate the optical flow vector, which is robust under 
+gaussian noise while giving dense flow fields [27]. 
+ 
+ 
+Figure 10– Experimental environments 
+Experimental results 
+With the acquired raw sensor data, navigation performance 
+analysis of the proposed system was conducted. 
+Figure 11 shows horizontal position estimate results. In the 
+case of the horizontal position, estimate error of the INS 
+gets lager after passing by a first curve point and finally 
+diverges as time goes on, whereas position of the 
+IMU/Vision/Lidar integrated system well tracks reference 
+trajectory as compared with INS only system.  
+ 
+Figure 11 – Horizontal position estimate results 
+Figure 12 shows velocity estimate results. In the case of the 
+INS, errors gradually get lager in view of the fact that the 
+moving cart stops at the end. 
+0 2 4 6 8 10 12
+ -9
+ -8
+ -7
+ -6
+ -5
+ -4
+ -3
+ -2
+ -1
+ 0
+ 1
+ East (m)
+ No
+ rth
+  
+(m
+ )
+  
+ 
+Reference
+ INS
+ IMU/Vision/Lidar
+ 
+ 7
+  
+Figure 12 – Velocity estimate results 
+ 
+6. CONCLUSIONS 
+In this paper, we developed IMU/Vision/Lidar navigation 
+system which can operate in GNSS denied environments. 
+This system consists of an IMU, a vision sensor and a Lidar 
+sensor. In order to cope with the problem of the divergence 
+characteristics in estimating velocity and position using INS 
+system, downward optical flow and range information are 
+complementarily employed in the integrated navigation.  
+Basically, by using the optical flow vector and ground 
+height, accuracy of the horizontal velocity estimates is 
+improved. At the same time, by using compensated Lidar 
+measurement, accurate vertical position can be estimated. 
+The overall integrated navigation filter is constructed based 
+on EKF approach.  
+Feasibility of the navigation filter is proven via simulation 
+results. When GPS outage occurs, proposed navigation 
+system provides more accurate navigation solution than INS 
+and INS/DualVision system. On the basis of the simulation 
+results, we constructed real hardware system that consists of 
+practical sensors. With this system, an outdoor test is carried 
+out for analyzing performance of the proposed integrated 
+navigation system. As a result, IMU/Lidar integrated system 
+provides more reliable and robust navigation solution than 
+INS in real world outdoor environments. We are now 
+analyzing quantitatively the performance of the 
+IMU/Vision/Lidar integrated navigation system. And also, 
+based on this research, development of advanced navigation 
+system that can estimate height variation of ground surface 
+is now under way.  
+ 
+ACKNOWLEDGEMENT 
+This research was supported by Basic Science Research 
+Program through the National Research Foundation of 
+Korea (NRF) funded by the MEST (20120003952) 
+REFERENCES  
+[1] G. Craig Becker, "Reliable Navigation Using Landmarks," 
+Proceedings of IEEE International Conference on Robotics 
+and Automation, pp. 401-406, 1995.  
+[2] Courtney S. Sharp, "A Vision System for Landing an 
+Unmanned Aerial Vehicle," Proceedings of the IEEE 
+International Conference on Robotics and Automation, 
+pp. 1720-1727, Vol. 2, 2001.  
+[3] L. S. Coelho, "Pose Estimation of Autonomous Dirigibles 
+Using Artificial Landmarks," Proceedings of IEEE 
+International Conference on Robotics and Automation, 
+pp.  2584-2589, Vol. 4, May 1999.  
+[4] H. Durrant-Whyte and T. Bailey, "Simultaneous 
+Localization and Mapping: Part- I, II," IEEE Robotics & 
+Automation Magazine, pp. 99-108, Vol.13, Issue2, June 
+2006. 
+[5] Kim J. and Sukkarieh S, "Real-time Implementation of 
+Airborne Inertial-SLAM," Robotics and Autonomous 
+Systems, pp. 62–71, Volume 55, Issues 1, Jan 2007. 
+[6] Ahrens S, Levine D, Andrews G, How J Vision-based 
+guidance and control of a hovering vehicle in unknown, 
+GPS-denied environments. IEEE international conference 
+on robotics and automation, pp. 2643-2648, 2009. 
+ [7] M. K. Kaiser, N. R. Gans, W. E. Dixon, "Vision-Based 
+Estimation for Guidance, Navigation, and Control of an 
+Aerial Vehicle," IEEE TRANSACTIONS ON 
+AEROSPACE AND ELECTRONIC SYSTEMS, pp. 1064-
+ 1077, VOL. 46, NO. 3, July 2010. 
+[8] S. Yun, B. Lee, Y. J. Lee and S. Sung "Real-Time 
+Performance Test of an Vision-based Inertial SLAM," 
+The International Conference on Control, Automation 
+and Systems 2010, Gyeonggi-do, Korea, 2010. 
+[9] Barron, J. L., and Thacker, N. A., Tutorial: Computing 2D 
+and 3D Optical Flow. Tech. Rep. 012, Tina Memo, 2004. 
+[10] Cornall, T., Egan, G., Optic flow methods applied to 
+unmanned air vehicles, Academic Research Forum, Dept. 
+Elect. And Computer Systems Engineering, Monash 
+University, Feb, 2003. 
+0 5 10 15 20 25
+ -2
+ -1
+ 0
+ 1
+ 2
+ V N
+  
+(m
+ )
+ Time (s)
+ 0 5 10 15 20 25
+ -2
+ -1
+ 0
+ 1
+ 2
+ V E
+  
+(m
+ )
+ Time (s)
+ 0 5 10 15 20 25
+ -2
+ -1
+ 0
+ 1
+ 2
+ Time (s)
+ V D
+  
+(m
+ )
+  
+ 
+INS
+ IMU/Vision/Lidar
+ 
+ 8
+ [11] A. Giachetti, M. Campani and V. Torre, "The Use of 
+Optical Flow for Road Navigation," IEEE Trans. Robotics 
+and Automation, vol. 14, no. 1, pp. 34-48, 1998. 
+[12] Roderick, A., Kehoe, J., and Lind, R., "Vision-Based 
+Navigation using Multi-Rate Feedback from Optic Flow 
+and Scene Reconstruction," Proceedings of the 2005 
+AIAA Guidance, Navigation, and Control Conference, 
+San Francisco, CA, August 2005. 
+[13] Kehoe, J., Watkins, A., Causey, R., and Lind, R., "State 
+Estimation using Optical Flow from Parallax-Weighted 
+Feature Tracking," Proceedings of the 2006 AIAA 
+Guidance, Navigation, and Control Conference, 
+Keystone, CO, August 2006. 
+[14] S. Zingg, D. Scaramuzza, S. Weiss, and R. Siegwart, 
+"MAV Navigation through Indoor Corridors Using 
+Optical Flow," in ICRA, 2010. 
+[15] Kendoul, F., Fantoni, I., & Nonami, K., "Optic Flow-
+ Based Vision System for Autonomous 3D Localization 
+and Control of Small Aerial Vehicles," Robotics and 
+Autonomous Systems, 57, pp. 591-602., 2009. 
+[16] W. Ding, J. Wang, S. Han, A. Almagbile, M. A. Garratt, 
+A. Lambert, and J. J. Wang, "Adding Optical Flow into 
+the GPS/INS Integration for UAV navigation," in IGNSS 
+Symposium 2009, Surfers Paradise, Qld, Australia, 2009. 
+[17] J. Kim and G. Brambley, "Dual Optic-flow Integrated 
+Navigation for Small-scale Flying Robots," in Proc. of 
+Australasian Conference on Robotics and Automation, 
+Brisbane, Australia, Dec 2007. 
+[18] S. Kohlbrecher, J. Meyer, O. von Stryk, and U. Klingauf, 
+"A Flexible and Scalable SLAM System with Full 3D 
+Motion Estimation," in International Symposium on 
+Safety, Security, and Rescue Robotics. IEEE, Nov 2011. 
+[19] S. Grzonka, G. Grisetti, and W. Burgard, "A Fully 
+Autonomous Indoor Quadrotor," IEEE Transactions on 
+Robotics, vol. 28, no. 1, pp. 90-100, Feb 2012. 
+[20] Slawomir, G., G. Giorgio and B. Wolfram, 
+"Autonomous Indoors Navigation using a Small-Size 
+Quadrotor," International Conference on Simulation, 
+Modeling and Programming for Autonomous Robots, pp. 
+455-463, 2008. 
+[21] D Ellis, T Brady, I Olson, Y Li, "Autonomous Quadrotor 
+for the 2012 International Aerial Robotics Competition," 
+2012 Third Symposium on Indoor Flight Issues, 
+International Aerial Robotics Competition, 2012. 
+[22] Y.-J. Lee, B.-D. Yim, and J.-B. Song, "Mobile Robot 
+Localization based on Effective Combination of Vision 
+and Range Sensors," Int’l J. of Control, Automation, and 
+Systems, vol. 7, no. 1, pp. 97-104, 2009. 
+[23] Premebida, C., Ludwig, O. and Nunes, U, "LIDAR and 
+Vision-Based Pedestrian Detection System," Journal of 
+Field Robotics, vol. 26, no. 9, pp. 696-711, 2009. 
+[24] L. Huang and M. Barth, "Tightly-Coupled LIDAR and 
+Computer Vision Integration for Vehicle Detection," in 
+Proc. IEEE Intelligent Vehicles Symposium, pp. 604-609, 
+Jun 2009. 
+[25] P. Moghadam, W. S. Wijesoma, and J. F. Dong, 
+"Improving Path Planning and Mapping Based on Stereo 
+Vision and Lidar," In Proceedings of the International 
+Conference on Control, Automation, Robotics and Vision, 
+2008. 
+[26] Ding, W., "Optimal Integration of GPS with Inertial 
+Sensors: Modelling and Implementation," Ph.D. thesis, 
+University of New South Wales, Sydney, 2008. 
+[27] Bruhn, A., Weickert, J., & Schnörr, C, "Lucas/Kanade 
+meets Horn/Schunck: combining local and global optic 
+flow methods," International Journal of Computer Vision, 
+vol. 61, no. 3, pp. 211-231, 2005. 
+ 
+ 9
+ Biographies 
+Sukchang Yun received the M.S. 
+degree in aerospace engineering 
+from Konkuk University, Seoul, 
+Korea, in 2009, where currently he 
+is working toward the Ph.D. degree 
+in the Department of Aerospace 
+Information Engineering. His 
+recent research interests include 
+INS/GPS integration, Simultaneous 
+Localization and Mapping, heterogeneous sensor fusion, 
+and avionics hardware instrumentation. 
+ Young Jae Lee received his Ph.D. 
+degree in Aerospace Engineering 
+from the University of Texas at 
+Austin in 1990. He is a Professor in 
+the Department of Aerospace 
+Information Engineering at Konkuk 
+University, Korea. His research 
+interests include integrity 
+monitoring of GNSS signal, GBAS, 
+RTK, attitude determination, orbit determination, and 
+GNSS-related engineering problems. 
+ Sankyung Sung received his B.S. 
+and Ph.D. degrees in Electrical 
+Engineering from Seoul National 
+University, Seoul, Korea, in 1996 
+and 2003, respectively. From 
+March 1996 to February 2003, he 
+worked for the Automatic Control 
+Research Center in Seoul National 
+University. Currently, he is an 
+Associate Professor of the Department of Aerospace 
+Information Engineering, Konkuk University. His 
+research interests include avionic system hardware and 
+IT fusion technology, inertial sensors, integrated 
+navigation, and application to unmanned systems. 
+ 
+ 10
+  APPENDIX A 
+ 
+Detailed expression for 11F  of the system matrix from equation (5): 
+( )
+ ( ) ( )
+ ( )
+ ( )
+ ( ) ( )
+ ( )
+ 11
+ 0 1 0 0 0 0 0
+ 0 0 1 0 0 0 0
+ 0 0 0 1 0 0 0
+ 0 0 0 2 0
+ 0 0 2 0 2 0
+ 0 0 2 2 0 0
+ 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0
+ e ie D E
+ e ie ie D N
+ e ie E N
+ ie
+ ie ie
+ ie
+ sL L
+ sL cL
+ L cL
+ g R sL L f f
+ g R sL cL f f
+ F
+ g R L cL f f
+ sL L
+ sL cL
+ L cL
+ ?
+ ? ?
+ ?
+ ? ?
+ ? ? ? ?
+ ? ?
+ ? ?
+ ? ? ? ?
+ ? ?
+ ?
+ ????
+ ? ???? ? + ???
+ ? + + ?
+ = ?
+ ? ? + ?
+ ? +
+ + ? +
+ ? +?
+ $ $
+ $ $
+ $$
+ $ $
+ $ $
+ $$
+ $ $
+ $ $
+ $$
+ [ ]12 12 22 33
+ 0(3 3) 0(3 3)
+ , 0(3 3) , 0 0 0
+ 0(3 3)
+ n
+ b
+ n
+ b
+ F C F F F diag
+ C
+ ?????????? ?? ?? ?? ?? ?? ?? ??
+ ? ?? ? ? ?? ? ? ?
+ = = ? = =? ? ? ?? ? ? ?? ?? ? ? ?
+  
+where, , L? :  the longitude and latitude. 
+             g: gravity 
+            eR : Earth radius 
+            ie? : Earth rate vector 
+           Nf , Ef , Df : specific force w.r.t. navigation frame 
+            (sL = sin(L), cL = cos(L)) 
+ 

@@ -1,0 +1,992 @@
+Real- time Discrimination of Battlefield Ordnance Using 
+Remote Sensing Data' 
+Susan P. Hagerty, Courtney Hilliard, Andres E. Haralson 
+(303) 939-4000, shanert v @ ballmtn 
+Ball Aerospace & Technologies Corp. 
+1600 Commerce Street 
+Boulder, CO 80301 
+Captain Brian Hibbeln 
+tesla@> nol.com 
+Wright Patterson Air Force Base 
+4 1 15 Pebble Creek Drive 
+Wright Patterson Air Force Base, OH 45433 
+Abstract-One of the goals of the government-sponsored 
+R&D program is to develop next generation algorithms to 
+discriminate various types of battlefield ordnance in near 
+real-time. Applications that could utilize this capability 
+include early indication and warning of threats, support of 
+battle damage assessment (BDA), level of conflict (LOC) 
+assessment, and intelligence preparation of the battlefield 
+( I w .  
+As part of this effort, we have previously investigated and 
+reported on the performance of several classification 
+algorithms applied to electro-optical data collected by a 
+ground-based sensor[ 131. That study included evaluation of 
+our baseline algorithm OSCAR: Ordnance Statistical 
+Classijication And Recognition. This paper discusses 
+enhancements made to the algorithm over the last year and 
+evaluates algorithm performance as applied to data obtained 
+from remote assets where remote assets may be ground-, air- 
+, or space-based. This remotely collected data has a larger 
+noise component and higher intra-class variances than the 
+ground-collected data, adding new challenges to the 
+discrimination problem. 
+Enhancements that we have made to the algorithm this year 
+include 1) feature-based processing, 2) rejection of feature 
+vectors from unknown classes, 3) addition of a confidence 
+level in each classification result, 4) handling of multi- 
+spectral data, and 5) handling of multiple input file formats. 
+Enhancements we have made to the algorithm development 
+workbench include analysis tools for displaying the feature 
+space, the rotated feature space (via Principal Components 
+Analysis (PCA)), and class boundaries/probability contours. 
+These tools help the developer to understand the algorithm 
+performance in insightful ways and help analyze class 
+separability for various features, reveal why specific sample 
+vectors get misclassified, highlight the normality of the data, 
+identify data outliers, etc. 
+Algorithm performance is evaluated for both broad and fine 
+classes. A broad class is defined as a major weapon 
+category such as tank muzzle flash, artillery muzzle flash, or 
+explosion. Fine classes are defined as sub-classes of a broad 
+weapon type, e.g., 105-mm, 155-mm, and 203-mm artillery 
+muzzle flashes. Results are shown and compared for both 
+profile-based and feature-based approaches. These results 
+show that very good performance is obtained with both 
+profile-based and feature-based discrimination versions of 
+OSCAR for the broad classes and promising initial results 
+are obtained for the fine classes. 
+TABLE OF CONTENTS 
+1. INTRODUCTION 
+3. .&GORlTHM ENHANCEMENTS 
+2. BACKGROUND 
+4. PC SELECTION 
+6. CONCLUSIONS 
+5. RESULTS 
+1. INTRODUCTION 
+Discrimination of battlefield ordnance is an important part 
+of Battle-Space Characterization (BSC). Accurate and 
+timely classification reports, with geolocation information 
+and confidence factor, provides the Warfighter with the 
+situational awareness to perform counterfire missions, 
+provide early indication and warning of threats, assist in 
+BDA, help perform IPB, and provide overall Technical 
+Intelligence. 
+The challenges associated with performing accurate 
+ordnance classification can be grouped into three categories: 
+sensor-related, target-related, and algorithm-related. The 
+issues associated with a remote sensor include long 
+' 0-7803-5846-5/00/$10.00 2000 IEEE 
+329 
+atmospherically attenuated slant ranges, Line-of-Sight 
+elevation angles, relatively coarse spatial resolution, and 
+limited (or non-optimized) temporal sampling. The target- 
+related challenges include poor separation among fine 
+classes, high intra-class variance (due to inherent weapon 
+variability, aspect angle, typelamount of charge, location of 
+impact (above ground, at surface, below ground), smoke 
+obscuration, atmospheric conditions (wind, clouds, solar 
+angles, etc.) While the algorithm is challenged by the 
+limited ordnance data available, we found that using a 
+theoretically based approach (based on Pattern Recognition 
+theory) and exploiting the power of statistical techniques, we 
+are able to overcome many of these challenges. 
+When developing algorithms for ordnance discrimination, 
+several things need to be considered. The algorithm is to be 
+designed for helping the Warfighter understand and 
+characterize the battle space (BSC). It must be able to 
+process all ordnance events during a conflict and issue a 
+timely report. This requires the algorithm to keep up with 
+all events on the focal plane (during the active operation). 
+The focal plane used for this BSC system is a high frame 
+rate staring array. Therefore, the discrimination algorithm 
+must operate in real-time to keep up with potential flood of 
+events during a high intensity conflict. For some of the 
+missions, such as the counterfire mission, the discrimination 
+reports will have to be provided to the Warfighter in a 
+timely manner (- a few seconds). Therefore, the 
+dissemination of the reports, although not real-time, has to 
+be near real-time. Secondly, the algorithm should be robust 
+against noise, changes in atmospheric characteristics, and 
+inherent weapon variability. The algorithm should also 
+make use of the vast wealth of information available in the 
+well-known area of Pattern Recognition. Finally, it should 
+be remembered that the algorithm is “not used in a vacuum”. 
+In other words, these reports may be either correlated with 
+other sensor reports, or used as a sole report in which key 
+military decisions are made based on the report, i.e., 
+counterfire. With this in mind, it is important to include a 
+confidence value with each report that provides an estimate 
+of how sure we are of the correctness of the classification. 
+Our algorithm, OSCAR, addresses each of these issues: it is 
+a real-time algorithm, the algorithm is robust against noise, 
+atmospherics, and weapon system variability, it exploits 
+existing pattern recognition theory, and it provides a 
+confdence value with each event classification. 
+This algorithm classifies ordnance muzzle flashes, 
+explosions, and rocket/missile plumes. The physics of gun 
+muzzle flashes is explained in [ 11. With our remote sensor, 
+the R&D team has collected and analyzed missile 
+detonations and bomb explosions [2]. Fellow contractor 
+Stan Rudman has done much work in analysis of 
+rocketlmissile plumes [3]. As mentioned above, the sensor 
+is a fast-framing, staring array and also has see-to-the- 
+ground bands. This type of sensor was developed in the 
+early 1980’s for the purposes of detecting transient ordnance 
+events [4]. As well as controlled tests as in [2], many 
+ordnance signatures have been collected from several 
+conflicts where they show the repeatability of ordnance 
+signatures [5,6,7, and 81. 
+In addition to the remote sensor data at our disposal, 
+ground-based signatures have also been collected. These 
+include signatures of bomb explosions, warhead explosions, 
+missile plumes, secondary damage, and gun muzzle flashes, 
+the latter ranging from tanks up to large artillery. These pre- 
+planned ordnance collects have been conducted in order to 
+provide a preliminary assessment of the potential of signal 
+processors to transform sensor outputs into ordnance 
+detection, class and type [9, 10, 111. These collects were 
+sponsored by the Battlefield Ordnance Awareness (BOA) 
+program. This program is headed by Ms. Kaye Blankenship 
+of the U.S. Army Space and Missile Defense Command. 
+The purpose of this paper is to investigate the perforniance 
+of statistical classification algorithms applied to the problem 
+of ordnance classification, keeping in mind that the feature 
+extraction and classification algorithms must be 
+implemented in real time. To discriminate amongst the 
+various ordnance types of interest, we exploit the temporal 
+signature of the events. The classifiers are applied to 
+features extracted from these signatures. For the purposes of 
+this study, the final feature vectors are comprised of the 
+principal components (PCs) of key features extracted from 
+the signatures of interest. This effort is complementary to 
+other efforts going on in the community[l2] that are 
+concentrating on bomb discrimination and secondary 
+damage, and is also a continuation of previous studies we 
+have conducted. In a previous paper[l3], we showed that 
+we could achieve excellent classification results with 
+OSCAR applied to the PCs of the ordnance profiles (without 
+extracting features first). That study was done on ground- 
+based data. The present study uses remotely sensed data 
+applied to the PCs of features extracted from the ordnance 
+profiles. The initial results from this. study are very 
+promising and illustrate the potential of achieving good 
+classification performance using real-time ordnance 
+discrimination algorithms. 
+The paper is laid out as follows. Section 2 provides 
+background material including discussion of features of 
+interest, classification decision rules, testing strategies, and a 
+description of the ordnance profile data set. Section 3 
+discusses enhancements that have been made to OSCAR 
+over the past year. The selection of PCs is discussed in 
+section 4. Section 5 shows results of the study and section 6 
+offers some conclusions. 
+2. BACKGROUND 
+The pattern recognition problem is comprised of three 
+parts-feature extraction, dimensionality reduction, and 
+classification. Feature extraction exploits key characteristics 
+330 
+of the data in order to provide good class separation and 
+some dimensionality reduction. Further dimensionality 
+reduction is accomplished in the second stage by computing 
+the principal components of the profiles and retaining only 
+those components that contain the most inter-class 
+separation. The feature vector that is input to the 
+classification stage of the processing consists of these "high 
+entropy" principal components. The decision rule is 
+generated using the Bayes classifier for minimum error, 
+which is an optimal classifier assuming equal risk. These 
+three steps are addressed in more detail below. 
+Feature extraction /Dimensionality Reduction 
+An important step in the pattern recognition process is to 
+analyze the data set of interest and find key exploitable 
+characteristics in the data. These key features can increase 
+class separation and reduce dimensionality. In this study, 
+we investigated 20 features. They included features based 
+around statistical moments, first difference measurements, 
+and profile shape and temporal characteristics. These 
+features are discussed more in section 3. 
+Further dimensionality reduction is obtained by applying 
+PCA. The principal components are obtained via a rotation 
+of the feature vectors about the axes of maximum variance, 
+which typically provides (but does not guarantee) increased 
+separation among the classes. Generally, we use a reduced 
+rank rotation of the feature vectors using only M principal 
+components (PCs) where typically M << N and N is the 
+length of the initial feature vectors. Thus, using PCA to 
+generate the final set of feature vectors typically provides 
+both increased separation and reduced dimensionality. 
+Generation of the principal components is discussed in our 
+previous study [ 131. 
+Classijkation 
+The classifier investigated in this paper is the Bayes 
+classifier for minimum error. This classifier chooses the 
+class with the maximum a posteriori probability. For two 
+classes this can be written as: 
+For this case, x is the feature vector of the current event and 
+mi is the mean feature vector for class q. If one assumes 
+that the data is normally distributed, then the decision rule 
+can be written as[ 141: 
+Note that this decision rule allows unique covariance 
+matrices for each class and hence is quadratic in x. If the 
+data is normal and an infinite number of observations is 
+available, then this classifier is optimal in the sense of 
+providing minimum error with equal risk. The performance 
+degrades when only a limited number of observations is 
+available, and degrades further when each class does not 
+have an equal number of observations[l5]. If the risk of 
+misclassification is not equal for all classes, then one might 
+wish to consider use of the Bayes classifier for minimum 
+risk or a minimax classifier[ 161. 
+(3) 
+Testing Strategies 
+There are two common methods for testing the performance 
+of classification algorithms. One is the sample-partitioning 
+method and one is the leaving-one-out method[l4,16]. The 
+sample partitioning method simply splits the data set into 
+two separate partitions-a training set and a test set. In this 
+way, the training set is not contaminated with profiles under 
+test resulting in a fair evaluation of the classifier 
+performance. This is a good method if a large amount of 
+data is available. If data is limited, the leaving-one-out 
+method is preferable. This method selects a profile (leaves 
+this one out), uses the remaining profiles as the training set, 
+classifies that profile, selects a second profile, uses the 
+remaining profiles as the training set, classifies this second 
+profile, etc. In this manner, the training set and test set are 
+still kept separate for classification of each profile as with 
+the sample-partitioning method, but maximum use is made 
+of the available data. Given the limited amount of data 
+available for evaluation in this study, the leaving-one-out 
+method of testing is employed. 
+Ordnance Profiles 
+A remote sensor employing an electro-optical focal plane 
+collected the ordnance signatures used in this study. As part 
+of this contract, a specific data set was provided as the test 
+data set. This test set was supplemented (for training) with 
+additional ordnance profiles. Due to the sensitivity of the 
+data, generic names are given to the ordnance types of 
+interest: Bl ,  B2, B3, B4, and B5; and F1, F2, and F3 where 
+the B classes represent broad types and the F classes 
+represent sub-types (fine classes) within a broad type. The 
+ordnance information of interest consists of features 
+extracted from the temporal profile of each event. Table 2.1 
+shows the number of profiles per class for the test set and 
+total set (including supplemental data). 
+33 1 
+Table 2.1 Number of Ordnance Profiles 
+Ordnance Type 
+B1 
+B2 
+Test Data All Data 
+17 41 
+6 19 
+B3 
+B4 
+B5 
+F1 
+F2 
+F3 
+Classification can be applied to broad classes (Bl vs. B2 vs. 
+B3 vs. B4 vs. B5) or fine classes (F1 vs. F2 vs. F3). In this 
+study, we are interested in both broad and fine classification 
+performance. In the previous study[ 131, we evaluated 
+algorithm performance for the PCA applied directly to the 
+ordnance profiles (profile-based approach). In the current 
+study, we also use a feature-based approach where features 
+are extracted from the profile and PCA is applied to these 
+features. The next section discusses this feature-based 
+approach as well as other algorithm enhancements 
+developed during the past year. 
+5 14 
+45 45 
+8 20 
+7 26 
+3 8 
+5 5 
+3. ALGORlTHM ENHANCEMENTS 
+Feature-based Approach 
+Finding and utilizing “high entropy” features in the data is 
+critical to the performance of the overall classifier. Good 
+features provide increased class separation and reduced 
+dimensionality. A feature-based approach can also provide 
+robustness against noisy data, truncation of the profiles, etc. 
+Input to the classifier must be of fixed dimensionality. 
+Therefore, if a profile-based approach is used and if long 
+duration events such as aircraft are observed, the signature 
+will be truncated for input to the classifier. This truncation 
+can cause loss of key duration information which can 
+degrade classifier performance and the ability to reject 
+unwanted events (such as aircraft). 
+For the purposes of this study, we investigated 20 unique 
+features extracted from the ordnance profiles. These 
+features included 4 temporal characteristics of the profiles 
+(such as rise time, fall time, etc.), 2 shape-based features, 5 
+statistical moments, 8 features related to the first difference 
+profile, and 1 “point value” feature. Determining a good set 
+of features requires the following steps: 1) analytically 
+and/or empirically determine a set of possible features for 
+exploitation, and 2) determine which subset of features of 
+the possible full set yield the best performance. Step one 
+entails analyzing the ordnance profiles for key 
+characteristics of the classes. When performing step two, 
+unfortunately, features cannot be evaluated individually or 
+even in pairs. Even when individual features do not appear 
+fruitful, certain combinations of these features do perform 
+well. It is also not necessarily true that as the number of 
+features is increased, performance will improve. Therefore, 
+step two is an important yet nontrivial step in the pattern 
+recognition process. One must use analytical tools to 
+determine and compare the efficacy of the feature subsets by 
+evaluating inter-class and intra-class variances of the subsets 
+of interest. 
+Rejecting Unknown Events 
+Bayes classification always places the input event into one 
+of the pre-defined bins or classes, even if the event is not 
+“close” to any of the classes. In an operational classification 
+system, it is important to have a method of rejecting input 
+vectors that are not of interest, e.g., other ordnance types, 
+lightning, glint, etc. We have developed a method for 
+rejecting such events. First the event is initially classified 
+into one of the known classes. Then, it is checked to see if 
+the “event under test” falls outside of a specified hyper- 
+ellipsoid centered on the mean of the initially selected class. 
+This hyperellipsoid boundary is simply a threshold 
+multiplier times the square of the Mahalanobis distance[ 171. 
+If the event falls outside this boundary, it is placed into an 
+“ U u n k n ~ ~ n ”  class. 
+Confidence Value 
+In a real classification system it is important to be able to 
+provide a confidence value associated with each classified 
+event. This confidence value should provide an indication 
+of how confident we feel about the accuracy of the 
+classification. If multiple sensor reports are being correlated 
+and/or key decisions are being made based on this report, 
+then reporting of a confidence value is imperative. 
+A confidence value should be comprised of various factors 
+affecting our confidence in the class estimate. For our 
+algorithm, if we know the class means exactly, and the data 
+is normally distributed, then the a posteriori probability is an 
+excellent estimate of confidence. The a posteriori 
+probability is simply the probability that event x came from 
+class y-which is what we want in a confidence value. 
+Since the mean of each class is estimated, the confidence 
+value of each class should be degraded based on the number 
+of samples available for the estimate of the mean. We 
+assume that 50 samples will provide a good estimate of the 
+mean, so we assign this case a confidence level of 99% (with 
+its corresponding error ellipse). We fix the size of the error 
+ellipse, and as the number of samples is 
+decreased(increased), the corresponding confidence level is 
+332 
+Number of Samples 
+5 
+10 
+15 
+20 
+30 
+40 
+50 
+The overall confidence value for each class is then the a 
+posteriori probability times the confidence level associated 
+with the estimate of the mean. 
+Confidence Level 
+55.6% 
+73.9% 
+83.6% 
+89.4% 
+95.3% 
+97.9% 
+99.0% 
+Analytical Tools 
+We have developed a classification workbench that includes 
+two GUIs: one for training and testing the classification 
+algorithm and one containing tools for analyzing the results. 
+These tools include plotting of events in the final feature 
+space with i) pair-wise class boundaries, ii) probability 
+contours for each class, and/or iii) Mahalanobis distances. 
+These tools also include the capability for plotting “raw” 
+features (prior to performing the PCA rotation). Also, we 
+have developed tools for finding the “best” feature set out of 
+many possible feature combinations. Some examples 
+illustrating the value of these tools are shown in Section 5. 
+4. PRINCIPAL COMPONENT SELECTION 
+As mentioned above, PCA performs a rotation of the 
+original feature space resulting in a new feature space that 
+typically results in increased separation between classes. 
+This transformation rotates the data around axes of 
+maximum variance. These axes lie along the eigenvectors of 
+the covariance matrix of the data set. An example in two- 
+dimensional space illustrating the benefits of using PCA, 
+i.e., providing class separation is shown in [13]. 
+The eigenvalues of the covariance matrix and the mean PCs 
+for each class can provide valuable information to help 
+select how many PCs to use as input to the classifier. The 
+eigenvalues are typically ordered by decreasing variance 
+thus using only the first M components of the new (rotated) 
+feature vector results in using the M PCs corresponding to 
+the eigenvalues with the most variance. We have four cases 
+in which to select the number of PCs: i) profile-based with 
+broad classes, ii) feature-based with broad classes, iii) 
+profile-based with fine classes, and iv) feature-based with 
+fine classes. By looking at the eigenvalues for the first case 
+(see Figure 4.3), one can see that there is a “knee of the 
+curve” at about 5-6 eigenvalues. Most of the relevant 
+feature information is contained in these “high variance” 
+eigenvalues, and therefore using more than the f is t  5-6 
+eigenvalues is not likely to increase classifier performance. 
+This information can also be determined by looking at the 
+mean PC plots (see Figure 4.4). These plots show that most 
+of the inter-class separation occurs in the first 5-6 PCs. We 
+found that, for this case, the best performance was indeed 
+obtained with 5 PCs. Similarly, for case ii), the knee of the 
+curve appears at about 3 PCs (see Figure 4.5). So, it is 
+tempting to use 3 PCs. However, by looking at the mean PC 
+plot shown in Figure 4.6, it is seen that the third PC does 
+not provide good separation for four of the five classes. 
+Therefore, only the first two PCs are used. More PCs were 
+tried for comparison purposes, but two PCs provided the 
+best performance, as expected. Figures 4.7 and 4.8 show 
+the eigenvalues and mean PC plots for case iii). The knee of 
+the curve appears at about 4-5 PCs. This agrees with the 
+mean PC plot, where reasonable class separation is observed 
+for the first 4-5 PCs. Five PCs were used for this case. 
+Finally, for case iv), the knee of the curve occurs at 2 or 3 
+PCs. Looking at the mean PC plot, we see that the first two 
+PCs provide the most separation, whereas the third and 
+fourth PCs provide poor separation for classes F1 and F2 
+(see Figures 4.9 and 4.10). Therefore, two PCs were also 
+used in this case. 
+333 
+0.6 
+0.5 
+0.4 
+0.3 
+0.2 
+0.1 
+0 
+- 
+- 
+- 
+- 
+- 
++ 
+- 
+Figure 4.4 Mean PCs of Profiles (Broad) 
+14Ooo- 
+12000 
+10000 
+8000 
+6000 
+4000 
+2000- 
+, 
+~ 
+- 
+- 
+- 
+- 
++ 
++ 
+-8- 61 
+- 82 
+** 65 
+-d- 83 
+84 
++ 
+A A * * r l r r l L b * * *  
+Figure 4.7 Eigenvalues of Profiles (Fine) 
+D 
+1 
+0.8 
+0.6 
+0.4 
+0.2 
+C 
+-0.2 
+1 2 3 4 5 6 7 8  
+Figure 4.8 Mean PCs of Profiles (Fine) 
+334 
+2200 
+2000 
+1800 
+1600 
+1400 
+1200 
+1000 
+:I 
+200 
+I 
+- 
+- 
+- 
+- 
+- 
+- 
+2 4 6 8 10 12 14 16 18 20 
+eigemdues 
+50 
+40 
+30- 
+Figure 4.9 Eigenvalues of Features (Fine) 
+- 
+\ 
+- 
+5 .  RESULTS 
+1 2 3 4 5 6 7 8  
+Figure 4.10 Mean PCs of Features (Fine) 
+similar except that it compares the performance for the 
+fine classes. As mentioned above, two PCs are used for 
+feature-based classification and five PCs are used for 
+profile-based classification. 
+Generating results Displaying Results 
+As mentioned previously, the leaving-one-out method of 
+testing is employed. Therefore, to generate results, the 
+following methodology is employed: 
+(1) Compute the initial feature vectors for all 
+ordnance profiles2 
+(2) leave one feature vector out 
+(3) compute the principal components of all the 
+remaining feature vectors generated as 
+outlined in [ 131 
+(4) compute the principal components of the 
+current “feature vector under test” 
+(5) evaluate the results of the decision rule 
+(6) record classification results for the current 
+feature vector 
+(7) repeat steps 2-6 until all feature vectors are 
+tested 
+(8) generate contingency tables[ 181 and perform 
+error counting[ 1.51 to display results 
+Results are split up into two sections. The first section 
+compares the performance of profile-based and feature- 
+based approaches for broad classes. The second section is 
+This initial feature vector can simply be the original profile or features 
+extracted from the profile. 
+Results are displayed in the form of contingency tables 
+and summary error counting tables. The contingency 
+tables list the actual class along the first column and the 
+estimated class along the first row. Each entry in a given 
+row shows the percent of observations classified as the 
+corresponding type (column heading). The entries across 
+a given row sum to 100%. For example, for five B1 
+observations, if two were classified as B1, two as B2, and 
+one as B3, then the row entries along the ‘Bl’ row would 
+be 40% under Bl,  40% under B2, and 20% under B3. 
+The error counting tables list the total number and 
+percentage of misclassified events for each case. 
+A. Broad Classes 
+Tables 5.1 and 5.2 show the performance of profile-based 
+and feature-based OSCAR applied to broad classes via 
+contingency tables. Table 5.3 shows a summary of the 
+performance using the error counting metric. 
+Profile-based classification yielded a correct classification 
+rate of 91%. The algorithm had the most difficulty 
+separating B1 and B2 events. These two classes are of a 
+similar nature. If they are combined into one “super- 
+broad” class, a classification rate of 94% is obtained. 
+Feature-based classification resulted in a correct 
+classification rate of 93%. In this case, we have found 
+features that successfully exploit differences between 
+335 
+classes B 1 and B2 (which are very similar classes as 
+mentioned above). However, more work needs to be done 
+in finding features that separate out B3 from B 1 and B2, 
+and B5 from B 1 and B2. The performance on the broad 
+classes is quite good considering the limited data available 
+for training and the large intra-class variances we 
+observed, especially in class B5. 
+B. Fine Classes 
+Tables 5.4 and 5.5 show the performance of profile-based 
+and feature-based OSCAR applied to the fine classes via 
+contingency tables. Table 5.6 shows a summary of the 
+performance using the error counting metric. Profile- 
+based classification yielded a correct classification rate of 
+80%. The algorithm could perfectly separate out classes 
+F1 and F2 but had difficulty discriminating between F2 
+and F3 events. Feature-based classification resulted in a 
+correct classification rate of 73%. In this case, we have 
+found features that successfully exploit differences 
+between classes F2 and F3, but cannot consistently 
+discriminate between classes F1 and F2. Given the fact 
+that the profile-based approach can discriminate between 
+F1 and F2, it is likely that features can be found which 
+also can successfully perform this discrimination. The 
+f i e  class performance is evaluated with very little data 
+per class. For better and more representative results, more 
+data in these classes needs to be collected and applied to 
+this problem. 
+Some examples will now be shown illustrating the value 
+of our analytical toolbox. The examples discussed relate 
+to the feature-based fine classification performance since 
+it is easy to view the feature space when using only 2 PCs 
+and easy to understand the boundary information when 
+there are only three classes. It is of interest to take a 
+closer look and explain in more detail why we observed 
+the above classification results. Towards this end, it is 
+helpful to view the events and class boundaries in the final 
+feature space (see Figure 5.7). With three classes, there 
+are “3 choose 2” or 3 pair-wise boundaries. The Bayes 
+classifier has a quadratic decision rule and thus the 
+boundaries will be quadratic functions. In the figure, one 
+hyperbolic and two elliptical boundaries are observed. 
+Also, the class means are represented by the solid (filled 
+in) symbols. The hyperbolic boundary is the pair-wise 
+boundary between F1 and F2. One can see that all of the 
+F2 events and 4 F l  events are “inside” the hyperbolic 
+boundary, and 3 F1 events are outside the boundary. 
+Recalling the F1 performance for this case (4 out of 7 F1 
+events were mis-classified as F2 events), it is easy to see 
+why this occurred: each F1 event that is on the F2 side of 
+the boundary causes the classifier to select class F2. The 
+near-horizontal (major axis) ellipse is the boundary 
+between Fl and F3. One can see that all of the F3 events 
+lie outside this boundary, and most, but not all, of the F1 
+events lie inside the boundary. The near-vertical ellipse is 
+the boundary between classes F2 and F3. The F3 classes 
+are all outside of this boundary and the F2 classes are all 
+inside of this boundary. When classifying F2 events, all 
+of the F2 events lie on the F2 side of the boundaries, so 
+these are 100% correctly classified. When classifylng F3 
+events, all F3 events lie on the F3 side of the boundaries, 
+so these events are also 100% correctly classified. 
+It is also of interest to observe the class probability 
+contours-these are lines of constant probability. These 
+contours are shown in Figure 5.8. Several things can be 
+observed from this figure. For class F1, the first and 
+second PCs are somewhat correlated. Three outliers are 
+observed for this class, which should be removed prior to 
+training. Note that they can be removed only if they are 
+not test events. Unfortunately, in this case, the two 
+outliers below the F1 contours do correspond to test 
+events. These are the two events that lie outside the F l F 2  
+and F l F 3  boundaries. So, these two outliers account for 
+two of the mis-classified F1 events. It can also be 
+observed from this plot and the previous plot that the 
+other two F1 events that were misclassified are very close 
+to the mean of the F2 class, which is why they were mis- 
+classified. 
+The F2 contours show that PC1 and PC2 are uncorrelated 
+for this class and that PC2 has a large intra-class variance 
+and PCl has a small intra-class variance. Of course, it is 
+desirable to have uncorrelated features (PCs in this case) 
+and small intra-class variances. The overlapping contours 
+of F1 and F2 make it clear that good separation was not 
+achieved with this feature set and these two classes, which 
+in turn, implies that high accuracy classification between 
+these two classes, is, at best, extremely difficult. The best 
+way to improve this situation is to find new features and 
+new feature combinations that will provide increased 
+separation between these two classes. The contours for F3 
+show some correlation and high intra-class variances, but 
+wide separation between F3 and the other two classes is 
+also observed. Since good separation is achieved, we are 
+not concerned with the correlation and high variances. 
+Two additional characteristics that can be observed from 
+this figure are the normality of the data (qualitatively) and 
+multi-modal behavior. The data appears to be “fairly 
+normal” and not exhibit any multi-modal behavior. If 
+multi-modal behavior is observed, the analyst may 
+consider dividing the offending class into sub-classes. 
+Investigating the algorithm performance using the 
+boundary plotting and contour plotting tools has allowed 
+us to: 
+determine and reject outliers 
+observe class separation 
+observe PC correlation and intra-class variances 
+determine why specific events were mis-classified 
+observe the normality of the data 
+determine if any multi-modal behavior is present 
+help the analyst in determining what area(s) need 
+additional effort, e.g., finding features to increase 
+F1/F2 separation. 
+As shown in this example, these tools are extremely 
+valuable in helping the developers continue to improve the 
+capability of OSCAR. 
+6. CONCLUSIONS 
+This study provides new results in the area of tactical 
+ordnance discrimination using a principal components 
+feature space. To our knowledge, we are the first authors 
+to combine feature extraction, PCA, and statistical 
+classifiers for the application of ordnance classification. 
+By exploiting key features extracted from the data, class 
+separation can be greatly enhanced. The feature-based 
+method also provides more robustness against noisy 
+signatures, which are typical of signatures obtained from 
+remote sensor systems. Use of PCA provides drastic 
+reduction in the dimensionality of the feature space 
+(reducing the feature vector by roughly a factor of 10 to 
+200 for the 2 PC case) and generally provides increased 
+inter-class separation for a given dimensionality. Feature 
+dimensionality reduction is important for the real-time 
+implementation of these feature extraction / classification 
+algorithms. Improved class separability eases the 
+requirements on the classifier. The classifier employed by 
+OSCAR is the Bayes classifier for minimum error. 
+Results 
+This study compared the classification performance of 
+profile-based and feature-based versions of our baseline 
+algorithm, OSCAR on both broad (Bl, B2, B3, B4, and 
+B5) and fine (F1, F2, and F3) classes. This gives us four 
+cases: i) broadprofile-based, ii) broaufeature-based, iii) 
+fine/profile-based, and iv) fine/feature-based. For each 
+case, the eigenvalues and mean PCs are plotted. Analysis 
+of these plots allows an intelligent choice to be made in 
+the number of PCs to use as input to the classifier. Based 
+on these plots, it was decided (and verified by evaluating 
+and comparing the performance of other PC choices) to 
+use 5 PCs for the profile-based approach and 2 PCs for 
+the feature-based approach. For case i), a correct 
+classification rate of 91% is achieved. If the two similar 
+classes of B1 and B2 are combined, 94% correct 
+classification is achieved. For case ii), 93% correct 
+classification is achieved. So, it is seen that OSCAR 
+performs very well when applied to classification of broad 
+classes. For profile-based classification applied to fine 
+classes, a correct classification rate of 80% is achieved. 
+Several F3 events were erroneously classified as F2s. 
+This was because there was poor separation between the 
+F2 and F3 classes. However, OSCAR did correctly 
+classify 100% of the Fl events and 100% of the F2 
+events. For case iv), only a 73% correct classification rate 
+is achieved. Several F ls  are classified as F2s, but 100% 
+of the F2s and F3s are correctly classified. For this case, 
+our analytical toolbox was used to investigate and 
+understand why OSCAR achieved this performance. 
+Using the tools, it was seen that 
+Classes Fl and F2 exhibited poor separation in this 
+feature space 
+The 2 PC features were correlated for classes F l  and 
+F3 
+Classes F2 and F3 had high intra-class variances 
+Class F1 exhibited several outliers (some of which 
+were test events) 
+The classes seemed to exhibit normal behavior 
+No multi-modal behavior was observed 
+2 of the 4 F1 events were misclassified because they 
+were outliers 
+the other 2 Fl events were misclassified because they 
+were very close to the mean of F2 
+These observations lead to the clear conclusion that more 
+effort needs to be invested in developing a feature set that 
+provides better F1/F2 separation while maintaining the 
+good FUF3 and F2/F3 separation. 
+Based on this limited data set, it appears that if 5 PCs are 
+used for profile-based classification and 2 PCs are used 
+for feature-based classification, OSCAR offers excellent 
+performance for broad classification and reasonable 
+performance for fine classification. Given more 
+observations, the performance of the Bayes classifier is 
+likely to improve[ 151. 
+337 
+Table 5.1 Profile-based OSCAR (Broad Classes) 
+B1 B2 B3 B4 
+B l  88.24% 0 0 0 
+B2 33.33% 66.67% 0 0 
+0 B3 0 0 80 VO 
+B4 2.22% 0 0 97.78% 
+B5 0 0 12.5 % 0 
+B5 Number Correct 
+0 4 out of 6 
+4 out of 5 
+0 44 out of 45 
+7 out of 8 
+11.76% 15 out of 17 
+20 % 
+87.5 % 
+Table 5.2 Feature-based OSCAR (Broad Classes) 
+B1 B2 B3 B4 
+B1 94.12% 0 0 0 
+B2 0 100 % 0 0 
+20% 60% 0 B3 20% 
+B4 0 0 0 100 % 
+B5 25% 12.5% 0 0 
+B5 Number Correct 
+5.88% 16 out of 17 
+0 6 out of 6 
+0 3 out of 5 
+0 45 out of 45 
+5 out of 8 62.5 % 
+Profile-based 
+7 of 81 (8.6%) Classification Errors 
+Table 5.4 Profile-based OSCAR (Fine Classes) 
+Feature-based 
+6 of 81 (7.4%) 
+I ~~ 1 lf I ; 1 1 Numbercorrect I 
+7 out of 7 
+3 out of 3 
+F3 60% 40% 2 out of 5 
+100 70 
+Profile-based 
+3 of 15 (20%) Classification Errors 
+Table 5.5 Feature-based OSCAR (Fine Classes) 
+Feature-based 
+4 of 15 (26.7%) 
+I I F1 I F2 I F3 I Numbercorrect I 
+3 out of 7 F1 I 42.86% I 57.14% I 0 I 
+F2 I 0 I 100% I 0 1  3 out of 3 
+I F3 I 0 I 0 I 100% I 5 o u t o f 5  I 
+Table 5.6 Summary Error Counting Table for Fineclasses 
+338 
+1 oc 
+N 5c 
+B 
+8 
+m C  
+& 
+I c 
+c 
+E 
+- 
+Q 
+0 c
+._ 
+.- 
+-5c 
+-50 0 50 100 150 
+Principal component 1 
+Figure 5.7 Class Boundaries 
+-50 0 50 100 150 200 250 
+Principal component 1 
+Figure 5.8 Class Probability Contours 
+339 
+ACKNOWLEDGEMENT 
+Recommendations 
+OSCAR inputs either the ordnance profile or features 
+extracted from the profile, performs PCA, and applies an 
+optimal Bayes classifier. Both the profile-based and feature- 
+based versions of OSCAR perform quite well. However, with 
+the caveat that some additional feature exploitation work 
+needs to be done, we recommend going with the feature- 
+based approach. The advantages of this approach are that a) 
+it should offer superior performance (eventually) since it can 
+supply the classifier with only key relevant features and not 
+extraneous information, b) the initial feature vectors are short 
+compared to the profile length and have fixed dimensionality 
+which simplifies the algorithm, and c) it should be robust 
+against noisy data. Limitations of the feature-based approach 
+are that the right feature set must be found. This entails using 
+analytical skills to find key exploitable features in the data 
+and finding the best subset of features from the entire 
+possible feature set. To do this properly, a large number of 
+profiles per class is required (around 50-100 per class). 
+Obtaining additional observations is a high priority for the 
+classifier development team. 
+The authors wish to express their appreciation to the US 
+Government for supporting this work both directly and 
+indirectly: directly through the R&D program which funds 
+algorithm development work and indirectly through the 
+collection of ordnance data and the definition of ordnance 
+discrimination requirements. We would also like to thank 
+Kaye Blankenship of SMDC (Battlefield Ordnance 
+Awareness Program Manager), Mike Bartosewcz (BOA Ball 
+Program Manager), and Jim Kobus (R&D Ball Program 
+Manager) for their continued support of this effort. 
+REFERENCES 
+[I] G. Klingenberg, J. M. Heimerl, Gun Muzzle Blast and 
+Flash, vol. 139, Progress in Astronautics and Aeronautics, 
+1992. 
+[2] T. Hunt, S. Miller, USAF NAIC, WPAFB, July 1998, 
+classified report 
+Another consideration, besides classification performance, is [31 Personal conversation with stan Rudman 
+the computational complexity of the algorithm. It is more 
+complex than a simple distance or correlation classifier. [41 J. Draper, Ninth D m A  Strategic Space symposium, 
+However, it still can be implemented in a real-time system October 1983, classified report. 
+because much of the stressing computational effort can be 
+analysis and calculation of the class means and inverse Powers, R. Cody, usm “c, w p m ,  November 1996, 
+covariance matrices. classified report. 
+done offline most of the principal components [5] J. Hage, C. Baker, D. Sene, M. Sands, J. Draper, E. 
+Future Work 
+Areas for future study in regards to battlefield ordnance 
+discrimination include efforts in all three steps of the pattern 
+recognition problem: feature extraction, dimensionality 
+reduction, and classification. The highest priority is to 
+investigate additional exploitable features in the data and 
+develop more optimal methods for choosing the “best” 
+feature set from all possible available feature sets. Other 
+dimensionality reduction transfoninations besides PCA are 
+also of interest. Transformations that exploit both inter-class 
+variances and intra-class variances would be likely to increase 
+classification performance. (Note that PCA exploits the inter- 
+class variances only.) In terms of the classification part of the 
+effort, it is desirable to evaluate the performance of an 
+unbiased Bayes classifier. The standard implementation of a 
+Bayes classifier for minimum error leads to biased results 
+when only limited observations are available for classifier 
+design[ 151. This alternative implementation may also 
+improve classifier performance. 
+[6] D. Sene, K. Blankenship, M. Stamm, J. Draper, R. Cody, 
+D. Lopes, Combat Identification Systems Conference, April 
+1997, classified report. 
+[7] D. Fletcher, M. Nelson, R. Cody, H. Evans, USAF NAIC, 
+WPAFB, May 1997, classified report. 
+[SI I. Schiller, D. McKay, J. Draper, J. Dennis, G. Clark, K. 
+Blankenship, R. Curtis, S. Hagerty, D. Sene, “Total 
+Battlefield Awareness by Detecting, Classifying, and 
+Reporting of Ordnance Delivery and Theater Missile Events 
+(U)“, National Fire Control Symposium, July 1997, classified 
+report. 
+[9] S. Hagerty, C. Orlick, M. Diestel, J. Ray, “Eglin Collect 
+Final Report (U)”, Ball Final Report to SMDC, October 
+1998, classified report 
+[IO] G. Bickley, S. Hagerty, T. O’Connor, J. Ray, “WSMR 
+Collect Final Report (U)”, Ball Final Report to SMDC, 1999, 
+classified report. 
+[ 113 G. Bickley, S. Hagerty, T. O’Connor, J. Ray, Ball Final 
+340 
+Report to NAIC, August 1998, classified report. Corporation in the Software and Signal Processing group 
+developing battlefield ordnance detection algorithms. His 
+[12] A. Ritter, A. Weisberg, T. Slusarchyk, J. Lisowski, B. research interests include statistical pattern recognition, 
+Hibbeln, “Transient Event Characterization”, IEEE neural networks, detection and estimation, machine vision, 
+Aerospace Conference, March 1999. 
+E131 S. Hagerty, J. Draper, K. Blankenship, A. Haralson, K. 
+Ansari, “Comparison of Correlation, Distance, and Bayes 
+Classifiers for the Near Real-Time Discrimination of Battlefield 
+Ordnance”, National Fire Control Symposiunz, August 1999 
+[14] J. Jackson, A User’s Guide to Principal Components, New 
+York John Wiley 1991 
+[15] S. Raudys, A. Jain, “Small Sample Size Effects in Statistical Courtney I. Hilliard 
+Pattem Recognition: Recommendations for Practitioners”, ZEEE ience degree in Electrical 
+Trans. On Pattem Analysis and Machine Intelligence, Vol. 13, Engineering from the California Institute of Technology in 
+No. 3, March 1991 1995 and a Masters of Science degree in Electrical 
+Engineering from the University of Colorado in 1997. Her 
+[16] K. Fukunaga, Introduction to Statistical Pattem Recognition, graduate work at the University of Colorado focused on the 
+New York Academic Press, 1972 development of signal processing algorithms for data from an 
+all-sky meteor radar. Since completing her masters degree, 
+[17] R. Johnson, D. Wichem, Applied Multivariate statistical she has worked at Ball Aerospace & Technologies 
+Analysis, New Jersey: Prentice Hall, 1998 Corporation in the Software and Signal Processing group. 
+Her research interests include statistical pattem recognition, 
+[18] X. zhuang, B. Engel, x, Xiong, c .  Johannsen, ‘‘Analysis target detection and tracking, image processing, and temporal 
+of Classification Results of Remotely Sensed Data and 
+Evaluation of Classification Algorithms”, Photogrammetric 
+Engineering & Remote Sensing, Vol. 61, April 1995 
+and target tracking. 
+processing. 
+Capt. Brian A. Hibbeln, USAF, graduated 
+from the USAF Academy with a bachelor 
+of Physics and was named the 
+outstanding cadet in Physics research in Susan P. Hagerty received the B.S. 
+May of 1991. He was selected to attend degree in electronic engineering from the University of Vermont in 1981 and the Air Force Institute of Technology at the M.S. degree in electronic Wright-Patterson Air Force Base where engineering from the University of 
+he earned his MS in Space Physics in Colorado in 1987. Starting in 1981, 
+December of 1992. His thesis work led she spent five years working at 
+Hewlett Packard developing next- high-voltage, high-current semiconductor 
+generation spectnun analyzers. since switch for space and pulsed power applications. He served at 
+completing her masters degree, she has the National Air Intelligence center as the Program Manager Of 
+worked at Ball Aerospace & Technologies Corporation in the an advanced space-based infrared satellite Program until 
+Software & Signal Processing group. Her research interests September of 1996. He currently supports the National Air 
+include pattem recognition, detection and estimation, target Intelligence Center in Washington DC as a developer and 
+tracking, and data compression. manager of advanced space based satellite sensors, ground 
+systems, and advanced processing algorithms. 
+Andres E. Haralson received a 
+Bachelor of Science degree in 
+Computer and Electrical 
+Engineering from Purdue 
+University in 1996 and a Masters 
+of Science degree in Electrical 
+Engineering from Purdue 
+University in 1998. Past projects 
+include developing algorithms for 
+detection of weeds among crops 
+for the purpose of site-specific application of chemicals. 
+Currently he is working at Ball Aerospace & Technologies 
+34 1 

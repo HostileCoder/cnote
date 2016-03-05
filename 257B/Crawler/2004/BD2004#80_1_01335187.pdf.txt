@@ -1,0 +1,711 @@
+A Bayesian Framework for 3D Models Retrieval Based on Characteristic Views
+Tarik Filali Ansary, Jean-Philippe Vandeborre, Said Mahmoudi, Mohamed Daoudi
+MIIRE Research Group (INT / LIFL UMR CNRS 8022)
+ENIC Telecom Lille I
+rue G.Marconi – cite´ scientifique – 59658 Villeneuve d’Ascq cedex – France
+http://www-rech.enic.fr/MIIRE - email: {filali,vandeborre,mahmoudi,daoudi}@enic.fr
+Abstract
+The management of big databases of three-dimensional
+models (used in CAD applications, visualization, games,
+etc.) is a very important domain. The ability to character-
+ize and easily retrieve models is a key issue for the designers
+and the final users. In this frame, two main approaches ex-
+ist: search by example of a three-dimensional model, and
+search by a 2D view. In this paper, we present a novel
+framework for the characterization of a 3Dmodel by a set of
+views (called characteristic views), and an indexing process
+of these models with a Bayesian probabilistic approach us-
+ing the characteristic views. The framework is independent
+from the descriptor used for the indexing. We illustrate our
+results using different descriptors on a collection of three-
+dimensional models supplied by Renault Group.
+1 Introduction
+The use of three-dimensional images and models
+databases throughout the Internet is growing both in number
+and in size. The development of modeling tools, 3D scan-
+ners, 3D graphic accelerated hardware, Web3D and so on,
+is enabling access to three-dimensional materials of high
+quality. In recent years, many systems have been proposed
+for efficient information retrieval from digital collections of
+images and videos. However, the solutions proposed so far
+to support retrieval of such data are not always effective in
+application contexts where the information is intrinsically
+three-dimensional.
+A similarity metric has to be defined to compute a vi-
+sual similarity between two 3D models, given their descrip-
+tions. Two families of methods for 3D models retrieval ex-
+ist: 3D/3D (direct model analysis) and 2D/3D (3D model
+analysis from its 2D views) retrieval.
+For example, Vandeborre et al. [11] propose to use full
+three-dimensional information. The 3D objects are repre-
+sented as mesh surfaces and 3D shape descriptors are used.
+The results obtained show the limitation of the approach
+when the mesh is not regular. This kind of approach is not
+robust in terms of shape representation.
+Sundar et al. [7] intend to encode a 3D object in the form
+of a skeletal graph. They use graph matching techniques
+to match the skeletons and, consequently, to compare the
+3D objects. They also suggest that this skeletal matching
+approach has the ability to achieve part-matching and helps
+in defining the queries instinctively.
+In 2D/3D retrieval approach, two serious problems arise:
+how to characterize a 3D model with few 2D views, and
+how to use these views to retrieve the model from a 3D
+models collection.
+Abbasi and Mokhtarian [14] propose a method that elim-
+inates the similar views in the sense of a distance among
+CSS (Curvature Scale Space) from the outlines of these
+views. At last, the minimal number of views is selected
+with an optimization algorithm. Dorai and Jain [2] use, for
+each of the model in the collection, an algorithm to gener-
+ate 320 views. Then, a hierarchical classification, based on
+a distance measure between curvatures histogram from the
+views, follows.
+Mahmoudi and Daoudi [15] also suggest to use the CSS
+from the outlines of the 3D model extracted views. The
+CSS is then organized in a tree structure called M-tree.
+Chen and Stockman [8] as well as Yi and al.[9] propose
+a method based on a bayesian probabilistic approach. It
+means computing an a posteriori probability to recognize
+the model when a certain feature is observed. This prob-
+abilistic method gives good results, but the method was
+tested on a small collection of 20 models.
+Chen et al. [5][4] defend the intuitive idea that two 3D
+models are similar if they also look similar from different
+angles. Therefore, they use 100 orthogonal projections of
+an object and encode them by Zernike moments and Fourier
+descriptors. They also point out that they obtain better re-
+sults than other well-known descriptors as the MPEG-7 3D
+Shape Descriptor.
+In this paper, we propose a framework for 3D models in-
+Proceedings of the 2nd International Symposium on 3D Data Processing, Visualization, and Transmission (3DPVT’04) 
+0-7695-2223-8/04 $ 20.00 IEEE 
+dexing based on 2D views. The goal of this framework is
+to provide a method for optimal selection of 2D views from
+a 3D model, and a probabilistic Bayesian method for 3D
+models indexing from these views. The framework is to-
+tally independent from the 2D view descriptor used, but the
+2D view descriptors should provide some properties. The
+entire framework has been tested with three different 2D
+descriptors.
+This paper is organized in the following way. In section
+2 and 3, we present the main principles of our framework
+for characteristic views selection and probabilistic 3D mod-
+els indexing. In section 4, three different 2D view descrip-
+tors are explained in details. Finally, the results obtained
+from a collection of 3D models are presented for each 2D
+view descriptor showing the excellent performances of our
+framework.
+2 Selection of characteristic views
+In this paragraph, we present our algorithm for opti-
+mal characteristic views selection from a three-dimensional
+model.
+2.1 Generating the set of views
+Let Db={M1,M2,...,MN} be a collection of N three-
+dimensional models. We wish to represent a 3D model Mi
+of this collection by a set of 2D views.
+For each modelMi of the collection, we generate a set of
+2D views from multiple viewpoints that are equaly spaced
+around the object. To generate these views, we first scale
+the object that it can fit on a unit sphere and we translate
+it, that it can be centred on the space origin. To generate
+these viewpoints that are equaly spaced, we subdivide an
+icosahedron once by using the Loop’s subdivision scheme
+to generate the 80 faceted polyhedron. The center of the
+icosahedron is the origin, and its radius is equal to 2 units.
+Then we place a camera at each face-center looking at the
+coordinate origin. Each of this projection is considered as a
+2D view of the object.
+Discrimination of characteristic views
+Let VM = {V 1M , V 2M , . . . , V vM} be the set of 2D views
+from the three-dimensional model M , where v is the total
+number of views.
+Among this set of views, we have to select those that
+characterize effectively the three-dimensional model ac-
+cording to a feature of these views.
+Selection of characteristic views
+The next step is to reduce the set of views of a model M
+to a set that represents only the most important views. This
+set is called the set of characteristic views V cM .
+A view V kM is a characteristic view of a model M for
+a distance ε, if the distance between this view and all the
+other characteristic views of M is greater than ε. That is to
+say:
+V jM ∈ V cM ⇔ ∀V ckM ∈ V cM , DV j
+M
+,V ck
+M
+> ε
+With DV j
+M
+,V ck
+M
+the distance between the descriptor of the
+view V jM and the descriptor of V c
+k
+M .
+However, the choice of the distance threshold ε is
+important and depends on the complexity of the three-
+dimensional model. This information is not a priori known.
+To solve the problem of determining the distance thresh-
+old ε, we adapted the previous algorithm by taking into ac-
+count an interval of these distances from 0 to 1 with a step
+of 0.001. The final set of characteristic views is then the
+union of all the sets of characteristic views for every ε in
+]0 . . . 1[.
+2.2 Properties of the views selection algorithm
+To reduce the number of characteristic views, we filter
+this set of views in a way that for each model it verifies two
+criterions:
+• Each view of the model M must be represented by at
+least one characteristic view. This means:
+∀V jM ∈ VM , ∃V ckM such as (V jM ) = V ckM
+With  an application associating to each element of
+VM an elements of V cM ;
+• Characteristic views must be non-redundant. Let V rjM
+be the set of views represented by the characteristic
+view V cjM . A characteristic view V c
+j
+M is redundant if
+there is a set of characteristic views for which the union
+of represented views includes V rjM : V r
+j
+M ⊂
+⋃
+V rkM .
+Figure 1. Characteristic views of a cube.
+3 Probabilistic approach for 3D indexing
+Each model of the collection Db is represented by a set
+of characteristic views Vc = {V c1, V c2, . . . , V cv̂}, with v̂
+Proceedings of the 2nd International Symposium on 3D Data Processing, Visualization, and Transmission (3DPVT’04) 
+0-7695-2223-8/04 $ 20.00 IEEE 
+the number of characteristic views. To each characteristic
+view corresponds a set of represented views called V r.
+Considering a request 2D view Q, we wish to find the
+model Mi ∈ Db which one of its characteristic views is the
+closest to the request viewQ. This model is the one that has
+the highest probability P (Mi, V c
+j
+Mi
+|Q).
+Let H be the set of all the possible hypotheses of cor-
+respondence between the request view Q and a model M ,
+H = {h1 ∨ h2 ∨ . . .∨ hv̂}. A hypothesis hk means that the
+view k of the model is the view request Q. The sign ∨ rep-
+resents logic or operator. Let us note that if an hypothesis
+hk is true, all the other hypotheses are false.
+P (Mi, V c
+j
+Mi
+|Q) can be expressed by P (Mi, V cjMi |H).
+The closest model is the one that contains a view having
+the highest probability. Using the Bayes theorem, we have:
+P (Mi, V c
+j
+Mi
+|H) = P (H,V c
+j
+Mi
+|Mi)P (Mi)
+P (H)
+We also have:
+P (H,V cjMi |Mi) =
+v̂∑
+k=1
+P (hk, V c
+j
+Mi
+|Mi)
+The sum
+∑v̂
+k=1 P (hk, V c
+j
+Mi
+|Mi) can be reduced to the
+only true hypothesis P (hj , V c
+j
+Mi
+|Mi).
+By integrating this remark, we obtain:
+P (Mi, V c
+j
+Mi
+|H) =
+P (hj |V cjMi ,Mi)P (V c
+j
+Mi
+|Mi)P (Mi)∑N
+i=1
+∑v̂
+j=1 P (hj |V cjMi ,Mi)P (V c
+j
+Mi
+|Mi)P (Mi)
+With P (M) the probability to observe the model M .
+P (Mi) = αe
+(−α.N(V cj
+Mi
+)/N(V c))
+Where N(V cjMi) is the number of characteristic views of
+the model M , and N(V c) is the total number of character-
+istic views for the set of the models of the collection Db. α
+is a parameter to hold the effect of the probability P (Mi).
+The algorithm conception makes that, the greater the num-
+ber of characteristic views of an object, the more it is com-
+plex. Indeed, simple object (e.g. a cube) can be at the root
+of more complex objects.
+On the other hand:
+P (V cjMi |Mi) = 1− βe
+(−β.N(V rj
+Mi
+)/N(V rMi ))
+Where N(V rjMi) is the number of views represented by the
+characteristic view j of the model M , and N(V rMi) is the
+total number of views represented by the model Mi. The
+β coefficient is introduced to reduce the effect of the view
+probability. We use the values α = β = 1/100 which give
+the best results during our experiments. The greater is the
+number of represented views N(V rjMi), the more the char-
+acteristic view V cjMi is important and the best it represents
+the three-dimensional model.
+The value P (hj |V cjMi ,Mi) is the probability that,
+knowing that we observe the characteristic view j of the
+model Mi, this view is the request view Q:
+P (hj |V cjMi ,Mi) = e
+−Dhq,h
+V
+j
+Mi
+With Dhq,h
+V
+j
+Mi
+the distance between the 2D descriptors
+of Q and of the V cjMi characteristic view of the three-
+dimensional model Mi.
+4 Descriptors used for the implementation
+The framework described in this paper is independent
+from the 2D descriptor used, but it requires some properties
+from it. The descriptor used must be:
+• translation invariant;
+• rotation invariant;
+• scale invariant.
+The framework is also independent from the distance
+D(Vi, Vj) used to compare two views i and j but it requires
+that the distance is normalized between 0 and 1.
+To test our framework with different types of descriptors,
+we implemented our systemwith three different descriptors:
+• the curvatures histogram;
+• the Zernike moments;
+• the Curvature Scale Space (CSS) descriptor.
+4.1 Curvatures histogram
+The curvatures histogram is based on shape descriptor,
+named curvature index, introduced by Koenderink and Van
+Doorn [10]. This descriptor aims at providing an intrin-
+sic shape descriptor of three-dimensional mesh-models. It
+exploits some local attributes of a three-dimensional sur-
+face. The curvature index is defined as a function of the two
+principal curvatures of the surface. This three-dimensional
+shape index was particularly used for the indexing pro-
+cess of fixed images [13], depth images [2], and three-
+dimensional models [11][16].
+Computation of the curvatures histogram for a 2D view
+To use this descriptor with our 2D views, a 2D view
+needs to be transformed in the following manner. First
+of all, the 2D view is converted into a gray-level image.
+Proceedings of the 2nd International Symposium on 3D Data Processing, Visualization, and Transmission (3DPVT’04) 
+0-7695-2223-8/04 $ 20.00 IEEE 
+The Z coordinate of the points is then equal to the gray-
+intensity of the considered pixel (x, y, I(x, y)) to obtain a
+three-dimensional surface in which every pixel is a point of
+the surface. Hence, the 2D view is equivalent to a three-
+dimensional terrain on which a 3D descriptor can be com-
+puted.
+Let p be a point on the three-dimensional terrain. Let
+us denote by k1 and k2 the principal curvatures associated
+with the point p. The curvature index value at this point is
+defined as:
+Ip =
+2
+π
+arctan
+k1p + k
+2
+p
+k1p − k2p
+with k1p ≥ k2p
+The curvature index value belongs to the interval [-1,+1]
+and is not defined for planar surfaces. The curvature his-
+togram of a 2D view is then the histogram of the curvature
+values calculated over the entire three-dimensional terrain.
+Figure 2 shows the curvatures histogram for a view of one
+of our 3D models collection.
+Figure 2. Curvatures histogram of a 2D view.
+Comparison of views described by the curvature his-
+togram
+Each view is then described with its curvatures his-
+togram. To compare two views, it is enough to compare
+their respective histograms. There are several ways to com-
+pare distribution histograms: the Minkowski Ln norms,
+Kolmogorov-Smirnov distance, Match distances, and many
+others. We choose to use the L1 norm because of its sim-
+plicity and its accurate results.
+DL1(f1, f2) = (
+∫ +∝
+−∝
+|f1 − f2|)
+The calculation of the distance between the histograms of
+two views can be then considered as the distance between
+these views.
+4.2 Zernike moments
+Zernike moments are complex orthogonal moments
+whose magnitude has rotational invariant property. Zernike
+moment are defined inside the unit circle, and the orthogo-
+nal radial polynomial mn(P ) is defined as:
+mn(P ) =
+(n−|m|)/2∑
+s=0
+(−1)s (n− s)
+s(n+|m|2 − s)!(n−|m|2 − s)!
+Pn−2s
+where n is a non-negative integer, and m is a non-zero in-
+teger subject to the following constraints:n − |m| is even
+and |m| ≤ n . The (n,m) of the Zernike basis function
+Vnm(ρ, φ) defined over the unit disk is:
+Vnm(ρ, φ) = mn(P ) exp(jmφ), ρ ≤ 1
+The Zernike moment of an image is the defined as
+Zmn =
+n+ 1
+π
+∫ ∫
+unitdisk
+Vnm(ρ, φ)f(ρ, φ)
+where Vnm is a complex conjugate of Vnm. Zernike mo-
+ments have the following properties: the magnitude of
+Zernike moment is rotational invariant; they are robust to
+noise and minor variations in shape; there is no information
+redundancy because the bases are orthogonal.
+An image can be better described by a small set of its
+Zernike moments than any other type of moments such
+as geometric moments, Legendre moments, rotational mo-
+ments, and complex moments in terms of mean-square er-
+ror; a relatively small set of Zernike moments can charac-
+terize the global shape of a pattern effectively, lower order
+moments represent the global shape of a pattern and higher
+order moments represent the detail.
+The defined features on the Zernike moments are only
+rotation invariant. To obtain scale and translation invari-
+ance, the image is first subjecte to a normalization process.
+The rotation invariant Zernike features are then extracted
+from the scale and translation normalized image. Scale
+invariance is accomplished by enlarging or reducing each
+shape such that its zeroth order moment m00 is set to be
+equal to a prederminated value β.
+Translation invariance is achieved by moving the origin
+to the centroid before moment calculation. In summary, an
+image function f(x, y) can be normalized with respect to
+scale and translation by transforming it into g(x, y) where :
+g(x, y) = f(x/a+ x, y/a+ y)
+With (x, y) being the centroid of f(x, y) and a =
+√
+β/m00.
+Note that in the case of binary image m00 is the total num-
+ber of shape pixels in the image.
+To obtain translation invariance, it is necessary to know
+the centroid of the object in the image. In our system it
+is easy to achieve translation invariance, because we use bi-
+nary images, the object in each image is assumed to be com-
+posed by black pixels and the background pixels are white.
+In our current system, we extracted Zernike features starting
+from the second order moments. We extract up to twelfth
+order Zernike moments corresponding to 47 features.
+Proceedings of the 2nd International Symposium on 3D Data Processing, Visualization, and Transmission (3DPVT’04) 
+0-7695-2223-8/04 $ 20.00 IEEE 
+To compare two Zernike moments descriptors we use
+the Euclidian Distance. The detailed description of Zernike
+moment can be found in [17][1].
+4.3 Curvature Scale Space
+Assuming that each image is described by its contour, the
+representation of image curves γ, which correspond to the
+contours of objects, are described as they appear in the im-
+age [12] [6]. The curve γ is parameterized by the arc-length
+parameter. It is well known that there are different curve
+parameterization to represent a given curve. The normal-
+ized arc-length parameterization is generally used when the
+invariance under similarities of the descriptors is required.
+Let γ(u) be a parameterized curve by arc-length, which is
+defined by γ = {(x(u), y(u))|u ∈ [0, 1]}. An evolved γσ
+version of γ{γσ|σ ≥ 0} can be computed. This is defined
+by:
+γσ = {x(u, σ), y(u, σ)|u ∈ [0, 1]}
+where:
+x(u, σ) = x(u) ∗ g(u, σ)
+y(u, σ) = y(u) ∗ g(u, σ)
+with * being the convolution operator and g(u, σ) a Gaus-
+sian width σ. It can be shown that curvature k on γσ is given
+by:
+k(u, σ) =
+xu(u, σ)yuu(u, σ)− xuu(u, σ)yu(u, σ)
+(xu(u, σ)2 + yu(u, σ)2)3/2
+The curvature scale space (CSS) of the curve σ is defined
+as a solution to:
+k(u, σ) = 0
+The curvature extrema and zeros are often used as break-
+points for segmenting the curve into sections corresponding
+to shape primitives. The zeros of curvature are points of in-
+flection between positive and negative curvatures. Simply
+the breaking of every zero of curvature provides the sim-
+plest primitives, namely convex and concave sections. The
+curvature extrema characterize the shape of these sections.
+Figure 4 shows the CSS image corresponding to the con-
+tour of an image corresponding to a view of a 3D model,
+(figure 3).
+The X and Y axis respectively represent the normalized
+arc length (u) and the standard deviation (σ). Since now,
+we will use this representation. The small peaks on CSS
+represent noise in the contour. For each σ, we represented
+the values of the various arc length corresponding to the
+various zero crossing. On the Figure 4, we notice that for
+σ = 12 the curve has 2 zero-crossing. So we can note that
+the number of inflection points decreases when non convex
+curve converges towards a convex curve.
+The CSS representation has some properties as:
+• The CSS representation is invariant under the similar-
+ity group (the composition of a translation, a rotation,
+and a scale factor).
+• Completeness: this property ensures that two contours
+will have the same shape if and only if all their CSS
+are equal.
+• Stability gives robustness under small distortions
+caused by quantization.
+• Simplicity and real time computation. This property is
+very important in database applications.
+Figure 3. Contour corresponding to a view of
+a 3D model from the collection.
+Figure 4. Curvature Scale Space correspond-
+ing to figure 3 .
+In order to compare the index based on CSS, we used the
+geodesic distance defined in [3]. Given two points (s1, σ1)
+and (s2, σ2), with σ1 < σ2, their distance D can be defined
+in the following way:
+D((s1, σ1), (s2, σ2)) = log(
+σ2(1 +
+√
+1− (φσ1)2)
+σ1(1 +
+√
+1− (φσ1)2))− φL
+)
+where :
+φ =
+2L√
+(σ12 − σ22)2 + L2(L2 + 2(σ12 + σ22))
+5 Experiences and results
+We implemented the algorithms, described in the previ-
+ous sections, using C++ and the TGS OpenInventor.
+To measure the performance, we classified the 132 mod-
+els of our collection into 13 classes based on the judgment
+of two adult persons (figure 5).
+Proceedings of the 2nd International Symposium on 3D Data Processing, Visualization, and Transmission (3DPVT’04) 
+0-7695-2223-8/04 $ 20.00 IEEE 
+We used several different performance measures to ob-
+jectively evaluate our method: the First Tier (FT), the sec-
+ond Tier (ST), and Nearest Neighbor (NN) match percent-
+ages, as well as the recall-precision plot.
+Recall and precision are well known in the literature of
+content-based search and retrieval. The recall and precision
+are defined as follow:
+Recall = N/Q, Precision = N/A
+With N the number of relevant models retrieved in the top
+A retrievals. Q is the number of relevant models in the col-
+lection, that are, the class number of models to which the
+query belongs to.
+Figure 5. Collection classes.
+FT, ST, and NN percentages are defined as follows. As-
+sume that the query belongs to the class C containing Q
+models. The FT percentage is the percentage of the models
+from the class C that appeared in the top (Q-1) matches.
+The ST percentage is similar to FT, except that it is the
+percentage of the models from the class C the top 2(Q-1)
+matches. The NN percentage is the percentage of the cases
+in which the top matches are drawn from the class C.
+We test the performance of our method with and without
+the use of the probabilistic approach. To produce results,
+we queried a random model from each class. Five random
+views were taken form every selected model. Results are
+the average of 70 queries.
+As mentioned before, we used three different descriptors
+in our probabilistic framework.
+5.1 Curvature histogram
+The main problem with the curvature histogram is its
+dependency on the light position. A small change in the
+lightening make changes in the curvature, that leads to a
+difference in the curvature histogram. In our tests, we are
+controlling the light position, but in real use conditions, this
+constraint can be very hard for the user. Table 1 shows per-
+formance in terms of the FT, ST, and NN. Figure 6 shows
+the recall precision plot, we can notice the contribution of
+the probabilistic approach to the improvement of the result.
+The results show that the curvature histogram give very ac-
+curate results in a controled environement.
+Figure 6. Curvature histogram overall recall
+precision.
+Methods Performances
+FT ST NN
+With Proba 28.88 40.65 51.46
+Without Proba 27.84 37.26 47.18
+Table 1. Retrieval performances.
+Figure 7 and 8 show an example of querying by using
+the methods with probabilistic approach.
+Figure 7. Request input is a random view of a
+model.
+Proceedings of the 2nd International Symposium on 3D Data Processing, Visualization, and Transmission (3DPVT’04) 
+0-7695-2223-8/04 $ 20.00 IEEE 
+Figure 8. Top 4 retrieved models from the col-
+lection.
+5.2 Zernike moments
+The mechanical parts in the collection contain holes so
+they can be fixed to other mechanical parts. Sometimes the
+positions and the dimensions of the holes can differentiate
+between two models from the same class. Zernike moments
+give global information about the edge image of the 2D
+view. Table 2 shows performance in terms of the FT, ST,
+and NN. Figure 9 shows the recall precision plot, we can
+notice again the contribution of the probabilistic approach
+to the improvement of the results. The results shows that
+the Zernike Moments give the best results on our models
+collection.
+Figure 9. Zernike moments overall recall pre-
+cision.
+Methods Performances
+FT ST NN
+With Proba 55.77 82.33 72.88
+Without Proba 51.68 70.13 65.27
+Table 2. Retrieval performances.
+Figure 10 and 11 show an example of querying by using
+the method with probabilistic approach.
+Figure 10. Request input is a random view of
+a model.
+Figure 11. Top 4 retrieved models from the
+collection.
+5.3 Curvature Scale Space
+Asmentioned before the collection used in the test is pro-
+vided by the car manufacturer Renault and is composed of
+mechanical parts. Most of the mechanical parts and due to
+industrial reasons does not have a curved shape. The main
+information in the CSS is the salient curves, which in the
+occurrence are rare in the shapes of the models. This partic-
+ularity of our current collection explains the problem with
+the curvature scale space. In the cases where the model
+shape is curved, the recognition rate is very high, but in
+most 3D model curves from our collection, the shape is not
+much curved. Table 3 shows performance in terms of the
+FT, ST, and NN. Figure 12 shows the recall precision plot,
+we can notice again the contribution of the probabilistic ap-
+proach to the improvement of the results. The results show
+that the Curvature Scale Space don’t give accurate results
+on our models collection.
+Figure 12. Curvature Scale Space overall re-
+call precision.
+Methods Performances
+FT ST NN
+With Proba 25.13 39.13 51.37
+Without Proba 24.98 35.10 49.28
+Table 3. Retrieval performances.
+Figure 13 and 14 show an example of querying by using
+the method with probabilistic approach. The request image
+Proceedings of the 2nd International Symposium on 3D Data Processing, Visualization, and Transmission (3DPVT’04) 
+0-7695-2223-8/04 $ 20.00 IEEE 
+is a model that gives good results with CSS due to the curves
+it contains.
+Figure 13. Request input is a random view of
+a model.
+Figure 14. Top 4 retrieved models from the
+collection.
+6 Conclusion and future work
+We have presented a new framework to extract charac-
+teristic views from a 3D model. The framework is indepen-
+dent from the descriptors used to describe the views. We
+have also proposed a bayesian probabilistic method for 3D
+models retrieval from a single random view.
+Our algorithm for characteristic views extraction let us
+characterize a 3D model by a small number of views.
+Our method is robust in terms of shape representations
+it accepts. The method can be used against topologically
+ill defined mesh-based models, e.g. polygon soup models.
+This is because the method is appearance based: practically
+any 3D model can be stored in the collection.
+The evaluation experiments showed that our framework
+gives very satisfactory results with different descriptors. In
+the retrieval experiments, it performs significantly better
+when the probabilistic approach for retrieval is used.
+Currently, our researches consider only 2D views. In the
+future, we plan to focus on real images, and also to adapt
+our framework to 3D/3D retrieval and test it on larger col-
+lections.
+7 Acknowledgments
+This work is supported by the French Research Min-
+istry and the RNRT (Re´seau National de Recherche
+en Te´le´communications) within the framework of the
+SEMANTIC-3D National Project (http://www.semantic-
+3d.net). We would like to thank Hong Mei Liu for the help
+she provided.
+References
+[1] A.Khotanzad and Y.H.Hong. Invariant image recognition by
+zernike moments. IEEE Transactions on PAMI, 12(5), may
+90.
+[2] C.Dorai and A.K.Jain. Shape spectrum based view grouping
+and matchning of 3D free-form objects. IEEE Transactions
+on PAMI, 10:1139–1146, 1997.
+[3] D.H.Eberly. Geometric methods for analysis of ridges in n-
+dimensional images. PhD Thesis University of North Car-
+olina, 1994.
+[4] D.Y.Chen and M.Ouhyoung. A 3D model alignment and re-
+trieval system. Proceedings of International Computer Sym-
+posium, Workshop on Multimedia Technologies, 2:1436–
+1443, December 2002.
+[5] D.Y.Chen, X.P.Tian, Y.T.Shen, and M.Ouhyoung. On visual
+similarity based 3D model retrieval. Eurographics, 22(3),
+2003.
+[6] F.Mokhtarian and A.K.Mackworth. Scale-based descrip-
+tion and recognition of planar curves and two-dimensional
+shapes. IEEE Transactions on PAMI, 8(1):34–43, janvier
+1986.
+[7] N. H.Sundar, D.Silver and S. Dickinson. Skeleton based
+shape matching and retrieval. IEEE proceedings of the
+Shape Modeling International, 2003.
+[8] J-L.Chen and G.Stockman. 3D free-form object recognition
+using indexing by contour feature. Computer Vision and
+Image Understanding, 71(3):334–355, 1998.
+[9] J.H.Yi and D.M.Chelberg. Model-based 3D object recogni-
+tion using bayesian indexing. Computer Vision and Image
+Understanding, 69(1):87–105, 1998.
+[10] J.Koenderink and A.J.vanDoorn. Surface shape and curva-
+tures scales. Image and Vision Computing, 10:557–565, Oc-
+tober 1992.
+[11] J.P.Vandeborre, V.Couillet, and M.Daoudi. A practical ap-
+proach for 3D model indexing by combining local and
+global invariants. 3D Data Processing Visualization and
+Transmission (3DPVT), pages 644–647, june 2002.
+[12] M.Daoudi and S.Matusiak. Visual image retrival by multi-
+scale description of user sketches. Journal of Visual Lan-
+guages and computing - special issue on image database vi-
+sual querying and retrieval, 11, 2000.
+[13] C. Nastar. The image shape spectrum for image retrieval.
+INRIA Technical Report, 3206, 1997.
+[14] S.Abbasi and F.Mokhtarian. Affine-similar shape retrieval:
+Application to multi-view 3-d object recognition. IEEE
+Transactions on Image Processing, 10:131–139, 2001.
+[15] S.Mahmoudi and M.Daoudi. Une nouvelle me´thode
+d’indexation 3D. 13e`me Congre`s Francophone de Recon-
+naissance des Formes et Intelligence Articifielle, 1:19–27,
+janvier 2002.
+[16] T.Zaharia and F.Preteux. Indexation de maillages 3D par
+descripteurs de forme. 13e`me Congre`s Francophone de Re-
+connaissance des Formes et Intelligence Artificielle, 1:48–
+57, janvier 2002.
+[17] W.Y.Kim and Y.S.Kim. A region-based shape descriptor us-
+ing zernike moments. Signal Processing: Image Communi-
+cation, 16:95–100, 2000.
+Proceedings of the 2nd International Symposium on 3D Data Processing, Visualization, and Transmission (3DPVT’04) 
+0-7695-2223-8/04 $ 20.00 IEEE 
