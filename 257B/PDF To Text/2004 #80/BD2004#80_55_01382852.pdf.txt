@@ -1,0 +1,508 @@
+Performance Comparison of Security Mechanisms for Grid Services
+Satoshi Shirasuna Aleksander Slominski Liang Fang Dennis Gannon
+Department of Computer Science, Indiana University.
+215 Lindley Hall, 150 S Woodlawn Avenue, Bloomington, IN 47405-7104
+fsshirasu, aslom, lifang, gannong@cs.indiana.edu
+Abstract
+Security is one of the most important features for Grid
+services. There are several specifications used to add se-
+curity to Grid services, and some of them have been imple-
+mented and are in use. However, since most of the security
+mechanisms involve slow XML manipulations, adding secu-
+rity to Grid services introduces a big performance penalty.
+In this paper, we introduce various security mechanisms
+and compare their features and performance. Our evalua-
+tion shows that transport level security (SSL) is faster than
+message level security, and should be used if there is no spe-
+cial requirement to use message level security. For message
+level security, WS-SecureConversation is generally fast, but
+has a scalability problem.
+1. Introduction
+Security is one of the most important features for Grid
+services [13]. There are several specifications used to add
+security to Grid services, and some of them have been im-
+plemented and are in use. Since Grid services are generally
+constructed on top of the SOAP [8] layer, it is natural to add
+security mechanisms to the SOAP or XML layer in order to
+make services transport-layer independent. However, secu-
+rity mechanisms implemented in the XML layer are slower
+than any other transport security mechanism because they
+involve slow XML manipulations. Because of the perfor-
+mance penalty with current Java implementations, none of
+these security mechanisms have yet to be widely adopted.
+Also, because Web service implementations for Grid ap-
+plications are still relatively new, it is not yet clear to ser-
+vice providers which mechanism is most suitable for their
+needs. It is necessary to clarify the requirements for secure
+Grid services, and figure out what mechanism can satisfy
+those requirements with acceptable performance. As the
+first step, this paper presents the comparison of different se-
+curity mechanisms on their performance and features.
+Throughout the paper, we use two implementations,
+Globus Toolkit 3.2 (GT3.2) [12] and XSUL [4], in order
+to compare the supported functions and the performance.
+Globus Toolkit is a widely-used toolkit for building Grid
+applications and services. XSUL (also known as XSOAP4)
+is a modular Java library that constructs Web services and
+Grid services. XSUL is being developed at Indiana Univer-
+sity.
+The rest of the paper is organized as follows. Section 2
+introduces several security mechanisms for Grid services
+and their implementations. Section 3 presents the perfor-
+mance evaluation for different security mechanisms, and
+Section 4 discusses the result.
+2. Taxonomy
+This section introduces several security mechanisms for
+Grid services. This paper focuses mainly on the integrity
+of messages, so the following discussion does not cover en-
+cryption, which concerns the confidentiality of messages.
+Depending on the layer where security is implemented,
+there are two categories of security mechanisms, transport
+level security and message level security. Among the fol-
+lowing security mechanisms, only the first one, Server Se-
+cure Socket (SSL) [14], is a transport layer security mech-
+anism. The rest of them are message level security mecha-
+nisms.
+2.1. Server Secure Socket (SSL)
+This mechanism uses Server Secure Socket (SSL) with
+GSI certificates, which are based on X.509 certificates [6].
+SSL is lightweight because it does not involve any XML
+manipulations. Also, except the initial handshake, SSL uses
+a symmetric cipher, which is known to be much faster than
+an asymmetric cipher. However, since it is transport layer
+security, it does not work if the connection includes multiple
+hops, which is a feature supported by SOAP.
+Globus Toolkit 3 (GT3) supports this mechanism as GSI-
+enabled HTTP-based protocol (httpg). However, httpg is
+not supported beyond GT3.2 even though it still functions
+Proceedings of the Fifth IEEE/ACM International Workshop on Grid Computing (GRID’04) 
+1550-5510/04 $ 20.00 IEEE 
+and users can still use it. XSUL also supports SSL-based
+security. It is equivalent to httpg.
+SSL involves a handshake as its initial phase to estab-
+lish an encrypted connection. This can be an overhead if
+each invocation of a service involves this phase. XSUL sup-
+ports HTTP KeepAlive option to keep the HTTP connection
+open so that a client only needs to do the handshake once
+when the client wants to interact with the server multiple
+times. Unfortunately, GT3.2 does not offer any straight-
+forward APIs to set the HTTP KeepAlive option. A client
+needs to go through the handshake each time it invokes a
+service.
+2.2. XML-Signature
+XML-Signature [10] is a standard for digital signatures
+for XML documents. The usage of XML-Signature with
+SOAP messages is described in WS-Security specifica-
+tion [16]. With XML-Signature, each message is signed
+with X509 certificate (GSI certificate). It ensures the in-
+tegrity of a message, but it does not support replay-attack
+prevention. As opposed to WS-SecureConversation, which
+will be described later, this mechanism is stateless and does
+not need any initial handshakes. Thus, it is suitable for a
+single invocation of a service.
+GT3.2 supports this mechanism as GSI Secure Message.
+XSUL also supports the same mechanism.
+2.3. WS-SecureConversation
+WS-SecureConversation [15] is a relatively new proto-
+col to establish and use secure contexts with SOAP mes-
+sages. First, a secure context is established between a client
+and a server. Once the security context is established, fol-
+lowing messages are signed using the XML-Signature stan-
+dard. It is faster because it uses a symmetric key to sign
+messages, but it requires additional round trips to establish
+a connection. This mechanism is suitable for multiple inter-
+actions. Even though this mechanism also uses the XML-
+Signature standard, we use the term, XML-Signature, for
+the stateless mechanism described in Section 2.2, and WS-
+SecureConversation for the stateful mechanism described
+here.
+GT3.2 supports a mechanism called GSI Secure Conver-
+sation. GSI Secure Conversation does not follow the WS-
+SecureConversation specification, but its basic mechanism
+is the same as that of WS-SecureConversation. In this pa-
+per we use GSI Secure Conversation to evaluate the perfor-
+mance of WS-SecureConversation. Currently, XSUL does
+not support this mechanism.
+2.4. Capabilities
+Unlike the rest of the mechanisms described here, a
+capability-based system adds authorization information to
+a message as well as ensuring the integrity of the message.
+XSUL supports a capability-based authorization method
+called XCAP. XCAP inserts capability tokens, which de-
+scribe who can invoke which methods of a service using
+the Security Assertion Makeup Language (SAML) [11], to
+a SOAP message. This mechanism allows fine-grained au-
+thorization without the user needing a local host account, or
+adding complicated authorization mechanisms to the appli-
+cation logic.
+3. Performance evaluation
+3.1. Evaluation environment
+We measured the performance of the security mech-
+anisms described in Section 2. First, we measured the
+performance of a simple service, echo service, to evalu-
+ate the overhead caused by adding security to a service
+(Section 3.2). Then, we analyzed the overhead of XML-
+Signature in detail (Section 3.3).
+For the evaluation, we used Globus Toolkit 3.2 (GT3.2)
+on Tomcat 4.1.30 [1]. We chose Tomcat as a service
+container instead of the standalone container included in
+Globus Toolkit because it is stated that the standalone con-
+tainer is only for testing purposes and also because our pre-
+evaluation shows that it is not as stable as Tomcat. The
+options for delegation and authorization are set to ”none”
+throughout the evaluation. The version of XSUL we used
+is 1.1.5. Other relevant software consists of Sun J2SE
+1.4.2 04, and Linux 2.4.21. Both the clients and the server
+are on the same LAN, connected in 1000 Mbps Full Duplex
+mode. All the hosts for both the server and clients are of
+dual Xeon 2.8 GHz with 2048 MB memory.
+3.2. Evaluation with a simple service
+This evaluation focuses on the overhead caused by
+adding security to a service. We used a simple service, echo
+service, for the evaluation. A client sends a short string (5
+bytes) to a server, and the server simply returns the string
+to the client. During the evaluation, 1 to 8 clients keep in-
+voking the service for 10 minutes for each case. (For initial
+invocations of WS-SecureConversation, this time was re-
+duced to one minute because of the problem described in
+Section 3.4.) We measured the average response time of in-
+vocations and the number of invocations per second that the
+server processed. In all of the cases described, the first in-
+vocation is not included to omit one time initialization cost,
+Proceedings of the Fifth IEEE/ACM International Workshop on Grid Computing (GRID’04) 
+1550-5510/04 $ 20.00 IEEE 
+ 0
+ 2
+ 4
+ 6
+ 8
+ 10
+ 12
+ 1  2  3  4  5  6  7  8
+Av
+er
+ag
+e 
+re
+sp
+on
+se
+ ti
+m
+e 
+(m
+se
+c)
+Number of clients
+XSUL (w/o KA)
+XSUL (w/ KA)
+GT3.2 (w/o KA)
+XSUL (SSL w/ KA)
+Figure 1. Average response time for echo ser-
+vices without security.
+such as class loading, and the performance of the rest of
+invocations is averaged.
+First, for comparison purposes, we studied the perfor-
+mance of the various implementations without security.
+Figure 1 shows the average response time for echo services.
+The x-axis is the number of clients invoking the service, and
+the y-axis is the average response time.
+Without the HTTP KeepAlive option, XSUL is approxi-
+mately twice faster than GT3.2. This is because XSUL ma-
+nipulates XML with its fast XML Pull Parser [3]. The graph
+also shows that the HTTP KeepAlive option reduces the re-
+sponse time by half. This graph includes XSUL with SSL,
+which will be described in greater detail later.
+Figure 2 shows the average response time for echo ser-
+vices with security. As a whole, transport layer security is
+faster than message level security. XSUL’s SSL is faster
+than any of the message level security mechanism. We note
+that this is for one invocation including the cost of the ini-
+tial handshake. With the HTTP KeepAlive option and mul-
+tiple invocations, SSL is even faster. It is even comparable
+with the non-secure versions in Figure 1. GT3.2’s transport
+layer security (httpg) is twice slower than XSUL’s. We as-
+sume that it is because httpg is no longer supported beyond
+GT3.2, and hence it was not tuned for performance.
+XML-Signature is much slower than transport level se-
+curity. Compared to the non-secure versions, the difference
+is almost two orders of magnitude. For XML-Signature,
+XSUL is slightly slower than GT3.2. Because both GT3.2
+and XSUL use the same security library, Apache XML
+Security [2], to sign and verify XML messages, we were
+surprised by the difference. We are currently investigat-
+ing this behavior. For the XSUL implementation of XML-
+Signature, we also measured the performance with the
+ 0
+ 200
+ 400
+ 600
+ 800
+ 1000
+ 1200
+ 1400
+ 1  2  3  4  5  6  7  8
+Av
+er
+ag
+e 
+re
+sp
+on
+se
+ ti
+m
+e 
+(m
+se
+c)
+Number of clients
+XSUL (XML-Sig w/o KA)
+XSUL (XML-Sig w/ KA)
+XSUL (SSL w/o KA)
+XSUL (SSL w/ KA)
+XSUL (Cap w/o KA)
+GT3.2 (httpg w/o KA)
+GT3.2 (XML-Sig w/o KA)
+GT3.2 (WS-Conv Consecutive)
+GT3.2 (WS-Conv Initial)
+Figure 2. Average response time for echo ser-
+vices with security.
+HTTP KeepAlive option. The result shows that the HTTP
+KeepAlive option does not improve the performance much.
+It is because XML-Signature does not involve any hand-
+shakes at the beginning. Also, because the overhead cause
+by XML manipulations is so high that the performance im-
+provement gained by the HTTP KeepAlive option is in-
+significant.
+The graph shows two kinds of numbers for WS-
+SecureConversation. One is the response time for initial in-
+vocations, which includes the time taken for the handshake
+to establish the connection. The other is for the consecutive
+invocations after the first invocation, which excludes over-
+head for the handshake. Compared to GT3.2’s implemen-
+tation of XML-Signature, the initial invocations are slightly
+slower. On the other hand, the consecutive invocations are
+almost half of XML-Signature. This means that if a client
+invokes the service more than twice, it is worth using WS-
+SecureConversation instead of XML-Signature. A prob-
+lem with WS-SecureConversation is that the server needs
+to keep the context for each client. We will discuss this
+problem in Section 3.4 in detail.
+The capability-based system is more than two times
+slower than XML-Signature. It is because the capability
+mechanism needs additional XML manipulations on top of
+the operations needed for XML-Signature. On the client
+side, it inserts capability tokens to the SOAP header before
+it signs a message. On the server side, it verifies the sig-
+nature for capability tokens on top of the verification of the
+message itself.
+Proceedings of the Fifth IEEE/ACM International Workshop on Grid Computing (GRID’04) 
+1550-5510/04 $ 20.00 IEEE 
+Table 1. XML-Signature break down
+(msec) Phase (msec)
+Signing 1542.6 Conv. to DOM 7.7
+Canonicalization 1391.2
+Signature calculation 2.2
+Conv. from DOM 127.0
+Other 14.5
+Verification 1445.8 Conv. to DOM 10.2
+Cert. path validation 22.2
+Canonicalization 1395.5
+Signature verification 0.4
+Other 17.4
+3.3. XML-Signature break down
+For the future improvement of XML-Signature perfor-
+mance, we measured the time taken for each phase to inves-
+tigate the bottleneck. Since the signing and the verification
+of a message are the only additional processes added for
+XML-Signature. We broke down these two processes. For
+the evaluation, we used the XSUL implementation because
+XSUL is more tuned for XML handling and has better per-
+formance. The service used for the measurement is echo
+service with array size 1024. The performance of 100 in-
+vocations is averaged. Again, the first invocation is not in-
+cluded to omit one time initialization cost.
+Table 1 shows the time taken for each phase. The most
+of the time is spent for the canonicalization of XML [9]
+(1391.2 msec out of 1542.6 msec for signing, and 1395.5
+msec out of 1445.8 msec for verification). To calculate a
+signature, first, the digest of the message body is calculated
+using SHA-1 algorithm [5]. This phase takes less than 0.1
+msec, and is not included in the table. Then, the digest along
+with various information related to signing is used to calcu-
+late the signature. An asymmetric cipher algorithm based
+on RSA [7] is used in this phase. However, it only takes 2.2
+msec for signing, and 0.4 msec for verification because the
+size of the data signed is small.
+XSUL uses XML Pull Parser for XML parsing and the
+internal XML representation. To use a third party security
+library, Apache XML Security, for signing and verification,
+it needs to convert the internal representation to a DOM tree.
+This conversion takes 7.7 msec for signing, and 10.2 msec
+for verification. In case of the signing, after inserting the
+signature to the SOAP header, it needs to convert the DOM
+tree back to the XML Pull Parser representation. This takes
+more time (124.9 msec) than the conversion from the XML
+Pull Parser representation to the DOM tree. It is because
+the canonicalization increases the size of XML documents,
+making the conversion task more complicated. Note that
+ 0
+ 500
+ 1000
+ 1500
+ 2000
+ 2500
+ 3000
+ 3500
+ 4000
+ 0  200  400  600  800  1000  1200  1400  1600  1800
+R
+es
+po
+ns
+e 
+tim
+e
+Number of invocations
+WS-Conv Initial
+Figure 3. Response time of WS-
+SecureConversation with consecutive new
+connections.
+even with the cost of the conversion of the XML represen-
+tation, it is obvious that usage of XML Pull Parser has a big
+advantage for large arrays [17].
+3.4. A WS-SecureConversation issue
+With WS-SecureConversation, a server needs to hold a
+state for each client. Because it is message level security,
+even though the transport level connection (TCP connec-
+tion) is closed, a server still needs to keep the state for fea-
+ture connections. There is no explicit way to end the mes-
+sage level connection. If a server is accessed by a large
+number of clients, the amount of states the server needs to
+hold will be huge.
+Figure 3 shows the response time for each invocation.
+The x-axis is the number of invocations, and the y-axis is the
+response time for each invocation. One client keeps invok-
+ing a service on the server with the WS-SecureConversation
+mechanism, but each invocation sets up a new connection.
+As the result, the server has to hold large amount of connec-
+tion status information. The response time is stable until the
+1380th invocation. However, after that the time increases
+dramatically. The graph stops at the 1680th invocation be-
+cause the server failed to accept any more connections from
+the clients by throwing out-of-memory exceptions.
+4. Discussion
+As a whole, transport level security, SSL, is the fastest.
+If a client and a server need multiple interactions, it bene-
+fits performance most by using it with the HTTP KeepAlive
+option, but even without the HTTP KeepAlive option, SSL
+Proceedings of the Fifth IEEE/ACM International Workshop on Grid Computing (GRID’04) 
+1550-5510/04 $ 20.00 IEEE 
+is still faster than any other message level security mecha-
+nisms. The drawback of SSL is that it is implemented in
+the transport layer. Hence, it does not work for a connec-
+tion that includes multiple hops. Also, Unlike the XML-
+based security mechanisms, SSL does not have the ability
+to sign only specific portions of a message. Even though
+usage of this feature is not common currently, it might be-
+come important as Grid services mature. For example, a
+service might need to access some other services and en-
+capsulate the results, which is signed by each service, to the
+reply message to the client. For those rich features of XML-
+based security, Globus Toolkit encourages users to use mes-
+sage level security. Transport level security is not supported
+beyond GT3.2. However, at this moment, most of the ser-
+vices do not support those features. Thus, transport level
+security can be used in most of the cases. We should have
+an option to use transport level security if performance is
+important.
+Message level security is generally slower than transport
+level security. This is because signing of XML messages in-
+volves XML manipulations. In particular, XML messages
+have to be canonicalized before they are signed or verified.
+The current implementation of XML canonicalizer uses a
+DOM parser to canonicalize XML documents. Thus, it does
+not support stream processing, which prevents pipe-lining
+each step of the invocation process. This is unfortunate. The
+XSUL implementation of XML-Signature minimizes the
+cost of XML manipulations with its fast XML Pull Parser
+except the XML canonicalization, which XSUL rely on a
+third party library, Apache XML Security. As the result,
+the most of the overhead for XML-Signature is caused by
+the XML canonicalization. We expect great improvement
+of the performance by optimizing the XML canonicaliza-
+tion. The possible optimization is to implement a stream
+XML canonicalizer, or to directly convert the internal XML
+representation to the canonicalized XML string.
+The initial invocations of WS-SecureConversation
+turned out to be faster than expected. They are only
+slightly slower than XML-Signature. The consecutive in-
+vocations are almost half the cost of XML-Signature for
+small messages. This means that if a client exchanges
+messages more than once, WS-SecureConversation should
+be used instead of XML-Signature. Even if users use
+WS-SecureConversation instead of XML-Signature for one
+message exchange, the overhead is still acceptable.
+We compared the performance of the security mecha-
+nisms in more various conditions, such as different array
+size, and in a WAN environment, but they are not included
+in this paper because of the page limitation. The result and
+analysis are in the full version of this paper [17].
+5. Conclusion
+We introduced several security mechanisms used to add
+security to Grid services. Our performance evaluation
+showed that SSL is faster than message level security,
+and should be used if message level security is not re-
+quired. If a client invokes a service multiple times, it should
+also use the HTTP KeepAlive option. Among message
+level security, WS-SecureConversation should be used. For
+one-time invocations, XML-Signature is faster than WS-
+SecureConversation, but even if WS-SecureConversation is
+used, the performance penalty is negligible. However, WS-
+SecureConversation has a scalability problem if it is used
+for a service that is accessed by a huge number of clients.
+References
+[1] Apache Tomcat. http://jakarta.apache.org/tomcat/.
+[2] Apache XML Security. http://xml.apache.org/security/.
+[3] Common API for XML Pull Parsing.
+http://www.xmlpull.org/.
+[4] WS/XSUL: Web Services/XML Services Utility Library.
+http://www.extreme.indiana.edu/xgws/xsul/.
+[5] FIPS PUB 180-1. Secure Hash Standard. US. Department of
+Commerce/National Institute of Standards and Technology,
+May 1993.
+[6] ITU Recommendation X.509 version 3. Information Tech-
+nology - Open Systems Interconnection - The Directory Au-
+thentication Framework, August 1997.
+[7] RFC 2437. PKCS #1: RSA Cryptography Specifications
+Version 2.0, October 1998.
+[8] Simple Object Access Protocol (SOAP) 1.1, W3C,
+May 2000. http://www.w3.org/TR/2000/NOTE-SOAP-
+20000508/.
+[9] Canonical XML Version 1.0, W3C, March 2001.
+http://www.w3.org/TR/xml-c14n.
+[10] XML-Signature Syntax and Processing, W3C, February
+2002. http://www.w3.org/TR/xmldsig-core/.
+[11] Security Assertion Markup Language (SAML) Version 1.1,
+OASIS, August 2003.
+[12] I. Foster and C. Kesselman. Globus: A Metacomputing In-
+frastructure Toolkit. International Journal of Supercomputer
+Applications, 11(2):115–128, 1997.
+[13] I. Foster, C. Kesselman, J. M. Nick, and S. Tuecke. The
+Physiology of the Grid: An Open Grid Services Architec-
+ture for Distributed Systems Integration. Open Grid Service
+Infrastructure WG, Global Grid Forum, June 2002.
+[14] A. O. Freier, P. Karlton, and P. C. Kocher. The SSL Protocol
+Version 3.0, November 1996.
+[15] IBM, Microsoft, RSA Security, and VeriSign. Web Services
+Secure Conversation Language (WS-SecureConversation)
+Version 1.0, December 2002.
+[16] IBM, Microsoft, and VeriSign. Web Services Security (WS-
+Security) Version 1.0, April 2002.
+[17] S. Shirasuna, A. Slominski, L. Fang, and D. Gan-
+non. Performance Comparison of Security
+Mechanisms for Grid Services, August 2004.
+http://www.extreme.indiana.edu/labpubs.html.
+Proceedings of the Fifth IEEE/ACM International Workshop on Grid Computing (GRID’04) 
+1550-5510/04 $ 20.00 IEEE 

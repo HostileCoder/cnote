@@ -1,0 +1,1227 @@
+An Adaptive Early-Detection MLPDA Estimator 
+for LO Targets with EO Sensors' 
+Muhammad Riad Chummun2 
+Advanced Technology and Software Operations 
+Motorola Corporation 
+Mail Stop: AN485C, 2001 North Division Street 
+Harvard IL 60033 
+Riad-Chummun 0 email.mot.com 
+Abstract-The batch Maximum Likelihood Estimator, com- 
+bined with the Probabilistic Data Association Algorithm 
+(ML-PDA), has been shown to be effective in acquiring low 
+observable (LO) - low SNR - non-maneuvering targets in 
+the presence of heavy clutter. The use of signal strength or 
+amplitude information (AI) in the ML-PDA estimator facili- 
+tates the acquisition of weak targets. In this paper we present 
+an adaptive algorithm, which uses the ML-PDA estimator 
+with AI in a sliding-window fashion, to detect high-speed 
+targets in heavy clutter using electro-optical (EO) sensors. 
+The initial time and the length of the sliding-window are ad- 
+justed adaptively according to the information content of the 
+received measurements. A track validation scheme via hy- 
+pothesis testing is developed to confirm the estimated track, 
+that is, the presence of a target, in each window. The sliding- 
+window h4L-PDA approach, together with track validation, 
+enables early detection by rejecting noninformative scans, 
+target reacquisition in case of temporary target disappearance 
+and the handling of targets with speeds evolving over time. 
+The proposed algorithm is shown to detect the target, which 
+is hidden in as many as 600 false alarms per scan, 10 frames 
+earlier than the Multiple Hypothesis Tracking (MHT) algo- 
+rithm. 
+TABLE OF CONTENTS 
+1. 
+2. 
+3. 
+4. 
+5 .  
+6. 
+7. 
+8. 
+9. 
+INTRODUCTION 
+THE SCENARIO 
+NOISE POWER ESTIMATION 
+ADAPTIVE ML-PDA 
+RESULTS 
+CONCLUSION 
+FORMULATION OF THE ML-PDA ESTIMATOR 
+NUMERICAL ASPECTS OF THE PROBLEM 
+APPENDIX: FLOWCHART OF THE ALGORITHM 
+1. INTRODUCTION 
+Target detection and tracking in the presence of clutter has 
+been treated extensively in the literature [l, 2,5,9, lo]. These 
+lSupported by ONR Grant NOOO14-97-1-0502 and AFOSR Grant 49620- 
+*Research performed while at the University of Connecticut. 
+97-1-0198. 0-7803-5846-5/00/$10.00 @ 2000 IEEE 
+Thiagalingam Kirubarajan and Yaakov Bar-Shalom 
+Electrical and Systems Engineering Department 
+University of Connecticut 
+Box U-157,260 Glenbrook Road 
+{kiruba,ybs} @ee.uconn.edu 
+Stoms CT 06269-2157 
+estimators can be recursive [I, 2, 5, 6, 121, where each scan 
+of data is used recursively to update the estimate, or batch- 
+oriented [I, 2, 8, 9, lo], where a set of scans are used to- 
+gether to obtain a single estimate. Batch estimators are ca- 
+pable of working under lower SNR conditions than recur- 
+sive ones, making them more desirable under heavy clutter, 
+especially for tracking targets moving at nearly constant or 
+deterministically varying velocities [2]. One such batch es- 
+timator combines Probabilistic Data Association (PDA) [2] 
+with Maximum Likelihood estimation, resulting in the ML- 
+PDA estimator [9]. In ML-PDA, the measurements in a set 
+of scans are weighted probabilistically and the batch estimate 
+is obtained numerically by maximizing a global likelihood 
+function. ML-PDA has been shown to be effective in track- 
+ing low-observable targets in clutter. For example, in [2, 91, 
+this estimator was used to track an underwater target mov- 
+ing at a nearly constant velocity from passive sonar (angle- 
+only) measurements. The work of [lo] extended the ML- 
+PDA approach by including the signal strength or amplitude 
+information (AI) of the received signal in the MLE to en- 
+hance the performance of the estimator. It was shown that 
+the incorporation of AI into the estimation process itself en- 
+ables the algorithm to work at S N R s  as low as 6 dB in a res- 
+olution cell whereas the estimator without AI worked only 
+down to 9 dB. Earlier, the use of AI in a recursive estima- 
+tor, namely the Interacting Multiple Model (IMM) estimator, 
+was studied in [ 121. Some of the related recursive estimators 
+are the IMM-PDA estimator [12], where the PDA approach 
+is used with the IMM estimator and the IMM-MHT estimator 
+[5,6], where the Multiple Hypothesis Tracking (MHT) algo- 
+rithm is combined with the IMM estimator. In [I31 recur- 
+sive and batch estimation techniques were combined to track 
+a slowly maneuvering target using the IMM-PDA approach. 
+Target tracking using imaging sensors has also been studied 
+in [3, 11, 15,24,25], among many others. 
+One difficulty with the ML-PDA approach, which uses a set 
+of scans of measurements as a batch, is the incorporation of 
+non-informative scans when the target is not present in the 
+surveillance region for some consecutive scans. For example, 
+if the target appears within the surveillance region of the sen- 
+sor some time after the first few scans, the estimator can be 
+misled by the pure clutter in those scans - the earlier scans 
+449 
+contain no relevant information and the incorporation of these 
+into the estimator not only increases the amount of process- 
+ing (without adding any more information) but also results in 
+less accurate estimates or even track rejection. Also, a tar- 
+get might disappear from the surveillance region for a while 
+during tracking and reappear sometime later. Again, these 
+intervening scans contain little or no information about the 
+target and can potentially mislead the tracker. 
+In addition, the standard ML-PDA estimator assumes that the 
+target SNR, target velocity and the density of false alarms 
+over the entire tracking period remain constant. In practice, 
+this may not be the case and the standard ML-PDA estimator 
+will not yield the desired results. For example, the average 
+target S N R  may vary significantly as the target gets closer to 
+or moves away from the sensor. Also, the target might change 
+its course and/or speed intermittently over time. For electro- 
+optical (EO) sensors, depending on the time of the day and 
+weather, the number of false alarms may vary as well. 
+Because of these concerns, an estimator capable of handling 
+time-varying SNR (with online adaptation), false alarm den- 
+sity and slowly evolving course and speed is in order. While 
+a recursive estimator like the IMM-PDA is a candidate, in or- 
+der to operate under low SNR conditions in heavy clutter, a 
+batch estimator is still preferred. In this work, the above prob- 
+lems are addressed by introducing an estimator which uses 
+the ML-PDA with AI uduptively in a sliding-window fashion 
+over the batch, rather using all the measurements in a single 
+batch as in the standard ML-PDA estimator. The initial time 
+and the length of this sliding window are adjusted adaptively 
+based on the information content in the measurements in the 
+window. Thus, scans with little or no information content are 
+eliminated and the window is moved over to scans with “in- 
+formative” measurements. This algorithm is also shown to 
+be effective when the target is temporarily lost and reappears 
+later. In contrast, recursive algorithms will diverge in this sit- 
+uation and may require an expensive track reinitiation. The 
+standard batch estimator will be oblivious to the disappear- 
+ance and may lose the whole track. 
+Also, to take into account the time-varying nature of target 
+motion and target SNR, several parameters of the estimator 
+are adapted online. First, the noise level in the surveillance 
+region is estimated. Then the target SNR is estimated and ad- 
+justed online as the scenario evolves. To maintain regularity 
+in the detection process, a Constant Probability of Detection 
+(CPD) approach is used and the detection threshold (for the 
+measurements to enter the ML-PDA processing) is adjusted 
+accordingly. By estimating the target S N R  and adjusting the 
+detection threshold, the algorithm rejects unnecessary false 
+alarms when the target SNR is high and ensures that the tar- 
+get is not missed when the S N R  drops. We also present a 
+track validation scheme, which is used to confirm the pres- 
+ence of a target based on the estimates obtained by a numer- 
+ical search. The validation scheme is also used to adjust the 
+sliding-window location and length. 
+We demonstrate the performance of the adaptive sliding- 
+window ML-PDA estimator on a real scenario with heavy 
+clutter for tracking a fast moving aircraft using an EO sensor. 
+We show that the proposed algorithm is effective in tracking 
+the target, namely, a Mirage F1 fighter jet in the presence of 
+more than 600 false alarms per scan. The results show that the 
+proposed estimator outperforms the IMM-Multiple Hypothe- 
+sis Tracking (IMM-MHT) estimator by detecting the target 
+10 frames earlier (in frame 28 rather than 38). This corrobo- 
+rates the capability of the algorithm to process large amounts 
+of data and reject useless “information”. The Cramer-Rao 
+Lower Bound, which quantifies the accuracies of the esti- 
+mates attainable for this low-observable estimation problem, 
+is also derived. 
+This paper is organized as follows. First, the scenario and 
+pre-processing of the data are explained in Section 2. The tar- 
+get models and the ML-PDA estimator are presented in Sec- 
+tion 3. The CRLB of the estimator and the validation (track 
+acceptance) scheme are also explained here. The estimation 
+of the noise (clutter) level in the image sequence in explained 
+in Section 4. In Section 5, the adaptive ML-PDA algorithm, 
+along with the various parameters estimated online, is pre- 
+sented. Section 6 discusses some numerical aspects in the 
+implementation of the adaptive algorithm. Finally, Section 7 
+summarizes the estimation results on the Mirage F l  scenario. 
+2. THE SCENARIO 
+The adaptive ML-PDA algorithm was tested on an actual sce- 
+nario consisting of 78 frames of Long Wave Infrared (LWIR) 
+IRSS data collected during the Laptex data collection, which 
+occurred in July 1996 at Crete, Greece. The sequence con- 
+tains a single target - a fast-moving Mirage Fl fighter jet. 
+The 920 x 480 pixel frames taken at a rate of 1Hz have 
+been registered to compensate for frame-to-frame line-of- 
+sight (LOS) jitter. Figure 1 shows the last frame in the Mi- 
+rage Fl sequence. 
+The ML-PDA algorithm was used on the data preprocessed 
+by NRaD and Raytheon [20, 211. Azimuth stabilization was 
+performed on all frames. Bad channels present in the raw 
+data were removed through interpolation and, channel gains 
+and offsets were adjusted. The first step in processing the 
+raw data is to locally de-mean the image using a 13 x 6 win- 
+dow. After that, a 2D adaptive matched filter is applied. A 
+Constant False Alarm Rate (CFAR) detector is then used3. 
+The outer ring of the CFAR is 33 x 15 and the inner ring 11 
+x 5. The threshold used is 3.25 and the detections are then 
+centroided. The filtered images are somewhat smaller than 
+the raw images because of the processing. Figure 2 shows 
+the steps involved in the signal processing prior to the track 
+detectiodestimation algorithm. An additional preprocessing 
+step in the ML-PDA tracker, namely, the clutter (noise) level 
+estimation, which is described in Section 4, is also shown in 
+3This is part of the signal processing chain, prior to the ML-PDA infor- 
+mation extractor, which applies another (adaptive) thresholding. 
+450 
+100 200 300 400 500 600 700 8 6  900 
+X (Pixel) 
+Figure 1 The last frame in the Mirage Fl sequence 
+Figure 2 Re-Processing of raw image data 
+Figure 2. A more detailed description of the signal processing 
+done here can be found in [20] and [21]. 
+A sample detection list for the Mirage F1 sequence obtained 
+at the end of preprocessing is shown in Figure 3. The cor- 
+responding amplitudes of the detections are shown in Fig- 
+ure 4. Each ' x ' in the figures represents a detection above 
+the threshold. 
+3. FORMULATION OF THE ML-PDA 
+ESTIMATOR 
+In this section, the target models used by the estimator in the 
+tracking algorithm are described and the statistical assump- 
+tions made by the algorithm are presented. The ML-PDA 
+estimator for these models is then introduced. Finally, the 
+CRLB for the estimator and the hypothesis test used to vali- 
+date the track are derived. 
+X (Pixel) 
+Figure 3 Detection list corresponding to the frame in Figure 1 
+x 
+X 
+x x  x 
+x 
+x 
+x x x x  
+x xx x 
+x *  
+10 
+5 
+I 
+0 10 20 30 40 50 60 70 
+Scan Number 
+3 
+Figure 4 Amplitudes of detections corresponding to the frame in 
+Figure 1 
+45 1 
+3.1. Target Models 
+The ML-PDA tracking algorithm is used on the detection lists 
+after the data pre-processing phase. We assume that we have 
+n detection lists obtained at times t = t l ,  t 2 ,  ..., t,. The i-th 
+detection list, where 1 5 i 5 n, consists of m i  detections at 
+pixel positions ( z i j ,  y i j )  along the X and Y directions; along 
+with locations, the signal strength or amplitude, ai j ,  of the j -  
+th detection in the i-th list, where 1 5 j 5 mi, is also known. 
+Thus, assuming constant velocity4 over a number of scans, 
+the problem can be formulated as a 2-dimensional scenario 
+in space with the target motion defined by the 4-dimensional 
+vector 
+(1) 
+where ( ( t o )  and q ( t 0 )  are the horizontal and vertical pixel 
+positions of the target, respectively, from the origin at the 
+reference time to .  The corresponding velocities along these 
+directions are assumed constant at E pixel/s and ri pixeys, re- 
+spectively. 
+x fi [ C(to> r l ( to)  i ri 1' 
+The set of measurements in list i at time ti is denoted by 
+Z ( i )  = {zj(i)}y.21 
+where mi is the number of measurements at ti. The measure- 
+ment vector z j  ( i )  is denoted by 
+A 
+Z j ( i )  = [XZj yij  Uij]' (3) 
+where xij and yij  are observed X and Y positions, respec- 
+tively. 
+The cumulative set of measurements made in scans t l  
+through t ,  is given by 
+zn = {Z( i ) }~==,  (4) 
+A measurement can either originate from a true target or from 
+a spurious source. In the former case, we assume that each 
+measurement is received only once in each scan with a detec- 
+tion probability PD and is corrupted by zero-mean additive 
+Gaussian noise of known variance, i.e., 
+xij = C(ti) + Eij ( 5 )  
+yij = q(ti) + vij (6) 
+where ~ i j  and vij are the zero-mean Gaussian noise compo- 
+nents with variances cf and 6; along the X and Y directions, 
+respectively. 
+Thus, the joint probability density function of the position 
+components of zi j  is given by 
+1 
+4As shown in [23], any deterministic motion model (e.g., ballistic, deter- 
+mined by a set of initial conditions) can be used just as well. 
+It is assumed that the false alarms are distributed uniformly in 
+the surveillance region and that their number at any sampling 
+instant is according to a Poisson law with probability mass 
+function p f ( m i ) ,  that is, 
+where U is the area of surveillance and X is the expected num- 
+ber of false alarms per unit of this area. 
+It has been shown in [lo] that the performance of the ML- 
+PDA estimator can be improved by using amplitude infor- 
+mation (AI) of the received signal in the estimation process 
+itself, in addition to thresholding. After passing the signal 
+through the matched filter (see Figure 2), an envelope detec- 
+tor can be used to obtain the amplitude of the signal. The 
+noise at the matched filter is assumed narrowband Gaussian. 
+When this is fed through the envelope detector, the output is 
+Rayleigh distributed. If we denote T as the detection thresh- 
+old, then the probability of detection, PD and the probability 
+of false alarm, PFA are 
+A PD = P(Target-originated measurement exceeds 7) (9) 
+and 
+A PFA = P ( A  measurement due to noise only exceeds 7) 
+where tau is the detection threshold and P(.)  is the probabil- 
+ity of an event. 
+(10) 
+The probability density functions at the output of the thresh- 
+old detector corresponding to signals from the target and false 
+alarms are denoted by p;(a) and p;(a), respectively. Then 
+the amplitude likelihood ratio, p, can then be written as [2] 
+where T is the detection threshold. 
+3.2. The Maximum Likelihood - Probabilistic Data Associa- 
+tion Estimator 
+We now derive the maximum likelihood estimator combined 
+with the PDA algorithm. If there are mi detections at ti we 
+have the following mutually exclusive and exhaustive events 
+VI: 
+( {measurement z j ( i )  is from the target} 
+(12) 
+j = 1, ..., mi 
+€ j ( i )  = {all measurements are false}, "i j = O  
+Now, the pdf of the measurements corresponding to the above 
+events can be written as [2]: 
+I j = O  
+452 
+where pi j  = p(ai j )  given in (1 1). 
+Using total probability theorem we can write: 
+Thus (14) can be written explicitly as 
+To obtain the likelihoodratio, (a[Z(i) ,  x] at ti ,  we divide (15) 
+by P[Z(i)l&o(i>,Xl: 
+Assuming that measurements at different sampling instants 
+are conditionally independent, i.e., 
+the total likelihood ratio [2] for the entire data set is given by 
+Then, the total log-likelihood ratio, 4[Zn, x], expressed in 
+terms of the individual log-likelihood ratios q5i[Z(i), x] at 
+sampling time instants ti, becomes 
+The Maximum Likelihood Estimate (MLE) is obtained by 
+finding the vector x = 12 that maximizes the total log- 
+likelihood ratio given in (19). This maximization of the log- 
+likelihood function is done using a quasi-Newton (variable 
+metric) method. This can equivalently be done by minimiz- 
+ing the negative log-likelihood function. In our implemen- 
+tation of the MLE, the Davidon-Fletcher-Powell variant of 
+the variable metric method is used. This method is a Con- 
+jugate Gradient technique which finds the minimum value of 
+the function iteratively [17, 41. However, the negative log- 
+likelihood function may have several local minima, i.e., it has 
+multiple modes. Due to this property, if the search is initiated 
+too far away from the global minimum, the line search algo- 
+rithm may converge to a local minimum. To remedy this, a 
+multi-pass approach is used as in [lo, 91. 
+The Cramer-Rao Lower Bound (CRLB) for an unbiased MLE 
+is given by 
+(20) E{(x - k)(x - 12)'} 2 J-' 
+where J is the Fisher Information Matrix (FIM) given by 
+J = E{[V,lnp(Zn~x)][Vxlnp(Zn~x)]'}~,=j, (21) 
+In our ML-PDA approach, the FIM J is given by 
+where q2 (.) is the information reduction factor that accounts 
+for the loss of information resulting from the presence of 
+false alarms and less-than-unity probability of detection [2], 
+v, is the elliptical validation region volume (9-sigma region) 
+within which the measurements are considered. 
+In the case where the time between two consecutive frames 
+is constant, (22) has a closed form. For the scenario under 
+consideration, 
+453 
+and, therefore, (22) becomes 
+where 
+n 
+n 
+6 
+no = ,(n+1) (25) 
+(26) nb = -(n+1)(2n+1) 
+and 
+The information reduction factor q2  for the present case is 
+given by 
+and 
+The derivation of (29) is similar to the derivation of q 2 ( . )  
+given in the appendix of [ 101. 
+3.3. The Validation Test 
+A hypothesis testing procedure is used to verify whether the 
+MLE x can be accepted as representing a valid track or not. 
+This test is necessary because due to the multimodal nature 
+of the negative log-likelihood function, the optimization al- 
+gorithm may converge to a local minimum and result in an 
+false track. If 7rm is defined as the miss probability, i.e., the 
+probability that the true track is rejected given there was a 
+true target, then for a Gaussian test statistic A (normalized to 
+have mean zero and unity variance) one has 
+where c,, is the threshold which, if A exceeds it, the cor- 
+responding track is accepted. The test statistic A, defined in 
+terms of the mean, pitrue, and variance, altrue, of the log- 
+likelihood function for a true target, is given by [lo] 
+Thus, the track is accepted if 
+The first and second moments, pltrUe and altrue, of the log- 
+likelihood ratio are derived in [ 101. 
+4. NOISE POWER ESTIMATION 
+Our target model and tracking algorithm, explained in the 
+previous sections, assumes a unity noise power and, there- 
+fore the amplitude measurements have to be normalized ac- 
+cordingly. Since the noise power is not usually known, it has 
+to be estimated from the received data. This is especially true 
+for the real scenario under consideration. Therefore, before 
+proceeding with the ML-PDA estimator, another step to esti- 
+mate the noise power and normalize the data is required. 
+In (1 l), we assume a Rayleigh model for the distribution of 
+amplitude measurements. Now, if w is the noise power, then 
+the pdf of Rayleigh-distributed amplitude measurements is 
+given by 
+where U is the amplitude. 
+(35) 
+Then, the probability density of the amplitude measurements 
+above the threshold T is given by 
+- -exp U (y) (36) 
+W 2  
+Now, by fitting the above theoretical model to the actual data 
+distribution, we can estimate w. The histogram of the am- 
+plitude of the measurements received in all the scan scans is 
+shown in Figure 5. 
+The frequency distribution of the amplitude measurements is 
+shown in Figure 6 along with several Rayleigh curves for dif- 
+ferent values of w. We note that the Raleigh model fits the fre- 
+quency distribution fairly well for amplitudes above 3.8. The 
+optimal value of w is selected using the least squares (LS) cri- 
+terion. The squared errors for different values of w are shown 
+in Figure 7 and the best value is chosen to be w = 1.12. 
+454 
+’““I 
+4500 
+4”” 
+3500 
+mil- 
+D 
+2 32500- 
+0 z
+2000- 
+~ 
+~ 
+- 
+Am&& 
+Figure 5 Histogram of the received amplitude measurements 
+500 
+O2 4 6 a 10 12 
+Actual data frequency 
+Rayleigh curves with different noise power 
+14 
+“3 4 5 6 7 a 9 10 
+AmDl ide  
+Figure 6 Frequency plot of the actual data and Rayleigh curves for 
+different values of w 
+1 1.5 2 2.5 
+a 
+Figure 7 Squared errors in model fitting for different values of w 
+5 .  ADAPTIVE ML-PDA 
+5.1. Adaptive Window Size 
+Often times, the measurement process begins before the tar- 
+get becomes visible, that is, the target enters the surveillance 
+region of the sensor some time after the sensor started to 
+record measurements. Also, the target may disappear from 
+the surveillance region for a certain period of time before 
+reappearing again. During these periods of blackout, the re- 
+ceived measurements are purely noise-only and the scans of 
+data contain no information about the target under track. In- 
+corporating these scans into a tracker reduces its accuracy and 
+efficiency. Thus, detecting and rejecting these scans is impor- 
+tant to ensure the fidelity of the estimator. In this subsection, 
+we present a method which uses the ML-PDA algorithm in a 
+sliding-window fashion, that is, using a only a subset of the 
+data at a time rather all the frames at once, in order to elimi- 
+nate the use of scans without a target. The initial time and the 
+length of the sliding window are adjusted adaptively based on 
+the information content of the data - the smallest window, 
+and thus the fewest number of scans, required to identify the 
+target is determined online and adapted over time. 
+The key steps in the adaptive ML-PDA estimator are as fol- 
+lows: 
+1. Start with a window of minimum size 
+2. Run the ML-PDA estimator within this window and 
+carry out the validation test on the track estimate 
+3. If the estimate is accepted, that is, if the test is passed, 
+and if window is of minimum size, accept window. 
+Next window is present window with front-end ad- 
+vanced by one scan. Goto step 2 
+455 
+4. If the estimate is accepted, and if window is greater 
+than minimum size, try a shorter window by removing 
+the initial scan. Goto step 2 and accept window only if 
+estimates are better than last window 
+5. If test fails and if window is of minimum size, increase 
+window length to include one more scan of measure- 
+ments and thus increase information content in the win- 
+dow. Goto step 2 
+6. If test fails and if window is greater than minimum size, 
+eliminate the first scan, which could contain pure noise 
+only. Goto step 2 
+7. Stop when all scans are used. 
+The algorithm is described below and a complete flowchart is 
+given in the Appendix. 
+In order to specify the exact steps in the estimator, define the 
+following variables: 
+W = Current window length 
+Wmin = Minimum window length 
+Z( t i )  = Scan (set) of measurements at time ti 
+With these definitions, the algorithm is given below: 
+BEGIN PROCEDURE Adaptive_MLPDA_Estimator(Wmin, 
+Z(tl>, Z(tn>) 
+i = 1 - Initialize the window at the first scan. 
+W = Wmin - Initially, use a window of minimum size. 
+WHILE (i + W < n) - Repeat until the last scan at t,. 
+Do grid search for initial estimates by numerical search on 
+Apply ML-PDA Estimator on the measurements in 
+Z(ti>, Z(h+l), . . * Z(ti+y> 
+Z( t i ) ,  z(ti+l), . . f Z(ti+w) 
+Validate the estimates 
+IF the estimates are rejected 
+IF (W > W,i,> - Check if we can reduce the window 
+i = i + 1 - Eliminate the initial scan that might be due to 
+size. 
+noise only. 
+ELSEIF (W = Wmin) 
+W = W + 1 - Expand window size to include an addi- 
+tional scan. 
+ENDIF 
+ENDIF 
+IF the estimates are accepted 
+IF (W > W,i,) - Check if we can reduce the window 
+Try a shorter window by removing the initial scan and 
+i = i + l  
+ENDIF 
+size. 
+check if estimates are better, 
+Figure 8 Scenario with a target being present for only a partial time 
+during observation 
+Tnal2 
+n n n n n n n n  
+1 -  I 
+Tnal3 
+m n n n m n n n  
+Trial 6 
+n n n n n n q n  
+I I 
+0 Target present 
+' hlasuremmt scan 
+- \Vmdow aithout target present in each scan - Wlndon with rarser presenr in ach scan 
+Figure 9 Adaptive ML-PDA algorithm applied to the scenario il- 
+lustrated above 
+IF estimates for shorter window are NOT better OR (W = 
+Wmin) 
+Accept estimates and try next window, 
+i = i + l  
+ENDIF 
+ENDIF 
+END WHILE 
+END PROCEDURE 
+To illustrate the adaptive algorithm, consider a scenario 
+where a sensor records 10 scans of measurements over a 
+surveillance region. The target, however, appears in this re- 
+gion (i.e., its intensity exceeds the threshold) only after the 
+second scan, i.e., from the third scan onwards (see Figure 8). 
+In this case, the first two scans are useless, since they contain 
+only noise. 
+Consider the smallest window size, required for a detection, 
+456 
+to be 5 in the illustration, then the algorithm will develop as 
+shown in Figure 9. First, for the sake of illustration, we as- 
+sume that a single “noisy” scan present in the data set is suf- 
+ficient to cause the MLE to fail the hypothesis test for track 
+acceptance. The algorithm tries to expand the window when- 
+ever needed to include an additional scan if a detection is not 
+made. This is done because an additional scan of data may 
+bring enough additional information to detect the target track. 
+Then the algorithm tries to cut down the window size by re- 
+moving the initial scans. This is done to check whether with- 
+out this scan a better estimate can be obtained. If this initial 
+scan is noise only, then it reduces the accuracy of the estimate. 
+If it is found out that a better estimate, i.e. a more accurate es- 
+timate, is obtained without this scan, the latter is eliminated. 
+Thus, as in the example given above, the algorithm expands 
+at the front (most recent scan used) and contracts at the rear 
+end of the window to find the best window that produces the 
+strongest detection, based on the validation test. 
+5.2. Adaptive Target SNR and Detection Threshold 
+The signal strength of a target return varies according to the 
+distance of the target from the sensor. Thus a sensor will 
+measure an increasing SNR for a target moving towards it 
+and a decreasing SNR for a target moving away from it. The 
+background noise, however, is more or less uniform. The 
+ML-PDA algorithm tries to reject the noise and accept the 
+stronger target signal by thresholding the measurements and 
+using the AI likelihood ratio. The detection threshold, T ,  is 
+this decision parameter. However, since the target SNR varies 
+for each frame as the target advances, a constant detection 
+threshold is not very useful. It may be either too high for 
+some frames to even pick up the target, or too low and thus 
+does not reject the noise measurements. In our implementa- 
+tion, we estimate for each frame i, both the target SNR, di 
+and compute the detection threshold, .ii, online. 
+Denote the expected target SNR for a frame i by 
+Now, recalling that the association events (12) are mutually 
+exclusive and exhaustive, and using the total probability the- 
+orem, (37) can be written as 
+m. .._’ 
+dl = E[d i I~ j ,  Z(i)]P{~jlZ(i)) 
+j=O 
+or, 
+m; 
+j=O 
+Note that ,&j is the conditional probability of the event ~j in 
+frame i and is known as the association probability [ 2 ] ;  d i j  
+is the S N R  of return j in frame i and is given in terms of the 
+amplitude aij by 
+a?. 
+d . .  - 23 - 1 
+23 - 2 (40) 
+Now, using Bayes’ rule, (13) can be rewritten as 
+However, ~ j ( i )  is independent of the state 2. Therefore 
+rewriting (41) in terms of p(e j ( i ) (Z( i ) )  and using total prob- 
+ability theorem, we get 
+Replacing (13) in (42) and keeping in mind that the event 
+~ ( i )  s not considered because it relates to a no-target event 
+(a miss), we get 
+where 
+and 
+where ( ( t i )  and fj(ti) are the projected estimates at time ti, 
+& is the target S N R  at the most recent time instant, t l ,  when 
+a detection was made (1 < i). That is, 
+&ti) = &l) + (ti - t l ) i  
+%ti) = fj(t1) + (ti - tL)* 
+(47) 
+(48) 
+Once the estimated target SNR, d: for frame i is computed, an 
+alpha-filter approach is used to find a generalized target SNR, 
+di for frame i and this is used in the ML-PDA algorithm: 
+A typical value of a is around 0.8. The a-filter adds latency 
+by carrying the previous target SNR at the latest detection 
+‘This equation is obtained from the expectation of 2 of the Rayleigh 
+density p l ( a ) ,  which is 2(1+ d) .  
+457 
+time to frame i. This minimizes the noisy variations of the 
+estimated target SNR. 
+The estimated detection threshold f i  is obtained from the ex- 
+pression for PD obtained from (9) in terms of &. In our im- 
+plementation a constant PD = PDC (CPD approach) was 
+used. Thus the detection threshold is adjusted accordingly to 
+keep the probability of detection constant. 
+5.3. Adaptive q2 and Validation Parameters 
+The values of 42 (equation( 28)) and the moments of the log- 
+likelihood, p1 and ( T I ,  used in the validation test have a di- 
+rect dependence on the values of the target SNR and detec- 
+tion threshold. Since these values are being adapted for each 
+frame, the values of q2 and the moments will change accord- 
+ingly for each frame. For each frame i, a different d i is used. 
+Also the upper limits of the multiple integration depend on 
+PFA, which in turn depends upon ri. Thus modifying both 
+di and ~i will affect both the integrand and the limits. 
+Now, this multiple integration cannot be carried out directly. 
+Two numerical methods exist to implement this integration 
+depending upon the nature of the integrand and its boundaries 
+(limits). If the function is very smooth and slowly varying in 
+the region of integration and the boundary is simple, then the 
+problem can be broken into repeated one dimensional inte- 
+grals, or multidimensional Gaussian quadratures [22].  If the 
+integrand is not strongly peaked in very small regions, and the 
+boundary is not necessarily simple, then Monte Carlo integra- 
+tion is used. This method evaluates the function at a random 
+sample of points and estimates the integral based on that sam- 
+ple. In our case, with such a large number of detections, and 
+for lower target S N R  frames, the surface of integration is rel- 
+atively not peaked. Thus Monte Carlo integration was used 
+in our algorithm. 
+6. NUMERICAL ASPECTS OF THE 
+PROBLEM 
+6.1, Grid Search 
+The MLE, as described in Section 3.2, finds the estimate by 
+minimizing the negative log-likelihood function (19) How- 
+ever, this function is multimodal and the optimization algo- 
+rithm may converge to a local minimum. Therefore, to ini- 
+tiate the optimization algorithm, a grid search is performed, 
+whereby the function is evaluated at selected values of the es- 
+timate (in a grid fashion). The optimization algorithm is then 
+initiated with the one estimate that gives the smallest negative 
+log-likelihood ratio value. 
+In the case being considered, the region over which the 
+function extends, i.e., the surveillance region, consists of 
+920 x 480 pixels. Also the target moves only a few (3-10) 
+pixels between two consecutive frames. Therefore, a com- 
+prehensive grid search needs to be done over a grid with the 
+axes broken in steps of at most 10 pixels apart. This means 
+that the function needs to be evaluated at 92 x 48 points. A 
+rougher grid search is not helpful because of the multimodal 
+nature and high noise content of the problem. Furthermore, 
+the estimate also includes the respective velocities, along the 
+axes, of the target. Therefore, the grid search needs to find 
+the best estimate at each of the above points for a range of 
+each of these velocities. If the velocity is assumed to vary 
+from -10 to 10 pixels per second and if a grid search is done 
+at steps of unit velocity, this means that we need to evaluate 
+the function at 21 x 21 velocity values. Hence in total, the 
+grid search needs to be evaluated at 92 x 48 x 21 x 21 N 2 
+million values of the estimate. Thus, a brute force grid search 
+over such a window is practically infeasible. The problem is 
+easily paralellizable, though. 
+In our implementation, a 'local' grid search was performed, 
+i.e., once a detection is made, the grid search for the esti- 
+mate at the next time instant is performed in the region (gate) 
+around this estimate. An obvious disadvantage of this method 
+is that if the initial estimate is inaccurate, then subsequent 
+estimates may be either inaccurate too or may not be avail- 
+able because the target lies elsewhere. A method where more 
+than one estimate (say 3 to 5 )  is tracked from the initial grid 
+search and the subsequent grid searches performed around all 
+of these, was proposed. The estimate due to noise will pro- 
+duce tracklets which will die out and only the one due to the 
+true target will remain. The exact CPU times taken by the 
+adaptive ML-PDA tracker are given in Section 7. 
+6.2. Multi-Pass Approach for the Optimization Algorithm 
+To avoid getting trapped in a local minimum, the optimization 
+of (19) is done in several passes. The idea is to minimize a 
+modified likelihood ratio in K passes instead of finding the 
+global minimum directly. The modified log-likelihood ratio 
+("smoothed" temporarily) is 
++4.> (51) 
+where a k  satisfies a k + l  < ak: for k = 1,. . . , K - 1 and 
+a~ = 1. The penalty function C(Z) is given by 
+and 
+(53) 
+A w(.) = &3)2 + X(4)2 
+458 
+where fj is a typical value of the speed and ov is the standard 
+deviation of the typical speed. C(Z) is set to zero at k = K ,  
+at which point the likelihood ratio is the actual one without 
+modification. 
+Parameter 
+01 
+0 2  
+Min Window Size, W 
+Initial target SNR, do 
+PDC 
+a 
+r m  
+U V  
+K 
+- 
+U 
+- 
+6.3. Monte Carlo Integration 
+Equations (28) and (34) are evaluated using the Monte Carlo 
+technique. This method samples the region of integration ran- 
+domly and evaluates the function at these points. The first set 
+of integration has integration limits 0 and PFA. For low val- 
+ues of the target SNR, d, in the range of 12 to 13 and a fixed 
+PDC of say 0.7 the detection threshold, r, is around 2.5. This 
+gives a PFA value of 0.04. With this as the upper limit, the 
+integration is adequately accurate. However, it was found out 
+that when the target SNR becomes high, i.e., around 20, then 
+the value of 7 is 8.5 and PFA becomes of the order of 
+With this value as upper limit, the Monte Carlo technique 
+cannot locate any point in this small region of integration and 
+thus fails. Also for high target SNR frames, the log-likelihood 
+surface peaks around the target and the Monte Carlo tech- 
+nique is not suited for such surfaces. In these cases, the esti- 
+mate will be under-tested because of inaccurate generation of 
+the moments of likelihood described in (34). However, this 
+is acceptable because for these cases the target SNR is much 
+higher than almost all noisy detections. In practice, the previ- 
+ous value of the test was used. Alternatively, by the time the 
+SNR is so high, one should switch to a recursive algorithm, 
+e.g., the IMMPDA [14]. 
+Value 
+1.25 
+1.25 
+10 
+9.5 
+0.70 
+0.85 
+5% 
+5.0 
+0.15 
+4 
+6.4. Update of the Estimated Target SNR 
+The target SNR, d, is estimated for each frame as explained 
+in subsection 5.2 and updated according to (49). The value of 
+a is chosen depending upon whether we want the next target 
+SNR to be more dependent upon the SNR of the data or the 
+previous SNR. Thus in a target moving towards the sensor, a 
+lower value of a will be chosen (say 0.7). This updates the 
+next d with the increasing target SNR'. However, in the case of 
+an escaping target, (I: will be higher (say 0.85) so that the next 
+updated value of d is not governed much with a decreasing 
+target SNR and more relevant noise. 
+However, in the case of a very noisy environment, if the al- 
+gorithm picks up a false alarm which is high enough to pass 
+the validation test, then (49) will be updated with this wrong 
+SNR. If this is much higher than the target SNR, even a small 
+a may not bring it down enough to detect the target even if the 
+latter is present in subsequent scans. In our case, there were 
+600 false alarms. Even if 2% of these are highly peaked, we 
+still have a dozen very high noises. Thus in our implemen- 
+tation, (49) was updated only if more than 3 detections were 
+made in a window. This decreases the chances that it may get 
+updated by a high noise and missing future targets. 
+7.  RESULTS 
+7.1. Estimation Results 
+The Mirage F1 data set consists of 78 scans or frames of 
+LWIR IRSS data. The target appears late in this scenario and 
+moves towards the sensor. There are about 600 detections per 
+frame. In our implementation the following parameters were 
+chosen: 
+Table 1 Parameters used in the ML-PDA Algorithm for the Mi- 
+rage 
+The choice of these parameters are explained below : 
+01 and 0 2  are, as in ( 7), the standard deviations along 
+the horizontal and vertical axes respectively. Values 
+of 1.25 pixels model results of the preprocessing well 
+within a window. 
+The minimum window size, Wmilt, has been chosen 
+10. The algorithm will expand this window if a tar- 
+get is not detected in 10 frames. Initially fewer scans 
+were used, but the estimates appeared to be unstable. 
+Therefore, it is assumed that less than 10 scans do not 
+produce an accurate estimate. 
+The initial target SNR, do is chosen 9.5 dB because the 
+average SNR of all the detections over the frames is ap- 
+proximately 9.0 dB. However, in most frames, random 
+spikes are noted. In the first frame, for e.g., where a 
+target is unlikely to be present a single spike of 15.0 
+dB is noted. These, however, cannot and should not be 
+modeled as the target SNR. 
+A constant probability of detection (PDc) of 0.7 is 
+chosen. Too high a value will bring down the detec- 
+tion threshold and also increase PFA. 
+a is the parameter used in (49) and is used to update the 
+estimated target SNR. As explained in subsection 6.4, 
+a high value is chosen because we are trying to detect 
+a far away target, that approaches the sensor over time 
+and also because of the presence of occasional spikes 
+of noise. Thus the estimated S N R  is less dependent 
+upon a detection which could well come from a noisy 
+459 
+source and thus set the bar too high for future detec- 
+tions. 
+rrm is the 'miss probability' as defined in (32). 
+0 8 and 5, are as defined in (51). They are used in the 
+multi-pass approach of the optimization algorithm. 
+The number of passes, K was chosen as 4. This means 
+that the grid search was performed with a = 4 and 
+the subsequent optimization passes with a: = 3,2 ,1  
+respectively. 
+[52,62] 
+r53,631 
+The detection windows along with the target SNR used in 
+the window and the estimates are tabulated in Table 2 (all 
+estimates are at the beginning of the window). 
+, 
+10.99 1 555.65 474.09 -8.77 -0.76 
+11.12 I 546.88 473.33 -8.78 -0.76 
+Table 2 Result table for the Mirage F1 Jet 
+[54,64] 
+[61,72] 
+r 6 2 m  
+11.22 537.36 473.01 -4.30 -0.39 
+10.77 437.02 388.61 -2.99 -0.39 
+12.44 433.98 3a .33  -3.03 -0.44 - .  - 
+163,741 
+[64,75] 
+13.93 431.77 388.49 -3.17 -0.62 
+15.18 429.46 388.59 -3.40 -0.82 
+[66,77] 
+[67,781 
+I r68.781 1 19.01 I 417.76 I 388.70 1 -4.02 1-2.03 1 
+17.25 423.78 389.49 -3.66 -1.53 
+18.18 421.30 389.49 -3.95 -1.85 
+[69,78] 
+170,781 
+I r71.781 I 19.03 I 406.42 I 385.11 I -4.23 I -2.72 I 
+I I 
+19.03 I 414.96 387.82 I -4.24 -2.24 
+19.03 1 410.69 387.03 I -4.24 -2.56 
+~~ 
+To get a better idea of the detection process, Figure 10 depicts 
+the windows where the target has been detected. 
+In Figure 11, the estimated target SNR is plotted against the 
+scan of detection. 
+From the above results, we note the following : 
+460 
+Figure 10 Progress of the Algorithm showing Windows with De- 
+tections. 
+mbr 
+: x :  . . . . . . . . . .  . . . . . . . . . .  . . . . . . . . . .  . . . . . . . . .  :. . . . . . . . . . .  :. .................... ...,......... 
+x .  
+- x .  
+16 .. . . . . . .  ,,;. . . . . . . . . . .  ;, . . . . . . . . .  :. . . . . . . . . .  ;. . . . . . . . . .  !. . . . . . . . . . . . I .  ......... i I :  : I  X - a e 
+z 1 4  _ . . . . . . . . . .  . . . . . . . . . .  . . . . . . . . .  . . . . . . . . . . .  . . . . . . . . . . . .  . . . . . . . . . . .  i . . .  
+8 
+X " .  "': 
+U 
+U) w
+12 . . . . . . . . .  : . . . . . . . . . . .  :. . . . . . . . . . . . . . . .  ....I ....................... I . .  . . . . . . . . .  i ......... t :  
+10 
+8 
+Scan Number 
+Figure 11 Estimated Target SNR in Scans with a Detection. 
+0 The first detection uses 22 scans and occurs at scan 28. 
+This is because the initial scans have low-information 
+content as the target appears late in the frame of 
+surveillance. The IMM-MHT algorithm [ 181 required 
+38 scans for a detection, while the IMMPDA [I41 re- 
+quired 39 scans. Some spurious detections were no- 
+ticed at earlier scans, but these were rejected as ex- 
+plained in Section 6. 
+0 The next few detection windows produce similar tar- 
+get estimates. This is because a large number of scans 
+repeat themselves in these windows. 
+0 After these initial detections, there is a ‘jump’ in the 
+scan number at which a detection is made. Also, a de- 
+crease in estimated target SNR is noted in Figure l l at 
+these scans. Besides, the estimates, particularly the ve- 
+locity estimates, deteriorate. This could either indicate 
+that the target has disappeared (becomes less visible) 
+instantaneously from the region of surveillance or that 
+the target has made a maneuver. 
+0 From scan 44 onwards, the algorithm stabilizes again 
+for several next windows. At scan 52, however, again 
+there is a ‘jump’ in detection windows. This is also 
+followed by a drop in the estimated target SNR. This 
+is again explained as above. This, however, indicates 
+that the algorithm can adjust itself and restart after a 
+target has become instantaneously invisible. Recursive 
+algorithms will diverge in this case. 
+0 From scan 54 onwards, however, the algorithm stabi- 
+lizes as can be seen from the estimates. Also a de- 
+tection is made for every increasing window. This is 
+because the target has come closer to the sensor and is 
+thus more visible. This is noted by the sharp rise in the 
+estimated target SNR after scan 54. 
+0 From the above results, we can understand the target’ s 
+behavior. The results suggest that the Mirage F1 fighter 
+jet appears late in the area of surveillance and moves in 
+a direction towards the sensor. However, initially it re- 
+mains quite invisible and possibly, undergoes maneu- 
+vers. As it approaches the sensor, it becomes more and 
+more visible and thus easier to detect. 
+7.2. Computational Load 
+The adaptive ML-PDA tracker took 442s, including the time 
+for data input/output, on a Pentium I11 Processor running at 
+55OMHz for processing the 78 scans of the Mirage FI data. 
+This translates into about 5.67s per frame (or 5.67s running 
+time for one-second data), including YO time. A more ef- 
+ficient implementation on a dedicated processor can easily 
+make the algorithm real-time capable on a similar processor. 
+Also, by paralellizing the initial grid search, which took more 
+than 90% of the time, the adaptive ML-PDA estimator can be 
+made even more efficient. This parallelization can be easily 
+made linearly efficient [ 161. 
+8. CONCLUSION 
+In this paper we presented an estimator which uses the ML- 
+PDA approach with amplitude information adaptively in a 
+sliding window fashion to estimate the state of a fast-moving 
+target in heavy clutter. The initial time and the width of the 
+window, within which the ML-PDA algorithm is applied, are 
+adjusted adaptively based on the information content of the 
+scans. This enables the algorithm to eliminate scans with low 
+or no information content and to increase the accuracy of the 
+estimates. Because of its time-varying nature, the target SNR 
+is estimated online and the estimated values are used in the 
+tracker as the scenario evolves. A Constant Probability of 
+Detection approach is used to select the detection threshold 
+for each window. In order to validate the estimates obtained 
+by numerical search and to select the sliding-windows, a track 
+validation scheme via hypothesis testing was also presented. 
+We demonstrated the performance of the algorithm on an ac- 
+tual scenario where a fast moving Mirage F1 fighter jet ap- 
+pears late in the observation process and disappears in the 
+middle for several scans. We showed that the proposed es- 
+timator detected the target 10 frames earlier than the IMM- 
+MHT estimator (in frame 28 vs. 38). Early detection of an in- 
+coming target is crucial in defense applications and the use of 
+the proposed adaptive ML-PDA can be advantageous in such 
+situations. The proposed tracker was able to handle up to 600 
+false alarms per scan and acquire the target. This corrobo- 
+rates the capability of the algorithm to process large amounts 
+of data and reject “useless information”. 
+It was also shown that the adaptive ML-PDA tracker took 
+about 5.67s to process each frame, including disk access time 
+- that is, about 5-6 times higher than the data rate. A more 
+efficient implementation on a dedicated processor can easily 
+make the algorithm, which is highly parallelizable, real-time 
+capable. 
+APPENDIX 
+In this appendix, we present the flowchart of the adaptive al- 
+gorithm used to find the smallest sliding window during the 
+detection process. Consider n scans (frames or lists) of mea- 
+surements with Z ( i )  measurements in scan i, i.e., at time ti. 
+The current window of size W with measurements starting 
+at ti will include scans [Z(t i ) ,  Z ( t i+~) ,  . . . , Z(ti+w)]. The 
+minimum window size Wmin that a window can have is a 
+design parameter which, according to the user, contains suffi- 
+cient information to result in a detection if a target is present. 
+Now denote by a, as shown in Figure 12, the block including 
+the grid search to find a rough target estimate for the numer- 
+ical search, the ML-PDA estimator which optimizes the esti- 
+mate and the validation check, which ascertains whether the 
+measurement is correct or wrong based on a confidence level. 
+Also, denote, for simplicity, 
+461 
+I GiidSearch I 
+Optimize a 
+Validation  Check 
+Figure 12 Definition of the block a: used in Figure 13 
+Z( t , )  = Z( i+ W), which is the last scan in the current 
+window. Thus, W = 1 - i. 
+s, as an index used to temporarily register the initial 
+scan in a window under consideration. 
+The flowchart of the adaptive algorithm is then described in 
+terms of the above-definedparameters in Figure 13. 
+REFERENCES 
+[l] Bar-Shalom, Y., and Li, X. R., Estimation and Track- 
+ing: Principles, Techniques and Software, Boston, MA: 
+Artech House, 1993. Reprinted by YBS Publishing, 1998. 
+[2] Bar-Shalom, Y., and Li, X.R., Multitarget-Multisensor 
+Tracking: Principles and Techniques, Storrs (CT 06269- 
+2157): YBS Publishing, 1995. 
+[3] Bar-Shalom, Y., Shertukde, H., Pattipati, K. R., “Use 
+of measurements from an imaging sensor for precision target 
+tracking”, IEEE Transactions on Aerospace and Electronic 
+Systems, Vol. 25, No. 6, pp 863-872, November 1989. 
+[4] Bertsekas, D. P., Linear Network Optimization Algo- 
+rithms and Codes, The MIT Press, Cambridge, MA, 1991. 
+[5] Blackman, S. S. (1986), Multiple-Target Tracking with 
+Radar Applications, Dedham, MA: Artech House, 1986. 
+[6] Blackman, S.S., Dempster R.J. and Roszkowski, S.H., 
+“IMM/MHT Applications to Radar and IR Multi-Target 
+Tracking”, Proc. of Signal and Data Processing of Small Tar- 
+gets, Drummond, O.E.(ed.), SPIE, Vol. 2561, SanDiego, CA, 
+July 1995. 
+[7] Blackman, S.S., Dempster R.J., Tucker G.K., and 
+Roszkowski, S.H., “Application of Multiple Hypothesis 
+Tracking to Multi-Radar Air Defense Systems”, Proc. of Sig- 
+nal Processing and Data Processing of Small Targets, SPIE, 
+Vol. 2759, pp 297-309, April 1996, Orlando, FL. 
+[8] Chen, J., Leung, H., Lo, T., Litva, J., andBlanchette, 
+M. (1996), “A modified probabilistic data association filter in 
+a real clutter environment”, IEEE Trans. Aerospace and Elec- 
+tronic Systems, Vol. 32, No. 1, pp. 300-313, January 1996. 
+I 
+U 
+Figure 13 The flowchart of the adaptive ML-PDA estimator 
+462 
+[9] Jauffret, C., and Bar-Shalom, Y., “Track Formation 
+with Bearing and Frequency Measurements in Clutter”, IEEE 
+Transactions on Aerospace and Electronic Systems, Vol. 26, 
+pp 999-1010, November 1990. 
+[lo] Kirubarajan, T. and Bar-Shalom, Y., “Low Observ- 
+able Target Motion Analysis Using Amplitude Information”, 
+IEEE Transactions on Aerospace and Electronic Systems, 
+Vol. 32, No. 4, pp. 1367-1384, October 1996. 
+[ l l ]  Kumar, A., Bar-Shalom, Y., Oron, E., “Precision track- 
+ing based on segmentation with optimal layering for imag- 
+ing sensors”, IEEE Transactions on Pattern Analysis and 
+Machine Iiitelligeiice, Vol. 17, No. 2, pp 182-188, February 
+1995. 
+[12] Lerro, D. and Bar-Shalom, Y., “Interacting Multi- 
+ple Model Tracking with Target Amplitude Feature”, IEEE 
+Transactions on Aerospace and Electronic Systems, AES 32, 
+[I31 Lerro, D., and Bar-Shalom, Y., “Batch-Recursive 
+Bearings-Only Target Tracking”, Proc. 1996 IFAC World 
+Congress, San Francisco, CA, July 1996. 
+1141 Lerro, D., and Bar-Shalom, Y., “IR Target Detection 
+and Clutter Reduction Using the Interacting Multiple Model 
+Estimator”, Proc. of SPIE Conference on Signal and Data 
+Processing of Small Targets, Vol. 3373, Orlando, FL, April 
+1998. 
+[15] Oron, E., Kumar, A., Bar-Shalom, Y., “Precision track- 
+ing with segmentation for imaging sensors”, IEEE Transac- 
+tions on Aerospace and Electronic Systems, Vol. 29, No. 3, 
+[16] Popp, R.L., Pattipati, K.R., Bar-Shalom, Y., Yeddana- 
+pudi, M., “Parallelization of a Multiple Model Multitar- 
+get Tracking Algorithm with Superlinear Speedups”, IEEE 
+Transactions on Aerospace and Electronic Systems, Vol. 33, 
+No. 1, January 1997. 
+[I71 Press, W. H., Teukolsky, S. A,, Vetterling, W. T., and, 
+Flannery, B. P., Numerical Recipes in C, Cambridge Univer- 
+sity Press, 1992. 
+[18] Roszkowski, S. H., “Common Database for Tracker 
+Comparison”, Proc. SPIE Con$ Signal and Data Procesing 
+of Small Targets, Vol. 3373, Orlando, FL, April 1998. 
+[I91 Shertudke, H. M., and Bar-Shalom, Y., “Detection 
+and Estimation for Multiple Targets with two Omnidirec- 
+tional Sensors in the Presence of False Measurements”, IEEE 
+Transactions on Acoustics, Speech and Signal Processing, 
+ASP-38, pp 749-763, May 1990. 
+[20] Singer, P.F., and Sasaki, D.M., “Analysis of the Effects 
+of Fixed Pattern Noise on a Fully Adaptive Matched Filter”, 
+Proc. of Signal and Data Processing of Small Targets, Drum- 
+mond, O.E.(ed.), SPIE, Vol. 3163,SanDiego, CA, July 1997. 
+[21] Singer, P.F., and Sasaki, D.M., “The Heavy Tailed Dis- 
+tribution of a Common CFAR Detector”, Proc. of Signal and 
+Data Processing of Small Targets , Drummond, O.E.(ed.), 
+SPIE, Vol. 2561, San Diego CA, July 1995. 
+pp 494-509, April 1993. 
+pp 977-986, July 1993. 
+[22] Stroud, A.H., Approximate Calculation of Multiple Zn- 
+tegrals, Englewood Cliffs, NJ: Prentice-Hall, 199 1. 
+[23] Sivananthan, S., Kirubarajan, T., and Bar-Shalom, Y., 
+“A Radar Power Multiplier Algorithm for Acquisition of 
+Low Observable Ballistic Missiles Using an Electronically 
+Scanned Array Radar”, Proc. IEEE Aerospace Con$, Snow- 
+mass CO, March 1999. Also submitted to IEEE Transactions 
+on Aerospace and Electronic Systems, 1999. 
+[24] Sworder, D.D., Hutchins, R.G., “Image-enhanced 
+tracking”, IEEE Transactions on Aerospace arid Electronic 
+Systems, Vol. 25, No. 5, pp 701-710, September 1989. 
+[25] Sworder, D.D., Hutchins, R.G., Kent, M., “Utility of 
+imaging sensors in tracking systems”, Automatica, Vol. 29, 
+NO. 2, pp 445-449, March 1993. 
+Muhammad Riad Chummun 
+is a Test and Integration 
+Engineer at Motorola 
+Corporation, Harvard, IL. 
+He received his MS degree in 
+Electrical and Systems 
+Engineering from the University 
+of Connecticut in 1999. 
+Previously, he received his BS degree in EE from the Indian 
+Institute of Technology, Kharagpur in 1996. His research in- 
+terests are in tracking, estimation and signal processing. 
+Thiagalingam 
+Kirubarajan 
+(S’95, M’98) was born 
+in Sri Lanka in 1969. 
+He received the B.A. 
+and M.A. degrees in 
+electrical and iizfonnation 
+engineering from Cambridge 
+University, England, in 
+1991 and 1993, and the 
+M.S. and Ph.D. degrees in electrical engineering from the 
+University of Connecticut, Storrs, Connecticut in 1995 and 
+1998, respectively, While in England he worked for the Cen- 
+tral Electricity Research Laboratories, Leatherhead, Surrey, 
+as a research assistant. From 1991 to 1993 he was a lec- 
+turer in electrical and computer engineering at the University 
+of Peradeniya, Sri Lanka. Between 1993 and 1998 he was 
+researcWteaching assistant at the University of Connecticut. 
+Currently, he is an Assistant Research Professor in electrical 
+engineering and the associate director of the Estimation and 
+Signal Processing Research Laboratory at the University of 
+Connecticut. His research interests are in estimation, target 
+tracking, detection, siglzaYimage processing and fault diag- 
+nosis. 
+463 
+Yaakov Bar-Shalom 
+was born on May 11,1941. 
+He received the B.S. and 
+M.S. degrees from the, 
+Technion Israel Institute 
+of Technology, in 1963 and 
+1967 and the Ph.D. degree 
+( S  ’63-M ’66-SM ’80-F ’84) 
+from Princeton University in 
+1970, all in electrical engineering. 
+From 1970 to 1976 he was with Systems Control, Inc., Palo 
+Alto, California. Currently he is School of Engineering Dis- 
+tinguished Professor in the Dept. of Electrical and Systems 
+Engineering and Director of the ESP Lab (Estimation and 
+Signal Processing) at the University of Connecticut. His re- 
+search interests are in estimation theory and stochastic adap- 
+tive control and has published over 230papers in these areas. 
+In view of the causaliry principle between the given name 
+of a person (in this case, “(he) will track”, in the modem 
+version of the original language of the Bible) and the pro- 
+fession of this person, his interests have focused on track- 
+ing. His other interests are stochastic control of vertical air- 
+foils and of pairs of inclined foot supports on crystals. He 
+coauthored the monograph Tracking and Data Association 
+(Academic Press, 1988), the graduate text Estimation and 
+Tracking: Principles, Techniques and Software (Artech 
+House, 1993), the text Multitarget-Multisensor Tracking: 
+Principles and Techniques (YBS Publishing, 1995), and 
+edited the books Multitarget-Multisensor Tracking: Appli- 
+cations and Advances (Artech House, Vol. I, 1990; Vol. II, 
+1992). He has been elected Fellow of IEEE for “contri- 
+butions to the theory of stochastic systems and of multitar- 
+get tracking”. He has been consulting to numerous compa- 
+nies, and originated the series of Multitarget-Multisensor 
+Tracking short courses offered via UCLA Extension, at Gov- 
+ernment Laboratories, private companies and overseas. He 
+has also developed the commercially available interactive 
+software packages MULTIDApM for automatic track forma- 
+tion and tracking of maneuvering or splitting targets in clut- 
+tel; VARDApM for data association from multiple passive 
+sensors, BEARDApM for  target localization from bearing 
+and frequency measurements in cluttel; IMDATTM for  image 
+segmentation and target centroid tracking and FUSEDATTM 
+for fusion of possibly heterogeneous multisensor data fo r  
+tracking. 
+During 1976 and I977 he served as Associate Editor of the 
+IEEE Transactions on Automatic Control and from I978 to 
+1981 as Associate Editor of Automatica. He was Program 
+Chairman of the 1982 American Control Coizference, Gen- 
+eral Chairman of the 1985 ACC, and CO-Chairman of the 
+1989 IEEE International Conference on Control and Appli- 
+cations. During 1983-87 he served as Chairman of the Con- 
+ference Activities Board of the IEEE Control Systems Society 
+and during 1987-89 was a member of the Board of Gover- 
+nors of the IEEE CSS. In 1987 he received the IEEE CSS 
+Distinguished Member Award. Since 1995 he has been a Dis- 
+tinguished Lecturer of the IEEE AESS and has given several 
+keynote addresses at major national and international con- 
+ferences. He is co-recipient of the M. Barry Carlton Award 
+for the best paper in the IEEE Transactions on Aerospace 
+and Electronic Systems in I995 and the 1998 University of 
+Connecticut AAUP Excellence Award for Research. 
+464 

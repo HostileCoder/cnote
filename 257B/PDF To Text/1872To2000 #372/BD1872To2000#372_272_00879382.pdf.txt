@@ -1,0 +1,606 @@
+Satellite Wide-Area-Network 
+for Telemedicine' 
+- I  Harry W. Tyrer . . .L -H , - ~ 
+C I  - . ' Computer Engineering and Computer Science Department 
+305 Engineering Building West 
+University of Missouri-Columbia 
+Columbia, MO 6521 1 
+t \redl @ rmsso tiii.edu 
+573-882-6489 
+Abstract-- Communications for Telemedicine requires 
+substantial bandwidths to provide timely transmission of 
+large data sets. To provide rural America with modem 
+Telemedicine requires very high bandwidth resources that 
+may take decades to appear. Satellites provide the natural 
+choice for communication between the rural primary care 
+centers and the tertiary care hospital. However there are 
+problems if TCP, as required for Intemet access, is to be 
+the protocol of choice. Analysis of multi-station satellite 
+access clearly argues for distributed non-random methods 
+and hence for appropriate handling of TCP data streams. 
+TABLE OF CONTENTS 
+1. 
+2. 
+3. 
+4. 
+5. 
+6. 
+7. 
+8. 
+INTRODUCTION - OVERVIEW 
+MULTIMEDIA 
+SATELLlTES 
+RATIONALE 
+GROUND STATION 
+PROTOCOL REQUIREMENTS 
+RANDOM OR DETERMINISTIC MULTI-ACCESS 
+CONCLUSIONS 
+1. hTRODUCTION -OVERVIEW 
+We and others [1,2] argue that substantial increase in 
+bandwidth (hundreds of Mbps from 56Kbps), required for 
+rapid transmission of data intensive items such as medical 
+images. will be decades before it is available to rural 
+primary care institutions [l]. The main reasons include 
+the historical rate of bandwidth improvement, the little to 
+no incentive for terrestrial bandwidth providers to lower 
+costs, and current lossless compression technology 
+reduces bandwidth insufficiently since orders of 
+magnitude are required. An alternative solution to 
+landlines is the use of communication satellites. 
+A satellite based network communication system can 
+provide very high data rates (e.g. OC-3, 155Mbps and 
+OC-12, 622Mbps). Each primary care center can 
+communicate with a tertiary care center with these apparent 
+high data rates. Primary care centers provide general medical 
+care whereas tertiary care centers provide the medical 
+expertise and specialization expected of a major medical 
+center. The requirements are a ground station, a protocol (a 
+modification of TCP) so the satellite appears as a very long 
+high quality fiber, and an application suite to provide data 
+voice and video [3]. The assessment of such a system will be 
+primarily economic. However since the performance will be 
+different than terrestrial lines, one also needs to consider the 
+effects of long delays in synchronizing the information. The 
+problem is accentuated when one considers the desire for 
+video on demand, the poor service that the Intemet gives to 
+provide such video on demand, and the bandwidth necessary 
+to receive such video on demand. 
+2. MULTIMEDIA 
+In the waning years of the 20th century and the early years of 
+the 21", communications engineers in medicine find 
+themselves consolidating the gains made in imaging 
+technologies in the past half centuj: Improvements in 
+ultrasound, magnetic resonance imaging, x-ray 
+mammography, computed tomography, to name a few 
+imaging modalities, have been accelerated due to the low cost 
+of high performance computing. They continue trading off 
+acquisition, resolution and computation requirements. 
+Originally these technologies developed as independent items 
+of activity, but the explosion of networking technology in the 
+last 15 years produced unprecedented and easy access to the 
+images produced. 
+These technologies in tertiary care medicine shared resources 
+first as local area networks, then by wide area networks, and 
+now have access through the Intemet. A tertiary care center 
+such as a hospital with teaching resources has a high degree of 
+expertise and a range of medical services that easily extend 
+beyond its walls. Indeed such extended service capability may 
+be essential for the economic survival of some teaching 
+hospitals. 
+' 0-7803-5846-5/00/$10.000 2000 IEEE 
+141 
+Hospital data encompasses the totality of voice, video and 
+data. Each has its own requirements. Video is a stream of 
+data: bit errors can be ignored as long as the transmission 
+frame retains its integrity. Voice also requires a bit stream 
+but the time delay is fixed and errors are tolerated as long 
+as frame integrity remains. Data uses long frames for 
+efficiency but bit errors may become frame errors [4]. 
+MRI 
+Such multimedia data can be handled by the 
+Asynchronous Transfer Mode (ATM), characterized by 
+its small constant length packets. ATM can easily handle 
+the bit streams and discards error packets, assuming that 
+the receiving end will compensate for these errors. At a 
+higher level, TCP-IP also provides for error protection but 
+the receiver must assemble the final message. Hence the 
+delay time may vary greatly and TCP-IP is not used for 
+some requirements. In some cases ATM serves as a 
+carrier layer or physical layer for TCP-IP, which then 
+forms the higher level layers. 
+1 perexam (MB) 
+256x256 I 12 I 20 2 , 
+The hospital environment is rich in images [ 5 ] .  Image file 
+sizes arise from the square of the resolution (or the product of 
+the resolution of each dimension), the number of bits required 
+for each resolution element, and the number of images in a 
+medical examination set. The file size in an image can be 
+decreased by compression. The best that can be done with 
+lossless compression is a two to three-fold reduction; in 
+contrast, compression with loss produces a ten to twenty-fold 
+reduction in file size. The choice for lossless systems and the 
+guarantee that the decompressed image can be produced with 
+no errors will have a basis other than scientific. In lossy 
+systems the decompressed image will be inferior to the 
+original image. 
+Ultrasound 
+Color Microscopy 
+Compacted 
+Angiography 
+Using transmission standards, audio, video and data can be 
+formatted for transmission. The following table summarizes 
+transmission bit rates commonly used in present transmission 
+infrastructure. The transmission rate is compatible with the 
+bandwidth but there can be no “real time” effect. 
+512 x 512 8 20 5 
+512 x 512 24 20 16 
+1024x 1024 8 100 100 
+2048 x2048 12 1 10 
+~~~~. 
+TABLE 1 
+Radiography 
+4096x4096 
+r- I Resolution I Intensity I Images I File size I 
+12 4 100 
+Conferencing: audio 
+: video 
+10-128 kbps 
+64 kbps - 1.92 Mbps 
+G .  72 x standard 
+H. 261 
+TABLE 2
+1 Multimedia Stream I Bit Rates I DescriDtion 1 
+Diagnostic: audio 1 32-768 kbps 1 CD quality audio 
+: video I 3-15Mb~s  I MPEG-2 
+Note the lower data rate in conferencing compared to the 
+diagnostic requirements. What is not explicitly in the 
+table is the compression, sometimes lossless, which is 
+inherent in the coding standard. Since decompressed 
+images may be inferior to the original image, in some 
+applications such images ma.y be satisfactory, others not. 
+3. RATIONALE 
+A view of the Internet is a 3 level (or layer) 
+implementation whose layers are the infrastructure (wire 
+and cabling typically provided by Plain Old Telephone 
+Services, POTS), the median-structure (systems, 
+platforms and their interconnections), and the 
+superstructure (applications). To improve or implement 
+infrastructure requires healthy investments, typically billions 
+of dollars. In contrast, applications (e.g. bandwidth 
+compression) require several orders of magnitude less 
+investment. They became the primary areas of endeavor of 
+small groups. This section summarizes a previous paper 
+describing the network structure model, and the reason why 
+satellites may be the best solution for rural telemedecine in the 
+America [2]. 
+National network structure model 
+A model of a wide area network‘s development and 
+implementation resources can be viewed as a layered system 
+beginning at the lowest level with infrastructure, next the 
+median-structure followed by the superstructure. This helps to 
+classify the resource commitment by government, academia 
+142 
+and business. This classification, interestingly, follows 
+the well-known International Standards Organization 
+Open Systems Interconnect ISO/OSI layers. Hence a 
+wide-area-networks implementation can be mapped to its 
+operational model. 
+The model provides a view of the limitations of current 
+systems; giving engineers designers and users points -of 
+references to find alternatives. How can the high 
+bandwidth required for reasonable exchange of 
+telemedicine data - images, text video and voice - in the 
+settings of rural America be provided? Is the technology 
+available? If not, when will it be available? Finally, what 
+can be done now to provide high-speed access? 
+Superstructure- the superstructure level describes high 
+level implementation and use. In terms of the layered 
+architecture it would be the presentation and application 
+layer. The superstructure level deals with browsers, 
+compression systems, encryption systems, etc. 
+Median-structure- The median structure provides station 
+to station message passing and can be viewed as the 
+network, transport and session layers of the ISO/OSI 
+layered model. For the Internet this is the TCPDP layer. 
+The median-structure level uses the resources of the 
+digital-computing vendors. 
+Infrastructure- the infrastructure provides the 
+interconnection between the various networks. In the 
+ISO/OSI layered architecture sense, it is analogous to the 
+physical layer, and usually implemented by the 
+communication and common carrier companies. 
+Additionally this encompasses transmit and receive 
+devices which would implement the data link layer and 
+are usually supplied by computer vendors. Laying down 
+of miles of copper or fiber optic cable requires massive 
+investments (in the billions of dollars), and strict 
+standardization allows all that satisfy the requirements to 
+participate. 
+While both the median structure and the superstructure 
+can perform functions to reduce transmission costs, it is 
+the telephone companies and cable companies in the 
+infrastructure level who own the pipelines and control the 
+price at which that data is pumped. As argued below the 
+only way to get market forces working in telemedicine 
+communications is to provide satellite transmission. 
+When the last mile problem really means IO0 miles 
+The last mile problem refers to the difficulty of getting 
+access to the high band width infrastructure even though 
+the physical location of the resource may be near. Users 
+currently find themselves locked into the 56 kilobit per 
+second maximum rate not because of technological 
+difficulties but because the telephone companies or cable 
+companies are unwilling to provide high band width data 
+access at moderate costs. 
+The east and west coasts of America have sufficient 
+population density to support rapid changing and upgrading of 
+networking infrastructure. However the population density 
+rapidly dwindles as one goes in towards the center of this 
+country. Consequently Midwestern and Western states have a 
+rural area that is significantly under-served by the networking 
+infrastructure in this country. While some states and 
+communities have made effort to ameliorate some of this 
+problem the reality is that the participants in the infrastructure 
+have little incentive to provide high speed interconnects. 
+Worse, historical evidence and bandwidth installation rates 
+indicate that it will be decades before bandwidths to support 
+OC3 and OC12 rates are available in rural settings. 
+No incentive to reduce price- Currently there is little incentive 
+to reduce the price of data transmission. With customers lining 
+up to pay current prices for ISDN transmission at a 128K, it is 
+unlikely to expect the businesses to acquiesce to the societal 
+need to reduce costs of high speed transmission. The reduction 
+of cost is characteristic of a mature industry. And the 
+infrastructure sector, namely the telephone companies -is a 
+mature industry. Its new business, data communication, is 
+most definitely not mature. Furthermore it is still not clear 
+what the final form of installation is going to be. As an 
+example, for decades 3kHz voice transmission was all that 
+phone companies provided. While the hobbyist may be 
+content with what one gets, telemedicine's life and death 
+implications demands more stringent requirements of OC-3 
+and OC- 12 rates. 
+Higher population densities win the competition for 
+installation dollars- The higher population densities will win 
+out over the lower population densities in the competition for 
+installation dollars. Clearly in the high population densities 
+there is less cost per paying customer for installation and this 
+makes for a disincentive in installing resources at low 
+population densities. With the infrastructure technology in 
+turmoil, the demand for better and improved resources will be 
+satisfied for those areas with higher population densities. 
+Cannot recover installation costs- the situation is even bleaker 
+because clearly at some point there is a population density 
+below which a company cannot recover its reasonable cost of 
+installation. While a community or interested organization 
+could fund such an endeavor (probably limited to only a few 
+select communities), such largess can be viewed as a sunk cost 
+investment which will never be profitable. 
+4. SATELLITES 
+Interestingly, satellites provide infrastructure level resources, 
+but operate completely independently of earth-bound 
+infrastructure. Individuals in high population areas as well as 
+low population areas can use the same satellite, and the charge 
+should be the same for both. Furthermore the satellite cost can 
+be set up on a usage basis rather than on a leased-line basis. 
+143 
+Communication satellites act like amplifiers in space. A 
+transmitting station within the footprint of the satellite 
+sends a signal to the satellite in the satellite's uplink 
+frequency (upload frequency), and get sent back to the 
+earth in possibly a different footprint at the lower, 
+downlink, frequency. The uplink and downlink 
+frequencies simply serve as carriers for the data and have, 
+littleWdo, -except on a very fundamental basis, with the 
+data capacity of the satellite. 
+Communication satellites have been defined primarily as 
+geostationary (GEO) because of their unique orbit whose 
+rotation is the same as that of the rotation of the earth. 
+Historically the primary communication satellite has been 
+a geostationary satellite (36,000 kilometers, on equatorial 
+orbit) and appears as an unmovable fixture directly above 
+a particular point on the earth. For technical 
+considerations the closest these satellites can be to each 
+other is two degrees (although spacing as close as 112 
+degree has been considered) so that of the 180 satellite 
+slots, at most 90 could face the same hemisphere as the 
+continental United States. Thus the number of satellites is 
+limited and the explosive growth in communications is 
+further limiting this resource, e.g. the C band or 416 GHz 
+up/down link in most satellites is saturated. 
+Primarily its channels and its transponders determine the 
+signaling capacity of the satellite. The antennas for the 
+most part provide the spatial character or footprint of the 
+satellite. The channels on the other hand, provide the 
+signaling 
+DATA for the JNTELSAT VI1 spacecraft [6] 
+Location: Over Brazil near the Atlantic 
+Coverage: Continental US 
+Upmown links: 6/4, 14/11, 14/12 GHz 
+RF channels: Bandwidth 34,36,41,72,77, and 
+112 MHz 
+capacities of satellites. The channels for most modem 
+satellites range from those suitable to voice transmission 
+up to 72 and 112 megahertz. The data rate of a satellite 
+uses tradeoffs between bandwidth, efficiency and the 
+allowed error rate. Because it is dependent upon allowed 
+error rate it literally depends upon the weather. The higher 
+frequency satellites (Ku band 14/12 or Ka band 30/20) 
+suffer substantially from deleterious effects due to the 
+weather. Thus a transponder with a 72 MHz bandwidth 
+can be used to transmit OC3 (155 megabit per second) 
+data if the bandwidth efficiency used is two. Satellites are 
+in their element in point-to-multi-point communication. 
+One signal can be transmitted up to a satellite and then 
+relayed back down to a large geographic area. Any 
+appropriately tuned ground station in that area can pick up 
+the signal. Similarly, data can be transmitted to small 
+ground stations located over large geographic distances. 
+Recently VSAT (very small aperture terminal) networks have 
+arisen with their advantage of using the small antennas 
+primarily for reception, although transmission is also possible. 
+These use the Ka and Ku bands whose higher frequencies 
+reduce substantially the antenna size. 
+Satellite arrays 
+Satellites in low earth orbit take 90 minutes to circumscribe 
+the earth. Thus transmission to a specific satellite requires 
+timing and tracking. Motorola has recently created a system 
+called Iridium, which proposes to create a network of 66 
+satellites in low earth orbit. With 11 satellites on a single polar 
+orbit and six such orbits, satellites are spaced two degrees 
+apart either in latitude or longitude. Communication takes 
+place between the ground and satellite, among the satellites 
+and back to the ground, providing worldwide coverage. The 
+Iridium system is dedicated primarily to providing support for 
+cellular telephone traffic. Unfortunately the future of Iridium 
+currently appears uncertain. On the other hand Teledessic 
+proposes a similar necklace of satellites and their satellites will 
+be dedicated to providing Internet services. The future can 
+expect both voice and data traffic. 
+5. GROUND STATION 
+Asymmetry in bandwidth or path may occur in Satellite 
+Networks. A larger data rate in one direction compensates for 
+limits on the transmission power and the antenna size at one 
+end of the link. Other systems use the satellite on one way 
+only and use a non-satellite return path (such as a dialup 
+modem link). 
+Asymmetrical 
+An asymmetrical ground station will communicate with the 
+primary station via terrestrial lines and the primary station will 
+communicate via the satellite to the client stations. This has 
+the advantage that the clients need only' ieceive the data and 
+not transmit large amounts of data requiring high bandwidth. 
+This would be useful in situations in which the tertiary care 
+center had a large number of large files whereas the primary 
+care center rarely provided large files. Of course the 
+disadvantage is the nearly second class status of the client. 
+VSATS, Virtual Satellite Systems, characterized by their small 
+antenna size are suitable for such a system particularly in their 
+use in the entertainment industry. 
+Symmetrical 
+In the symmetrical system both client and source can equally 
+transmit back and forth. The primary disadvantage is the 
+additional cost due to the requirement for transmission from 
+each client 
+6. PROTOCOL REQUIREMENTS 
+Academic institutions have access to Internet 2, which 
+supports OC-3 (155 Mbps) and OC-12 (622 Mbps) speeds. By 
+use of a symmetrical ground station a primary care center can 
+have access to the Internet 2 supported by its tertiary care 
+144 
+center. This implies the seamless use of the Internet and 
+the associated protocol TCPAP. However TCPAP does 
+not do well in a satellite environment. The slow start, 
+highly error sensitive signal can defeat the advantages of 
+high bandwidth in a satellite system. The delay in essence 
+produces an effective data rate that must be observed if 
+messages are spawned immediately upon reception. 
+TCPLP Consideratioris 
+The goal of providing Internet access to health 
+professionals via satellites requires that the TCP protocol 
+be considered. To be sure TCP can be in a layer above 
+ATM, but TCP is wasteful of satellites resources. The 
+model here is that the satellite link is a very long fiber 
+optic line, that is, high bandwidth but long delays. 
+0.6 O-*: 
+The following are a list of such problems [7] 
+The 3-way handshake to establish connections 
+requires 1 to 1.5 round trip times. 
+Slow start to gradually increase the TCP window. 
+0 Number of and delayed acknowledgements 
+0 Loss recovery 
+0 Congestion avoidance 
+/ 
+Some solutions to these problems include 
+Selective acknowledgements (SACKS) provide a way 
+to mitigate the delay in waiting for time outs. The 
+receiver sends an ack with information on missing 
+segments. The sender maintains the count of these 
+segments, which issues the retransmission based on 
+the SACK information. 
+Forward acknowledgement (FACK) uses SACK 
+options to more precisely add data to the network to 
+mitigate congestion. 
+TCP spoofing (also performance enhancement 
+protocols) divides the TCP connection between a 
+client and a server. The path over the satellite 
+connects the client to its gateway router then to the 
+satellite, the other path also emanates from the router 
+but traverses an intemet link. Critics of TCP 
+spoofing point out that it breaks the end-to-end 
+semantics of TCP. 
+Pacing TCP segments. Spacing ACKs between 
+segments paces the rate of data injection to the 
+network. Also by using rate-based pacing, the data 
+sender paces TCP segments at a given rate, in the 
+absence of incoming ACKS. 
+7. RANDOM OR DETERMINISTIC MULTI-ACCESS 
+There are compelling reasons to examine the throughput 
+in accessing satellite service. The aesthetics of 
+maintaining the integrity of TCP/IP to decide its own path 
+gives way to the reality that in locations with reliable 
+telephone access the transfer of large image or diagnostic 
+files can be initiated by ground lines. This is certainly 
+true in the American Midwest. The use of ground-lines 
+for control requires a topology that a specific server will 
+decide that a file needs to be transmitted by satellite. The 
+server then uses ground lines to control access to the satellite. 
+Each request for satellite access arrives at a central computer 
+via telephone lines, the central computer responds to the 
+request by assigning a queue priority, and each ground station 
+transmits to the satellite as if a distributed queue had ordered 
+the responses .. The alternative is. to use multi access,- , , 
+communication methods including random, slotted, token, and 
+finally queueing methods. 
+, 
+Consider random and queueing methods as the extremes 
+between random and deterministic multi-access methods [SI. 
+First we review the well-known Aloha and slotted aloha multi 
+access method and we compare that to all messages going to a 
+centrally located computer. 
+In random multi-access methods each station acts as an 
+independent agent transmitting according to its protocol. The 
+Aloha protocol allows a station to transmit to the satellite 
+when it has packet ready to send. Slotted Aloha imposes some 
+order by creating a slot for transmission. Slotted Aloha 
+implies some decision making capability which is not 
+available it the so-called "bent pipe" or repeater view of a 
+satellite. Of course occasionally collisions occur at the 
+satellite between packets transmitted by two or more stations. 
+These collision packets will fail at the receiver and may be 
+lost. The long round trip time to make random access 
+methods reliable motivates the search for alternatives. 
+The throughput S of the Slotted Aloha system (long dashes in 
+figure A) is given by Ge-G, where G is the expected number of 
+packets transmitted, and is a Poisson random variable. If no 
+arrivals appear during transmission, no collisions occur. So in 
+Slotted Aloha a slot can be viewed as the region of 
+vulnerability. In contrast Aloha, transmits when ready but its 
+region of vulnerability is twice the packet length so that 2G 
+appears in the exponential. S for Aloha is Ge-2G and is shown 
+as the curve with the short dashes. 
+mu&Y.x V s C f e J e i L c E d  
+0 1 2 3 4 5 
+Figure A. The throughput of a centralized server system (solid 
+curve), a Slotted Aloha system (large dashes), and Aloha (with 
+small dashes). 
+The meaning here is that for the random multi-access methods 
+The best throughput is 18% (Aloha), and 36% (Slotted Aloha). 
+Worse, the packets not transmitted will be lost and can only be 
+retrieved from the source. 
+145 
+The business model. 
+Cost of satellite service will be a major determinant in its 
+adoption. This not only applies to broader satellite usage but 
+its usage in telemedicine. Medicine is driven in part by 
+market forces and the trend is to increase. A business model 
+that seeks to lease large units of bandwidth must give way to 
+one that provides an on-demand service. ' ,' 
+.I . 
+In contrast a centralized server connected by ground lines 
+to manage the traffic through the satellite has a 
+throughput of value G until the system saturates, at which 
+point packets awaiting transmission must queue up for 
+their turn. Here no packets are lost. Figure B shows the 
+substantial difference in throughput between either 
+method and the centralized server. 
+Delay is the cost of the tradeoff if the collision detection 
+occurs at a device transmitting and receiving. However 
+the satellite system is worse, because the satellite acts as a 
+repeater and does not have error detection capability. In 
+random multi-access methods collisions occur at the 
+satellite, they must be propagated to the receiver which 
+detects the error. Since the senders address may also be 
+corrupted the best that can be done is to either send a 
+message to all senders indicating error or wait for ACKs 
+to identify the error. 
+0 1 2 3 4 5 
+Figure B the difference in throughput between the 
+centralized server and Slotted Aloha (long dash), and the 
+difference in throughput between the Centralized server 
+and the Aloha system. 
+On the other hand the centralized server served by land 
+lines should use small control packets at low telephone 
+speeds, which can accomplish setups in 10s rather than 
+hundreds of milliseconds, substantially reducing the 1 . 5 ~  
+round-trip time common for setting up a TCP/IP session. 
+These arguments leads to the conclusion that TCP 
+spoofing by using ground lines can be effective in 
+improving multi-access throughput and may have 
+beneficial impact on delay. The impact on delay is felt in 
+two ways. The first is by the improved throughput and 
+the reduction in packet retransmission. The second is the 
+reduce time required to set up the satellite for packet 
+transmission. 
+There is another substantial benefit and that is the 
+overhead required to set up for satellite transmission is 
+done on low bandwidthflow cost resources and the 
+satellites is reserved for the transmission of resource 
+intensive files. 
+For example say we want to use a 75 MHz transponder to send 
+a large file at rates consistent with OC-3 (155Mbps). The 
+lease of such a transponder for a year is on the order of 2 
+million dollars. A file of approximately 20 Megabytes will 
+cost 6 cents to transmit. While the lease cost will appear 
+prohibitive to most medical providers, the pennies per second 
+will not. Transmitting the same file size at 56Kbps at the 
+common long distance rate of 6 cents per minute will cost 36 
+cents. So. a satellite invokes an increase in cost of two orders 
+of magnitude, but the corresponding decrease in time is 3 
+orders of magnitude, reducing overall cost to the user. Of 
+course such savings will quickly disappear if users are paying 
+for dead time or unnecessary overhead. 
+8. CONCLUSIONS 
+Multi-media in telemedicine requires large bandwidths. For 
+modem usage the OC-3 (155Mbps) and OC-12 (622 Mbps) 
+rates will provide foreseeable bandwidth growth, but most 
+important, reduced transmission delay. 
+It seems clear that satellites must provide the infrastructure for 
+such rates, particularly since the telephone and cable 
+companies will most likely not do so. Terrestrial providers 
+have little incentive to pursue those installations: there is less 
+sharing since population density will be low, the providers 
+may not recover installation costs sufficiently rapidly, and the 
+booming demand for bandwidth competes for scarce 
+installation resources. 
+The primary care stations will each require access to the 
+satellite. Each ground stations has easy access to low speed 
+ground lines. The lower bandwidths of these lines can support 
+satellite scheduling, for substantially improved throughput. 
+Initial analysis shows that satellite providers need to pursue an 
+on demand business model. Such a model will provide a cost 
+based reimbursement mechanism. 
+REFEWNCES 
+[l] Gordon Bell and Jim Gemmel, CACM 39(7):55-61, July 
+1996. 
+[2] H Tyrer, Specifications for a Satellite Based Wide Area 
+Network, Biomedical Sciences Instrumentation Vol 35, paper 
+99-019 pages 111-116, Instrument Society Of America, Res. 
+Trgl. Pk, NC, 1999. 
+[3] IF Akyildiz and SH JeongJEEE Comm Mag, July, 1997 
+146 
+[4] JE Cabral and Y Kim, Multimedia Systems for 
+Telemedicine and their Communications Requirements, 
+IEEE Communications Magazine, pages 20-27, July 
+1996. 
+[5] STC Wong and HK Huang, Networked Multimedia 
+for Medical Imaging, IEEE Multimedia, pgs 24-35, April- 
+June 1997. 
+[6] httr?:/lwwn.iritzlsnr.cotn/menu/technicn.httn (as of 
+2/99) 
+[7] httr,://l.OInnd.leic.nasa.eo\~/-tnallman/l~a~ers (as of 
+2/99) Ongoing TCP Research Related to Satellites 
+[8] D Bertsakas and R Gallager, Data Networks (2nd 
+Edition) pages 277 to 282, Prentice Hall, 1992. 
+Harry W. Tyrer is currently professor and associate 
+chairman of the Computer Engineeriiig and Computer 
+Science Department at the University of Missouri. He 
+graduated from Duke University with a P1z.D. His area of 
+specialization is computer network performance 
+evaluation. He continues his interests in biomedical 
+engineering, serving as a consultant to industly and 
+government. He has published on biotechnology, 
+instrumentation development, computer operating systems 
+and networks. He has served as book editor and journal 
+guest editor. 
+147 

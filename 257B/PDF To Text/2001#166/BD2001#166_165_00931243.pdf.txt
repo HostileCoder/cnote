@@ -1,0 +1,718 @@
+The TRAC Mission Manager Autonomous Control 
+Executive1 
+Timothy L. Johnson, Hunt A. Sutherland, Stephen F. Bush, 
+Weizhong Yan, and Charles Eaker 
+GE Corporate R&D 
+P.O. Box 8 
+Schenectady, NY 12309 
+sutherland@crd.ge.com 
+Abstract-Present autonomy technologies do not 
+compensate for a vehicle's structural, perceptual and control 
+limitations through reflexive responses and rapid adaptation 
+as a pilot typically does. For Uninhabited Air Vehicles 
+(UAV's) to have more general application the mishap rates 
+must be much reduced. Therefore the vehicle control 
+systems must be capable of rigorously analyzing and 
+predicting in real-time, component failures and other 
+disturbance effects to determine the appropriate response 
+much as a pilot does. The purpose of the Reliable 
+Autonomous Control Technology (REACT) program, a 
+jointly-developed mission management architecture by 
+Lockheed Martin Aeronautics, General Electric, NASA 
+Dryden, and Jet Propulsion Lab., is to autonomously 
+accomplish this complex mission and subsystem 
+management task [l]. Based on prior analysis of recent 
+UAV data, the Autonomous Control Executive (ACE) could 
+play a role in preventing up to about 36% of these mishaps. 
+We describe the ACE that would be part the Mission 
+Management architecture and some initial results from rapid 
+prototype of the architecture implemented using a PC based 
+simulator. 
+TABLE OF CONTENTS 
+1. INTRODUCTION 
+2. ACE FUNCTIONS 
+3. ACE DESIGN 
+4. DISCUSSION 
+5. CONCLUSIONS 
+6. REFERENCES 
+about 150 mishaps for UAV's as compared to about 5 
+mishaps per 100,000 mission hours for piloted systems. 
+Current UAV's are designed to be very low cost and use 
+smaller, low-power commercial off-the-shelf (COTS) 
+components and have very limited redundancy when 
+compared to piloted aircraft systems. Not suprisingly, the 
+lower requirement for reliability has led to much higher 
+mishap rates. In the past the higher mishap rate was seen as 
+acceptable because it does not mean the loss of human life 
+but has restricted use not to be over populated areas. For 
+more general application of UAV's much more stringent 
+mishap rates must be met. Therefore the vehicle control 
+systems must be capable of rigorously analyzing and 
+predicting in real-time component and other disturbance 
+effects to determine the appropriate response much as a pilot 
+does prior to or as a result of a system failure. 
+In a follow-up analysis we attempted to identify root causes 
+of the mishaps through information received on the UAV 
+failures. The information was in the form of general 
+summaries rather than a per-mishap report of the root causes 
+of the mishap. Still, there were enough different UAV and 
+drone suppliers represented that it was worthwhile to 
+categorize the problems reported. The categories shown in 
+Table 1 are an attempt to generally define what the problems 
+were and their frequency as a count of how many different 
+suppliers mentioned the problem. 
+Table 1. Tabulation of UAV mission failure causes 
+Category I Count I Percentage 
+Emergencv Procedures Is I 26 
+1. INTRODUCTION 
+Internal studies have shown that current Uninhabited Air 
+Vehicles (UAV's) have not met the degree of safety and 
+reliability required for autonomous operation over populated 
+areas or in airspace shared with commercial aircraft. Present 
+autonomy technologies do not compensate for a vehicle's 
+structural, perceptual, and control limitations through 
+reflexive responses and rapid adaptation as typically a pilot 
+does. This is particularly evident when UAV mishap rates 
+are compared to those of piloted systems. The study shows 
+several orders of magnitude worse mishap rates, typically 
+Parts Quality/Suitability 1 5  I 16 
+Testing 1 5  I 16 I 
+SW Confguration Control 1 4  I 13 
+Redundancy of Critical Systems I 3 I 10 
+Operating Procedures 1 3  I 10 
+Design Problems 1 2  1 6  I 
+I Assembly Errors 1 1  1 3  I 
+The top category, emergency procedures, includes both 
+direct references to emergency procedures and comments by 
+experienced test pilots during initial test flights of the 
+vehicles. The parts quality and suitability includes such 
+0-7803-6599-2/01/$10.00 Q 2001 IEEE 
+2-639 
+things as parts that are not EMI resistant or not temperature 
+qualified or not aviation quality. The testing category 
+includes ground-based testing of designs and parts. The need 
+for software configuration management was mentioned 
+enough to be put in a separate category. The desirability of 
+or lack of redundancy in critical systems is the next 
+category. The problems with ordinary operating procedures 
+included failure to communicate among people on the 
+ground; incomplete division of responsibilities and the need 
+to treat ground personnel in similar manner as pilots do. 
+The design problem category includes general design 
+problems and specific cases, such as unpressurized fuel 
+tanks. The case of assembly errors mentioned was the 
+failure to ground the avionics rack to the airframe. Adding 
+up the problem areas another way, one could lump 
+emergency and operation procedures that could have been 
+handled by a pilot or in the case of an UAV by an on-board 
+mission manager. That is an opportunity to improve roughly 
+one third of the total mishaps through better design of the 
+UAV mission manager. The other two thirds are the 
+responsibility of the vehicle's designers, builders, and 
+maintainers. Some fraction of those may be the causes of 
+problems, but would be compensated for by a test pilot or 
+on-board mission manager. Clearly, an improved on-board 
+mission manager will make significant improvement but not 
+solve all problems. 
+In the remainder of the paper we describe the Autonomous 
+Control Executive (ACE) that would be part of the Mission 
+Management architecture envisioned in Lockheed-Martin's 
+TRAC and REACT' programs [l]. In particular we report 
+on some initial results from a rapid prototype of the 
+architecture implemented using a PC based simulator. 
+Previous work was first reported last year and defined the 
+opportunities to improve reliability through improved 
+s o h a r e  control 1121. 
+2. ACE FUNCTIONS 
+The goal then is to develop a robust, reusable software 
+architecture and components that will enable the UAV to 
+monitor its current state, forecast its future state, and resolve 
+current and possible future problems or conflicts. These 
+capabilities are now possible by combining new 
+developments in vehicle autonomy to provide an integrated 
+system solution to the problem of UAV reliability. In the 
+TRACKEACT Mission Management architecture for 
+UAV's, the role of the Autonomous Control Executive is to 
+manage the real-time, step-by-step execution of the mission 
+plan. Although there is ample precedent for the allocation 
+of this function to a distinct software process in highly 
+automated operations like manufacturing (manufacturing 
+execution system) and robotics (task manager), it has not 
+been done consistently in the UAV arena. As illustrated in 
+Figure 1 the architecture uses many concurrent processes to 
+perform functions such as on-board planning and re- 
+planning, data collection, diagnostics and prognostics, and 
+vehicle control. These processes may be viewed as "closing 
+the loop" around unexpected disturbances at different time 
+scales. The control system closes the loop for short-term 
+disturbances characteristic of the fastest response times of 
+the vehicle. The ACE closes the loop around the 
+intermediate-duration disturbances which are typical of the 
+maneuver times of the vehicle, while re-planning and 
+diagnostics, cover time-scales characteristic of mission 
+phases; finally, mission planning and prognostics cover 
+time-scales characteristic of the entire mission. This "inner- 
+loop, outer-loop" design paradigm is known to be an 
+effective, multi-layered strategy to achieving highly robust 
+operation. The approach also represents a temporally 
+diverse strategy where the overlapping of time-scales, and 
+diverse sensing and actuating capabilities of these layers can 
+provide a lower cost strategy than traditional hardware 
+redundancy, that can be prohibitively expensive in some 
+UAV systems. This partitioning of functions is analogous to 
+the "layered" approach, which has been successful in the 
+control-guidance-navigation-pilot loops of manned aircraft. 
+Figure 1. TRAC Architecture and Time-scales. 
+The ACE functions, as derived from a top-down 
+decomposition of system level UAV requirements, include: 
+Issuing mission segment commands, 
+Monitoring segment completion, 
+Reacting to unexpected events during a mission 
+segment, 
+Managing startup and shutdown, including software 
+configuration control at startup, and 
+Logging mission events and data. 
+' Reliable Autonomous Control Technology program is part of NASA's 
+REVCON (Revolutionary Aeronautical Concepts) program, as defined in 
+NRA 99-LaRC-3, the phase I contract team consists of NASA DFRC, 
+Lockheed Martin Tactical Aircraft Systems, Lockheed Martin, and Jet 
+Propulsion Laboratory. 
+Although this paper will describe ACE features which have 
+been specitically designed for the module in the 
+TRACREACT architecture, the above principles are very 
+general and hence the ACE capabilities can be applied 
+2-640 
+across different platforms and to some extent across 
+different mission manager design concepts. The design of 
+the ACE subsystem raises issues that require approaches that 
+go beyond the traditional guidance, navigation, and control 
+practices, and yet must be capable of inter-operating with 
+them. The next section describes further the approach taken 
+with designing these ACE functions. 
+3. ACE DESIGN 
+The ACE architecture now under development has been 
+designed to perform all of the functions shown in Figure 2, 
+as explained by a collaboration diagram. Instances of the 
+tasks within the ACE module as found in the diagram are 
+assumed to execute concurrently and as determined from the 
+requirements must have response times in the order of sub- 
+seconds (0.1 to 10 seconds). The allocation of the functions 
+within ACE show a close correspondence with the 
+functional decomposition as is apparent in the figure. 
+Planner 
+Figure 2. ACE Collaboration Diagram 
+ACE Design Concept 
+Since ACE is required to handle software errors in the 
+remainder of the Mission Manager system, its code must be 
+specially designed to operate independently if the software 
+of the other Mission Manager subsystems should they 
+generate exceptions which cannot be corrected internally by 
+the modules. ACE must also generate reactive responses to 
+maintain short-term safe operation of the UAV when certain 
+classes of external disturbances occur. These functions 
+invoke special algorithms, called from the Action Manager, 
+which are capable of managing the vehicle for short periods 
+following unexpected disturbances, until there is time to re- 
+plan the current mission segment (and in some cases to re- 
+plan the rest of the mission). Typically the reactive time 
+scales are in the range of 0.1 to 10 seconds, depending on 
+the specific vehicle dynamics. Particular features include: 
+0 Flight envelope protection, 
+0 Large disturbance rejection, and 
+0 Fault corrective action. 
+The flight envelope protection functions to prevent any 
+command from causing the vehicle to exceed its flight 
+envelope at any time and would include terrain avoidance. 
+The large disturbance rejection includes the generation of 
+maneuvers, which may be required to correct for the effects 
+of major disturbances such as large wind gusts, evasive 
+maneuvers, or wind shear, which are beyond the capabilities 
+of the control system. The fault corrective action function 
+generates short time scale reflexive (but sensible) responses 
+that maintain vehicle integrity immediately following 
+detection of a critical fault. As in the preceding cases it is 
+assumed that re-planning will be invoked concurrently in 
+order to fully identify and accommodate such faults in 
+subsequent mission segments. These specialized algorithms 
+will be the subject of future papers. 
+Command Issue-Command Issue includes receiving 
+actions from the planner, checking them for safety and 
+feasibility, modifying as required by the current vehicle 
+status, and breaking the actions into command sequences to 
+the vehicle management system and the other onboard 
+equipment. The command issue may be subdivided into 
+three categories: flight path, communications, and onboard 
+equipment. Because of the interaction with external control 
+and the need for formation flight it is expected that task 
+commands will include a variety of path segment patterns in 
+addition to waypoint-to-waypoint flight paths. For example, 
+path-stretching maneuvers to delay the arrival of the vehicle 
+at the landing field or the ability to circle over target areas. 
+Monitoring-Monitoring includes watching the software 
+health of the Mission Manager components, detecting 
+successful plan segment completion, watching the progress 
+of commands after they are issued and watching for 
+unplanned events. This also includes predicting the 
+probability of success of actions. The objective of 
+monitoring is to determine when the commands are 
+completed and to initiate a reaction in the case of commands 
+which fail to complete acceptably. 
+Reaction-The purpose of reaction is to provide responses 
+in situations that require a more rapid response than waiting 
+for the completion of a planning cycle. If the planner has 
+already started a cycle before the situation change then the 
+reaction time could be the time to complete the cycle in 
+progress plus the time to complete a new cycle which 
+considers the new situation information. It includes resetting 
+or restarting other mission manager and vehicle management 
+system components, selection of immediate responses for 
+vehicle "red light" situations, selecting contingency plans 
+when conditions indicate, and carrying out interactive 
+communications where the delay through the planner would 
+render the vehicle less responsive than desired or required. 
+Startup and Termination-ACE is responsible for 
+initializing the other mission manager components and 
+terminating them at the completion of a mission. The startup 
+procedure must share data with the software loading 
+2-641 
+function so that a compatible set of mission management 
+components is started. ACE is also responsible for resetting 
+or restarting components that have failed. This is done in 
+coordination with the monitoring and reaction functions. 
+Configuration Control-ACE is responsible for managing 
+the software update process, including the handling of the 
+loading of software via external interfaces perhaps even 
+during flight. ACE will make sure that the versions of the 
+software of the various Mission Manager components are 
+compatible. This must permit the loading of “older” 
+versions of the software, in case the most recent versions 
+introduce a serious bug, and must make sure that the newly 
+loaded component is compatible with the other loaded 
+components. ACE may need to request that it receive other 
+modules than the one that was loaded in order to maintain 
+compatibility. The s o h a r e  loading function must share data 
+with the startup function so that a compatible set of mission 
+manager components is started by ACE. 
+Status Logging-Status logging includes both the periodic 
+vehicle status and the logging of any anomalous conditions. 
+The collection of final information at the termination of a 
+mission is also required. The communication of the status is 
+covered under Reaction ’s interactive communications 
+responsibility. 
+As shown in Figure 3 we have implemented the Action 
+Manager to process in four steps at each sample interval for 
+detection and response to each of the disturbance types. 
+Each of the steps samples the current state and takes in 
+operating limits to compute appropriate reaction as needed 
+and passes into the next step. In the next section we discuss 
+some of the design issues that we are concerned with and 
+present some initial results from our first rapid prototyping 
+of some of the algorithms. 
+Figure 3. ACE Action Manger Components 
+4. DISCUSSION 
+At this stage in the project we have been primarily 
+concerned with understanding and developing the various 
+algorithms that are to produce responses in the case of the 
+various unexpected events. In this section we discuss further 
+some of the issues in the design of these algorithms and 
+consider how outputs from the algorithms are integrated in 
+the ACE when potentially conflicting responses might arise. 
+Also introduced are some issues with maintaining an 
+accurate state of the vehicle given potential time lags among 
+a more distributed collection of sensors. The Time Warp- 
+based concept is discussed as the means for maintaining 
+both the current and future states of system variables of 
+interest to ACE. Finally we describe the PC based 
+simulation environment used to perform experiments with 
+conceptual design of the various algorithms in ACE. 
+Features of ACE Reaction Algorithms 
+Fusion of responses by ACE-The Action Manger within 
+the ACE architecture is responsible both for decomposing 
+task commands from the planner into guidance and control 
+commands and for integrating possible commands from 
+reflexive responses that might arise fiom unplanned events. 
+Under normal operating conditions only the planned flight 
+path commands would operate while the protective functions 
+are monitoring conditions. Starting with the simplest case 
+when only one of the protection functions needs to over- 
+ride, the planned action can be handled with some fixed 
+conditional logic which determines how the command from 
+one of reflexive responses is passed into the guidance and 
+control system. For purpose of design however we can not 
+assume that only one of the unplanned events will happen at 
+a time. Unlike some systems it is very possible that multiple 
+unplanned events of concern to UAV’s could occur within 
+the same time frame of interest to the ACE. A simple 
+example would be the case to handle both terrain avoidance 
+and wind gust simultaneously. Therefore the design of the 
+Action Manager must be capable of integrating the different 
+responses as produced by each feature with some notion of 
+relative priorities that take into account the path segment in 
+operation, i.e. during landing and take-off when the 
+operation of the system is constrained. As currently designed 
+the responses are prioritized through the ordering of the 
+steps as shown in Figure 3 whereby the Flight Envelope 
+Protection may potentially override all the previous features. 
+In a simple experiment we observed the effect that the Flight 
+Envelope Protection induces a tracking offset when 
+responding to terrain avoidance. In future designs we are 
+considering use of real-time information fusion techniques, 
+as were previously developed for real-time fault detection 
+applications [4], that could improve upon the fixed logic 
+currently used. 
+Flight Envelope ProtectiovThere are two primary 
+components to operation of the Flight Envelope Protection 
+module, which will function as a method called from within 
+the ACE Action Manager. The first component is executed 
+at the time of initialization of the system, and uses flight 
+envelope and operational limits data to compute an efficient 
+representation of the flight envelope suitable for real time 
+operation (e.g., a polytope in n-dimensional operating 
+space). The second component will be executed at run-time 
+at a regular rate (e.g., l/sec). This component will compute 
+2-642 
+the location and direction of motion of the current operating 
+point and (or its forward projection in time) with respect to 
+the surface of the (approximated) flight envelope. If the 
+motion is projected to be in the envelope and to remain in it 
+(in view of the next mission command), then the next 
+mission command will be executed without change. If the 
+motion is projected to exceed the flight envelope, then the 
+nominal computed command will be modified (or 
+overridden) to keep the vehicle within its flight envelope as 
+the next command is executed. The algorithm to compute 
+the modified command will be such that on repeated 
+invocations, the FEP will maintain vehicle operation within 
+the flight envelope, even if the prescribed plan continues to 
+push it outside of the flight envelope limits. Whenever the 
+vehicle nears the flight envelope boundary, the Mission 
+Planner will be notified (via active state memory) of the 
+flight envelope violation and will be requested to re-plan. It 
+is assumed that after some time interval, a new plan will be 
+available, and that this will provide long term correction of 
+the flight envelope violation, while maintaining mission 
+objectives. 
+Large Disturbance Rejectiom-Uninhabited Air Vehicles 
+(UAV’s) can be made more maneuverable than manned 
+vehicles, since they are not subject to the limitations of 
+manned vehicles, such as g-limits of the pilots, pilot 
+response times, and limits on the number of concurrent 
+sensory and motor tasks that the pilot is capable of 
+performing. Increases in computing power have brought 
+the development of super-maneuverable vehicles within the 
+realm of technical feasibility. However, the dynamics of 
+highly maneuverable vehicles are often highly nonlinear and 
+are difficult to model and to control. In addition, the limits 
+of control authority and stability in large-angle or large-rate 
+maneuvers are not yet well understood. Often, UAV’s are 
+somewhat smaller and/or lighter than conventional aircraft, 
+so that the relative importance of aerodynamic disturbances 
+is larger. A common mishap mode of such vehicles is the 
+incidence of a larger-than-expected disturbance, followed by 
+an incorrect compensating control action, followed by loss 
+of control, followed by loss of the vehicle (this is analogous 
+to a boat with an inexperienced crew capsizing in high seas). 
+The problems of wind shear and clear air turbulence have 
+been studied quite carefully, and it has been shown, for 
+instance, that wind shear robs the aircraft of energy, without 
+which the control surfaces become less effective and cannot 
+correct the aircraft’s motion (even though a combination of 
+thrust and aerodynamic surface controls could preserve 
+controllability). As another example, momentum 
+management has been considered in supermaneuverable 
+missiles and in spacecraft; it is known fiom Lie Group 
+theory for rotational systems that there exist control 
+sequences which lead to stabilization when no continuous 
+linear control law will work [5 ] .  Release of stores fiom a 
+fighter aircraft is another example (wing-store flutter 
+destroys the wings within 1-2 sec.). These are also examples 
+where short term control actions do not adequately 
+anticipate the long-term (viz., 2-60 sec., for aircraft motions) 
+consequences of their responses to a disturbance. We are 
+evaluating methods, which are specifically suitable to the 
+correction of large disturbances for intact UAV’s. We shall 
+seek methods, which complement the primary flight control 
+system in the large-disturbance nonlinear regime of the 
+aircraft dynamics andor govern the response of the vehicle 
+to very large disturbances. 
+Fault Corrective Action-There will be a period of time 
+between the occurrence of a fault, when it is detected, and 
+when the mission can be re-planned to accommodate it. A 
+gap is likely to exist between very short time-scale fault 
+accommodation (times under 0.5 sec), which is usually 
+handled by controller robustness or pre-designed fault 
+correction, and longer time-scale fault accommodation 
+(times typically greater than 1.5 sec) which can be 
+accommodated by fault isolation and mission re-planning. 
+The problem is, that during this one second of delay, the 
+controllability of the vehicle may be lost, i.e., the remaining 
+good control effectors may not be able to exert enough force 
+to recover the vehicle to a flight condition which is 
+maintainable. During this critical 1 second gap, the mission 
+manager (and in particular, the Autonomous Control 
+Executive, in the Lockheed Martin TRAC design) must be 
+responsible for maintaining the controllability of the vehicle, 
+but without detailed knowledge of the specific fault. From 
+the point of view of a linearized dynamic analysis about a 
+given flight condition, many faults manifest themselves as 
+(a) changes in dynamics, (b) jumps in the state space and/or 
+changes in the active state variables, and (c) unstable motion 
+away from the commanded motion of the vehicle. The 
+proposed approach to this situation is an “outer loop” 
+supervisory control law, which comes into play only when a 
+fault is detected and also has to maintain certain level of 
+sensitivity and robustness under noisy signals and 
+disturbance sources. The supervisory control law generates 
+corrective actions with minimal delay, based on very 
+preliminary knowledge of fault categories and their 
+symptoms through monitoring for changes in the system 
+level parameters. 
+Active State Interface 
+In the Mission Manager architecture the Autonomous 
+Control Executive (ACE) interfaces with Active State. The 
+Active State within this architecture provides a variety of 
+“self-executing” activities the design of which are enabled 
+by recent advances in softwarehardware technologies. 
+Among these activities are temporal control. For example, 
+state information is provided for times in the recent past or 
+predicted for the near future. ACE will benefit from 
+proposed prediction and time maintenance mechanisms for 
+“Active State” system variables; details on these proposed 
+mechanisms are presented in [7]. A Time Warp-based 
+concept deals with the specific issues that arise with time 
+maintenance for variables that are supposed to have the 
+“state” property and is adapted to real-time problems, viz., 
+2-643 
+problems where the “global time” variable must be 
+synchronized very closely with real time such as GPS for 
+example. The methods for distributed modeling provide a 
+natural implementation for active state. Note that the general 
+idea for this work comes from work in Active Networks 
+(Active Virtual Network Management Prediction) [6].  
+Adapting this concept to a rigorous real-time control system 
+is a new challenge that has not been attempted to our 
+knowledge. The primary component is the State Queue 
+(SQ), which holds future, present, and past state objects. 
+Figure 4 shows a graph of values contained in an example 
+active state cache as plotted against wallclock and local 
+virtual time (LVT). Note in this example that at any given 
+wall clock (actual) time, there are state objects existing for 
+times in the near past and near future. The challenge of 
+developing active state as defined in this section is primarily 
+in the overhead associated with the new capabilities that 
+active state provides. These include the quick response 
+required of active state and ensuring that the benefits of the 
+added features of active state information overcome the 
+added overhead. This depends upon determining a trade-off 
+in prediction accuracy that results in reduced overhead while 
+providing increased safety to perform lookahead. Lookahead 
+is the expected amount of time into the future the active state 
+can reliably maintain predicted values. 
+Simulation Environment 
+We are implementing the ACE reflexive response 
+algorithms in C++ and using a scaleable real-time air vehicle 
+simulation and visualization tool called FlightMaster ffom 
+Sight, Sound and Motion, Inc3 (SSM) to demonstrate 
+feasibility. This product provides a simulation executive 
+that allows rapid reconfiguration and easy integration of 
+multiple air vehicle designs by virtue of the open 
+architecture of the simulation environment. Through the 
+simulation we are exploring different designs of the ACE 
+and at the same time are using the visualization feature to 
+demonstrate these conceptual designs in real-time. An 
+example screen in Figure 5 shows the visualization rendered 
+during simulation in which the ACE specific features are 
+monitored on the right-hand side. This software is running 
+on a high-end Windows NT platform. It is thought, once 
+mature and since the standard PC hardware is steadily 
+increasing in performance, that this simulation could also 
+lend itself for use as the major component of a low cost 
+training system for future UAV customers. 
+L 8000 
+Figure 5. Example Visualization from SSM Simulation. 
+Figure 4. Example of Active State Cache. 
+In our architectural view of active state, the model is the 
+next state function. The state objects contain the necessary 
+executable code to execute the model beyond wall clock 
+time. The state objects are inherently distributed and can be 
+executed in parallel across a range of processors, eventually 
+across multiple vehicles. The prediction capability of the 
+active state requires “driving processes” that inject virtual 
+messages into the system. These are messages or events 
+anticipated to exist in the future. The initial design includes 
+mock sensors that act as the driving processes and run 
+simple prediction algorithms to generate virtual messages. 
+Our next steps are to incorporate this concept into the 
+Mission Manager beginning with relatively simple predicted 
+values such as aircraft location and aircraft positional state 
+information. Utilizing these predicted values, it is then 
+possible to begin evaluating the benefits with regard to 
+sensor and communications delay compensation within ACE 
+and higher level effects upon overall mission goals. 
+Work also is in progress to connect the simulation tool to the 
+other system components through real-time CORBA 
+interfaces: By standardizing on interfaces that allow the 
+components to be in the same process, or in different 
+processes, or even on different network computers, it will be 
+relatively easy to replace the various components during 
+development. Development can even be distributed. 
+CORBA permits the components to be implemented with 
+completely different software technologies, and hosted on 
+completely different architectures. The main reason for 
+using CORBA during development is that later stages of the 
+project will require other aircraft simulators to be used. The 
+use of CORBA means that no other components need to 
+know what simulator is in use or even how any simulator is 
+implemented. In fact, the simulator could be on a computer 
+that is remote to the development machines. 
+Online at http://www.ssmotion.com. 
+The implementation used is TAO. It is available at 
+http://w.cs.wustl.edu/-schmidt/TAO.html. 
+2-644 
+5 .  CONCLUSIONS 
+In this paper we presented software algorithms that provide 
+reflexive responses to unplanned events much the way a 
+pilot’s responses might do and that are intended to reduce 
+the mishap rate found on today’s Uninhabited Autonomous 
+Vehicles (UAV’s). In the TRAC Mission Management 
+architecture for UAV’s, the role of the Autonomous Control 
+Executive (ACE) is to manage the real-time, step by step 
+execution of the mission plan. The layers in the TRAC 
+architecture may be viewed as “closing the loop” around 
+unexpected disturbances at different time scales where the 
+ACE closes the loop around the intermediate-duration 
+disturbances which are typical of the maneuver times of the 
+vehicle. Examination of the ACE requirements has produced 
+some promising approaches to producing reflexive 
+responses that include Flight envelope protection, Large 
+disturbance rejection, Fault corrective action, and 
+integration of those responses into a situation appropriate 
+response. Although this paper describes ACE features that 
+have been specifically designed for the TRAC architecture, 
+the principles are general and hence may be applied across 
+different platforms and to some extent across different 
+mission manager design concepts. 
+The design of the ACE subsystem of T U C  is raising some 
+new engineering challenges that go beyond the traditional 
+guidance, navigation, and control practices, and yet is still 
+capable of inter-operating with them. We have investigated 
+use of real-time CORBA during the prototype stage of 
+development and are exploiting use of object oriented 
+design practices using C++ as the language for 
+implementation of the design. We have begun to 
+demonstrate initial feasibility of the design through use of 
+the SSM simulation on a Windows NT platform that 
+provides a modular framework into which C++ developed 
+software may be evaluated. In future work we expect to 
+continue to experiment with the various reflexive response 
+algorithms so as to achieve an operational simulation from 
+which we can then complete a design for demonstration on 
+an actual UAV. 
+REFERENCES 
+[l] Shaefer, P., Colgren, R., Abbott, R., Park, H., Fijany, A., 
+Fisher, F., James, M., Chien, S., Mackey, R, Zak, M., 
+Johnson, T., and Bush, S., “Technologies for Reliable 
+Autonomous Control (TRAC) of UAVs,“ 2001 IEEE 
+Aerospace Conference, Big Sky, MT., March 2001. 
+[2] Johnson, T., Bush, S, and Koneck R.,“Improving 
+Mission Success Rates through software Enabled Control 
+Design” 2000 IEEE Aerospace Conference, Big Sky, MT., 
+March 2000. 
+[3] Shaefer, P., Colgren, R. and Johnson, T., “Flight Mishap 
+Prevention For UAVs,” 2000 Digital Aviation Systems 
+Conference, Philadelphia, PA, October 2000. 
+[4] Goebel, K., Krok, M.. Sutherland, H., “Diagnostic 
+Information Fusion: Requirements Flowdown and Interface 
+Issues,” 2000 IEEE Aerospace Conference, Big Sky, MT., 
+March 2000. 
+[5] Buschek, H. (BGT Bodenseewerk Geraetetechnik 
+GmbH, Ueberlingen,Germany), Journal of Guidance, 
+Control, and Dynamics (ISSN 0731-5090), vol. 22, no. 1, 
+Feb. 1999, p. 115-122.. 
+[6] S. F. Bush. Active Virtual Network Management 
+Prediction. In Parallel and Discrete Event Simulation 
+Conference (PADS) ‘99, May 1999. 
+[7] S.F. Bush. Optimistic Distributed Simulation in an 
+Uninhabited Air Vehicle Flight Control System. Submitted 
+to The Fifth International Symposium on Autonomous, 
+March 26-28, 2001, Dallas, Texas, U.S.A. 
+Dr. Stephen F. Bush is a Computer 
+Scientist at General Electric Research and 
+Development in Niskayuna, NY. Stephen 
+conducts research in advanced networking 
+concepts. He has numerous patents pending 
+in the area of network security and 
+vulnerability analysis and provisional 
+patents for active networks in both terrestrial and space 
+based communication systems. He is completing a book to 
+be published by KluwerPlenum Academic Publishers in 
+2001 titled “Active Networks and Active Network 
+Management: A Proactive Management Framework”. 
+Stephen received his BS in Electrical and Computer 
+Engineering from Carnegie Mellon University and MS in 
+Computer Science from Cleveland State University. Before 
+joining at General Electric Research and Development, 
+Stephen was a researcher at the Information and 
+Telecommunications Technologies Center at the University 
+of Kansas where he contributed to the DARPA Rapidly 
+Deployable Radio Networks Project. Stephen completed his 
+Ph.D. research at the University of Kansas where he 
+received a Strobe1 Scholarship Award. Stephen received the 
+award of Achievement for Professional Initiative and 
+Performance for his work as Technical Project Leader at 
+General Electric Information Systems in the areas of 
+network management and control while pursuing his Ph.D. 
+Dr. Timothy L. Johnson received the 
+Ph.D. in Electrical Engineering and 
+Computer Science fiom MIT in 1972. 
+He then joined the MIT faculty, 
+performing research in the area of 
+control of systems governed by partial 
+differential equations, biomedical 
+engineering, and hybrid controls until 1980. During this 
+2-645 
+period he was awarded the American Automatic Control 
+Council’s Donald P. Eckman award and was named 
+Edgerton Assistant Professor of Electrical Engineering at 
+MIT. In 1980, he joined Bolt Beranek and Newman (BBN) 
+as a Senior Scientist and pursued applied research in man- 
+machine systems, robotics, and automated systems. Among 
+other projects, he led the US National Bureau of Standards 
+(later NIST) Hierarchical Control Systems emulation, which 
+operated the Automated Manufacturing Research Facility. 
+In 1984, Dr. Johnson joined GE Corporate Research and 
+Development where he has subsequently held several 
+technical and management positions. Among other 
+projects, he was involved in the development of GE 
+Aircraft Engine’s BEACON system which automatically 
+generates engine control s o h a r e  for all GE commercial 
+engines, the GE- 1 Satellite (currently a Lockheed-Martin 
+product), GE’s Profile Dishwasher and Clothes Washer, and 
+an upgrade of NBC’s Skypath system for distribution of 
+video to its 217 affiliate stations. Dr. Johnson has held 
+several professional positions, including Vice President of 
+Technical Activities of the IEEE Control Systems Society, 
+and Finance Chair of the 1996 WAC Congress. He was 
+recognized as a Distinguished Member of 
+Systems Society in 1995. 
+Hunt A. Sutherland is a Computer and 
+Systems Engineer at the General Electric 
+Corporate Research & Development 
+Center (GE CR&D). He has participated 
+in and led project teams responsible for 
+the application of embedded controllers 
+in many GE products and industrial 
+applications. In 1995 he received the Willis R. Whitney 
+Technical Achievement Award for leading a team which 
+developed the fmware in the Spectra Electronic Control 
+product. His research interests include methods and tools 
+for design of real-time embedded systems and the study of 
+control system architectures and analysis of system 
+reliability. He has received four patents and authored 
+technical papers, and articles in the field of design and 
+implementation of embedded computer systems. Hunt A. 
+Sutherland received a M.S. in Computer and Systems 
+Engineering fiom Rensselaer Polytechnic Institute in 1978 
+and a B.S. in Electrical Engineering from Worcester 
+Polytechnic Institute in 1974. 
+2 - 6 4 6  

@@ -1,0 +1,432 @@
+Real-time Command, Data and Control Concepts for the 
+Instrument on the 
+Space Interferometry Mission’ 
+Matt Wette 
+Jet Propulsion Laboratory 
+California Institute of Technology 
+M / S  198-326,4800 Oak Grove Dr. 
+Pasadena, CA 91109 
+Matt.Wette@j pl.nasa.gov 
+818-354-6265 
+Abstract - The Space Interferometry Mission (SIM), slated 
+to launch in 2008, will require simultaneous operation of 
+tens of control loops running at kiloHertz rates. The task of 
+designing a computer control system to run this complex, 
+distributed system will require careful requirements analysis 
+and design flow. Though the project is in early phases, the 
+process to flow the flight system command, data, and 
+control system requirements to the instrument real-time 
+control design is well along. In this paper we give a 
+glimpse into the process and resulting design. 
+TABLE OF CONTENTS 
+1 .  INTRODUCTION 
+3. CONTROL ARCHITECTURE 
+4. CONCLUSIONS 
+5. REERENCES 
+6 .  ACKNOWLEDGEMENTS 
+7. BIBLIOGRAPHY 
+2. f%N INSTRUMENT USE SCENAFUO 
+1 INTRODUCTION 
+The Space Inteferometry Mission (SIM) is slated to launch 
+in 2008. The SIM Flight System is shown in Figure 1. The 
+figure shows seven siderostat bays housed in the precision 
+structure, the metrology boom with attached kite, solar 
+panels and the high-gain antenna. Below the precision 
+structure are the two backpacks which house the spacecraft 
+avionics and instrument electronics. SIM is described in 
+some detail in [l]. 
+The purpose of the SIM Flight System is to (1) provide 
+precision relative stellar angular measurements, (2) 
+demonstrate the capability of interferometers for imaging, 
+and (3) demonstrate interferometric nulling, all in the visible 
+spectrum. Items (2) and (3) are technology demonstrations 
+for SIM. Item (I), measuring angles of stars precisely, is 
+the main focus for SIM and, for example, will allow 
+scientists to generate detailed maps of the Milky Way 
+galaxy. A Michelson stellar interferometer, like that used 
+on SIM, allows one to make accurate angular measurements 
+of stars provided that the baseline vector (in “star space”) 
+and the starlight pathlength difference from the CCD pixels 
+to the endpoints (or fiducials) defining the baseline can be 
+accurately determined. On SIM these quantities must be 
+derived from knowledge of distances on the order of 
+picometers. The Flight System is required to make 
+repeatable metrology and fringe measurements at the sub- 
+nanometer level in order to meet this goal. 
+I lApLZWX 
+Figure 1. SIM Flight System 
+The basic hardware components of interferometers are the 
+siderostats, steering mirrors, delay line and beam combiner. 
+The siderostats are steerable flat mirrors that direct starlight 
+down the optical axes that comprise the arms of the 
+interfererometer. On SIM, the siderostats have comer-cubes 
+mounted on their surfaces that provide the means for 
+defining the fiducials of the interferometer. Articulated 
+stirring mirrors, or fast steering mirrors, provide fine control 
+of the light beams that are transmitted from the siderostat 
+mirrors, through the delay lines and to the beam combiner. 
+The delay lines, one passive and one active for each 
+interferometer, provide the means to accurately control the 
+difference in pathlength that the starlight travels through 
+~~ 
+0-7803-6599-2/01/$10.00 0 2001 IEEE 
+4-2083 
+each arm to reach the beam combiner. The beam combiner 
+combines the starlight from the two arms to produce a 
+measurable fringe on CCD pixels. 
+The SIM Flight System provides seven siderostats, with 
+accompanying steering mirrors, and four beam combiners, 
+with accompanying delay lines. An optical switchyard 
+allows sinnultaneous operation of three interferometers with 
+the capability to route starlight from any pair of siderostats 
+to any beam combiner. There is one spare siderostat and 
+one spare beam combiner for redundancy. The reason for 
+operating three interferometers will be explained shortly. 
+In order to measure changes in the interferometer baseline 
+absolute llengths and relative orientations accurately, the 
+Flight System is equipped with a metrology system. This 
+system measures the pathlength of laser light from each of 
+the corner cubes attached to the siderostats to a coimnon set 
+of four comer-cubes on the kite. This set of measurements 
+provides information to compute the position of all the 
+corner-cubes in a common (flight system fixed) frame. 
+Thus, the metrology system provides the capability to 
+measure the lengths of the baselines accurately as well as 
+the relative orientations of the baselines. However, the 
+metrology system does not provide the capability to track 
+changes in any baseline orientation in inertial space. This 
+takes more work. 
+With the SIM Flight System at a fixed inertial attitude, the 
+system provides the capability for any of its interferometers 
+to observe any sufficiently bright star within a fifteen- 
+degree field of regard. While SIM is pointed at a fixed 
+attitude, two of its interferometers, acting as guide 
+interferometers, will be locked onto two guide star:;. This 
+provides the capability to track relative changes in the 
+baselines in inertial space. 
+The SIM Flight System requires a high precision attitude 
+control system (ACS) to provide precision spacecraft 
+attitude control. Slews and precision pointing are 
+accomplished under the control of six reaction wheels. The 
+spacecraft is equipped with a high-gain antenna operated in 
+B A N D  iind a solar array which provides over 4000 watts 
+of power. The antenna and solar array are both articulated 
+to provide minimum pointing constraints on the Flight 
+System. There is a sun exclusion zone of +I- 30 degrees 
+fkom the center of the instrument field of regard. 
+The SIM Flight System is composed of the Spacecraft 
+Subsystem (SCS), the Real-time Control Subsystem (RTC), 
+the Starlight Subsystem (STL) and the Metrology 
+Subsystem (MET). Operation of the Flight System will be 
+controlled1 primarily on computers operating within the 
+Spacecraft and Real-time Control subsystems. The SCS and 
+RTC subsystems will communicate over a common data bus 
+such as IvEL-STD 1553b. The SPC is equipped with a 
+48Gb solid state recorder. The RTC has 512 MB of 
+volatile memory and 5 12 MB of non-volatile memory. For a 
+more complete description of the electronics see [ 2 ] .  
+The instnment on SIM is a complex system with tens of 
+control loops, over a hundred actuators and sensors, and 
+. 
+hundreds of electronics boards. It is important in designing 
+a system of this complexity to do carefiil top-down analysis 
+of its operation. In this paper we show a glimpse into the 
+analysis dlesign flow that is being done to insure a properly 
+working system is developed for flight. In Section 2 we 
+provide a brief description of the instrument RTC 
+subsystem. In Section 3 we provide a top-level use case for 
+the instrument and in Section 4 describe the control 
+architecture for the system. 
+2 AN INSTRUMENT U S E  SCENARIO 
+The job of the ground operators is to provide sequences to 
+operate thLe flight system and the job of the flight system is 
+to implement the furctions called out in the sequences. The 
+process of developing sequences, or use-cases, early in the 
+project allows the operators and system designers to agree 
+on a set of functions to be provided by !he flight system. In 
+the following scenario we will explore some of the functions 
+to be pelformed by the flight system and the following 
+sections will explore the preliminary design implied by 
+these functions. 
+The scenario we chcose to explore is that of getting fringe 
+measurements for a set of stars at a specific spacecraft 
+attitude. The science team will provide a list of target stars 
+for observing. The science operations team will add to the 
+list several grid star observations. The grid star observations 
+provide a reference grid for generating a global map of the 
+Once this is done the uploaded sequence is delivered. The 
+sequence may includle the following: 
+1. Instrument reccmfiguration. This ihnction will specify 
+which elements of the instrument will be grouped to 
+establish the required three interferometers. 
+2 .  Instrument caliibration. After each reconfiguration, 
+some level of calibration may be required. The 
+sequence will call out specific calibrations to be 
+performed. 
+3. Tile observation. This function will get the spacecraft 
+pointed to the correct attitude, acquire guide stars and 
+iterate through the list of science stars. At the end of 
+this 'time the required science data will be stored in the 
+spacecraft solid-state recorder (SSR), ready for 
+download. 
+The Flight System Operations Team has worked with 
+scientists. spacecra ft  engineers, instrument engineers, 
+ground system engineers and operators to define a set of 
+baseline we cases. The use-cases have been analyzed and 
+carried to the RTC subsystem, where the direct user, or 
+actor, is tlhe Spacecraft Subsystem. 
+sky. 
+2.1 Instrument Configuration 
+Configuration of the instrument is based on the following 
+defining principles. These will be used to drive 
+4 - 2 0 8 4  
+requirements on the associated RTC flight software. In the 
+description below an IFC is an Instrument Flight Computer. 
+The current SIM baseline provides four IFCs. 
+The Instrument is configured for one science baseline if 
+holding G1 DL delay hold G1 fnnges 
+hold G2 P-poinbng b 
+hold G2 Q-poinhng 
+hdd G2 fnnges 
+the instrument is configured for external metrology 
+two sidbays and one combiner-IFC pair are configured 
+to operate as a guide interferometer, named Guide 
+Inteferometer 1 
+two sidbays and, one combiner-IFC pair are configured 
+to operate as a guide interferometer, named Guide 
+Interferometer 2 
+two sidbays and one combiner-IFC pair are configured 
+to operate as a science inteferometer, named Science 
+Interferometer 1 
+the instrument is calibrated for baseline estimation, the 
+three interferometers (two guide and one science) are 
+calibrated 
+The Instrument is configured for external metrology if 
+0 
+0 
+one or more IFC is executing the External Metrology 
+Function 
+the instrument interconnect (the interface beween the 
+IFCs and the remote actuators/sensor cages) is 
+configured to allow the above IFC to sample all 
+available external metrology sensors (phasemeters) 
+the IFC is receiving metrology data at the nominal rate 
+(e.g., 1000/sec) 
+A guide interferometer is configured if 
+the instrument interconnect is configured to route data 
+from two specified siderostat bays to a specified IFC 
+the software in the IFC is configured to run all control 
+servos associated with a guide interferometer 
+Figure 2 illustrates how siderostat bays are paired with 
+combiners to create three operating interferometers. 
+0 
+Science Observation Activity Diagram 
+Start 
+Figure 2. Instrument Configuration 
+The command sequence will explicitly call out the above 
+configuration information prior to any observations. 
+2.2 Tile Observation 
+A tile observation is the nominal sequence for gathering 
+science data. This sequence requires the following 
+conditions to be satisfied to start: 
+1. The Instrument is configured for one science baseline 
+(as defined above). 
+2 .  The Instrument is calibrated for science. This has not 
+yet been explicitly defined in the project to date. 
+The spacecraft is capable of precision pointing. 3 .  
+Before starting the observation sequence the Instrument will 
+insure the above conditions are satisfied. 
+Figure 3 in the Appendix shows an activity diagram for the 
+following sequence of operations. Each line of action in the 
+figure represents, essentially, one concurrent task in the 
+software. 
+The sequence will start with the Instrument requesting a 
+spacecraft slew to the target tile attitude. While the 
+spacecraft is slewing, the Instrument will have the 
+opportunity to point (without starlight sensors) siderostat 
+mirrors and position delay lines. 
+TileActDiagl b.vsd 
+hold exi melrdogy 1 ? 
+slew and settle .I 
+slewing G1-P Sid acq’ G1 P-pointing 
+slewing Gl-Q Sid hold G I  Q-pointing 
+slewng S1-Q Sid hold S1 Q-wnbng 
+slewmg S1 DL holding S1 DL posh hold S i  fringes 
+‘ J  slew S1 Sid+DL I next star + 2Osec- =Peat 
+7.5min *- 5sec 1’ 5sec* -e elhour 4 
+Figure 3. Tile Observation Activity Diagram 
+4 - 2 0 8 5  
+The next step in the sequence is to acquire pointing in the 
+guide interferometer siderostats. This requires acquisition 
+and tracking algorithms to lock onto guide stars in each of 
+the four 'guide siderostats. Once pointing in the: guide 
+siderostat:; is accomplished, the guide interferometers will 
+able to acquire and track fringes. The control system must 
+be able to keep the central fringe stable (in the CCD frame) 
+to less than 10 nanometers, 1 -sigma. 
+When the: guide siderostats are tracking the guide stars, 
+there will be sufficient angle feedforward information (see 
+[l]) to aid in acquiring and tracking a (dim) science star. 
+Once the guide fringe interferometers are tracking fringes, 
+the science interferometer f h g e  acquisition and tracking 
+can be accomplished. 
+When all interferometers are tracking, the fringe tracking 
+data is recorded for the specified amount of time. When the 
+time is exceeded, the next science star sequence starts. Dim 
+star pointing is acquired, followed by fringe acquisition and 
+tracking. The process repeats (as shown in Figure 6 )  until 
+all stars in the list are process or until a timeout is hit. 
+:3 CONTROL ARCHITECTURE 
+Based on the architecture of the system and the 
+requirements illustrated by the activity diagram, the control 
+architecture was partitioned into Instrument and 
+Interferometer levels as illustrated in Figure 4. 
+Interferometer 
+Control 
+Control 
+J+ 
+b 
+Figure 4. Instrument Control Architecture 
+The Instrument Control Function dictates the behavior of 
+the three interferometers via commands to the three 
+instances of the Interferometer Control Function. Each of 
+the interferometers (two guides and one science) has direct 
+control over the lowest level closed-loop control servo 
+functions: wide angle pointing (WAF'), narrow angle 
+pointing (NAP) and fringe tracking (FT). We will address 
+each of these functions in the following paragraphs. 
+3.1 Instrument Control Function 
+The Instrument Control Function will exhibit behavior 
+similar to the state diagram in Figure 5. The Instrument will 
+start the sequence from the IDLE state. The initial 
+command will cause the system to the SLEWING-AL,L 
+state where mirrors and delay lines will be moved to known 
+positions. When the positions have been achieved and the 
+spacecraft is pointed the Instrument will transition to the 
+ACQ-GUIDES state where fringes will be acquired on the 
+guide interferometers. Once this is done the system will 
+transition to the ACQ-SCIENCE state where it will acquire 
+science fnmges, and 1 hen to the HOLDING-SCIENCE state 
+where fringe data will be sampled on thLe guide and science 
+interferometer until the requested integration time has been 
+covered. 
+( 7 - M  SLEWING-ALL 3cc'"'""") 
+ACCGUIDES -pl-iGz) 
+ACQSCIENCE -yGGk) 
+InrlConStm M WsnS OSnpmD rad B SLEWING-SCI XGGGiE) 
+Figure 5. Instrument Control State Machine 
+Clearly, not all the behavior required to operate the 
+instrument is represented here. What this state machine has 
+given us is an initial design point to s t a  flowing design and 
+requrirements to lower levels in the system. 
+3.2 Int(erferomete,V Control Function 
+The Interferometer Control Function will behave like the 
+state machine shown in Figure 6. This state machine must 
+implement the logic for acquiring trackhg on the pointing 
+system followed by fringe tracking. 
+I"Sbn1 vrd 
+M WateOSpPY2 
+Figure 5. Inteiferometer Control State Machine 
+Initial trimsition from IDLE to SLEWING will be 
+commanded by the Instrument Control Function. After 
+slewing is, complete the system will transition to the open- 
+loop HOILDING-POINT state until commanded by the 
+Instrument Control Function. There will be the capability to 
+have the Interferometer Control Function autonomously 
+transition through the state machine. After pointing has 
+been coimpleted imd the Interferometer has been 
+commanded to start acquisition transition to the 
+ACQ-ANGLE-TRK. state will occur. In this state the 
+4 - 2 0 8 6  
+interferometer will acquire and center the target star, first on 
+a closed-loop wide angle pointing system (the front end), 
+and then on a closed-loop narrow angle pointing system (the 
+5 .  the algorithms which will be executed in that state . 
+These might include different acquisition or tracking 
+algorithms to be design by control system analysts. 
+back end). Once closed-loop pointing is tracking on both 
+systems, transition to a ACQ-FRINGE-TRK state will 
+occur where the interferometer will acquire fringes. Once 
+fringes are acquired, the interferometer will transition to the 
+ACQ-CENT-FRINGE state to find the central fringe. Once 
+the central fringe is found and stabilized, the interferometer 
+is locked. 
+Of course, closed-loop pointing lock is required for fringe 
+acquisition and tracking so loss of pointing on any of the 
+pointing control systems will likely cause fringe tracking to 
+fail and the system will have to reacquire pointing. There 
+are current efforts in the interferometry programs at P L  to 
+address issue llke these in the area of fault tolerance. 
+3.3 Control Servos 
+At the lowest level of control are the closed-loop control 
+servos. These are developed by the control system analysts 
+and must exist in the framework to be developed by the 
+software engineers. We have developed a spreadsheet for 
+specification of attributes for each servo. The servos 
+covered are the following: 
+WAP, or Wide Angle Pointing. This servo is 
+responsible for controlling the siderostat mirror to 
+acquire and track the required star on a camera in the 
+siderostat bay. 
+NAP, or Narrow Angle Pointing. This servo is 
+responsible for controlling a fast steering mirror in the 
+siderstat bay to keep the star image centered on an 
+angle tracking camera located in the beam combiner. 
+FT, or Fringe Tracking. This servo is responsible for 
+controlling the delay lines (with three stages of 
+actuation) in order to acquire and track the central 
+fringe. 
+Further work to be performed, before detailed design and 
+implementation can begin, includes defining the transitions 
+between the different states in the servos. In addition the 
+latency requirements for scheduling the servos must be 
+determined. See [2] for a discussion of the latency 
+requirements. 
+4 CONCLUSION 
+The flight system on SIM includes an instrument real-time 
+control system which will have a high level of complexity 
+and high demands on performance. This type of design 
+requires a thorough analysis and design to achieve its goals: 
+We have illustrated in this paper the process for achieving a 
+workable design framework through systematic analysis. 
+5 ACKNOWLEDGEMENTS 
+The research described in this paper was carried out by the 
+Jet Propulsion Laboratory, California Institute of 
+Technology, under a contract with the National Aeronautics 
+and Space AWstrat ion.  
+I would like to thank Charles Bell and Marek Tuszynski of 
+JPL for their contributions to this paper. 
+6 REFERENCES 
+[l]  Kahn, P., “Space Interferometry Mission: A Systems 
+Perspective,” 2000 IEEE Aerospace Conference, Mar 2000. 
+[2] Walker, W. J., “High Speed Interconnect for the Space 
+Interferometry Mission,” 2001 IEEE Aerospace Conference, 
+Mar 2001. 
+7 BIOGRAPHY These servos must work in many states (e.g., idle, acquisition, tracking). For each servo we are tracking the 
+following information for each state in which the servo will 
+operate: 
+1.  the set of measurements needed for the servo and the 
+rates at which those measurements must be sampled. 
+the set of controls (or control commands) for the servo 
+and the rate at which those commands are being output. 
+the set of inputs from other software functions and the 
+rates at which they will be read. 
+the set of outputs to other software functions and the 
+rates at which they will be output. 
+Dr. Matt Wette is a Senior Engineer 
+at the Jet Propulsion Laboratory, the 
+Guidance and Control Analysis 
+Group. His interests are in control 
+system design, real-time systems, 
+and discrete event control. Matt has 
+contributed to several projects in the 
+development of real-time simulation 
+testbeds. He is currently working 
+on pathlength control and several 
+software testbeds on SIM. 
+2. 
+3. 
+4. 
+4 - 2 0 8 7  
+This page intentionally left blank. 
+4-2088  

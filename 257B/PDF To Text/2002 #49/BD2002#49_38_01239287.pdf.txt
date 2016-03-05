@@ -1,0 +1,392 @@
+       
+The ep-collider HERA at DESY, Germany, and the high 
+energy physics experiments H1 and ZEUS were upgraded in 
+the years 2000-2002. The expected specified luminosity is five 
+times higher than before. One of the upgrade projects was to 
+build a set of new multi wire proportional chambers (CIP2k) 
+providing information to distinguish between events induced 
+by the beam background, and ep-interactions on an early stage 
+of the trigger.  
+  This new first level trigger system provides a trigger 
+decision using a total of about 10,000 channels of the chamber 
+at a speed of 10.4MHz. The system is realized in large field 
+programmable gate arrays (FPGA) in order to comply with 
+the timing requirements, which are necessary for a dead time 
+free trigger decision within 1.5µs. This is achieved by 
+simultaneous event pipelining and readout while preparing the 
+trigger decision. The total data throughput rate is 108 GB/s. 
+The system is developed in the hardware description language 
+Verilog. Special attention is drawn to an integrated error 
+correction system in the FPGA, which cannot be realized in 
+hard wired electronics. This system is necessary to ensure 
+maximum pattern recognition efficiency even at high 
+occupancy. 
+  The CIP2k trigger system was installed in 2001 in parallel 
+to the HERA startup and is now being commissioned in order 
+to reach its best performance. The flexible programmable 
+hardware clearly is a big advantage here. 
+ 
+I. INTRODUCTION 
+HE electron proton collider HERA in Hamburg, Germany 
+was designed for measuring electron proton scattering at 
+high center-of-mass energies (320GeV). Compared to fixed 
+target experiments the accessible kinematic range is extended 
+to high momentum transfer Q2 and very small Bjorken x. The 
+HERA ring is about 6.3km long. There are four experiment 
+halls, two for the fixed target experiments, Hera B and Hermes, 
+and two for the collider experiments H1 and Zeus. Collisions 
+of electrons (since 1998 positrons) with protons take place 
+every 96ns; the possible collision rate of so called bunch 
+crossings (BX) is 10.4MHz.  In the years 1993-2000 an 
+integrated luminosity of ~100pb-1 was collected by each of the 
+                                                           
+University of Zurich, Physics Institute, Winterthurer Strasse 346,  
+CH-8057 Zürich, Switzerland.  
+collider experiments. To allow for collecting significantly more 
+data in the future, an upgrade project of the HERA ring has 
+been carried out from 2000-2002. The expected luminosity 
+after the upgrade is 250pb1/year, five times higher than in 
+2000. 
+To take advantage of the higher luminosity, the collider 
+detectors around the HERA ring were also upgraded. At the H1 
+detector several components are modified or redesigned. The 
+new central Multi Wire Proportional Chamber (CIP2k, Central 
+Inner Proportional Chamber) consists of five cylindrical 
+detector layers with cathode pad readout [2], segmented into 
+16 sectors in azimuth. The total active length of the detector is 
+2.2m, and its inner diameter is 30cm. The size of the pads is 
+about 2cm. The total number of readout channels is 10,000 as 
+compared to 1,000 channels in the previous CIP chamber [1].  
+II. CONCEPT OF THE TRIGGER SYSTEM 
+The new CIP2k trigger system is developed to determine a 
+fast trigger decision, namely whether a detected event is 
+ 
+Fig. 1: An overview picture of the H1 detector (event display) is seen: typical 
+signatures of a physics event (on the left side) should be selected, proton 
+induced beam gas collisions should be excluded by the trigger system. 
+ 
+identified as a signature of a good ep-collision near the 
+defined central vertex, or whether it indicates a background 
+event, typically a proton induced gas or beam pipe collision. 
+With the extended luminosity, the expected rate of such 
+background events increases up to 500kHz compared to a 
+estimated rate of 10Hz for good ep-collisions. The aim of the 
+CIP2k trigger is a clear separation of those types of events. 
+With the advantages of a proportional chamber, a fast first 
+level trigger system can be implemented.   
+The CIP2k First Level Trigger System at the H1 
+experiment at HERA 
+M. Urban, U. Straumann, S. Schmitt and J. Becker, University of Zurich 
+T
+0-7803-7636-6/03/$17.00 ©2003 IEEE. 146
+  
+The expected ratio between good ep-events and background 
+events was studied with data taken before the new CIP 
+chamber was installed, in order to understand the expected 
+situation in the upgraded detector. In Figure 2 the distribution 
+of the event-vertex along the beam axis is shown for 
+background events and events from ep collisions. 
+  
+ 
+Fig. 2: In this figure a simulation of expected ratio between “good” physics 
+events and background is shown. 
+ 
+ To separate these event types a completely new trigger logic 
+was developed using large FPGAs. 
+The CIP2k subsystem has to deliver a trigger decision for 
+every bunch crossing to the central trigger control (CTC) 
+system within 1.5µs in a dead time free mode. To meet these 
+goals the trigger system latency has to be limited to 1µs.  
+Since the HERA clock is 10.4MHz, the FPGAs operate at 
+41.6MHz, and therefore four computational steps per bunch 
+crossing.  
+III. TRIGGER ALGORITHM 
+To find a trigger decision, a pipelined trigger algorithm was 
+developed. The algorithm is divided into three steps: 
+1.) Track finding with track recognition. 
+2.) Adding of all tracks and creation of a ϕ-sector z-
+vertex histogram and summing of ϕ-sector 
+histograms. 
+3.) Forming a trigger decision. 
+Track finding: In the first step, the trigger needs to recognize 
+tracks and reconstruct their origin on the beam axis. For this 
+purpose all possible hit patterns in the five layers of the readout 
+pads of the CIP2k are stored together with their origin. Known 
+hit patterns are arranged around a logical environment (weakly 
+shaded in Figure 3) of a pad in the central layer. The pad size 
+in each layer of the chamber is chosen such that a given track 
+pattern always originates from the same position along the 
+beam axis, independent of the absolute position of the 
+corresponding central pad (projective geometry). Therefore the 
+logical track patterns and their origins are the same for each 
+local environment of each pad in the central layer, greatly 
+simplifying the implementation of the trigger algorithm. 
+  
+Fig. 3: The projective chamber simplifies the track finding: tracks from the 
+same vertex origin cause same track patterns in the local environment of a pad 
+in the central layer. 
+ 
+A list of all these track patterns is maintained, where active 
+patterns of the given event are flagged by a single bit. The 
+array of these flags is called hitlist. 
+The hitlist is sorted in 15 groups (bins) of about 16cm width 
+according to the origin of the tracks along the beam axis. The 
+whole detector is arranged in 16 ϕ−sectors. The pattern 
+recognition is implemented separately for each of them. 
+ Adding: The next step in the algorithm is to add all active 
+track patterns of the hitlist in each bin, and adding the contents 
+of all bins with the same z-position of all ϕ-sectors. The result 
+of this operation of 15 numbers with a size of 8 bit is the so 
+called vertex histogram.  
+In a vertex histogram of a good ep-event, most of the 
+reconstructed tracks are centered on bins in the middle of the 
+histogram (bin 7 of 15 bins). The content of every channel 
+corresponds to the number of active track patterns originating 
+from this region on the beam axis. 
+Trigger decision: Finally, information about the quality of the 
+event needs to be extracted from the vertex histogram and 
+summarized in a single 16bit word, which is then digested by 
+the central trigger system of H1, together with other first level 
+trigger information. For analyzing the vertex histogram, several 
+methods are currently being investigated. The best 
+performance probably will be achieved by cutting on the ratio 
+of the background to signal tracks.  
+ 
+IV. HARDWARE COMPONENTS 
+The main parts of the new CIP2k system are: 
+1.) The active detector, including the front end 
+electronics with signal amplifier and discriminator 
+electronics in an ASIC [5], and the link system, which 
+multiplexes the digital chamber data (900MHz) and 
+transmits it to the electronics trailer via optical fibers 
+system [4]. 
+2.) The trigger system consisting mainly of the trigger 
+cards that are used for track finding, and storage of 
+0-7803-7636-6/03/$17.00 ©2003 IEEE. 147
+ the raw data while calculating, and the sum cards that 
+sum up the histograms and form a trigger decision.  
+3.) The data acquisition system that organizes the 
+transfer of the data to the storage tapes.  Moreover, 
+there is an experiment control system (ECS) that 
+controls all components of the system. 
+ 
+Detector and Front End Electronics: The 10,000 channels of 
+the CIP2k chamber are read out, amplified, shaped, 
+digitalizised, and multiplexed four times in a specially 
+designed ASIC (CIPix, [5]).  The CIPix is controlled by an I2C 
+bus, including parameters for the analog processing 
+(amplification, shaping) and discriminator thresholds. The 
+digitized chamber data again are multiplexed (16 times) and 
+then send to the optical link system [4]. CIPix and optical 
+sender are mounted on a 2 x 6cm highly complex 8layer PCB 
+that contains 4 CIPix ASICs in total, and one optical 
+transmitter unit with 8 sender diodes. The total throughput of 
+the link system is 3.3GBits/s [4]. 
+A total of 40 optical fibers consisting of 8 light-guides each 
+transfer the information from the detector over a distance of 
+40m to the trigger system.  
+ 
+Trigger System:  The implementation of the trigger system 
+and data acquisition part of the new CIP2k system is 
+concentrated in a total of six VME crates (trigger crates) 
+located in the electronics trailer. Four of these are identical and 
+contain four trigger cards each, one per ϕ-sector, which are the 
+heart of the system. A trigger card contains two FPGAs into 
+which the complete trigger algorithm is programmed as well as 
+the pipelines for the data acquisition of the raw detector data 
+for the respective ϕ-sector. The second type of FPGA based 
+card is the sum card, which sums up the histogram information 
+of the ϕ -sectors. Five sum cards are used, 4 sum up each four 
+ϕ -sectors (pre-sum card), and the fifth sum card sums the 
+quarter histograms from the pre-sum cards. This master sum 
+card also uses the complete z-vertex histogram to identify the 
+event, and brings out the trigger decision. The sum cards are 
+placed in another VME crate. An additional crate contains the 
+standard H1 trigger and detector control electronics, as well as 
+data acquisition and experiment control system computers. 
+Trigger and Sum Card: The trigger cards [3] contain two 
+Altera APEX 20K400 FPGAs [6] into which the complete 
+trigger algorithm and the data accusation pipelines are 
+programmed. The 20K400 has 500 user I/O pins available, and 
+consists of about 1600 logic array blocks (LAB, often called 
+configurable logic blocks, CLB). Each block of 16 LABs (so 
+called MegaLABs) shares a common memory space of about 
+2000bits; the access of the memory space can be organized in 
+many different ways. Each LAB consists of 10 logic elements 
+(LE), the smallest logical unit in the APEX. It contains, among 
+others, a programmable register and lookup table for the input 
+definition. There are 16,640 LEs in a 20K400 and a total of 1 
+million of equivalent gates [6]. 
+With this huge number of free programmable I/O pins, the 
+used FPGAs perfectly meet the requirements of the trigger 
+algorithm [3]. A large number of pins are used to dump the 
+complete information of a half ϕ-sector into the FPGA. Every 
+FPGA uses 95 inputs, each receiving four times multiplexed 
+data, 75 channels are used for a half ϕ-sector, and 20 for an 
+overlap area between the two FPGAs. The information 
+ 
+Fig. 4: A photo of the Trigger Card is shown. Both FPGAs, the 250 pin 
+input connector on the right side and the SCSI connectors on the left side can 
+be seen. 
+ 
+extracted form the overlap area is necessary to calculate a 
+decision over the entire range of the z-axis. Smaller FPGAs 
+would not allow adapting the track finding algorithm in such a 
+wide range. Another advantage is the integrated memory to 
+store the CIP data while calculating the trigger decision for the 
+next 32 bunch crossings (~3µs). One of the FPGAs creates a 
+common histogram summed from both FPGAs. Therefore a 
+large communication bus between the FPGA is necessary (105 
+pins in each FPGA, 15x7bit). FPGAs compete with ASICs and 
+DSPs as programmable devices for fast parallel applications. In 
+this case, the large number of user pins and the fast 
+programmable memory are clear advantages favoring the use 
+of FPGAs for the CIP trigger system.  
+  To realize the trigger algorithm needed for the CIP2k 
+system, nearly 12,000 of the 16,000 LEs are needed for each 
+half of a ϕ-sector. Compared to the initial design (4000 LEs) a 
+0-7803-7636-6/03/$17.00 ©2003 IEEE. 148
+ lot of functionality has now been added to the system, again 
+outlining the advantage of using large FPGAs. The 
+programming and configuration of the FPGAs is supported by 
+a hardware development software called Quartus [7]. This 
+software tool offers a Verilog design entry of the logics and 
+contains a fitter and a router to make optimal use of the logics 
+in the FPGA.  
+In parallel to forming the trigger decision the hit data of 32 
+bunch crossings is stored in the pipeline. It is then transferred 
+to a VME access point, and can be read out by the CPUs of the 
+data acquisition system. 
+Data Acquisition System: The data acquisition system of the 
+CIP2k trigger system is based on two standard bus systems. 
+The widely-used VME (Versatile Module Europe) bus system 
+and the pVIC (PCI Vertical Interconnect) bus system. Real 
+time CPUs of the type RIO2 8062 with a PowerPC CPU 603 
+ 
+Fig. 5: In this figure the correlation of CIP hit position and drift-chamber 
+tracks is shown. The difference between the CIP hit z-position and the 
+extrapolated drift-chamber track gives information about the resolution of the 
+CIP chamber [9]. 
+ 
+and running the real time operation system LynxOS are 
+installed in each trigger crate. They do the initial setup of the 
+trigger system and the readout of the data from the FPGA 
+pipelines. 
+  The synchronous part of the DAQ system with a dead time 
+constraint of less than 1.2µs begins with the arrival of a trigger 
+decision starting the readout of the pipelines in the FPGAs 
+located in the trigger cards. This is done via the VME bus 
+using the single cycle D32/A24 mode. It is possible to upgrade 
+the FPGA code and switch to block-transfer mode if necessary. 
+  A window of 5 bunch crossings is read out to study the 
+timing behavior of the trigger system. Each CPU reads the data 
+from four ϕ-sectors. One of the CPU collects the data from all 
+ϕ-sectors and writes it into a local event buffer. The BMA 
+(block mover accelerator) mode of the pVIC bus is used in this 
+data transfer. The four CPUs are synchronized using a custom 
+protocol on the pVIC bus implemented in the pVIC shadowed 
+memory. With the arrival of all data packages at the main CPU 
+the synchronous part of the readout is finished and the 
+pipelines are ready to be released again, typically 900µs after 
+receiving the trigger decision.  
+  The asynchronous part of the readout starts with a data 
+reduction process on the main CPU. The chamber data stored 
+as bit patterns is translated in 16bit wide pad numbers, 
+resulting in an effective zero suppression if the occupancy of 
+the chamber is less than 10%, which is always true for events 
+from ep-collisions. During this process pads that are known to 
+be noisy are removed from the data. The data are then sent via 
+a VIC link to a MEB (Multi Event Buffer) unit where they are 
+stored until the H1 central DAQ collects the data from each 
+event via an optical ring [8]. 
+V. FIRST RESULTS 
+The System is now technically complete; all hardware 
+ 
+Fig. 6: The pipeline position of the CIP trigger decision can be studied as a 
+function of the event timing, determined with the central drift chamber. A 
+clear correlation is found [9]. 
+components are installed in the electronics trailer of the H1 
+experiments. The trigger algorithm works dead time free and 
+delivers trigger decisions within 1µs and the pipelined data 
+match with the results of simulations.  
+First performance tests of the system have been performed 
+with muons from cosmic rays. Advantages of measurements 
+with cosmics are not too small event rates of about 5Hz and 
+clean event signatures. The muon tracks are triggered by the 
+central drift chamber, requiring two track halves opposite in 
+0-7803-7636-6/03/$17.00 ©2003 IEEE. 149
+ azimuth. Figure 5 shows the correlation of CIP hits and drift-
+chamber tracks. The difference between the CIP hit z-position 
+and the extrapolated drift-chamber track gives a resolution 
+information for the CIP chamber. The clear correlation 
+observed between CJC tracks and CIP hits is an important test 
+of the chamber, fiber link, memory in the FPGAs, and DAQ 
+system.   
+The pipeline position of the CIP trigger decision can be 
+studied as a function of the event timing, determined with the 
+central drift chamber. A clear correlation is found. The same 
+correlation is seen for the simulated trigger decision, proving 
+consistency of the trigger and the readout pipelines. The 
+determination of trigger efficiencies and further optimization 
+on the trigger performance is still ongoing. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+VI. REFERENCES 
+[1] H1 Collaboration: The H1 Detector, H1 internal report 
+H1-96-01 and Nucl. Instr. And Meth. A. 386, 1997, see 
+also www-h1.desy.de/ 
+[2] M. Cuje et al.: H1 High Luminosity Upgrade 2000 CIP 
+and Level 1 vertex Trigger, H1 internal report H1-1N-
+535(01/1998) 
+[3] M. Urban, Diploma Thesis, Univ. Heidelberg, 5/2000 and 
+presentations for H1 Collaboration, status report CIP2k 
+system, see www-h1.desy.de\~urban, 09/2002. 
+[4] S. Lüders, Nuclear Instruments and Methods in Physics 
+Research A, Volume 484 (2002) 515-527 
+[5] Documentation on the CIPix: http://www.physi.uni-
+heidelberg.de/groups/anp/ucn/readout-electronic_de.html 
+[6] Altera, Description of APEX 20k device family, 
+http://www.altera.com/literature/ds/apex.pdf 
+[7] Altera Int. Notes,  http://www.altera.com/literature/an/,  
+09/2002 
+[8] J. Becker, presentation on the 8th Topical Seminar on 
+Innovative Particle and Radiation Detectors, Siena, 
+10/2002; and Diploma Thesis, Univ. Heidelberg, 11/2000 
+[9] S. Schmitt, presentation for H1 Collaboration, status report 
+CIP2k system, see www-h1.desy.de, 10/2002. 
+University of Zurich, Physics Institute, Winterthurer Strasse 
+346, CH-8057 Zürich, Switzerland. 
+0-7803-7636-6/03/$17.00 ©2003 IEEE. 150

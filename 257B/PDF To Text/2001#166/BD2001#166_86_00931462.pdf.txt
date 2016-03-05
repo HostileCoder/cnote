@@ -1,0 +1,1107 @@
+The Relationship between Ground Data Systems and 
+Flight Operations for the Aura Project TES Instrument1 
+Steven R. Tyler and Padma Varanasi 
+Jet Propulsion Laboratory 
+4800 Oak Grove Drive 
+Pasadena, CA 91 109 
+818-393-0669 and 818-354-5000 
+steven.r.tyler@ipl.nasa.gov and padmaBr0ma.j pl.nasa.gov 
+Abstract - While Ground Data systems are normally thought 
+of primarily in terms of processors of Science and 
+Calibration data, they are also used by Instrument 
+Operations teams. This paper briefly outlines Aura's 
+Tropospheric Emission Spectrometer (TES) experiment and 
+TES Instrument Operations activities. It describes the data 
+used to trend the health, status, and performance of the TES 
+instrument, which are routed to the TES Instrument 
+Operations Team (IOT) by the Ground Data system.. TES is 
+atypical in that it has some engineering data that are 
+available only in the high rate data stream, rather than in 
+low-rate engineering data. 
+Blocks of commands to perform anticipated TES tasks were 
+developed in parallel with TES flight software design. This 
+paper concludes by showing how this early development of 
+command blocks permitted significantly more flexibility in 
+resolving a variety of TES Operations issues. 
+TABLE OF CONTENTS 
+1. INTRODUCTION: TES INSTRUMENT AND EXPERIMENT 
+3. TES OBSERVATIONS 
+4. THE TES IOT AND UPLINK OPERATIONS 
+5. TES ENGINEERING DATA 
+6. TES ANOMALY PLANNING 
+8. CONCLUSIONS 
+2. TES SUBSYSTEMS, Co-s, AND CONSTRAINTS 
+7. RESOLUTION OF TES OPERATIONS ISSUES 
+1. INTRODUCTION: TES INSTRUMENT AND 
+EXPER~MENT 
+The TES Instrument, managed and built at the Jet 
+Propulsion Laboratory (PL), is one of a suite of four 
+instruments on the Earth Observing System (EOS) Aura 
+spacecraft. Aura is funded by NASA and managed and 
+operated by the Goddard Space Flight Center (GSFC). The 
+spacecraft is being developed at TRW, and is scheduled for 
+launch f?om Vandenberg Air Force Base in June, 2003. 
+EOS Aura will study atmospheric chemistry from a 705-km 
+altitude, 98.2" inclination sun-synchronous polar orbit with 
+a 1:45 pm local solar time equator crossing. The other three 
+instruments on Aura are the High Resolution Dynamics 
+Limb Sounder (HiRDLS), the Microwave Limb Sounder 
+(MLS) and the Ozone Monitoring Instrument (OMI). Once 
+in orbit, Aura is designed to operate for at least five years. 
+The Tropospheric Emission Spectrometer (TES) is an 
+infrared imaging Fourier transform spectrometer (FTS) 
+which will measure and profile virtually all intkred-active 
+molecules in the Earth's lower atmosphere. It has a spectral 
+range of 3.3 p to 15.4. pm, and a resolution of 0.025 cm". 
+It operates using both natural thermal emission (4.1 to 15.4 
+p) and solar reflection (3.3 to 5.0 p). A FTS uses an 
+interferometer with varying optical path length in at least 
+one of its arms  to modulate the incoming radiation. The 
+recorded signal is an interferogram. The real part of the 
+Fourier transform of the interferogram is proportional to the 
+spectrum of the incoming radiation. 
+The focus of TES is on the global distribution of 
+tropospheric ozone and on the factors that control its 
+concentration, in order to support development and 
+improvement of models of the present and future states of 
+the Earth's lower atmosphere. Accordingly, TES will 
+generate vertical concentration profiles of ozone, methane, 
+water vapor, nitric oxide, nitrogen dioxide, and nitric acid 
+fiom the surface to the lower stratosphere. It is to provide 
+these measurements for roughly 18 orbits out of every 29, to 
+the extent possible given cloud interference and other 
+physical limitations. In addition, it will determine local 
+atmospheric temperature profiles and surface temperatures, 
+and measure a large variety of other chemical species that 
+are of sporadic or specialized interest, such as those 
+produced by volcanoes, biomass burning, or industrial 
+accidents. When over land, it will also measure emissivities 
+and reflectances where possible. 
+TES obtains its data in observations of 4-second duration in 
+the nadir direction and 16-second observations while staring 
+at the trailing limb. The nadir observations supply limited 
+0-7803-6599-2/01/$10.0002001 IEEE 
+4-1611 
+a 
+.... ........ 
+..... ...... ..-. ..... ....... 
+.e*. 
+v) ..... 
+p! ....... v) .... 
+I- 
+....... 
+..:*.. 
+1 
+-1 
+4-1612 
+vertical resolution but excellent horizontal spatial 
+resolution, while the limb observations provide good 
+vertical resolution and enhanced sensitivity for trace 
+constituents at the expense of having poorer line-of-sight 
+spatial resolution and a higher chance of cloud interference. 
+TES produces up over 350 gigabits (Gb) of raw 
+interferogram data every two days. As Figure 1 indicates, 
+these data, along with instrument engineering data and other 
+ancillary data, are transmitted back to Earth in spacecraft 
+contact sessions of several minutes apiece, once per orbit, 
+via a 155 Mbps X-band link. The data arrive at ground 
+stations in Alaska and Norway and are then transmitted 
+electronically to the EOS Data and Operations System 
+@DOS) at GSFC in telemetry packets. These data are then 
+sent to the Distributed Active Archive Center (DAAC) at 
+the Langley Research Center (LaRC) and then to JPL for 
+processing by the TES Science Investigator-led Processing 
+System (SIPS). 
+2. TES SUBSYSTEMS, COMMANDS, AND 
+CONSTRAINTS 
+The following is a brief description of the TES subsystems 
+and some of the commands, constraints, and onboard 
+autonomous fault responses associated with them. The 
+constraints are generally made into TES “Flight Rules,” 
+which must be followed in TES commanding. A block 
+diagram of TES is shown in Figure 2. 
+Pointing Control Subsystem (PCS) 
+The PCS contains a flat mirror, on a gimbaled mount, which 
+points the TES field of view. This mirror entails some 
+operational complexity for TES, since proper articulation 
+depends upon the spacecraft position and attitude. 
+The most frequent PCS command is used to point the PCS 
+gimbal. Depending on a parameter in this command, the 
+PCS mirror can be pointed at the trailing limb, at nadir, at 
+any angle within 45’ degrees of nadir, at cold space, at a 
+blackbody calibration target, as appropriate. 
+The most significant PCS constraint involves the minimum 
+time necessary to move the gimbal to a new position. There 
+is also a maximum time constraint between special mirror 
+positionings for bearing lubrication during use. Another 
+constraint is to make sure the PCS mirror is pointed inwards 
+when TES is in a non-data taking “Safe” submode, to avoid 
+the possibility of having it illuminated by the Sun. 
+If a PCS motor current is too high, fault protection will shut 
+down the PCS. If the ancillary data needed for determining 
+where to point is invalid or missing, fault protection will 
+wait for a short time to see if the ancillary data is restored. 
+After that, the fault protection response will place TES in 
+the Safe submode. 
+Interferometer Control Subsystem (ICs) 
+The Interferometer modulates incoming radiation by 
+altering the optical path length between the interferometer’s 
+two arms. This is accomplished by moving its retroreflector 
+mirror back and forth along a track between two roof 
+mirrors at a constant velocity via the TES translator 
+mechanism (see Figure 2). 
+The Interferometer Control Subsystem consists of a motor, 
+encoder, and associated electronics and software that 
+control the motion of the translator mechanism. 
+The motion of the translator from one limit to the other is 
+called a scan. A nadir-view scan (a “short scan”) takes 4 
+seconds and a limb-view scan (a “long scan”) is 16 seconds. 
+The operational significance of the scans is that they are 
+performed almost continuously during nominal operations 
+and that they need to be synchronized with the motion of the 
+other TES mechanisms. The most frequent ICs commands 
+are to perform a 4-second scan, to perform a 16-second 
+scan, and to reset the translator to its starting point in 
+between all scans. 
+The translator is latched, and one ICs constraint deals with 
+the time at which this latch can be released. Another major 
+ICs constraint involves the minimum time between 
+initiating successive scans. 
+The ICs will be shut down, either autonomously or via 
+ground commands, should an ICs motor current or the 
+position or rate of the translator be out of limits. 
+Focal Plane Subsystem (FPS) 
+The FPS images and records the modulated radiation from 
+the interferometer, and converts the recorded signals to 
+digital numbers that will be downlinked in the high-rate 
+telemetry data stream. The FPS includes imaging optics, 
+filter wheels, four detector arrays and their corresponding 
+amplifiers, and signal chains. 
+The main commands associated with the FPS are to 
+reposition and heat the filter wheel mechanisms, to change 
+the gain settings for the signal chains, and to control the 
+sampling interval. These commands are required prior to 
+every scan, and must be synchronized with commands to 
+the other mechanisms. 
+Constraints on the FPS include the minimum times between 
+commands, the minimum time needed to move the filter 
+wheels to new positions, the maximum time between wheel 
+mechanism heatings during use, and a restriction to avoid 
+moving or changing the temperature of a wheel during data- 
+taking. 
+4-1613 
+n 
+3 
+\ 
+4-1 61 4 
+If in spite of nominal thermal control, the filter wheel 
+mechanisms become too cold, a Fault Protection response 
+may be used to heat them. Similarly, if a Focal Plane 
+Assembly becomes too hot, a Fault Protection response will 
+be triggered. 
+Power Subsystem 
+The Power Subsystem is the interface between the 
+instrument electronics and the spacecraft power buses. 
+These buses provide about 320 watts of 29-volt DC power 
+from the Aura spacecraft. The three TES buses are called 
+the quiet bus, the noisy bus, and the survival bus, with the 
+noisy bus being used for heaters and noisy mechanisms. 
+The main command to the Power Subsytem is to set the 
+noisy bus relays. During activation, the quiet bus is 
+constrained to be turned on before the noisy bus so that it 
+can reconfgure these relays. Other constraints on the 
+Power subsystem involve the closing of relays for 
+decontamination heaters. 
+There is a possibility of a TES bus undervoltage, and this 
+will trigger a Fault Protection response. Aura has a 
+“Survival” Mode in which the spacecraft would be slowly 
+rotated and power to TES would be reduced to 100 watts 
+over the survival bus only. TES is off during survival 
+mode, with the survival bus power driving passive, 
+uncommandable heaters only. The Survival mode is used to 
+maintain electronics and other components above critical 
+temperatures, below which permanent damage might occur. 
+Command and Data Handling Subsystem (C&DH) 
+The C&DH subsystem accepts commands through the 
+spacecraft and controls TES subsystem operations. It 
+collects housekeeping data from the instrument and 
+spacecraft ancillary and gyro data. In addition, it formats 
+and controls data flow. 
+The C&DH subsytem includes the TES Flight Computer, a 
+20 MIPS RISC processor with 128 Mbytes of RAM, 3 
+Mbytes of EEPROM, and a VME interface to the 
+instrument communication and control bus. It has a high 
+rate data buffer and formatter which puts all Science data 
+into 8192-byte CCSDS telemetry packets, and an 
+engineering interface board which collects subsystem 
+voltage and temperature data. 
+There are a large number of C&DH commands. Several of 
+these are control commands to be used within macros 
+(stored blocks of timed commands that are stored on the 
+spacecraft and executed by calling them). These include 
+commands to call other macros and to loop, thus shortening 
+and simplifying macros. Some commands permit accessing 
+a parameter table that supplies filter wheel positions, signal 
+chain gains, and PCS pointing. There are also commands to 
+load or to dump memory, macros, or tables. 
+C&DH commands also are used to keep track of TES status 
+and to monitor bit errors. 
+Constraints on the C&DH include a maximum number of 
+write operations to a given EEPROM location and 
+restrictions on the initial state of VME registers. 
+Mechanical Subsystem 
+The Mechanical Subsystem provides a stable thermal and 
+structural environment for the other instrument subsystems 
+as well as mechanical interfaces to the TES platform. It 
+includes heaters, radiators, insulation blankets, and an Earth 
+shade. The Earth shade protects space-viewing cold 
+radiators from incident Earth albedo and Aura spacecraft 
+radiation during nominal spacecraft operations. 
+Commands to the Mechanical Subsystem include those to 
+release the Earth shade, to operate the decontamination 
+heaters, and to control the optical bench operational heater. 
+A constraint on the Mechanical Subsystem is to keep the 
+temperature of the optical bench lower than that of the focal 
+planes during decontamination. Another. constraint is to 
+avoid releasing the Earth shade until the translator latch is 
+released, so that the reduction in temperature provided by 
+the Earth shade release does not cause the translator latch to 
+become permanently stuck. 
+Laser Subsystem 
+The Laser Subsystem provides sampling signals that 
+measure the change in the optical path length between the 
+two arms of the interferometer. The signals are transmitted 
+to the Focal Plane electronics to control detector sampling. 
+The laser is a diode-pumped Nd:YAG, with a wavelength of 
+1.064 pm, which is then the optical path spacing at which 
+samples are taken. There are two redundant lasers. 
+Commands to the Laser Subsystem are to switch power on 
+to a laser, to switch on current to a laser diode, to set a diode 
+current, to set a crystal temperature, and to set a laser 
+electronics detector gain. Constraints include a restriction 
+against operating both lasers at once, and a minimum warm- 
+up time between powering on a laser and switching current 
+to the diode. 
+Focal Plane Cooler Subsystem 
+The four TES detector arrays are arranged in two pairs, with 
+each pair mounted in an independent housing. Each 
+housing is coupled to a dedicated mechanical cryocooler. 
+These coolers are utilized simultaneously during TES 
+operations and provide a stable 65 K environment for the 
+detectors. 
+There are a large number of Focal Plane Cooler commands, 
+but they are represented as parameters of a single TES 
+command. The coolers are supposed to be on during 
+nominal operations, so the operational complexity comes at 
+activation. At this time, a number of sets of commands 
+4-1615 
+must be sent and verified, one at a time. These close the 
+cooler electronics relays, upload a software patch for 
+cryocooler operation, upload trip levels, change cooler 
+mode, imd activate the cryocoolers. 
+Constraints on the Cryocoolers include spacing of 
+consecutive commands to a single cooler, minimum time 
+between cooler A and cooler B startups, and minimum 
+spacing: between startup commands and further commands. 
+A cryocooler overtemperature will provoke a Fault 
+Protection response. 
+Calibration Subsystem 
+The TES calibration subsystem consists of a Radiometric 
+Calibration Source (RCS), a spatial calibration source, and 
+their electronics. 
+The PCS is a variable-temperature, radiometrically- 
+calibrated blackbody source. It overfills the TES field-of- 
+view, and enables the TES Science team to relate the TES 
+spectro-radiometric response to a known input signal while 
+in orbil. The temperature of the source can be allowed to 
+cool to roughly the ambient temperature and then raised by 
+heaters to its nominal value of 340 K. This permits 
+monitoring of any non-linearities in the TES instrument 
+response. 
+The spatial calibration source provides an idfared image of 
+a line source. By discrete movements of the PCS gimbal 
+mirror, the image of this source is stepped across the 
+detectors. The response of each detector element, as the 
+image is stepped across it, is used to determine the relative 
+alignment of each pixel, and thus to verify the relative 
+alignment of each of the four TES detectors. It is anticipated 
+that spatial calibrations will be performed once or twice per 
+year (possibly more frequently early in the mission). 
+COmiinds for the Calibration Subsystem permit selecting a 
+platinum resistance thermometer, selecting an RCS heater, 
+turning the RCS or spatial source on or off, setting the RCS 
+temperature, and setting the spatial calibration source 
+contrast. Constraints include times allotted for cooldown or 
+heating of the RCS, a restriction against setting the RCS 
+temperature above 350 K, a maximum spatial calibration 
+source contrast setting, and a requirement that both the RCS 
+and spatial sources be on during decontaminations. ,An 
+RCS overtemperature will trigger a Fault response. 
+3. TEs OBSERVATIONS 
+TES Global Survey 
+The Global Survey is the only TFS standard product science 
+activity. Including two orbits of pre-calibration, it runs for 
+18 orbits out of every 29. A TES global survey sequence 
+consists of seven scans: one 4-second view of cold space, 
+one 4-second view of the RCS, two 4-second nadir views, 
+and three limb views of 16 seconds each. The total duration 
+of an individual global survey is 8 1.2 seconds. There are 73 
+global survey sequences in each orbit. 
+changed on alternating sequences. 
+Filter settings are 
+The Global Survey macros are triggered at the South Pole 
+Apex crossing The average data rate is 3.7 Mhps. The 18- 
+orbit activities generate 382 Gb of data. 
+During the Global Survey, there is a relatively high duty 
+cycle on several TES mechanisms. In each 81.2-second 
+sequence, there are several commands to move the 
+translator, the gimbal, and two of the four filter wheels. The 
+translator is in almost constant motion, with 64 of the 81.2 
+seconds spent taking data, 5.6 seconds starting up prior to 
+its seven scans and stopping after them, and 8 seconds in 
+two resets between short and long sciins. This is more than 
+a 95% duty cycle for the translator, which is commanded 
+nine times in each sequence. The PCS gimbal is 
+commanded five times per sequence, and spends 14 seconds 
+in motion, which is about a 17% duty cycle. The filter 
+wheels are commanded four times, and required to move in 
+0.7 seclonds, so that they can completle their motion between 
+successive scans. This imposes less ithan a 3.5% duty cycle 
+on them. When a filter wheel command is given, any wheel 
+which is not moved has its mechanism heated. 
+Non-gl(obal survey TES observations 
+The bulk of TES Operations activities will involve non- 
+Global Survey observations and activities, even though 
+these plroduce only about one per cent of the raw data of 
+TES. The TES IOT needs to plan for each of these 
+activities, schedule them, and impleiment them as separate 
+Science Team requests. 
+There are at least ten volcanoes that TES will want to 
+monitor on a regular basis (this list will change with time). 
+They are Colima (Mexico), Erebus (Antarctica), Etna 
+(Sicily:), Fuego (Guatemala), Kilaiuea (Hawaii), Lascar 
+(Chile), Masaya (Nicaragua), Pacaya (Guatemala), 
+Sakurajima (Japan) and White Island (New Zealand). The 
+plan is to observe each of these volcanoes, repeat each 
+observiition 2, 16, and 18 days later, and revisit each site 
+twice more during the year, with the same observing 
+pattern. Each observation will consist of 212 seconds of 
+data taking, bracketed by 3 12-second pre- and post- 
+calibrations, for a total of 836 seconds. [2] 
+There will also be observations of various industrial 
+catastrophes, with observations repeated 2, 16, and 18 days 
+later. 
+An UrbadRegional Pollution campaign will involve an 
+estimated 10 events per year, with albservations repeated 2 
+days later. A Regional Biomass Eluming campaign will 
+involve an estimated 2 events per year, with observations 
+repeated 2 days later. There will idso be a campaign to 
+observe stratospheric effects of volcanic eruptions. One 
+event per year is estimated. 
+4-1616 
+TES also plans to perform two intercomparisons with 
+Aura’s HiRDLS instrument per year. TES would make 
+limb observations of the same places as HiRDLS at the 
+same time in an attempt to improve both data sets. Each 
+intercomparison is planned for a little less than one orbit. ’ 
+I NIA 1 34,480sec 1 552 Gb 
+There are several calibrations planned for the times when 
+the global survey macros are not being executed. They 
+include an estimated two linearity calibrations per year. 
+Each linearity calibration should take an entire day (3 orbits 
+for cooling down the radiometric calibration source and 8 
+orbits taking data). There will also be two gain calibrations 
+per year. These will take several orbits to perform, as the 
+Observation 
+Name 
+Volcanology 
+radiometric calibration source needs to be cooled down for 
+these as well. There will be two Global Survey calibration 
+extensions per year. These are long-scan calibrations, to 
+verify that the short-scan calibrations are sufficiently 
+accurate for long scan observations. Each will take a little 
+more than one orbit. Finally, there will be two spatial 
+calibrations per year (lasting well under one orbit). 
+The planned non-global survey activities are summarized in 
+Table 1. In it, “Duration of one observation macro” refers 
+to the total running time of the macro for a single 
+observation (not for an entire year), including calibrations 
+and Earth observations (not just scan time). “Scan time per 
+Estimated 
+number of 
+observations 
+per year 
+120 
+Table 1. Expected Non-Global Survey TES Observations 
+Duration of 
+one 
+observation 
+macro 
+836 seconds 
+Scan time Calibration Total Data per 
+per year time per year year 
+19,200 sec 57,600 sec 331 Gb 
+Catastrophe 
+1044 seconds 
+Urban Pollution 
+Biomass burning 
+640 sec 2560 sec 15 Gb 
+Stratrospheric 
+Effects of 
+Volcano 
+976 seconds 
+542 seconds 
+2 
+60 Gb 4080 sec 9600 sec 
+1088 sec 640 sec 7Gb 
+I 
+HiRDLS Inter- I 2 
+541 seconds 
+comparison I 
+5632 sec 3520 sec 41Gb 
+Calibration 
+4814 seconds 3840 sec 2560 sec 30Gb 
+I 
+-11 orbits NIA 
+-7 orbits NIA 
+1144 seconds NIA 
+-7000 NIA 
+Spatial Calibration 
+Global Survey 
+640 sec 3Gb 
+2Gb 320 sec 
+880 sec 5Gb 
+12,800 sec 5 8Gb 
+Gain Calibration 2 
+TOTAL 160 
+seconds 
+4-1617 
+year” refers to the total time. spent on Earth observation 
+scans in one year (not counting the time between scans). 
+“Calibration time per year” refers to the total time spent on 
+calibration scans in one year (once again not counting the 
+time between scans). “Total Data per year” shows the 
+estimated total data volume, in Gigabits, for the Earth 
+observations and calibrations combined. 
+As Table 1 shows, there are a total of about 160 
+observations per year during the time when a global survey 
+is not running and a total data volume of about 552 Gigabits 
+for a year of these observations. This is about a factor of 
+100 less than the yearly data from the Global Surveys 
+(inc1ud:ig calibrations). 
+Table 1 does not include decontaminations, nor any 
+calibrations that TES might decide to make in coordination 
+with any Aura spacecraft Science maneuver off Earth-point. 
+Nor does it include any further targets of opportunity that 
+may arise. However, these tasks can be time-consuming 
+fiom an operations standpoint. Decontaminations require 
+change!; of states of most TES subsystems, especially of the 
+cryocoolers. Targets of opportunity can be tracked with 
+straightforward and seemingly minor modifications to TES 
+command blocks, however these macro and parameter table 
+change!; are in fact changes to flight software that may need 
+to be performed under time pressure. 
+4. ‘IXE TES IOT AND UPLINK OPERATIONS 
+The TES Instrument Operations team (IOT) consists of two 
+or three people. About 60 per cent of their nominal post- 
+launch work involves the planning, scheduling, and 
+uplinking of macro calls to trigger the observations shown 
+in Table 1, with the amount of work roughly proportional to 
+the number of planned observations. Up to 10 per cent of 
+the work can be devoted to the Global Survey. The 
+remainder of the work consists of monitoring TES data and 
+maintaining support tools. During launch rehearsals, 
+launch, and the first three months of operations, this team 
+will generally be at GSFC in the EOS Operations Center 
+(EOC). After that, it will operate TES from the Science 
+Computing Facility (SCF) at JPL. While at JPL, the TES 
+IOT interfaces to the GSFC EOC through lnstrument 
+Support Terminals (ISTs). TES will have two ISTs. Each 
+IST consists of one Sun workstation and one Windows NT 
+PC. One of the two ISTs will be used primarily for 
+downlink analysis and command verification, while the 
+other will be used for planning and scheduling, and serve as 
+a backup when necessary. The PCs will be used 
+interchmgeably for real-time telemetry monitoring, real- 
+time plotting of housekeeping data, and command 
+authorization. The Sun workstations will support planning, 
+scheduling, and trending of back orbit data. 
+Uplink Operations begins with long-term planning. The 
+TES I’rincipal Investigator (PI) produces a long-term 
+Instnunent Plan once per year, and updates it quarterly. It 
+contains routine operations (the Global Survey), routine in- 
+orbit calibrations, and maintenance activities, as well as 
+special observations which require coordination. Initial 
+TES activity scheduling begins about a month before the 
+activities are to occur. A skeleton timeline is generated, 
+and a spacecraft activity schedule is generated from the 
+various instrument long-term plans. The ‘ E S  Science 
+Team will evaluate this schedule, determine if TES 
+activities need updating. The PI or TES Scientist will 
+submit an activity deviation list if necessary. 
+The TES IOT begins generating sequlmce details for unique 
+science activities a week before the start of the week in 
+which the observations are to take place. This includes 
+ground targets for special observations and associated 
+timing. Macros for performing Global Surveys, 
+Calibrations, and a wide variety of Special observations will 
+already be on board, and these only need to be triggered 
+(called) at the proper times. If new targets are needed, this 
+requires changes to these macros or to the macro parameter 
+table or both, which means changing both onboard TES 
+flight software and Aura planning software. The TES IOT 
+presents its timeline for the upcoming special events at 
+weekly meetings. It archives these presentations, along 
+with the command packages that are sent to GSFC and 
+uplinked. 
+The TES IOT will submit its macro calls, which trigger 
+blocks of onboard commands, to the IEOC Flight Operations 
+team (FOT) via the IST. Uplirk operations include 
+triggering onboard macros, as well as sending real-time 
+individual commands. 
+The IOT will check TES constraints and flight rules before 
+saving activities on the timeline of the EOC Master Plan. 
+The FOT will integrate the activities of Aura and its 
+instruments, check Aura mission rules, lxanslate the 
+commands to binary, obtain transmission approval fiom the 
+individual instrument teams, stuff the data into command 
+packets, and transmit the packets to Polar Ground Stations 
+for uplink to the Aura spacecraft. The packets will have 
+headers made standard by the Conslultative Committee on 
+Space Data Systems (CCSDS). An IZOC uplink is called a 
+Master Command Load (MCL). These loads are sent daily, 
+about S hours before the start of the day or1 which they 
+become valid. The IOT will send its MCL inputs to GSFC 
+about 26 hours prior to the uplinking of the MCL, which 
+will provide ample time for the IOT to validate the TES 
+portion of the load prior to having GSFC uplink it to the 
+spacecraft. 
+MCL packets are stored in a buffer imit by Aura until they 
+are realdy for use. At this point, they are forwarded to TES 
+over a 1553B interface. TES flighl s o h a r e  receives the 
+packets, validates that the CCSDS lheaders are compliant, 
+and validates the TES commands inside the instrument data 
+field. It then handles and executes 1he sequentially loaded 
+commands according to command type. 
+4-1618 
+In addition to uplinking instrument commands, the GSFC 
+FOT needs to maintain an up-to-date onboard ephemeris. 
+The GSFC Flight Dynamics Facility (FDF) provides the 
+FOT with a daily ephemeris load. This load consists of 289 
+sets of position and velocity vectors, spaced 10 minutes 
+apart. While this adds up to 48 hours of information, only 
+the first 24 hours of each load are nominally used since the 
+last 24 hours will be ovenwitten by the time they are to be 
+used. Accurate ephemeris data is critical for TES, as a TES 
+nadir pixel is only 530 meters along the flight path, and the 
+spacecraft moves about 28 km during one nadir scan. 
+Packet Sequence Control Field 
+Packet Length Field 
+The GSFC FDF also prepares orbit maintenance maneuvers. 
+These maneuvers are performed to make up for drag and to 
+adjust inclination. The main driver for these maneuvers is 
+the maintenance of a +/- 20-kilometer ground track repeat 
+cycle (every 16 days). These maneuvers are performed 
+every 2 to 24 weeks, depending upon the solar effects on 
+spacecraft drag, and the TES IOT will be notified of the 
+details of the maneuver so that it can avoid conflicts with 
+the Global Survey and other planned TES activities. 
+2 Bytes 
+2 Bytes 
+5. TES ENGINEERING DATA 
+Command and Data Handling Subsystem Data Set 
+Calibration Subsystem Data Set 
+TES Low-rate Engineering Data 
+TES data is provided to the TES IOT in packets identified 
+by packet IDS (called “application IDS” or APIDs). Low- 
+rate engineering data will be viewed near real-time through 
+the ISTs. Each low rate packet is 256 bytes, with an 
+instrument data field of 241 bytes, and is generated once 
+every 4 seconds. This Low-rate Nominal Engineering Data 
+Packet, the structure of which is shown in Table 2, is also 
+referred to as the Housekeeping Data Packet. 
+48 Bytes 
+24 Bytes 
+The above data are used by the TES IOT to assess the health 
+and safety of TES. The TES IOT, when at JPL, is 
+nominally present only during normal working hours, 
+however the GSFC FOT monitors the health of Aura and its 
+instruments around the ‘clock. and will notify whichever 
+IOT member happens to be on call should an anomaly 
+occur. 
+Focal Plane Cooler B Subsystem Data Set 
+Focal Plane Subsystem Data Set 
+In addition to the Housekeeping packets, there are three 
+other types of low rate packets. These special data packets 
+can be requested by command, and are then transmitted in 
+place of one or more housekeeping packets. These packets 
+contain special cooler data, bit error status indicators, and 
+38 Bytes 
+13 Bytes 
+register data. 
+Table 2. TES Low-Rate Nominal Engineering Data Packet Structure 
+Laser Subsystem Data Set 
+Mechanical Subsystem Data Set 
+Low Rate Nominal Engineering Data Packet 256Bytes 
+Packet ID Field 2 Bytes 
+P 
+16 Bytes 
+30 Bytes 
+Secondary Header Field I 9Bytes 
+Instrument Data Field 1 241 Bytes 
+Focal Plane Cooler A Subsystem Data Set 1 38Bytes 
+Interferometer Control Subsystem Data Set I 1 Byte 
+Pointing Control Subsystem Data Set 1 15 Bytes 
+Power Subsystem Data Set I 8 Bytes 
+Filler Data 
+4-1619 
+Use of the High Rate Data Stream by the TES IOT 
+The TIS IOT will rely on access to information contained 
+in the :High Rate Science data that gets sent to the LaRC 
+DAAC. 
+Processing of the Global Survey and Global Survey 
+Calibration data are the responsibility of the SIPS. Special 
+observation data are processed by the SCF. The high rate 
+science packets also contain engineering measurements 
+(“embedded data”). These data are required by the Science 
+team as well as by the IOT. Although these data are present 
+in nominal low rate packets, having them in the high rate 
+data provides a useful backup. 
+Dump data, which are received only in high rate packets are 
+of use only to the IOT, and are needed to c o n f m  the 
+success of memory loads, macro loads, &d table loads. 
+These data can be requested from the Langley DAAC and 
+must then be processed by the IOT. These will not be made 
+available in low rate telemetry because of the downlink rate. 
+Dump data will be requested as expedited packets which 
+arrive in 3-4 hours as opposed to a nominal wait of 24 
+hours. 
+The requirements on the IOT to use high-rate data mean that 
+it must capture some of the high-rate data from the Langley 
+DAAC.. Any delays caused by hardware or software 
+problems in accessing DAAC data then affect the ability of 
+TES to receive dump data and possibly some of its 
+performance data. 
+Relationship of Science Data and Engineering Data 
+As we have seen, Science data are normally used to obtain 
+geophysical parameters and to determine their quality and 
+calibrate them. Under some circumstances, however, these 
+data are germane to the health and safety of TES. If 
+radiances appeared far off from expected values, one might 
+suspecl a PCS anomaly, and recheck PCS encoder outputs. 
+A variety of suspicious spectra could in theory be observed, 
+with anomalous lines, “ghosting,” or mere inconsistency 
+with spectra based on ground observations, and these would 
+again raise doubts about one or more TES subsystems. 
+Asymmetry of interferograms would raise questions about 
+the ICs. Analysis of such anomalous data is primarily in 
+the province of the Science data processing teams. The TES 
+IOT will be kept informed about investigations of these data 
+as well as any operational ramifications of the findings. 
+The clearest example of Science data determining an 
+engineering response is in the area of contamination. TES 
+optics are susceptible to contamination from water vapor, 
+carbon dioxide, and a variety of organic compounds. The 
+result of such contamination will be to reduce the system 
+Signal-to Noise ratio and to impose unwanted absorption (or 
+emission) features onto the spectra. When the signal from 
+calibration sources declines by 5%, or when unacceptable 
+absorptions due to specific contaminants are noted, the 
+Science Team will request a TES decontamination. In 
+Decontamination submode, TES vd l  be outgassed by 
+warming the interferometer and focal planes to spacecraft 
+ambient or higher, with the calibration sources on and the 
+cryocoolers off. The TES IOT will be infbrmed by the 
+Science Processing teams about trends in signal 
+perfomiance so that it can anticipate when the next 
+decontamination needs to be scheduled. 
+A variety of engineering measurements can yield 
+parameters under certain conditions that will cast doubt on 
+the qurzlity of Science data taken rat that tune. Detector 
+temperatures are a good example of these. 
+6. TES ANOMALY PLANNING 
+The FOT or IOT may observe a TES, anomaly. If the FOT 
+observes a TES anomaly, the PI and the IOT member on 
+call will1 be notified; if the IOT observes the anomaly, it will 
+notify the PI and the FOT. In response to an anomaly, low 
+rate engineering data are pulled in, some special low-rate 
+data m,ay be requested, and a team is formed to resolve the 
+anomaly. Anomaly resolution generally involves several 
+steps: making sure the instrumenit is in a safe state, 
+obtaining all the data for analyzing the problem, 
+establishing an accurate timing of the anomaly, identifying a 
+single root cause, validating the plausible cause, 
+determining the appropriate corrective action or 
+workaround, and carrying it out. [3] 
+Action:s that must be taken immediately are generally 
+performed using fault protection responses. The IOT 
+produces the command macros for these responses. These 
+macros, are stored on the spacecraft and executed 
+autonomously when triggered. A set of Fault Protection 
+monitoring routines checks for out-of-limit conditions. IT 
+such a condition is met for a sufficient number of 
+consecutive measurements, a Fault Protection response is 
+triggered. 
+Contin,gency Responses 
+There are several situations in which a contingency 
+response may be desired. Contingency responses are 
+triggered from the ground upon request, as opposed to Fault 
+Proteclion responses, which are autonomous. During 
+activation or some other critical activity, the FOT, with IOT 
+support, may need to perform an irnmediate action in the 
+event of a fault, and will have om: or more contingency 
+responises available for immediate use. One possible 
+example might be to trigger commands to release the 
+translator latch immediately should the Earth shade open 
+anomalously and prematurely. Contingency responses can 
+also be used when an important command is included in a 
+stored sequence. Should the sequence be halted for some 
+reason., the command can then still be sent real-time. TES 
+has a :Safe submode which it can retreat to autonomously 
+via T13S fault protection in the event of a variety of’ 
+anomalies. However, this mode precludes data-taking. thus 
+contingency commands to ‘”recover from Safing” are neededl 
+-\ 4-1620 A a - _  
+in case the cause of a Safmg is known (possibly due to 
+repeated experiences with it). Contingency commands can 
+also be used to pre-empt a Fault Protection response, if it is 
+clear from data trends that a response limit will be reached. 
+A final example of contingency commands are “go” and 
+“no-go” commands. These are used as part of a strategy for 
+avoiding unsafe states that might be reached were an 
+anomaly to prevent the execution of a stored command. 
+The “go” strategy entails having flags control the execution 
+of timed commands that have certain prerequisites for being 
+safe to issue. When it is seen in telemetry that it is safe to 
+issue the commands, real-time ground commands are issued 
+to permit their execution. The “no-go” strategy uses flags 
+as before, but issues ground commands only if it is not safe 
+to proceed. This strategy will backfire if, for some reason, 
+the “no-go” command does not reach Aura, and for this 
+reason, the option of having a “go” strategy has been 
+preserved. 
+Effect of Ground System anomaIies on TES Operations 
+The effect of Aura missing a single downlink pass can be 
+significant. While there is enough room in the Aura buffer 
+to hold two orbits worth of data, in the worst case, some 
+data can be lost. The reason is that on the next pass, Aura 
+may be unable to download all two orbits worth of data, and 
+by the time it can catch up, some data could be overwritten. 
+Missing two or more consecutive passes during a Global 
+Survey loses data at once. 
+Bit errors, whether produced in the instrument, in 
+transmission, or on the ground, are a potential problem. A 
+Fourier transform spectrometer is particularly susceptible to 
+data errors because every interferogram sample contributes 
+to every spectral amplitude. [l] Bit errors near the point at 
+which the optical path difference is zero are the most severe. 
+Even a uniform bit-error rate of one in 100,000 would be 
+hopeless for TES, since a typical interferogram of 256 
+kilosamples, digitized at 16 bits per sample, is over 3 
+million bits, which would mean an average of 30 errors in 
+each interferogram, many of which would be high-level 
+bits. To meet the TES requirement of having no more than 
+1% of its interferograms irretrievably corrupted by data 
+transmission errors, Reed-Solomon encoding is used to 
+reduce such error rates. In general, bit errors are non- 
+random, and occur at the time of solar storms, or over the 
+poles, or over the South Atlantic Anomaly (SAA), which is 
+a large area centered near Rio de Janeiro. 
+It is unlikely that TES will ever require a prompt ground 
+command to survive. An exception may be when Aura is in 
+survival mode, where an inability to uplink commands to 
+Aura quickly could compromise the TES survival strategy. 
+7. Rl3SOLUTION OF TES OPERATIONS ISSUES 
+The completion of preliminary versions of the principal 
+TES macros over three years prior to launch has permitted 
+the consideration of options to modify the TES command 
+features provided by flight sohare .  This has resulted in 
+less complex TES command macros and has added 
+flexibility to TES operations. The following are examples 
+of some of the TES operations issues in which additional 
+options could be considered due to the early date at which 
+they were addressed. 
+Macro Parameter Table 
+The issue was whether or not to include a parameter table 
+that would include observation type, target position, filter 
+wheel positions, and signal chain gains. 
+There were several advantages in having such a table that 
+offset the work of generating, maintaining, and 
+accomodating it. The same macro could then be used for a 
+number of different applications and targets, with the only 
+changes being in the parameter table. In fact, a call to a 
+macro could specify a starting line in the parameter table, so 
+that one could use the same macro for different preplanned 
+targets without changing either the macro or the table. A 
+third advantage was coupled to the addition of a command 
+that would permit switching to a new line on the parameter 
+table based upon a parameter in the table itself. This 
+command, together with the table, resulted in a significant 
+simplification of the TES macros. For example, the Global 
+Survey, without the table, needed nine macros and a total of 
+over 200 commands (many of these macros and commands 
+were used solely because alternating 8 1 .2-second global 
+survey sequences used slightly different filter sets). Using 
+12 lines of the parameter table reduced this to three macros 
+and 76 commands. Similar improvements were made with 
+the special science macros. 
+AII-Purpose Macro 
+The issue was whether or not to anticipate changes in 
+observation strategies by designing and testing a “all- 
+pupose” macro that could be adapted to suit any set of filters 
+and scans. This issue was raised early enough so that the 
+flight software team would have been able to create the 
+branching instructions necessary to produce such a macro. 
+In fact, the all-purpose macro was rejected because the 
+modifications required to use it would have resulted in 
+nearly as much work as the ,production of a new and 
+specialized macro. Furthermore, a major aspect of using 
+timed stored sequences is the ability to know the exact time 
+at which each command will execute. Branch commands 
+would violate that principle. In addition, creating and 
+testing such commands would have used flight software and 
+integration resources. 
+Resuming the GIobaI Survey 
+Initially, the plan was for a Global Survey to last 4 days, 
+with 2 orbits of pre-calibration, 58 orbits of data-taking, and 
+2 orbits of post-calibration. With this plan, it would be 
+advantageous to be able to resume a survey that had been 
+4-1621 
+interrupted by a planned spacecraft maneuver or by a minor, 
+quickly resolved anomaly. Once again, this issue was 
+considered early enough so that Flight Software could have 
+prepared a command to resume the Survey. A resumed 
+survey would have ended at the original planned completion 
+time: However, the reduction in the length of the Global 
+Survey to 18 orbits removed the need for this command. 
+Use of “Wait” command for Go and No-Go Strategies 
+Commands within macros execute at specified relative 
+times i3om the previous command. However, there is a 
+command to wait until a specific event occurs before 
+executing the next command. This “Wait” command will 
+be used to start a Global Survey or Science Sequence when 
+the South Pole Apex is crossed or when a target is reached. 
+However, the wait command, given a timeout, can be used 
+to halt a sequence if a flag permitting its further execution is 
+not set. This additional feature can support the use of a 
+“Go” strategy during TES activation. 
+Modijkation of Critical Commands 
+A critical activity, such as releasing the Earthshade latch or 
+Translator latch, is not allowed to be performed on the basis 
+of a single command. At least two separate commands are 
+required. This raised the issue of whether the commands 
+ought to perform distinct and separate hardware tasks. A 
+second issue was how to handle the failure of a critical 
+command. By having separate commands to handle the 
+closing of different circuits, both problems could have been 
+resolved i n  command blocks. However, a flight software 
+resolution was more straightforward for both issues and is 
+being implemented. The alternative would have 
+unnecessarily increased the length and complexity of the 
+activation macros. 
+Modijication of Nominal Commands 
+Commands to control background heating to the filter wheel 
+mechanisms are required for any T E S  observation, to 
+comply with the constraint against heating the wheel 
+mechanisms during data-taking. This raised the issue of 
+whether the heating control command could be used to 
+perform an additional task. The command was then 
+expanded to support filter wheel lubrication. Without this 
+modification, filter wheel lubrication commands would have 
+needed to be added to almost every TES macro. 
+Synchronization of Mechanisms for  data-taking 
+The Global Survey macro is barely able to squeeze the 
+seven required scans into its 81.2-second allotment. To do 
+so, the PCS and filter wheels need to move while the 
+transla.tor is ramping up and down between scans. This 
+raised several questions: how quickly would the translator 
+come up to speed after a scan command, how fast could the 
+filter .wheel move to the next position, and how quickly 
+could the PCS move to its next position? 
+At first, it appeared that 0.8 seconds would be available for 
+moving; the filter wheel in the Global Survey.. The filters 
+and macros were arranged so that a filter wheel would never 
+have to’ move more than one position at a time:. On further 
+reflecti’on, after tests on the ICs, it became clear that there 
+were only 0.7 seconds available between some of the scans 
+when 08ne could be sure that no data was being taken. Flight 
+software now allows the speed at which the filter wheel 
+moves to be modifiable in flight, and this speed will now be 
+set initially so that a wheel will move one position in less 
+than 0.’7 seconds. 
+The required elapsed times for moving the PCS gimbal were 
+derived so that they would be consistent with the 81.2- 
+second sequence. However, thes,e times would have 
+resulted in a significant loss of data when TES needed short 
+PCS gimbal moves to support its ability to stare at a specific 
+target in special science observations. As a result, the table 
+of times for moving the PCS gimbarl is being modified to 
+support such activities without ani unnecessary loss in 
+performance. 
+Strategy for Dealing with Invalid Commands 
+Before TES commands and command blocks can be 
+executed, they must have been tested on the ground. 
+checked by the IOT for compliance with flight rules. 
+checked by command scripts to execute, checked by the: 
+Ground System, and checked by the FOT. In addition., 
+flight software prevents some invalid commands from 
+executing (by checking the TES sulbmode). Thus, invalid1 
+commiinds should be rare. They can be rejected outright. 
+A command to move a TES mechanism that is already in 
+use is invalid, and one option would have been to buffer 
+some of these commands and try to execute them later. But 
+due to the complexity of such a task and the presumed lack: 
+of benefit for such an approach, this option was rejected. 
+When a command is rejected, an “invalid command” 
+counter will be incremented, the macro issuing the 
+command will be halted autonomously, and TES will be 
+placed in its Safe submode. This is to make sure that the 
+TES state will be known and that filrther stored commands 
+will not execute in an unanticipated manner. 
+Submodes and Submode Transitions 
+There were two issues here: what operational submodes 
+were needed on TES, and what ma.cros should be used to 
+transition between submodes? 
+Four submodes were deemed necessary due to the 
+anticipated enforcement of flight rules in flight software: 
+Mission, Decontamination, Safe, 2nd Engineering. Thle 
+Mission submode is for data-taking, and commands to 
+perform data-taking scans will be rcjected unless TES is i n  
+Mission submode. Commarids to turn on the 
+decontamination heaters will be rejiected unless TES is tu 
+Decontamination submode. The Safe submode can reacheld 
+autonomously via Fault Protection, or by Ground 
+4 - 1 6 2 2  ---. 
+Commands when TES is best off in a protected state. The 
+Engineering submode is used to perform transitions between 
+the other submodes. Commands to turn on the cryocoolers 
+will be rejected unless TES is in Engineering Submode. 
+The second issue was whether or not a command to go to 
+Mission, Engineering, or Decontamination submode should 
+perform the necessary state changes on TES to place it in 
+that submode. This option was rejected, since submode 
+transitions into and out of Decontamination are complex, 
+and it is undesirable to have them triggered by a single 
+command. As a result, the TES IOT will simply check 
+low-rate telemetry to verify that TES is in the proper state 
+and then issue a ground command which makes no changes 
+to TES other than to modify a single submode parameter. 
+Commanding Targets of Opportunity 
+While the observation of targets of opportunity may 
+produce only a small portion the total data from TES, they 
+will be labor-intensive for the IOT. The Ground system 
+provides reports to the IOT showing when targets are in the 
+TES field of view. The TES IOT needs such a report for 
+targets of opportunity as well, so such targets need to be 
+added (at least in effect) to the Ground system data base. 
+For TES to observe such targets the IOT will have to 
+modify the onboard TES macro parameter input table. This 
+table will have several hundred lines, and the entire table 
+will need to be reloaded and revalidated. It is possible that 
+a TES macro will need to be modified as well. These tasks 
+will need to be performed quickly, and need to be 
+coordinated with all other planned TES and Aura activities. 
+This has raised the issue of whether a command can be 
+created to uplink the location of a target. However, when 
+there is sufficient time to do so, reloading the table appears 
+to be the best option. 
+Limited Bandwidth for Uplink 
+Uplink packets on Aura are 32 16-bit words. Four are 
+needed for the CCSDS header, so only 28 remain for a TES 
+command. This is sufficient for all TES commands except a 
+variety of load commands: macro loads, memory loads, and 
+table loads. The memory loads include cryocooler 
+subsystem memory loads and patches. These commands 
+include the contents of the loads, so they often exceed the 
+28-word (27 words for cryocooler commands) limit. This 
+issue was brought up early enough so that Aura agreed to 
+segment these commands into multiple packets. 
+The entire strategy of having a large set of onboard macros 
+originated as a response to the limited uplink bandwidth. 
+As a result, most of the TES contributions to the Aura 
+Master Command Load will be, triggers for (calls to) 
+onboard macros. 
+Limited Bandwidth for Engineering Downlink 
+The low-rate packet size of 256 bytes and the transmission 
+rate of one packet every four seconds posed two issues for 
+TES operations: how would TES obtain dumps of its tables, 
+macros, and memory, and how would TES obtain important 
+but infkequently-needed cryocooler data? 
+As this paper has shown, the resolutions of these issues 
+were dissimilar. In the case of cryocooler data, as well as 
+Vh4E register and TMR status data, special low-rate packets 
+were created that would have higher priority than the 
+nominal low-rate packets. The loss of nominal low-rate 
+packet data while these special packets were downlinked 
+was considered acceptable. Furthermore, much of the 
+nominal low-rate data are available in embedded high rate 
+data as a backup. 
+However, it was inconvenient to downlink a large memory 
+dump in low-rate data, so it was decided to acquire dump 
+data via the high-rate data stream. 
+8. CONCLUSIONS 
+This paper has described the TES instrument from an 
+Operations perspective. Global Survey TES Operations 
+tasks are not unusual for a space-borne Science instrument. 
+Even new and unplanned tasks decided upon once in orbit 
+are likely to be highly similar to those which have already 
+been planned and tested. The most involved tasks 
+(submode changes, new targets, and flight software loads) 
+are part of nominal planning. However, it is precisely in 
+nominal operations that a great deal of effort is required. 
+The gimbaled mirror, high duty cycle, need for explicit 
+coordination between subsystem commands, need to 
+respond quickly to targets of opportunity, variety of flight 
+rules, the intricate activation process, and the need to 
+monitor the high-rate data stream make TES a challenging 
+instrument to operate. Generation of the TES command 
+blocks early in the design process has enabled the 
+consideration and implementation of innovative resolutions 
+to a variety of operational issues. 
+Acknowledgements 
+The authors thank TES Ground Systems Manager Steven 
+Larson for pointing out the value of a description of TES 
+fiom a flight operations standpoint and for his enthusiastic 
+support in reviewing the initial drafts of this paper. We 
+thank TES Project Manager, Tom Glavich for his many 
+clarifications about the nature of the TES instrument and his 
+suggestions for improving our explanation of it in this 
+paper. TES Principal Investigator Reinhard Beer, TES 
+Instrument Scientist David Rider, and TES Algorithm Lead 
+Helen Worden made helpful suggestions about the first draft 
+of this paper. We thank Ed Miller, the TES Instrument 
+Manager, for his review of the paper and for supplying us 
+with the TES Block Diagram. And we thank Aura Ground 
+Systems and Operations Manager Angelita Kelly of GSFC 
+for the diagram of the TES Flight Operations architecture. 
+The research described in this paper was carried out at the 
+Jet Propulsion Laboratory, California Institute of 
+Technology, under a contract with the National Aeronautics 
+and Space Administration. 
+4-1623 
+REFERENCES 
+[ 11 Re:inhard Beer, Remote Sensing by Fourier Transform 
+Spectroscopy, John Wiley and Sons, New York, 1992 
+[2] Reinhard Beer, “Tropospheric Emission Spectrometer 
+Scientific Objectives & Approach, Goals & Requirements,” 
+JPL 0-11294 Revision 6.0, April 1999 
+[3] Daryl G. Boden and Wiley J. Larson, Cost-Efective 
+Space Mission Operations, McGraw Hill, New York, 1996 
+Operations Cognizant Engineer. He has worked in 
+develoj7ment and operations on many JPL projects, 
+including the Wide Fieldplanetary Camera, the Superfluid 
+Helium and Drop Dynamics experiments, the Interactions 
+Measurement Payload for Shuttle, the DSN Antenna 
+Controller, Voyager, Galileo, and Cassini. He has a 
+BacheLor ’s degree in Physics fiom C‘altech and a Master’s 
+in Physics (Acoustics) from UCLA. 
+Padma Varanasi is a Senior Engineer at the Jet Propulsion 
+Laboratory in Pasadena, California. She has fifteen years 
+experience in ground data system development and mission 
+operations. Missions she has worked on include Explorer 
+Platform, Mars Observer, TOPEX, Cassini, Terra and’ 
+Aura. Padma grew up in India and attended college in the 
+US, graduating with a B.A. in Computer Science/Math a1 
+UC Sa,n Diego. When she is not doing satellite work, she 
+trainsjbr the LA marathon. 
+4-1624 

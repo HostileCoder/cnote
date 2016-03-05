@@ -1,0 +1,973 @@
+Comparison of Market Parameters for Jump-Diﬀusion
+Distributions Using Multinomial Maximum Likelihood Estimation
+Floyd B. Hanson and Zongwu Zhu
+Abstract—Previously, we have shown that the proper
+method for estimating parameters from discrete, binned stock
+log returns is the multinomial maximum likelihood estimation,
+and its performance is superior to the method of least squares.
+Useful formulas have been derived for the jump-diﬀusion
+distributions. Numerically, the parameter estimation can be a
+large scale nonlinear optimization, but we have used techniques
+to reduce the computation demands of multi-dimensional
+direct search. In this paper, three jump-diﬀusion models
+using diﬀerent jump-amplitude distributions are compared.
+These are the normal, uniform and double-exponential. The
+parameters of all three models are ﬁt to the Standard and
+Poor’s 500 log-return market data, constrained by the data
+ﬁrst and second moments. While the results for the skew and
+kurtosis moments are mixed, the uniform jump distribution
+has superior qualitative performance since it produces genuine
+fat tails that are typical of market data, whereas the others
+have exponentially thin tails. However, the log-normal model
+has a big advantage in computational time of parameter esti-
+mation compared with the others, while the double-exponential
+is most costly due to having one more model parameter.
+I. Introduction
+Despite the great success of Black-Scholes model [2] in
+option pricing, this pure log-normal diﬀusion model fails
+to reﬂect the three empirical phenomena: (1) the large
+random ﬂuctuations such as crashes and rallies; (2) the non-
+normal features, that is, negative skewness and leptokurtic
+(peakedness) behavior in the stock log-return distribution;
+(3) the implied volatility smile, that is, the implied volatility
+is not a constant as in the Black-Scholes model.
+Therefore, many diﬀerent models are proposed to modify
+the Black-Scholes model so as to represent the above three
+empirical phenomena. Merton [9] introduced the jump-
+diﬀusion model in ﬁnancial modeling, using a Poisson
+process for the jump timing and a log-normal process for the
+jump-amplitudes to describe the market crashes and rallies.
+Some models are proposed to incorporate the volatility
+smile, for example, Andersen, Benzoni and Lund [1] have
+made elaborate estimations to ﬁt jump-diﬀusion models
+with log-normal jump-amplitudes, stochastic volatility and
+other features. Some models are proposed to incorporate the
+asymmetric features of the stock log-return distributions.
+Recently, Kou [8] proposed a jump-diﬀusion model with
+a log-double-exponential process for the jump-amplitudes.
+Since crashes and rallies are rare events, so the Poisson
+The work is supported by the National Science Foundation under Grant
+DMS-02-07081. The content of this material is that of the authors and
+does not necessarily reﬂect the views of the National Science Foundation.
+Department of Mathematics, Statistics, and Computer Science,
+M/C 249, University of Illinois, Chicago, IL 60607-7045
+hanson@math.uic.edu and zzhu@math.uic.edu
+process is reasonable for the timing of jumps. However,
+there is a problem in choosing the log-normal or log-
+double-exponential process for the jump-amplitudes since
+the exponentially small tails of the log-normal and log-
+double-exponential distributions are contrary to the ﬂat and
+thick tails of the long time ﬁnancial market log-return data.
+Around the near-zero peak of the log-double-exponential
+and the log-normal, the jumps are small, so are not quali-
+tatively diﬀerent from the continuous diﬀusion ﬂuctuations.
+Moreover, an inﬁnite jump domain is unrealistic, since the
+jumps should be bounded in a real world ﬁnancial markets
+and an inﬁnite domain leads to unrealistic restrictions in
+portfolio optimization [5].
+So, Hanson and Westman [4] proposed one jump-
+diﬀusion model with log-uniform jump-amplitude. Most
+recently, Hanson, Westman and Zhu [7] showed that for
+IID simulations the binned distribution is multinomial. They
+estimated the market parameters for this log-uniform model
+by subsequent multinomial maximum likelihood method to
+ﬁt ﬁnancial market distributions such as the Standard and
+Poor’s 500 stock index.
+The main purpose of this paper is to compare the
+performance of three jump-diﬀusion models whose jump-
+amplitudes are the log-normally, log-uniformly and log-
+double-exponentially distributed.
+II. Some Theoretical Results
+A. Stock Return Process, S(t)
+The following stochastic diﬀerential equation (SDE) is
+used to model the dynamics of the asset price, S(t):
+dS(t) = S(t) (µddt + σddW (t) + J(Q)dP (t)) , (II.1)
+where µd is the drift coeﬃcient, σd is the diﬀusive volatility,
+W (t) is the stochastic diﬀusion process, J(Q) is the Poisson
+jump-amplitude, Q is its underlying Poisson amplitude
+mark process, J(Q)dP (t) is just a symbol for the countingPdP (t)
+i=1 J(Qi), P (t) is the standard Poisson jump process
+with joint mean and variance E[P (t)] = λt = Var[P (t)].
+B. Stock Log-Return Process, ln(S(t))
+The stock log-return ln(S(t)) can be transformed to
+a simpler jump-diﬀusion stochastic diﬀerential equation
+(SDE) upon the use of the stochastic chain rule [6],
+d[ln(S(t))] = µlddt + σddW (t) + QdP (t), (II.2)
+where µld ≡ µd − 0.5σ2d is the log-diﬀusive (ld) drift and
+for simplicity the log-jump-amplitude is taken as the mark
+Q = ln(J(Q) + 1).
+43rd IEEE Conference on Decision and Control
+December 14-17, 2004
+Atlantis, Paradise Island, Bahamas
+0-7803-8682-5/04/$20.00 ©2004 IEEE
+ThC08.3
+3919
+C. Log-Normal Jump Distribution
+Let the density of the jump-amplitude mark Q be normal
+φQ(q) = φn(q;µj , σ
+2
+j ), (II.3)
+where φn(q;µj , σ
+2
+j ) is the normal density with mean µj
+and variance σ2j . The log-normal jump-amplitude jump-
+diﬀusion model was used in [9], [1], [3] and others.
+For the density for this jump-diﬀusion model with log-
+normal jump-amplitude, Hanson and Westman [3] proved,
+with corrections given here in terms of the distribution
+truncated to the second order approximation in terms of
+the Poisson distribution, the following corollary:
+Corollary: The second order approximation to [x1, x2]
+bin probability distribution for the linear jump-diﬀusion
+log-return increment ∆[ln(S(t))] with log-normal jump-
+amplitude is given by
+Φnjd(x1, x2) 
+P2
+k=0 pk(λ∆t)Φn(x1, x2;µ+kµj , σ
+2+kσ2j )P2
+j=0 pj(λ∆t)
+,
+(II.4)
+for −∞ < x < +∞, where Φn(x1, x2;µ, σ2) is the normal
+distribution on the [x1, x2], µ ≡ µld∆t, σ ≡
+p
+σ2d∆t, pk(Λ) =
+e−ΛΛk/k! is the Poisson distribution with parameter Λ =
+λ∆t and k jumps and ∆t is the corresponding trading time
+increment in years.
+This corollary is based upon the law of total probability
+[6, Chapter 0] resulting in the sum over all k Poisson
+jumps, the convolution theorem [6] yielding the density of
+the log-jump-diﬀusion conditioned on there being k IID
+jumps, and the fact that the convolution of two normals
+is also normal [6]. For the purpose of comparison, we
+use two terms of the expansion to provide more accurate
+estimations since we are dealing with small but moderately
+small time steps. The additional contribution of the third
+order approximation is only 1.5% whereas the 2nd order
+approximation contributed 23% to the 1st. Note that an
+appropriate 2nd order renormalization is used to preserve
+the distribution property.
+1) Basic Moments M
+(njd)
+i of Log-Return Increments
+∆[ln(S(t))] for Log-Normal Jumps for i = 1:4:
+M
+(njd)
+1 ≡ E[∆[ln(S(t))]]=(µld+λµj)∆t.
+M
+(njd)
+2 ≡ Var[∆[ln(S(t))]]=(σ2d+λ(σ2j +µ2j ))∆t.
+M
+(njd)
+3 ≡ E
+h
+(∆[ln(S(t))]−M (jd)1 )3
+i
+=(3σ2j +µ
+2
+j )µjλ∆t.
+M
+(njd)
+4 ≡ E
+h
+(∆[ln(S(t))]−M (jd)1 )4
+i
+= (µ4j +3σ
+4
+j +6µ
+2
+jσ
+2
+j )λ∆t+3(σ
+2
+d+λ(σ
+2
+j +µ
+2
+j ))
+2(∆t)2.
+D. Log-Uniform Jump Distribution
+Let the density of the jump-amplitude mark Q be uni-
+form
+φQ(q) =
+H(b− q)−H(a− q)
+b− a , (II.5)
+where a < 0 < b and H(x) is the Heaviside unit step
+function. The mark Q has moments, µj ≡ E[Q] = 0.5(b+a),
+σ2j ≡ Var[Q] = (b − a)2/12. The original jump-amplitude J
+has mean E[J(Q)] = (exp(b)− exp(a))/(b− a)− 1.
+For the distribution of the jump-diﬀusion model with log-
+uniform jump-amplitude, the following corollary follows
+from the density in [6, Chapter 5],
+Corollary: The second order approximation to [x1, x2]
+bin probability distribution for the linear jump-diﬀusion
+log-return increment ∆[ln(S(t))] with log-uniform jump-
+amplitude is given by
+Φujd(x1, x2) 
+P2
+k=0 pk(λ∆t)Φ
+(k)
+ujd
+(x1,x2)
+P
+2
+j=0 pj(λ∆t)
+, (II.6)
+for −∞ < x < +∞, where Φ(0)ujd(x1, x2) ≡ Φn(x1, x2;µ, σ2),
+Φ
+(1)
+ujd(x1, x2) =
+1
+b−a
+„
+(x2−x1)Φ(x2−b, x2−a;µ, σ2)
+−(x1−b−µ)Φn(x1−b, x2−b;µ, σ2)
++(x1−a−µ)Φn(x1−a, x2−a;µ, σ2)
++
+σ√
+2π
+„
+e−
+x21b
+2 −e−
+x22b
+2 −e−
+x21a
+2 +e−
+x22a
+2
+««
+,
+where x1a = (x1−a−µ)/σ, x2a = (x2−a−µ)/σ, x1b =
+(x1−b−µ)/σ, x2b = (x2−b−µ)/σ,
+Φ
+(2)
+ujd(x1, x2) =
+0.5σ2
+(b−a)2
+„
+(x22A−x21A)Φn(x2−C, x2−A;µ, σ2)
++(x21B−x22B)Φn(x2−B, x2−C;µ, σ2)
++(x21A+1)Φn(x1−A,x2−A;µ, σ2)
++(x21B+1)Φn(x1−B, x2−B;µ, σ2)
+−2(x21C+1)Φn(x1−C, x2−C;µ, σ2)
++
+1√
+2π
+(2X1C,2C−X1A,2A−X1B,2B)
+«
+,
+where A = 2a, C = a+b, B = 2b, x1A = (x1−A−µ)/σ, x2A =
+(x2−A−µ)/σ, x1C = (x1−C−µ)/σ, x2C = (x2−C−µ)/σ, x1B =
+(x1−B−µ)/σ, x2B = (x2−B−µ)/σ, X1A,2A = x1Ae−x21A/2−
+x2Ae
+−x22A/2, X1B,2B = x1Be
+−x21B/2 − x2Be−x22B/2, X1C,2C =
+x1Ce
+−x21C/2 − x2Ce−x22C/2.
+For the distribution (II.6), the ﬁrst and second order term
+formulas, Φ
+(i)
+ujd(x1, x2) for i = 1 : 2, have been reduced by
+integration by parts to single normal distribution integrals to
+minimize the computational costs, making it comparable for
+the normal jump case in (II.4). Also, the terms are arranged
+to minimize the eﬀects of catastrophic cancellation.
+1) Fourth Central Moment of Log-Return Increments
+∆[ln(S(t))] for Log-Uniform Jumps:
+M
+(ujd)
+4 =
+`
+µ4j +1.8σ
+4
+j +6µ
+2
+jσ
+2
+j
+´
+λ∆t
++3
+`
+σ2d+λ(σ
+2
+j +µ
+2
+j )
+´2
+(∆t)2.
+Note that the formulas for the ﬁrst three moments are the
+same for both log-normal and log-uniform jumps.
+E. Log-Double-Exponential Jump Distribution
+Let the density of the jump-amplitude mark Q be double-
+exponential
+φQ(q) =
+p1
+µ1
+exp
+„
+q
+µ1
+«
+I{q<0}+
+p2
+µ2
+exp
+„−q
+µ2
+«
+I{q≥0}, (II.7)
+where µ1 > 0 and µ2 > 0 are one-sided means, and
+0 < p1 < 1 represents the probability of downward jumps
+while p2 = 1− p1 is the probability of upward jumps. The
+3920
+set indicator function is I{S} for set S. The mark Q has
+moments,
+µj = EQ[Q]=−p1µ1+p2µ2,
+σ2j = VarQ[Q]=p1
+`
+(µj+µ1)
+2+µ21
+´
++p2
+`
+(µj−µ2)2+µ22
+´
+.
+Similar to Corollary II.6, we get the following corollary:
+Corollary: The second order approximation to [x1, x2] bin
+probability distribution for the linear jump-diﬀusion, log-
+return increment ∆[ln(S(t))] with log-double-exponential
+jump-amplitude is given by
+Φdejd(x1, x2) 
+P2
+k=0 pk(λ∆t)Φ
+(k)
+dejd
+(x1,x2)
+P2
+j=0
+pj(λ∆t)
+, (II.8)
+for −∞ < x < +∞, where
+Φ
+(0)
+dejd(x1, x2) ≡ Φn(x1, x2;µ, σ2),
+Φ
+(1)
+dejd(x1, x2) = Φn(x1, x2;µ, σ
+2)+p1(ρx2,ν1 − ρx1,ν1)
++p2(ρx1,ν2 − ρx2,ν2),
+ν1 = µ− 0.5σ2/µ1, ν2 = µ + 0.5σ2/µ2,
+ρx2,ν1 = e
++(x2−ν1)/µ1Φn(−x2;−µ + σ2/µ1, σ2),
+ρx1,ν1 = e
++(x1−ν1)/µ1Φn(−x1;−µ + σ2/µ1, σ2),
+ρx1,ν2 = e
+−(x1−ν2)/µ2Φn(x1;µ + σ
+2/µ2, σ
+2),
+ρx2,ν2 = e
+−(x2−ν2)/µ2Φn(x2;µ + σ
+2/µ2, σ
+2),
+Φ
+(2)
+dejd(x1, x2) = Φn(x1, x2;µ, σ
+2)
++µ1
+„„
+p12+p11
+„
+µ− σ
+2
+µ1
++µ1−x2
+««
+ρx2,ν1
+−
+„
+p12+p11
+„
+µ− σ
+2
+µ1
++µ1−x1
+««
+ρx1,ν1
+«
++µ2
+„„
+p12−p22
+„
+µ+
+σ2
+µ2
+−µ2−x1
+««
+ρx1,ν2
+−
+„
+p12−p22
+„
+µ+
+σ2
+µ2
+−µ2−x2
+««
+ρx2,ν2
+«
++
+σ√
+2π
+(µ2p22 − µ1p11)
+“
+e−z
+2
+1/2 − e−z22/2
+”
+,
+p11 = (p1/µ1)
+2, p22 = (p2/µ2)
+2, p12 = 2p1p2/(µ1+µ2),
+z1 = (x1−µ)/σ, z2 = (x2−µ)/σ.
+1) Third and Fourth Moments of Log-Return Increments
+∆[ln(S(t))] for Log-Double-Exponential Jumps:
+M
+(dejd)
+3 = 6(p2µ
+3
+2−p1µ31)λ∆t;
+M
+(dejd)
+4 = 24(p2µ
+4
+2+p1µ
+4
+1)λ∆t+3(σ
+2
+d+λ(σ
+2
+j +µ
+2
+j ))
+2(∆t)2.
+The ﬁrst and second moments are the same for all three
+models.
+F. Skewness and Kurtosis
+Negative skewness and leptokurtosis are considered to be
+general properties of ﬁnancial market distributions. There-
+fore, M
+(jd)
+3 and M
+(jd)
+4 are needed to get the theoretical
+skewness and kurtosis coeﬃcient for these three models to
+suﬃcient accuracy for a satisfactory comparison.
+• Skewness coeﬃcient: β
+(jd)
+3 ≡ M (jd)3 /
+“
+M
+(jd)
+2
+”1.5
+.
+• Kurtosis coeﬃcient: β
+(jd)
+4 ≡M (jd)4 /
+“
+M
+(jd)
+2
+”2
+.
+Sometimes, the kurtosis is represented as the excess kurtosis
+coeﬃcient by subtracting three from the kurtosis coeﬃcient
+so that the excess is zero for the normal distribution.
+III. Parameter Estimations
+The basic point of view, here, is that the ﬁnancial markets
+are considered to be a moderate size simulation of one of
+these three jump-diﬀusion processes.
+A. Empirical Data
+We use Standard and Poor’s 500 (S&P500) stock index
+in the decade 1992-2001 [12] as the sample of the ﬁnancial
+market since it is in general viewed as one big mutual fund
+so that it is less dependent on the peculiar behavior of any
+one stock. Let n(sp) = 2522 be the number of daily closings
+S
+(sp)
+s for s = 1:n
+(sp), such that there are ns = 2521 log-
+returns,
+∆
+h
+ln
+“
+S(sp)s
+”i
+≡ ln
+“
+S
+(sp)
+s+1
+”
+− ln
+“
+S(sp)s
+”
+(III.1)
+with empirical average values:
+• Mean: M
+(sp)
+1 4.015e-4.
+• Variance: M
+(sp)
+2 9.874e-5.
+• Skewness coeﬃcient: β
+(sp)
+3  −0.2913 < 0,where
+β
+(n)
+3 = 0 is the normal distribution value and M
+(sp)
+3
+is the 3rd central log-return moment of the data.
+• Kurtosis coeﬃcient: β
+(sp)
+4 7.804 > 3,where β(n)4 = 3
+is the normal distribution value and M
+(sp)
+4 is the 4th
+central log-return moment of the data.
+B. Multinomial Maximum Likelihood Estimation
+In a previous paper [7], the multinomial maximum likeli-
+hood estimation of model parameters is justiﬁed for binned
+ﬁnancial data, but applies to very general binned data. The
+main idea for this method is the following:
+• Step 1: Sort the sample data into nb bins and get the
+sample frequency f
+(sp)
+b , for b = 1:nb.
+• Step 2: Get the theoretical jump-diﬀusion frequency
+with parameter vector x:
+f
+(jd)
+b (x) ≡ ns
+Z
+Bb
+φ(jd)(η;x)dη ,
+where φ(jd)(η;x) is some jump-diﬀusion density in η
+and Bb is the bth bin.
+• Step 3: Minimize the objective function:
+y(x) ≡ −
+nbX
+b=1
+h
+f
+(sp)
+b ln
+“
+f
+(jd)
+b (x)
+”i
+, (III.2)
+where the negative of the likelihood is minimized,
+corresponding to the minimizing MATLAB function
+fminsearch to get the optimal parameters x∗ for the
+three compared models, respectively. This MATLAB
+function is an implementation of the Nelder-Mead
+down-hill simplex direct search method [11]. The
+Nelder-Mead is usually faster than other optimization
+methods when it works. Some comparisons with our
+multidimensional golden section search method for the
+ﬁnancial parameter estimation problem are given in
+[7].
+3921
+C. Jump-Diﬀusion Moment Estimation Constraints
+For the jump-diﬀusion model with log-normal and log-
+uniform jump-amplitude, there are ﬁve (5) free jump-
+diﬀusion parameters: {µld, σ
+2
+d, µj, σ
+2
+j , λ}. For the model
+with log-double-exponential jump-amplitude, there are six
+(6) free jump-diﬀusion parameters: {µld, σ
+2
+d, µ1, µ2, p1, λ}.
+So, to reduce this set to a reasonable number, the multi-
+nomial maximum likelihood estimation is subjected to the
+mean and variance constraints:
+M
+(sp)
+1 = M
+(jd)
+1 and M
+(sp)
+2 = M
+(jd)
+2 . (III.3)
+Two diﬀusion parameters, µld and σd, are eliminated by
+µld =
+“
+M
+(sp)
+1 − µjλ∆t
+”
+/∆t, (III.4)
+σ2d = max
+h“
+M
+(sp)
+2 −
+`
+σ2j + µ
+2
+j
+´
+λ∆t
+”
+/∆t, ε
+i
+, (III.5)
+subject to positivity constraints with suﬃciently small
+ε > 0. Although σ2d normally should be positive, but not
+necessarily for the ﬁrst argument of the max in (III.5).
+For the log-normal and log-uniform jump-diﬀusion model,
+only three free parameters are left: x = {µj , σ2j , λ}. For
+the log-double-exponential jump-diﬀusion model, four free
+parameters are left: x = {µ1, µ2, p1, λ}with signiﬁcantly
+more computational estimation costs and it is subject to
+an exponential form of catastrophic cancellation unless the
+one-sided exponentials are appropriately collected.
+IV. Numerical Results, Figures and Discussion
+We use the MATLAB 7.0 [10] to program our codes.
+The multinomial maximum likelihood estimation given
+here is used to estimate the jump-diﬀusion parameters.
+The numerical optimization was performed using the
+fminsearch function [10]. For the normal distribution
+integrals Φn(x1, x2;µ, σ
+2) or Φn(x1;µ, σ
+2), the use of the
+fast and reliable MATLAB complementary error function
+erfc was critical, since more standard integration functions
+for unscaled arguments failed small variance σ2 tests due
+to poor detection of the main probability mass. For the log-
+normal and log-uniform model, the same starting point x0
+is used. For the log-double-exponential model, the diﬀerent
+starting point x0 is used: initial µ1 and µ2 are from an initial
+estimation of the µj and using p1  0.6 > 0.5 and the λ∆t
+value are the same as the log-normal or log-uniform.
+The empirical data used in the estimation are the S&P500
+daily closing log-returns from the decade 1992-2001. This
+data is displayed here in Figure 1 with 100 equally spaced
+bins. The ragged appearance of the histogram resembles
+the random simulation of a density using a moderate, but
+inadequate sample size. The crashes are represented by
+the extreme negative tails and the rallies by the extreme
+positive tails, but these extreme events are diﬃcult to see
+since they are rare events with small frequency counts, i.e.,
+the extreme tails are sparsely populated, with the extreme
+negative events more widely separated than the extreme
+positive events. Note that extremeness is measured by the
+values of the log-returns on the horizontal axes.
+However, if the histogram frequencies are multiplied by
+the centered value of the evenly spaced bin log-returns,
+−0.06 −0.04 −0.02 0 0.02 0.040
+20
+40
+60
+80
+100
+120
+140
+160
+180
+S&P500 Closing Log Returns, f (sp)
+Fr
+eq
+ue
+nc
+y,
+ f 
+(sp
+)
+S&P500 Log Returns, dlnS(sp)
+Fig. 1. Histogram of S&P500 log-return frequencies for the decade 1992-
+2001, using 100 centered evenly spaced bins.
+then the extreme jumps are clearly visible. This moment-
+histogram is called a hysteriagram [4] since it magniﬁes the
+count of the larger jumps and corresponds to the extreme
+reaction of investors. The hysteriagram for the S&P500 is
+given in Figure 2 using the same data as in the previous
+ﬁgure, using the same 100 evenly spaced bins.
+−0.06 −0.04 −0.02 0 0.02 0.04
+−0.4
+−0.2
+0
+0.2
+0.4
+0.6
+S&P500 Hysteriagram:  X*Frequency
+X−
+Fr
+eq
+ue
+nc
+y,
+ x
+*f 
+(sp
+)
+S&P500 Log Returns, dlnS(sp)
+Fig. 2. Hysteriagram of S&P500 log-return frequencies multiplied by the
+centered bin log-return values for the decade 1992-2001, using 100 evenly
+spaced bins.
+Figure 3 shows that the log-normal jump-amplitude ﬁtted
+model hysteriagram exhibits too thin tails that decay too fast
+with the jump magnitude. From (II.4) the bin distribution
+will be a Poisson sum of normal distributions, so will have
+the thin Gaussian exponential tails.
+Figure 4 shows that the log-uniform jump-amplitude ﬁtted
+model hysteriagram exhibits thicker tails that decay more
+slowly with the jump magnitude, especially in the shoulders
+of the hysteriagram. The convolution of the diﬀusion with
+multiple jump uniform distributions in (II.6) help counter
+the normal distribution tendency to having exponential thin
+3922
+−0.06 −0.04 −0.02 0 0.02 0.04
+−0.4
+−0.2
+0
+0.2
+0.4
+0.6
+Log−Normal Hysteriagram:  X*Frequency
+X−
+Fr
+eq
+ue
+nc
+y,
+ x
+*f 
+(jd
+)
+Log Returns, dlnS(jd)
+Fig. 3. Hysteriagram of the predicted log-returns frequencies multiplied
+by the centered bin log-return values for the log-normal jump-amplitude
+jump-diﬀusion model, using 100 evenly spaced bins and the estimated
+parameters.
+tails, but not for very large values of the log-returns. The
+positive tails are thicker since the extreme positive jumps are
+more closely spaced than the negative jumps. The uniform
+model mainly compensates for the non-normal data with
+signiﬁcant lumps in the shoulders of the jump-diﬀusion
+distribution.
+−0.06 −0.04 −0.02 0 0.02 0.04
+−0.4
+−0.2
+0
+0.2
+0.4
+0.6
+Log−Uniform Hysteriagram:  X*Frequency
+X−
+Fr
+eq
+ue
+nc
+y,
+ x
+*f 
+(jd
+)
+Log Returns, dlnS(jd)
+Fig. 4. Hysteriagram of the predicted log-returns frequencies multiplied
+by the centered bin log-return values for the log-uniform jump-amplitude
+jump-diﬀusion model, using 100 evenly spaced bins and the estimated
+parameters.
+Figure 5 shows that the log-double-exponential jump-
+amplitude ﬁtted model hysteriagram exhibits too thin tails
+that decay too fast with the jump magnitude that is very
+similar to the log-normal jump-amplitude model. The con-
+volution of normal and exponential distributions in (II.8),
+like the normal jump-amplitude model, can only lead to
+exponential thin tails.
+From Table I, we can have a quantitative estimate of the
+−0.06 −0.04 −0.02 0 0.02 0.04
+−0.4
+−0.2
+0
+0.2
+0.4
+0.6
+Log−DblExp Hysteriagram:  X*Frequency
+X−
+Fr
+eq
+ue
+nc
+y,
+ x
+*f 
+(jd
+)
+Log Returns, dlnS(jd)
+Fig. 5. Hysteriagram of the predicted log-returns frequencies multiplied
+by the centered bin log-return values for the log-double-exponential jump-
+amplitude jump-diﬀusion model, using 100 evenly spaced bins and the
+estimated parameters.
+derived distribution parameters {µd, σd, µj , σj , λ}. Since
+the trading days per year are about 250 days, it is not likely
+that the jumps rate is more than 100 per year because the
+ﬁnance market should be kept stable, so, λ  64 for the
+log-uniform is more reasonable. The near-zero peaks of the
+normal and double-exponential lead to jump rates that are
+double or more than the uniform jump rate. Note that the
+jump rate includes all size jumps, including those hidden
+under the log-normal diﬀusion. In the table the overall jump
+mean µj is given for the purpose of comparison, but for
+the double-exponential, the negative jump mean is −µ1 =
+-6.88e-3 and the positive jump mean is µ2 = +6.35e-3. For
+the double-exponential, the probability of negative jumps is
+p1 = 0.504 and that for positive jumps is p2 = 0.496.
+The overall jump-diﬀusion parameters {µd, σd, µj , σj , λ}
+have somewhat diﬀerent distributions among the three jump
+models, with the diﬀusive means and volatilities being the
+closest among the parameters. The uniform distribution
+gives more weight to the negative jumps with the largest
+−µj = 12.18e-4 and largest σj  1.52e-2.
+TABLE I
+Comparison summary of derived distribution parameters for the
+log-normal, log-uniform and log-double-exponential jump-diﬀusion
+models, respectively.
+Model µd σd µj σj λ
+Normal 0.191 0.088 -7.09e-4 1.19e-2 121.
+Uniform 0.184 0.100 -12.18e-4 1.52e-2 64.0
+Dbl-Exp 0.170 0.085 -3.21e-4 0.94e-2 202.
+Table II shows the diﬀerences of the variance-normalized
+higher moments of skewness β3 and kurtosis β4 between
+the estimate value and the observed values. The absolute
+skewness diﬀerence is the lowest for the log-uniform jump
+model, while the absolute kurtosis diﬀerence is the lowest
+3923
+for the log-double-exponential jump model.
+On the other hand, the skewness diﬀerence is the worst
+for the log-normal jump model and the kurtosis diﬀerence
+is the worst for the log-uniform jump model, but the log-
+normal is only 5% lower than the log-uniform. Of course,
+the numerical calculations of the third and fourth moments
+are of doubtful computational reliability for data. The ﬁnal
+multinomial maximum likelihood values using the negative
+of minimum values are essentially the same for all models,
+since the same stopping criterion was used.
+TABLE II
+The skewness and kurtosis coeﬃcients for the three models are
+compared to S&P500 values, respectively, and Multinomial Maximum
+Likelihood (MML  −min[y(x)]).
+Model β3 %diﬀ. β4 %diﬀ. MML
+Normal -0.147 -49.5 5.98 -23.4 1107.
+Uniform -0.219 -24.7 5.57 -28.7 1106.
+Dbl-Exp -0.183 -37.6 6.80 -12.8 1108.
+S&P500 -0.291 0.0 7.80 0.0 —
+Table III shows that the log-normal model takes some-
+what more iterations and function evaluations than the log-
+uniform model does, but the log-normal model parameter
+estimate takes about 60% of the time to execute. One reason
+is that the log-normal requires only similar normal distri-
+bution calculations for each jump count k in (II.4), while
+the others require more complex combinations of normal
+distributions, powers and exponentials. The extra parameter
+needed for the double-exponential means the iteration count,
+the function evaluation count and the timings are much
+greater. However, the computational eﬀort for both the
+uniform and double-exponential models have been greatly
+reduced by using integration by parts and more to get single
+integrals. If the parameter estimation is done oﬀ-line for an
+application instead of on-line then the computational saving
+would not be too much of an advantage.
+TABLE III
+Comparison summary of computational performance measures:
+Jump Number Number Function Timings
+Model Parms. Iters. Evals. (sec)
+Normal 3 131 238 4.7
+Uniform 3 71 128 7.8
+Dbl-Exp 4 205 343 21.
+Combined Legend for Table I, Table II and Table III:
+• Maximum Number of Iterations: 400.
+• Using same fminsearch tolerances: tolx = 5e-7
+and toly = 5e-7.
+• Using a dual G5@2GHz CPU computer processor with
+MATLAB 7.0.
+V. Summary and Conclusions
+From the above theoretical and data analysis, we can get
+the following conclusions:
+• The log-uniform model is the qualitatively best overall
+among the three models, in terms of genuinely repre-
+senting the fat tail property, better approximation to the
+empirical skewness and more reasonable jump rates of
+real-world market distributions.
+• The log-normal model runs faster than the other two
+models due to simpler normal bin integrals. On the
+other hand, the integration by parts technique has been
+used to reduce the computational eﬀort for the log-
+uniform and log-double-exponential models. However,
+the deﬁciencies of the log-normal model demonstrates
+that the distribution that is better analytically is not
+necessarily a better model for ﬁnancial markets.
+• The results for the log-normal and log-double-
+exponential jump amplitude models are qualitatively
+similar, having exponentially small tails and near-zero
+peaks in the jump distribution making small jumps
+more likely.
+• However, all three models give reasonable quantitative,
+although somewhat mixed, results.
+• For the future research and considerations.
+1) To improve the log-uniform and other jump mod-
+els, the stochastic volatility will be considered
+with other factors.
+2) To consider the option price and optimal port-
+folio applications, approximate solutions to these
+problems will be obtained.
+References
+[1] T. G. Andersen, L. Benzoni, and J. Lund, An Empirical Investigation
+of Continuous-Time Equity Return Models, J. Finance, vol. 57(3),
+2002, pp. 1239-1284.
+[2] F. Black and M. Scholes, The Pricing of Options and Corporate
+Liabilities, J. Political Economy, vol. 81, 1973, pp. 637-659.
+[3] F. B. Hanson and J. J. Westman, “Optimal Consumption and
+Portfolio Control for Jump-Diﬀusion Stock Process with Log-
+Normal Jumps,” Proc. 2002 Amer. Control Conf., 2002, pp. 4256-
+4261. See URL: ftp://www.math.uic.edu/pub/Hanson/
+ACC02/acc02webcor.pdf for corrected version.
+[4] F. B. Hanson and J. J. Westman, “Jump-Diﬀusion Stock Return
+Models in Finance: Stochastic Process Density with Uniform-Jump
+Amplitude,” Proc. 15th Int. Sympos. Mathematical Theory of Net-
+works and Systems, 2002, pp. 1-7.
+[5] F. B. Hanson and J. J. Westman, “Portfolio Optimization with Jump-
+Diﬀusions: Estimation of Time-Dependent Parameters and Applica-
+tion,” Proc. 2002 Conf. Decision and Control, 2002, pp. 377-382.
+[6] F. B. Hanson and J. J. Westman, Applied Stochastic Processes and
+Control for Jump-Diﬀusions: Modeling, Analysis and Computation
+SIAM Books, Philadelphia, PA, to appear 2004-2005. See URL:
+http://www.math.uic.edu/˜hanson/mcs574/#Text
+[7] F. B. Hanson, J. J. Westman and Z. Zhu, Multinomial Maxi-
+mum Likelihood Estimation of Market Parameters for Stock Jump-
+Diﬀusion Models, Contemporary Mathematics, vol. 351, pp. 155-
+169, 24 June 2004.
+[8] S. G. Kou, A Jump Diﬀusion Model for Option Pricing, Management
+Science, vol. 48, 2002, pp. 1086-1101.
+[9] R. C. Merton, Option Pricing when Underlying Stock Returns are
+Discontinuous, J. Financial Economics, vol. 3, 1976, pp. 125-144.
+[10] C. Moler et al., Using MATLAB, Version 6, Mathworks, Natick, MA,
+2000.
+[11] J. A. Nelder and R. Mead, A Simplex Method for Function Mini-
+mization, Computer Journal, vol, 7, 1965, pp. 308-313.
+[12] Yahoo! Finance, Historical Quotes, S & P 500 Symbol bSPC, URL:
+http://chart.yahoo.com/. February 2002.
+3924

@@ -1,0 +1,450 @@
+Reduced-Rank Signal-Dependent Classification of
+Training Data for Space-Time Adaptive Processing
+Michael A. Tinston, William C. Ogle, and J. Scott Goldstein
+Science Applications International Corp.
+Advanced Research and Engineering Solutions
+4501 Daly Dr., Ste. 400
+Chantilly, VA 20151, USA
+{tinstonm, oglew, goldsteinja}@saic.com
+Peter A. Zulch
+Air Force Research Laboratory
+Radar Signal Processing Branch (SNRT)
+26 Electronic Parkway
+Rome, NY 13441, USA
+zulchp @rl.af.mil
+Abstract-Nonhomogeneous and non-stationary training data that use training data to compute weight vectors have shown
+are two of the key technical challenges facing space-time promise in airborne and ground-based radar systems. How-
+adaptive processing (STAP) for target detection using space- ever, clutter inhomogeneity and non-stationarity are two of
+based radar. We describe a new technique for training data the key technical challenges facing STAP for target detec-
+selection that seeks to classify the available data in a reduced- tion using space-based radar. The detection gains promised
+rank subspace based on the Multistage Wiener Filter (MWF). by STAP are fully realized only if there are enough train-
+The method builds on previous work by allowing each data ing data that are stationary, homogeneous, and drawn from
+sample to associate with multiple covariance classes within Gaussian iid processes. In order to address clutter nonho-
+the separate subspaces defined by the signal and the class, mogeneities, the generalized inner product (GIP) provides a
+thereby enabling larger sample support for each class. Per- metric for identifying training samples that are statistically
+formance of the new method is assessed using simulated data dissimilar from a given covariance matrix.
+based on a monostatic space-based radar scenario. Compar-
+ison is made with conventional training data selection tech- When the available data contain non-stationary clutter, there
+niques. may be regions or subsets that maintain stationarity. The abil-
+ity to classify these samples into homogeneous and stationary
+TABLE OF CONTENTS subsets improves overall STAP performance.
+1 INTRODUCTION This paper introduces a technique based on classify-
+ing data into self-homogeneous subsets within the signal-
+2 THEORETICAL BACKGROUND dependent reduced-rank subspace of the multistage Wiener
+3 CLASSIFICATION ALGORITHM filter (MWF). The new method allows training samples to be
+4 DETECTIONS PERFORMANCE associated with more than one class, thereby increasing the
+available sample support for training the STAP weight vec-
+5 CONCLUSIONS tors.
+6 ACKNOWLEDGEMENTS
+7 APPENDIX 2. THEORETICAL BACKGROUND
+To provide a framework for this work a brief technical de-
+1. INTRODUCTION scription of the underlying theory is provided.
+Space-based radar offers the promise of surface and airborne
+moving target indication (SMTI and AMTI) on a global scale. Detection theory
+In order to achieve the desired system goals, advanced sig- The required detection theory background for this problem
+nal processing techniques are needed that mitigate clutter that can be found in a number of well known books, specifically,
+interferes with detecting smaller moving targets. Statistical [1] and [2]. Specifically we have radar observations from
+approaches, such as space-time adaptive processing (STAP), multiple antenna elements and multiple pulses, the statistics
+of the background noise and interference is assumed to be
+This work was supported in part by the Air Force Research Labora- drw fro an unnw asindsrbto,frecag
+tory, Sensors Directorate, under contract numbers F30602-O1-C-0150 and danfo nukongusa ltluo,frec ag
+FA8750-04-C-0230.
+O-7803-8870-4/05/$20.OO 2005 IEEE
+1
+bin we wish to determine if there is a target or not. Note that ho = s, the steering vector and is the first basis
+vector of the MWF subspace, and the remaining basis vectors
+Ho Y = n depend on the interaction between s and the data. This is the
+H1 y = s + n (1) essence of a signal-dependent decomposition. The observed
+data xi+, for the next stage is formed by projecting the cur-
+If the noise in Eq 1 is gaussian, ie n - JV(i, R), this is the rent data xi onto the orthogonal complement of the current
+standard binary Hypothesis testing problem, the solution that cross-correlation vector. If the stage-by-stage decomposition
+maximizes the probability of detection for a given false alarm is continued until the subspace spans the entire original data
+rate, the Neyman-Pearson optimization, also maximizes the space, then the full-rank solution is achieved. For a more de-
+signal to noise ratio for the observation, and also minimizes tailed discussion, see [4], [5], [6], [7], [8].
+the variance (or power) of the Space Time Adaptive Proces-
+sor. Assuming the signal is unit power s I21 and the gain The GIP and Classification
+constraint is wHs = 1, the solution is: Determining whether a particular sample fits a particular us-
+ing the Generalized Inner Product is an established method of
+determining whether a particular sample comes from the dis-
+R-ls tribution represented by the covariance matrix. Some of the
+wo = sHR-ls (2) initial work on the subject was done at the Air Force Research
+Laboratory in Rome, NY, see [9], [10], [11]. The statisti-
+Where we use the Maximum Likelihood estimate of the co- cal underpinnings of the GIP were established in [12] as the
+variance: gamma distribution under certain conditions and [13] devel-
+K oped a Maximum Likelihood framework in which the GIP is
+R = ~1EYkYiH (3) used to censor samples from the training data of the adaptive
+K
+_
+k
+signal processor.
+The GIP is defined as:
+If rather than the simple binary solution the background data
+is drawn from an unknown number of gaussian distributions, zk = yHRyk (5)
+we must first determine to which distribution or class each
+sample belongs to,then compute a detection statistic for the Using the GIP as a measure of how well a sample fits a given
+sample. distribution, in [3] we developed a classification algorithm
+that assigns a class to each sample, then develops detection
+statistics for each sample based on its class.
+Ho,c :y = nc 3. CLASSIFICATION ALGORITHM
+Hl,c :y =s + nc (4) The are two key advances presented in this work over the clas-
+sification and detection algorithm presented in [3]. Explicitly,
+in this work a sample (or range bin) is allowed to be classi-In [] wedeveopeda soutin todetetionprobem o eq fled into multiple classes and the aa posteriori probability of
+4 that first classified the data in a signal dependent fashion, each classmistused toaforma whe tesisti for ec
+the performed a classwise detection process. We refer to this eahcssiuedtfomawgtdtstttsicorahthe erfrme a wi e n poces. e fe t sample based on the multiple classes, this allows increased
+classify then detect method as a hard classification method
+because a classificatio decisionismadesample support for each of the classes, improving the overall
+detection performance of the adaptive processor.
+In this work we develop a soft classification methodology and Algorithm 3 contains the basic algorithm outline. The
+explore the improvements in radar detection enabled.
+essence of the algorithm is that each sample contributes sta-
+tistically to all of the classes to which it fits. In the algorithm 3
+the variables
+-Yq and -72 denote threshold for declaring a par-
+Fig. 1 shows the MWF, a reduced-rank adaptive filtering ticular sample an outlier for that class. This can be accom-
+structure that generates a data-dependent basis in a stage- plished by declaring a minimum probability that the snapshot
+by-stage fashion retaining the most correlated interference in must have with respect to the class covariance. The actual
+each subsequent stage. The steering vector s provides the first values of the thresholds are a function of the dimension of the
+basis vector, or pivot, for the decomposition of the observed krylov subspace of the particular class.
+data matrix x, and hi is the unit-norm cross-correlation vec-
+tor between the reference signal di_1 and the observed data Figure 2 depicts the classwise signal decomposition used in
+xzj 1. The inner-product h~xiHz between the current cross- this classification algorithm. Because the basis vectors of the
+correlation vector and the current observed data forms the ref- reduced rank subspace are dependent on both the steering
+erence signal for the next stage. vector and the members of the class, the concept of a correct
+2
+xY2 dBh2 h31
+<~~~~~~~~~ ,
+Figure 1. Multistage Wiener filter within generalized sidelobe canceller configuration; example truncated at 3 stages of
+adaptivity
+do1SHX ~x~~~~ H
+XI ~~d2 KrylovGIP O'C2
+Figure 2. Topology of the krylov classifier, samples contribute to multiple classes
+classification begins to be blurred, and samples could appear Laboratory Space Time Adaptive Processing) simulation tool.
+to be homogeneous to multiple classes. The RLSTAP simulation has a series of Airborne and Surface
+moving targets included and is the subject of another paper at
+As with many classification algorithms incorrect classifica- this conference.
+tion will occur. At its core the pre-classification of the train-
+ing data for STAP will minimize the degradation caused by Results with the MCARM data
+non-homogeneous samples, in that the samples that degrade
+the detection performance most are the same samples that the previous work usin cla atin thMs aspe
+Multi-Class algorithm identifies as not matching the rest of poessors ave been ted usingtheM
+the class. Additional work remains to be done in character-
+izing the effect of mis-classifying samples. It is known, see Results using the multi-class algorithm-Figure 3 and 4 show[14], [3] for example, that mis-identifying the cell-under test the detection performance with the data classified using the
+can have significant degradation. Multi-Class Krylov classifier. For the same data and injected
+4.DTCIN PEFR AC target, the Multi-Class Krylov classifier detected the target atDETECTIONSER ORM NCE
+~~~16.3 dB, the Krylov classifier detected the same target at 15.3
+Evaluation of the algorithm developed herein has focused on dB, and the target was not detected when classified using a
+two datasets. The first is collect 575 of the MCARM pro- non-krylov classifier, nor when the training data were selected
+gram with injected targets, the second is an L-Band space using a symmetric window (twice as many samples as the
+based radar simulation developed in the RLSTAP (Research degrees of freedom) with guard cells.
+3
+Algorithm 1 Recursive method of snapshot classification us- 30
+ing the GIP.
+C=1
+classk = C, Vk z 20
+repeat
+for all c 1 > C do
+o 105: Kc countclassk C °
+Set number of stages min(K,/2, maxStages)
+Develop the Krylov Subspace for the class. N
+-FZ 0
+T, f(s, classk c) E
+Project all snapshots into the subspace..
+10: k,c TCXk -10
+Compute the signal dependent Krylov covariance
+matrix and its inverse. 0 200 400 600
+RC =KC Eclassk=c Range bin
+.z Jr=HR-lx
+end for Figure 4. Adaptive Matched Filter test statistic for the
+15: classp {c, st'yf < Zp,c < 7Y2 classified data
+if count(classp = 0) > k then
+C = C + I
+classp = C V classp = 0
+end if
+20: until exit criteria met
+L-band and various substantiations have been discussed and
+simulated in [15], [16], [17]. A set of characteristics for this
+37 snapshots in class: 3 onceptual radar are summarized in Table 1, and were usedin the analysis to follow.
+14 2.5
+aD Details of the simulation- For the scenario in Table 4, the
+214sn-a ho=lass 2 radar was simulated in the Research Laboratory Space Time
+._ Adaptive Processing simulation tool [16], [17]. The plat-
+,1.5 form was flying North and positioned at 40.960 Latitude, -
+124.1290 Longitude, at an altitude of 500 KM over mean sea
+-O 1 p208 snapshots in class: 1 level. The antenna was aligned with the velocity vector of the
+platform and mechanically steered -900 in azimuth (West),
+and -300 down. Some fine electrical steering was employedCl) 0.5
+to steer the antenna toward an aim point of 40.960 Latitude,
+0 204 outliers or white1noiseJetections. 112.20 Longitude, near Salt Lake City Utah. Because of the
+100 200 300 400 500 600 geometry and heading of the platform, earth rotation was not
+Range Bin introduced.
+Figure 3. Sample support classification using the The Salt Lake City area was chosen for its variety of ground
+multi-classification krylov classifier cover and clutter backscatter variation. It is these character-
+istics which will exercise the algorithm described herein. A
+land use/land cover map is shown in fig 5 depicting 9 dif-
+ferent cover types.. This along with digital elevation models
+(DEM) and the mean value clutter backscatter curves in fig
+6 were used to determine ground clutter back scatter coeffi-
+The Air Force Research Laboratory (AFRL) and NASA Jet cients. fig 6 displays the transmit gain *receive gain (for one
+Propulsion Laboratory (JPL) are collaborating in the area sub-aperture) * clutter backscatter for the scenario of interest.
+of SBR technology development to promote dual use, light This display helps to depict the difference in clutter intensity
+weight, space radar technology to be applied to a joint flight as the main-beam crosses different land cover types. As ev-
+demonstration in this decade. The joint mission focuses ident from the curves in fig 6, water tends to have a much
+on elements of NASA's Earth Science Enterprise Strategic lower cross section than land clutter hence producing a vary-
+Plan and Air Force long term needs for global GMTI and ing clutter intensity within the mainbeam as seen in fig 7. This
+AMTI surveillance, and represents an unprecedented multi- intensity change throughout the mainbeam is just one factor
+agency approach to scientific and technological advancement that creates heterogeneous data, and is an excellent source to
+of spaceborne radar technology. The proposed design is at test methods of heterogeneous STAP.
+4
+__________________________-80 k|;g3
+l -401, S l Si W 130
+-20
+-60
+20 /
+-0.5 0 0.5
+fi - -,, L ~~~~~~~~~~~~~~~NormalizedDoppler
+I ~~Figure 8. Beam-Doppler image of the cell under test -
+target inserted in this cell (904 - 405 in the reduced data set).
+Figure 5. Scenario land use/land cover map.
+40~~ ~ ~ ~ ~ ~ _4
+-20 S~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~1
+Rg0I|_d 136
+5R ZINGANGL_(DE'R/ES' -0.5 0 0.5
+Normalized Doppler
+Figure6. Clutter backscatter coefficients for various land Figure9. Beam-Doppler image of thetetl inser tedti
+treinetdithscell90 4- 0 5 in the reduced dataset.
+coveraslandutesln. map.40 00 iO 30 40 S0 S0 ZC 80 S0 _ 4
+3500 60 abovewa usedmtople theC agrit descried into
+3000r secio three.r Thkcte oefcetovrosln el reslt presenthreduhereidare reprsnttv
+cover~~ ~ ~ ~ ~~~o atagrseyfrsutpeeatdwtetisaa.Tedt
+2500 1 t > W t ^ ~ X * * _ 2
+25001 , X = k 0~~ ~20was reduced in range to include cells containing water and
+2000 = _ _6K -666lwetlandls of the peninsula of the west si(deo themch;art in fig
+15000 5. In the overall dataset this represented range bin 500 to
+1000 L-20
+5000 i q~40The target of fig 9 was inserted into range cell 904 with the
+*-60~~~~~~~~associated pulse compression sidelobes. This subsection of
+-0.5 0 0.5 the data was then classified using the Multi-Class algorithm
+Normalized Doppler ~~and detection performed on the resulting classes, fig 10 shows
+Figure 7. Range Doppler profile of the varying terrain, the power profile of the data and the power level of the target
+non-homogeneity is the mainbeam clutter is evident, added, the target is 35 dB less powerful than the clutter. Ad-
+ditionally there are significant fluctuations in the power level
+around the cell under test, 505.
+5
+Table 1. L-Band Spaced Based Radar simulation
+parameters, simulated in RAST-K
+l l | _~~ ~ ~~~~~~~~~~~~~~~35V - Eigenvalues
+Parameter ] Value Units] -40 = Nise
+Center Frequency 1.25 GHz -45
+Coherent Processing Interval 32 ms m 55
+Pulse (Burn Pulses) 79(15) |6l
+Peak Power 9.1 kW
+Pulse Compression Ratio 250
+-75
+Pulse Repetition Interval 500 ,us -80
+20 40 60 80 100 120Compressed Pulse 1 PS2 eignevalue number
+Noise Figure 2 dB
+Antenna Length 49 m Figure 11. Eigenspectrum of the (mixed) sample covariance
+matrix.
+Horizontal Element Spacing 0.1392 m
+Horizontal Taper (Entire Array) cos(0)
+Antenna Height 1.9 m
+Vertical Element Spacing .1728 m
+Vertical Taper, Taylor 25(5) dB 30
+25
+Horizontal Receive Sub-apertures 16 20
+Sub-aperture spacing(overlapped) 3.0624 m 15
+1.91 dB
+Rec. Sub-ap. Hor. Taper, Taylor 35(5) dB o10
+Mechanical Az. Steering -90 degrees
+Mechancial El. Steering -30 degrees 0 0
+Main Beam Focus: Lat.,Lon. 0,-9.3 degrees 10
+Radar Altitude (Polar Orbit) 500 km -15(_)100_00__3004-0_500600700__
+0 100 200 300 400 500 600 700 800
+Radar Speed (inertial velocity) 7,612.7 m/s Range bin
+Radar Direction North Figure 12. The white noise matched filter fails to detect the
+Radar Inclination 90 degrees target.
+The data was used to form a covariance matrix to establish an
+i25 estimate of the noise floor of the process and also to illustrate
+-30
+IM y t 1} 1 the relative power of the clutter and the target inserted. The
+-30 118:TY T l eigenspectrum of this covariance matrix is in fig I 1. It is seen
+-35 l that the target is about 10 dB above the nosie value and > 30
+-40
+A
+dB below the peak power of the clutter.
+-45
+-50 The white noise matched filter was tested against this data and
+-55 failed to detect the target, fig 12. This is not surprising since
+-60 fig 8 shows the sidelobes of the clutter to occupy the same
+-65 region of the beam/doppler space and to have considerable
+100 200 300 400 500 600 700 800 more power than the target.
+Detecting the target adaptively using the range cells adjacent
+Figure 10. Power profile of the data, target generated by to the cell under test was also attempted. In fig 13 the iN
+RLSTAP. (or one times the number of degrees of freedom) range cells
+adjacent to the cell under test were used as training data for
+the adaptive processor. This processor was optimized using
+6
+30 30
+25
+-2
+20 20
+0 15 m9.48 dB 15
+2 0X5
+5-5
+-10 -10
+0~~~~~~~~~~~~~~~~~~~~~~~~~~~~1
+-15
+0 100 200 300 400 500 600 700 800 -15
+Range bin 0 100 200 300 400 500 600 700 800
+Range bin
+Figure 13. The IN sliding window fails to detect the target. Figure 14. The 2N sliding window just detects the target.
+4 18 snapshots in class: 4
+the knowledge of the targets presence to select the number of 3
+stages of the MWF to use, see fig 1. With the optimal (SNR
+noc
+of the target maximized) amount of adaptivity, the IN slid- 1 i
+ing window failed to detect the target, fig 13. Examining the 2.5
+power profile, fig 10 we see that the data selected using this , 2
+method includes only data that is roughly the same power, 1.5
+this highlights the fact that power alone does not imply ho- u, 258snapsqots inclass: 1
+mogeneity - when classified some of the leading cells of this 1 .in cs
+class will not be included in the class. 0.5
+0 76 outlihrs or whitenoise detections. ,
+100 200 300 400 500 600 700 800
+Increasing the sample support to 2N (or twice the number of Range Bin
+samples as degrees of freedom of the problem), improves the
+detection performance some. When using a threshold cor- Figure 15. The samples are classified into
+responding to a o0-6 false alarm rate the target is detected, self-homogeneous sets of data.
+fig 14. The detection exceeds the threshold depicted in fig
+14 by 0.02 dB. Looking ahead to the classification resulting
+from this data, we see that the 2N samples select much of the
+same region as the classified data, so, having the 2N samples
+improved the number of correct samples enough to find the
+target. 30
+25-
+The data is now classified into self-homogeneous sets using 20
+the Multi-Class algorithm. Fig 15 shows the classification 0 151
+that results. It is interesting to note the structure of the classes 1
+is similar to the structure of the power profile, however there
+are some samples that do not match any of the classes. Also,-
+out of the 801 samples in this analysis, roughly 50 to 100 fit 0 0
+multiple were f
+10
+Performing detection on the classwise data generated by the 0 100 200 300 400 500 600 700 800
+MC algorithm we see the best detection for this target. In Range bin
+essence the classification allows the adaptive signal process-
+ing to be carried out properly on each of the classes gener- Figure 16. The Multi-Class classified detection
+ated. The relative gain using the Multi Class algorithm yields performance.
+improved performance when compared to other training data
+selection techniques.
+7
+5. CONCLUSIONS radar," in Intelligent Signal Processing, S. Haykin and
+The results presented in this paper highlight the importance of B. Kosko, Eds. IEEE Press, New York, NY, 2001.
+training an adaptive processor with statistically homogeneous [9] P. Chen, "On testing the equality of covariance matrices
+data and presents a new and novel technique of ensuring the under singularity," in Report for Summer Faculty Re-
+data used is homogeneous. The degradation of the adaptive search Program, Rome Laboratory, Rome, NY, August
+processor for both the MCARM dataset and the High-fidelity 1994.
+RLSTAP data show that the standard methods of selecting [10] P. Chen, "Partitioning procedure in radar signal process-
+training data based on proximity to the cell under test fail. ing problems," in Final Reportfor Summer Faculty Re-
+search Program, Rome Laboratory, Rome, NY, August
+The amount of improvement in detection performance is a 1995.
+function of the non-homogeneity contained within the data. If
+there are significant non-homogeneities the pre-classification [11] P. Chen, W.L. Melvin, and M.C. Wicks, "Screening
+of the data produces significant improvements over sliding among multivariate normal data," Journal ofMultivari-
+window selected training data. Additionally, and importantly, ate Analysis, vol. 69, no. 1, pp. 10-29, 1999.
+the pre-classification of the training data does not seem to [12] M. Rangaswamy, B. Himed, and J.H. Michels, "Sta-
+degrade the performance of the STAP detector. tistical analysis of the nonhomogeneity detector," in
+Proc. 34th Asilomar Conf Signals, Syst. Comput., Pa-
+The new approach to the classification of training data takes cific Grove, CA, November 2000.
+advantage of the subspace projections of theMWF and allows [13] K. Gerlach, "Outlier resistent adaptive matched filter-
+each class to develop a separate subspace that is most relevant ing," IEEE Transactions on Aerospace and Electronics
+to the signal of interest and the class. In doing this we have
+allowed each sample (rangebin) to contribute to the subspace
+of multiple classes as well as the adaptive weights of the class. [14] W.C. Ogle, H.N. Nguyen, M.A. Tinston, J.S. Goldstein,
+P.A. Zulch, and M.C. Wicks, "A multistage nonho-
+REFERENCES mogeneity detector," in Proceedings of the 2003 IEEE
+Radar Conference, Huntsville, AL, May 2003.
+[1] Harry L. Van Trees, Detection, Estimation, and Modu- [15] P. Rosen and M. Davis, "A joint space-borne radar
+lation Theory, vol. 1, John Wiley & Sons, New York, technology demonstration mission for nasa and the air
+NY, 1968. force," in Proc. of the 2003 IEEE Aerospace Confer-
+[2] Harry L. Van Trees, Detection, Estimation, and Modu- ence, Big Sky, MT, March.
+lation Theory, vol. 4, John Wiley & Sons, New York, [16] M. Davis, J. Maher, R. Hancock, and S. Theis, "High
+NY, 2002. fidelity modeling of space-based radar," in Proc. of the
+[3] M.A. Tinston, W.C. Ogle, M.L. Picciolo, J.S. Goldstein, 2003 IEEE Radar Conference, Huntsville, AL, May.
+P.A. Zulch, and M.C. Wicks, "Classification of train- [17] P. Zulch, M. Davis, L. Adzima, R. Hancock, and
+ing data with reduced-rank generalized inner product," S. Theis, "The earth rotation effect on a leo 1-band gmti
+in Proceedings of the 2004 IEEE Radar Conference, sbr and mitigation strategies," in Proc. ofthe 2004 IEEE
+Philadelphia, PA, April 2004. Aerospace Conference, Philadelphia, PA, April.
+[4] J.S. Goldstein and I.S. Reed, "Multidimensional Wiener
+filtering using a nested chain of orthogonal scalar
+Wiener filters," Tech. Rep. CSI-96-12-04, University
+of Southern California, December 1996.
+old a l S l ml Michael A. Tinston is a Senior Sys-[5] J.S. Goldstein, I.S. Reed, and L.L. Scharf, "A multistage tems Engineer with SAIC in Chantilly,
+rproesettions, ofE TheWinerIfiltrmbasedonThorthogonl4 VA, USA. His research interests includepo t on" IEEE T s. If ti Th 44 reduced-rank adaptive signal process-
+no. 7, November1998.
+~~~~~~~~~ing,statistical learning theory, and de-
+[6] J.S. Goldstein, I.S. Reed, and P.A. Zulch, "Multistage tection and estimation theory. Mr Tin-
+partially adaptive STAP detection algorithm," IEEE ston earned the BSEE degree from the
+Trans. Aerosp. Electron. Syst., vol. 35, no. 2, April 1999. United States Naval Academy in 1992
+[7] J.S. Goldstein, IS. Reed, P.A. Zulch- and W.L. Melvin and the MSECE degree from the Georgia Institute of Tech-
+"A ~mutstg STA CFA deeto tehiue"i nology in 200]. Mr. Tinston served in the US Navy for nine
+Proceedings of the 1998 IEEE Radar Conference, Dal- yasa aa lgtOfcri h -CHweefyn
+las, TX, May 1998. both operational missions and research support missions at
+' ' ~~~~~~~~~~~~theNaval Research Laboratory. He continues to serve as a
+[8] J.S. Goldstein, J.R. Guerci, and I.S. Reed, "Reduced- member of the US Naval Reserve. He is a member of the
+rank intelligent signal processing with application to IEEE.
+8
+William C. Ogle earned a B.S. in radar, and active noise control. Dr Zulch is a Senior Member
+Physics, a M.S. in Physics, and a M.S. of the IEEE.
+in Electrical Engineering, all from the
+Georgia Institute of Technology, in 1993,
+1995, and 1997 respectively. From 1996
+to 1997, he worked at Texas Instruments
+(TI) as a system engineer in the Digital
+Imaging group. From 1997 to 1999, he
+was employed in the Missile Systems Division at TI, working
+on a variety ofsensor signal processing projects. Since 1999,
+he has been a Research Engineer with Science Applications
+International Corporation. His research interests include ar-
+ray processing, detection and estimation theory, adaptive sig-
+nal processing, waveform diversity, radar, and communica-
+tions. He is a member ofthe IEEE.
+J. Scott Goldstein is a Vice President
+at SAIC and has over 20 years ofexperi-
+ence in thefields ofradar, sonar, commu-
+nications, navigation, and imaging sen-
+sors. He has performedfundamental re-
+search and development in the techni-
+cal areas that support C3I and ISRfunc-
+tions. He has also directly influenced the
+development ofnew programs within DARPA, the national in-
+telligence community and the individual military services. In
+his current position, Dr Goldstein manages the Sensor Tech-
+nology Operation consisting offour divisions and over 100
+engineers and scientists. In addition, he provides technical
+leadership in a number of programs developing advanced
+sensor systems. Dr Goldstein is a member of the SAIC Exec-
+utive Science and Technology Council, the premier technical
+advisory boardfor this Fortune 500 Company.
+Dr Goldstein is a Fellow of the IEEE and a Fellow of the
+Washington Academy of Sciences. He was recently elected
+to the 2003 National Academy of Engineering Frontiers of
+Engineering Program as one of the Nation's 100 outstand-
+ing young engineers. He also received the 2002 IEEE Fred
+Nathanson Radar Engineer of the Year Award. He has au-
+thored or co-authored over 100 refereed technical publica-
+tions. Dr Goldstein is a member of the IEEE Aerospace and
+Electronic Systems Society Board of Governors, the IEEE
+Radar Systems Panel as well as Sigma Xi, Tau Beta Pi and
+Eta Kappa Nu. Dr Goldstein is also a reserve officer in the
+U.S. Air Force whose present assignment is to the National
+Reconnaissance Office.
+Peter A. Zulch received his B.S. M.S. and Ph.D. from Clark-
+son University in 1988, 1991, 1994 respectively. From
+1994 to the present he has been employed by the Air
+Force Research Laboratory in two different branches: the
+RADAR Surveillance Branch and the RADAR Signal Process-
+ing Branch. His interests include multidimensional adaptive
+signal processing with applications to airborne early warn-
+ing radar; space-based radar, waveform diversity, multi-static
+9

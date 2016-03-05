@@ -1,0 +1,1313 @@
+Model-based Predictive Diagnostics for Electrochemical 
+Energy Sources' 
+James D. Kozlowski, Carl S. Byington, Amulya K. Garga, Matthew J. Watson, Todd A. Hay 
+Applied Research Laboratory 
+The Pennsylvania State University 
+State College, PA 16804-0030 
+jdl<l73(ii),,psu.&u 
+814-863-3849 
+Abstract-The model-based effort described here is focused 
+on predictive diagnostics for primary and secondary 
+batteries. However, this novel approach can also be applied 
+to other electrochemical energy sources such as fuel cells. 
+This method is based on accurate parametric modeling of 
+the transport mechanisms within the battery. This system 
+knowledge was used for the careful development of 
+electrochemical and thermal models. These models have 
+been used to extract new features to be used in conjunction 
+with several traditional measured parameters to assess the 
+condition of the battery. The resulting output and any 
+usable information available about the battery is then 
+evaluated using hybrid automated reasoning schemes 
+consisting of neural network and decision theoretic 
+methods. The focus of this paper is on the model 
+identification and data fusion of the monitored and virtual 
+sensor data. The methodology and analysis presented in this 
+paper is applicable to mechanical systems where multiple 
+sensor types are used for diagnostic assessment. 
+1. 
+2. 
+3. 
+4. 
+5. 
+6. 
+7. 
+8. 
+9. 
+TABLE OF CONTENTS 
+INTRODUCTION 
+MEASUREMENT AND DATA COLLECTION 
+MODEL IDENTIFICATION 
+FAULT AND END OF LIFE PREDICTION 
+CONCLUSIONS 
+ACKNOWLEDGEMENT 
+REFERENCES 
+BIOGRAPHIES 
+STATE-OF-CHARGE PREDICTION MODELS 
+1. INTRODUCTION 
+Figure 1 shown on the next page is a visual description of 
+the model-based approach for battery predictive diagnostics. 
+This approach makes use of electrochemical and thermal 
+model modules that are linked with coupled parameters. 
+The outputs of the models are combined in a data fusion 
+architecture that derives observational synergy while 
+reducing the false alarm rate. The reasoning system 
+provides the outputs described in the bottom of the figure. 
+While the arrows showing information flow are unilateral, 
+the ability to prognosticate on future condition will require 
+the reasoning system to interrogate the models as to how 
+different loading conditions effects the remaining useful 
+cycles, capacity, etc. Developments are applicable to the 
+eventual migration of the diagnosis and health monitoring to 
+an electronic chip embedded into the battery (i.e., Intelligent 
+Battery Health Monitor). 
+For overall performance, the capacity and voltage of a cell 
+are the primary specifications required for an application. 
+The capacity is defined as the time integral of current 
+delivered to a specified load before the terminal voltage 
+drops below a predetermined cut-off voltage. 
+For primary cells, the rated capacity is not strictly 
+determinable but instead represents the statistical properties 
+of test data from identical cells. The present condition of a 
+cell is described nominally with the state-of-charge (SOC) 
+that is defined as the ratio of the remaining capacity and the 
+initial or rated capacity. Obviously, in order to assess SOC, 
+one must have knowledge of the service history of the cell 
+and its nominal capacity. 
+Secondary cells are observed to have a capacity that 
+deteriorates over the service life of the cells. The term state- 
+of-health (SOH) is used to describe the physical condition of 
+the battery ranging from external behavior such as loss of 
+rated capacity to internal behavior such as severe corrosion. 
+The remaining life of the battery (i.e. how many cycles 
+remain, usable charge, etc.) is termed the state-of-life 
+(SOL), the prognostic metric. Determination of the SOC, 
+SOH, and SOL are the primary objectives in the model- 
+based approach. 
+' 0-7803-6599-2/01/$10.00 0 2001 IEEE 
+6-3149 
+Historical Usage (if available) 
+Identificafon Tag + 
+.................................... 
+1 Metasensor Fusion 
+Virtual 
+8s  Actual 
+Sensor 
+output 
+Optimal Fast Charge Cycle and Rate 
+Figure 1. Model-based predictive diagnostics approach 
+Model-based Approach 
+The general approach to model development is to formulate 
+robustly parameterized governing equations for the relevant 
+electrochemical phenomena, transport processes and 
+conservation of energy. Lumped parameter formulation in 
+lieu of a spatially distributed formulation offers greater 
+applicability to the broad variety of cell chemistries and 
+battery designs. That is, explicit geometry and 
+configuration input is not required. The parameters and 
+sources of the various transport, state and conservation 
+equations are coupled to ensure consistency with 
+experimental observations and facilitate system 
+classification. The model parameterization is formulated to 
+incorporate significant aging mechanisms and pathological 
+behavior in order to provide fault diagnostic capability. The 
+ability to forecast future battery performance is developed 
+by tuning of the system parameters through history 
+matching trials. 
+Data Fusion Techniques 
+One of the core challenges was to develop the appropriate 
+signal processing, sensor-level data fusion and automated 
+reasoning to support battery diagnostics, charge control, and 
+ultimately prognostics of remaining cycles. Multi-sensor 
+data fusion techniques that combine data fiom actual and 
+virtual sensors provide the potential to improve detection 
+performance as well as reduce the number of false alarms 
+that occur [l]. 
+Automated Reasoning 
+The hybrid automated reasoning modules used previously at 
+the Applied Research Laboratory (ARL) allow the 
+utilization of various reasoning methods and their 
+integration via decision-level data fusion. Primarily, three 
+automated reasoning techniques are considered: neural 
+networks, fuzzy logic, and auto-regressive moving average 
+( A m )  models. These outputs can be viewed as three 
+estimates of the battery state and optimal charge control 
+based on electrochemical and thermal data, as well as 
+available usage information. The outputs can be obtained as 
+linguistic indications (soon, very soon, etc.) or as numerical 
+indications (such as 10-20 more charging cycles or 2-3 
+hours capacity based on past usage, etc.). This type of a tool 
+is an asset since it utilizes key information from multiple 
+estimations for robustness and presents results of the fusion 
+assessment, not just a data stream. 
+2. mASUREMENT AND DATA COLLECTION 
+The first step to developing the model-based diagnostics 
+was to establish what were the necessary and available 
+observables (i.e. what can we measure and is it enough). To 
+6-3150 
+do this we needed to understand the physical dynamics of 
+the battery. 
+I 
+The Battery as a System 
+species 
+A battery is an arrangement of electrochemical cells 
+configured to produce a certain terminal voltage and 
+discharge capacity. Each cell in the battery is comprised of 
+two electrodes where charge transfer reactions occur. The 
+anode is the electrode at which an oxidation (0) reaction 
+occurs. The cathode is the electrode at which a reduction 
+(R) reaction occurs. The electrolyte provides a supply of 
+chemical species required to complete the charge transfer 
+reactions and a medium through which the species (ions) 
+can move between the electrodes. The electrodes are often 
+fabricated with an extended surface area such as an array of 
+thin plates or sintered powder. The connection of such 
+surfaces with the terminals is accomplished through the 
+anode and cathode current collectors. The electrodes are 
+usually positioned in very close proximity to reduce ionic 
+conduction path lengths. A separator is generally placed 
+between the electrodes to maintain proper electrode 
+separation despite deposition of corrosion products [2]. 
+Different combinations of electroactive species produce 
+different electrode potentials or voltages. Electrochemical 
+reactions that occur at the electrodes can generally be 
+reversed by application of a higher potential that reverses 
+the current through the cell. In situations where the reverse 
+reaction occurs at a lower potential than any collateral 
+reaction, a rechargeable or secondary cell can potentially be 
+produced. A cell that cannot be recharged because of an 
+undesired reaction or an undesirable physical effect of 
+cycling on the electrodes is called a primary cell [2]. 
+The amount of electrical current that a battery can provide is 
+governed by the reaction rates at the electrodes. The four 
+processes that control the reaction rates of the electrodes 
+are: (1) the mass transfer of the ions into the diffusion layer 
+at the electrode surface area, (2) transfer of the electrons at 
+the electrode surface, (3) intermediate reaction steps 
+resulting fi-om the chemical reaction in the diffusion layer 
+and (4) other surface reactions such as adsorption or 
+desorption of species. These processes represent the 
+physical phenomena that occur in the battery. 
+Electrochemical cell processes are affected by a number of 
+internal and external variables as shown in Figure 2. 
+Changes in the electrode surface, diffusion layer and 
+solution are not directly observable without tearing the 
+battery cell apart. Other variables such as potential, current 
+and temperature are observable and can be used to indirectly 
+determine the performance of physical processes. This is 
+the basis for choosing a model-based approach. Under these 
+constraints, the following types of measurements were 
+selected for battery diagnostics: terminal and cell voltages, 
+load currents, surface and internal temperatures, electrolyte 
+pH, and electrical impedances. 
+Electrical varlables External variables 
+Current Pressure 
+Charge 
+I I _ I  
+Mass Transfer varlables 
+I Diffusion/convection -\- Solution varlablea 
+Surface concentration 
+Adsorption 1 1 Bulk concentration of electroactive I 
+Figure 2. Variables that affect battery cell performance [3] 
+Data Sampling 
+There were two main issues in the collection of 
+measurements for battery diagnostics: how often and at 
+what stage of operation. The answer is somewhat subjective 
+because applications have variable accessibility for 
+measurements. For example, a starter-type battery 
+discharges a large portion of its energy in a very short burst 
+of time, as compared to a backup computer power system 
+that discharges at a much slower rate. These two cases 
+require much different sampling intervals of the 
+measurement signals. In addition to the application 
+constraints, there are four possible modes of operation to 
+collect data: 
+1. No load or charge applied 
+2. No load but on a stand-by charge 
+3. During discharging 
+4. During charging 
+Each of these different modes of operation has advantages 
+and disadvantages. For the first two cases, the battery will 
+be in a very stable state, but will not reflect dynamic 
+characteristics and requires the battery to be removed from 
+operation. For the second two cases, the dynamic behavior 
+can be better characterized but now measurements are 
+subjected to external factors such as change in load and 
+temperature. Another concern was to be as non-intrusive as 
+possible. Not requiring the battery to be removed for 
+diagnostic measurements is an advantage in almost any 
+application. 
+For the purpose of having as much coverage of operating 
+modes to test developed algorithms, test stand data w a s  
+collected under the following conditions: 
+0 No load, fully charged 
+0 Once every minute during discharging 
+6-3151 
+0 No load, 100% discharged 
+0 Once every minute during charging 
+In addition, various temperatures and loads were used. 
+Sample rates were 10 sample/s for temperatures, 
+cellhermina1 voltages, pH, and load current and up to 
+200,000 sampleds for impedance related signals. The 
+window of data was 10 seconds and each measurement 
+signal was saved as an individual file. 
+Data was collected on primary lithium and alkaline cells and 
+nickel-cadmium and lead-acid secondary batteries under the 
+various above-mentioned conditions. To date, there are 
+over 200 data sets across the different chemistries and sizes 
+of batteries. 
+3. MODEL IDENTIFICATION 
+Electrochemical Impedance 
+Direct measurements of battery or cell condition have 
+traditionally been very difficult for practical systems such as 
+automotive or aviation batteries. There are, however, a 
+variety of indirect measurement techniques that rely on the 
+cell's response to a precise manipulation of the load [3], [4], 
+[5]. One of the most robust and widely used methods in 
+laboratory practice is AC Voltammetry. This technique can 
+provide information on electrochemical dynamics of the 
+battery through a non-invasive interrogate of the cell. By 
+applying a small amplitude excitation to the cell and 
+measuring the response, the internal impedance of the cell 
+can be determined. The most common choice for the 
+excitation waveform is a swept sine wave. The resulting 
+impedance intormation relates to governing equations of the 
+physical electrochemical processes. See [3], [4], [6] for a 
+description of the electrochemical processes such as the 
+charge transfer and mass transfer equations. To retrieve the 
+electrochemical process information flom the impedance 
+data, electrical circuit analogs are used such as the Randles 
+circuit (Figure 3), which represent the electrode-electrolyte 
+interface processes. 
+t Zeffective + 
+CDL 
+Figure 3. Randles circuit for electrode-electrolyte processes 
+The equation for this circuit is given as 
+In (I), s = jo (w is frequency in rad/s), & represents the 
+electrolyte resistance, 8 represents the charge transfer 
+resistance, CDL represents the double layer capacitance, B 
+represents the diffusion layer coefficient, and Z, represents 
+the Warburg impedance. The double layer capacitance is a 
+result of the ions in the electrolyte and the electrons in the 
+electrode waiting to participate in the chemical reactions. 
+The build up of these charged particles results in a charged 
+layer (i.e. capacitance). The Warburg impedance is related 
+to the mass transfer into the diffusion layer. 
+The general solution of equation (1) in the form of a Nyquist 
+plot is shown in Figure 4. 
+Frequency 
+sz R + 8  
+Figure 4. Nyquist plot of cell impedance spectrum based 
+upon Randles circuit 
+Manifestation of Faults 
+The most common types of battery failures include 
+passivation, separation, bridging, dry-out, sulfation, 
+softening, corrosion and various mechanical failures [2]. 
+The Randles circuit has good application not only for 
+identifying the SOC independent of cell polarization but 
+certain SOH failures. For example, lead-acid batteries tend 
+to suffer fiom sulfation, which has shown to be associated 
+with an increase in charge transfer resistance. Drying out of 
+the electrolyte manifests in the Randles circuit as an 
+increase in the ohmic resistance. Corrosion of the electrode 
+changes the porosity of the electrode and reduces the slope 
+of the linear leg [7]. 
+Some Initial Results 
+An on-going experimental test schedule is being conducted 
+under an Office of Naval Research (ONR) sponsored battery 
+project, where lead-acid, nickel-cad", lithium and 
+alkaline batteries are being run to failure. During a test, 
+6-3152 
+battery impedance data is collected in addition to cell and 
+terminal voltages, load current and temperatures at various 
+locations on the battery, including internal points. 
+Figure 5 shows the impedance of a nickel-cadmium battery 
+after being partially discharged. Because the positive and 
+negative electrodes behave comparably different, a single 
+electrode model does not fully capture the electrochemical 
+processes. 
+3 5  
+3 
+2 5  
+n 
+J 0
+W - 
+v N 
+0 5  
+E(%) = yz - f ( x , ,  8). (3) 
+In (3), yi is the measured impedance data, f is the two- 
+electrode impedance model, xi  is frequency that the data was 
+taken at, and a = [RQ 0+0- CDL+ CDL- o+ D. IT. 
+There are a number of steepest-decent methods for 
+nonlinear equations such as recursive least squares (most 
+common for impedance modeling) and simplex methods [SI, 
+[9]. These methods are only local minima search 
+algorithms. In an offline scenario when the impedance data 
+can be inspected visually on a Nyquist plot, good initial 
+guesses can be made and re-made. However, in an online 
+automated identification process, this may not be an option 
+and a good initial guess for one data set may not be for the 
+next identification. These methods would not be robust and 
+provide a false indication of parameters changes. 
+Global search methods are also available for model 
+identification such as genetic algorithms and simulated 
+annealing. However, genetic algorithms do not always find 
+the global minima [lo]. Simulated annealing has been 
+shown to able to find the global minima but at the cost of 
+many more iterations. There are a number of hybrid 
+techniques available to address these issues as well [ 1 11. 
+1 2 3 4 6 6 7 8 
+Re [Z] (ohms) x I D  
+Figure 5.  Impedance of 4.3 Amp-hour nickel-cadmium 
+battery, partially discharged 
+A better fit of the impedance data was found using a two- 
+electrode, Randles circuit model (Figure 6). 
+Figure 6. Two-electrode model with wiring inductance 
+The overall impedance equation then becomes 
+Identijkation Processing 
+One of the major concerns in selecting an identification 
+method is robustness in an online system. The objective of 
+the identification algorithm is to minimize the error between 
+the model and the collected data, 
+For our approach, a simulated annealing algorithm was used 
+to identify model parameters. Search regions, based on the 
+identified parameters from previous impedance 
+measurements, were used to minimize processing iterations. 
+The model-identified electrolyte resistance of a nickel- 
+cadmium battery during discharge is shown in Figure 7, 
+which was found using simulated annealing as the minima 
+search method. 
+0.008 L L  
+0 20 40 60 80 100 120 
+time (min) 
+Figure 7. Model-identifed electrolyte resistance of a nickel- 
+cadmium battery using simulated annealing 
+6-3153 
+Thermal Modeling 
+During discharge at high rates, thermal effects on cell 
+behavior become highly influential. Specifically, the 
+coefficients of mass transport, electrochemical kinetics and 
+the electrochemical potential are exponential functions of 
+temperature. This strong temperature dependence produces 
+very strong coupling of thermal processes to 
+electrochemical and transport phenomena. Therefore, 
+monitoring of thermal effects is needed if identification of 
+electrochemical parameters is to be accurate. Nominal heat 
+sources include ohmic heating related to bulk migration of 
+charged species and secondary charge transfer and chemical 
+reactions. Along with these source terms, the conservative 
+thermal model includes multi-mode heat loss from an 
+intermediate thermal element intended to capture the 
+behavior of a measured surface temperature [12]. Equation 
+(4) was used to estimate the heat capacity of the bulk 
+electrolyte since a change in its capacity to transfer heat 
+may lead to indications of health changes. 
+Measurement 
+Signals Feature Processing 
+Equation (4) uses the battery’s volume (Vi), density 
+(p), specific heat (c,), and convection heat transfer 
+coefficient (have); along with internal (i), surface (s), and 
+ambient (a) temperature (T) measurements, to calculate the 
+heat generated within the battery per unit volume (9”’). 
+Various internal and external temperatures were measured 
+to produce the data necessary to validate and fuse the 
+thermal model output with the electrochemical model for 
+tests where access to these measurements was possible. 
+The cross coupling of heat, mass, and chemical species 
+diffusion is not addressed by this simple heat generation 
+equation. Accurately modeling of this interaction is not the 
+purpose of the thermal modeling effort. Rather, this 
+estimate is an attempt to better correlate the internal 
+processes with observed data during discharge and charge 
+events. The joule effect, reversible heat effect, water 
+decomposition and internal oxygen cycles can impact the 
+measurable heat generation. The mode of operation can 
+help determine which component may be contribution to the 
+calculated generation [2]. 
+Feature Vector SOC, SOH, and 
+SOL Estimators Files \ 
+/ 
+User Interface User Info 
+Fuzzy Logic 
+( A  
+Neural Network 
+SOC, SOH, SOL 
+Estimation Flles \ 6 
+Figure 8. Flow diagram of developed predictive diagnostics processing 
+6-3154 
+Processing Flow Diagram 
+The identification of the model parameter represents the 
+first stage of the overall processing strategy. Figure 8 
+shows the overall process flow where the model 
+identification falls in the feature processing section. A set 
+of files known as Feature Vector Files are outputted fiom 
+this stage containing calibrated measurement signals 
+(voltage (V), current (I), and temperature (T)), calculated 
+complex impedance data fiom excitation (Ex) and sensed 
+(Sn) current signals, and identified model parameters 
+(charge transfer resistance, heat capacity, etc.). 
+4. STATE-OF-CHARGE PR DICTION MODELS 
+The previous section addressed extracting physically 
+meaningful parameters, such as charge transfer resistance, 
+so that our prediction of SOC, SOH, and SOL would have 
+stronger connection to the internal processes. These virtual 
+sensor signals (i.e. identified model parameters) also 
+provide the decision processing with a check for bad 
+signals. For example, if the double layer capacitance virtual 
+sensor signal was 150 farads for a AAA nickel-cadmium 
+battery, stored knowledge about this battery size and 
+chemistry would reflect that this signal is far above of 
+typical ranges even when the cell is deteriorated. 
+Referring to Figure 8, this section will focus on the 
+developed SOC prediction modeling. Primarily, the neural 
+network and ARMA modeling and results will be addressed. 
+The work for the fuzzy logic prediction model is currently 
+under investigation and results are being analyzed. 
+However, this is not nearly as far along in development as 
+the neural network and ARMA model SOC prediction. 
+Having three separate predictions allows the top-level 
+decision fusion processing to compare each of the 
+predictions against each other along with knowledge and 
+history about the battery system. 
+State-o$Charge 
+In order to evaluate the SOC of a battery, the following 
+definitions were used: 
+SOC -- The amount of useful capacity remaining in a 
+battery during a discharge. 
+0 100% SOC -- Full useful capacity. The capacity of the 
+battery at the instant a load is applied. 
+0 0% SOC -- No useful capacity remaining. The capacity 
+of the battery when it reaches its end-of-discharge 
+voltage (EDV), which is usually defined by the 
+manufacturer. 
+Furthermore, SOC is represented mathematically by the 
+following equations: 
+Clod -,(Idt 
+SOC(t) = x 100 
+0 
+Ctolal 
+A M  Model 
+Ctotal = (:
+An effective way to predict the SOC of a battery has been 
+developed using ARMA model methodology. This model 
+has been tested and proven effective on batteries of various 
+size and chemistry as well as at different temperatures and 
+loading conditions. It is also effective regardless of battery 
+type (primary or secondary) and number of cells. The 
+model is trained using a Least Squares (LS) fit [ 133 of one 
+(or more) complete data set(s) in order to determine the 
+influence each model input has on the output. The model 
+coefficients are then used to predict SOC based on inputs to 
+the trained model. 
+* 2 1  is atime delay q+p@ 
+Figure 9. ARMA prediction model for SOC 
+The choice of using an ARMA model to simulate battery 
+performance was made because of its simplicity. ARMA 
+models are a very commonly used for system identification 
+because they are linear and easy to implement. It was also 
+chosen because it is a good complement to the more 
+complex models (neural network and fuzzy logic) being 
+used. It was further determined that a second order model is 
+sufficient to predict SOC. The model (shown in Figure 9) is 
+represented by the equation, 
+y(t)=a X(t) + b X(t-1) + c, y(t-1) (7) 
+with y representing SOC, X representing a vector of model 
+inputs, and a, b, and c, representing the model coefficients 
+(determined fiom the LS fit during ARMA training). 
+6-3155 
+Selection of Inputs-The success of any model is obviously 
+very dependent on the inputs to the model. Therefore, 
+careful consideration was used when selecting the inputs for 
+the ARh4A model. The two most obvious choices for a 
+battery system are discharge voltage (VD) and current (ID). 
+These variables were chosen because they are used to define 
+and calculate SOC. They are also the most distinguishable 
+characteristics of a battery and are very easy to measure. 
+In addition, temperature effects also play an important role 
+in the amount of capacity that is available in a battery [2]. 
+To demonstrate this, an experiment was performed in which 
+a battery was lightly loaded and its parameters were tracked 
+over a number of days. The test, which lasted close to four 
+days, effectively demonstrated the effects of temperature on 
+a battery’s performance. The battery’s potential rose and 
+fell in accordance with the natural change in ambient 
+temperature occurring throughout the day. Temperature is 
+also an important measurement because of heat created by 
+the reactions occurring inside the battery during discharge. 
+Ideally, an intemal temperature measurement would best 
+represent this heat generation. However, since most batteries 
+are sealed, this is typically very difficult unless such 
+measurement instrumentation was designed into the battery. 
+As a result, the model uses the battery’s surface temperature 
+(T,) as an input. An ambient temperature measurement does 
+not take into account the intemal heat generation of the 
+battery, and is therefore weakly correlated to the battery. T,, 
+however, is dependent on both the environment and intemal 
+heat generation of the battery. 
+In addition to voltage, current, and temperature, the 
+measured impedance variables previously described are 
+used in the model. These variables represent the 
+electrochemical processes occurring inside the battery 
+during its discharge and are dependent on the amount of 
+charge remaining in the battery. The electrolyte resistance 
+(h), for example, is representative of the amount of 
+electrolyte that is available for reaction. The lower the 
+amount of electrolyte, the less available capacity there is 
+remaining in the battery. Furthermore, the charge transfer 
+resistance (e) represents the amount of plate surface area 
+that is available for reaction. This value decreases as the 
+SOC decreases. Finally, the double layer capacitance (CDL) 
+represents the number of ions that are waiting to react in the 
+battery. This value increases as the amount of available 
+capacity decreases due in part to the diminishing amount of 
+electrolyte and plate surface area. These characteristics 
+make impedance measurements a very good indication of 
+battery’s SOC. 
+The ARMA SOC prediction model therefore became a six 
+input, 1 output system with inputs: VD, ID, &, 8, CDL, and 
+T,, and output SOC. 
+Pre-processing-Model success was also dependent on 
+preprocessing of the inputs before being entered into the 
+model. To eliminate measurement noise, model inputs were 
+first filtered before being entered into the model. A 
+Butterworth filter was used to produce a clean signal that 
+was smooth and offered little distortion. 
+In order to achieve improved model performance, 
+preconditioning of the inputs was needed. Preconditioning 
+made training of the model more effective by creating inputs 
+with consistent behavior, regardless of battery conditions. 
+After some initial research, it was determined to take the 
+derivative of each input prior to entry into the model. This 
+was chosen because all of the model inputs have a similar 
+shape when plotted against SOC. Because of this, the time 
+rate of change of each was very similar (Figure 10). 
+Figure loa. shows the discharge voltage (V,) of eight 
+different lithium-(CF), batteries during discharge. As seen, 
+they are similar in shape when plotted against SOC. Figure 
+10b shows these same eight voltages after taking their first 
+derivative with respect to time. As seen, the plots collapse, 
+representing a direct relation between VD and SOC. 
+V, for Size C Lithium-(CF), Batteries . 1 1 1. 
+100 80 60 40 20 0 
+SOC Yo 
+Figure loa. Discharge Voltage of 8 different lithium-(CF)x 
+batteries 
+dVddt for Size C Lithium-(CF), Batteries x -3 . . I 
+I - Battery9 
+: - Battery 11 
+n  10 
+VI , s “< L 
+z 5  
+$ 0  
+-5 
+........ ~ - 1  - Batterv 15 1 
+-
+100 80 60 40 20 0 
+SOC Yo 
+Figure lob. Effect of preconditioning model inputs 
+Because of the wide range of values of the inputs (e.g., 
+Ts=28 and Rn=0.05), normalization of the parameters prior 
+to entry into the model was needed. This allowed the model 
+coefficients to be similar in size and helped eliminate one 
+input from dominating the model. For simplicity, each 
+input was normalized with regards to the minimum and 
+maximum values of the training set. 
+Because of the structure of the ARMA model, the SOC 
+from the previous prediction is needed in order to make a 
+new SOC prediction. This creates a problem when making 
+I 
+6-3156 
+the first prediction, however, because the initial SOC of the 
+battery is unknown. Assuming the battery always begins 
+with 100% SOC is not efficient because this value is 
+dependent on such things as manufacturing and shelf life. 
+Therefore, the longer a battery sits without being used, the 
+more charge is lost and its initial SOC is diminished. Also, 
+charging efficiency in secondary cells also causes a 
+variation in initial battery capacity. Also, a battery may 
+have been partially discharged prior to use. As a result, two 
+procedures have been developed to account for this loss. 
+The first method uses impedance measurements that are 
+taken before the load is applied to the battery. There is a 
+direct relationship between these “No Load Condition” 
+measurements and the amount of capacity (or SOC) that is 
+available in the battery. The second procedure uses a neural 
+network (described below) to predict the initial capacity of 
+the battery, which is then used to calculate the initial SOC 
+of the battery. 
+Lithium’ 
+Lithium’ 
+NiCad‘ 
+NiCad’ 
+Lead-Acid 
+Figure 1 1. Training of the Model 
+C 1 Primary 2.18 
+2/3 A 1 Primary 2.87 
+D 1 Secondary 3.17 
+C 1 .  Secondary 4.50 
+12 Volt 6 Secondary 9.13 
+Training of the Model-In order to use the ARMA model to 
+make a SOC prediction, it must first be trained (Figure 11). 
+This is done by selecting a training set of data from a 
+completed cycle. Because the entire set of data is available, 
+the endpoint of the cycle is known and the actual SOC of 
+the battery at each point can be calculated. The model then 
+uses a LS fit to calculate the model coefficients that enable 
+the inputs to result in the actual SOC. These model 
+Coefficients will then be used for each successive run to 
+calculate the SOC. The LS routine uses the equation: 
+which the model is retrained after each cycle to be used for 
+the prediction of the next cycle. This helps eliminate the 
+effects of SOL and the changing impedance of the battery as 
+its health diminishes. 
+Results- The model has been trained and tested on five 
+different kinds of batteries with varying size, chemistry, and 
+type: two sizes of primary poly-carbonmonofluoride-lithium 
+(C and 213 A), two sizes of secondary nickel-cadmium (C 
+and D) and one size of secondary lead-acid (12 volt) battery. 
+Initial testing was performed on eight size C and nine 213 A 
+poly-carbonmonofluoride-lithium batteries. Because these 
+batteries are primary cells, training was done on one battery 
+of each size and used to predict the other batteries of the 
+same size. As seen in Table 1, the model was very effective 
+for this battery chemistry. The average prediction error for 
+both sizes is less than 3%. Error! Reference source not 
+found. (next page) demonstrates typical model performance 
+for these cells. Similar results were obtained for all but one 
+of the eight size C batteries that were tested. The poor 
+performance on one battery (which was a bad cell) 
+demonstrates the need for top-level decision fusion 
+combined with multiple prediction models (see Figure 8). 
+While the ARMA model was not able to make an accurate 
+prediction of this battery (initial SOC of this cell was 
+actually close to zero), the decision fusion approach, 
+discussed in this paper, will recognize this error and correct 
+it based on low discharge current. 
+Tests were also performed on nine size C and nine size D 
+nickel-cadmium batteries. Similar results were obtained for 
+these batteries as well, with average prediction errors less 
+than 5% (Table 1). The model used for this chemistry, 
+however, was slightly different than described above. 
+Optimum model performance was achieved for this 
+chemistry when inputs were only filtered and normalized. 
+Therefore, the derivative of the inputs was not taken prior to 
+model entry. Although, these batteries are secondary cells, 
+only a few cycles fi-om each battery were completed. 
+Therefore, the recursive training routine previously 
+described was not used. Instead, the model was trained on 
+one battery (of each size) and tested for all of the other 
+batteries of the same size. 
+Table 1. Results of ARMA model SOC predictions 
+Prediction I Error (%) I I Chemistry I Size I #Cells I 
+with CL representing the calculated model coefficients, cp(t) 
+representing a vector containing model inputs and output 
+feedback, and y(t) representing the known model output 
+1131. 
+Secondary Cells- Modeling of secondary cells differs from 
+modeling of primary cells because of health effects on a 
+battery’s SOC. As a battery’s health diminishes, its initial 
+SOC and internal impedance decrease. In order to account 
+for this, secondary cells use a recursive training routine in 
+Final testing was performed on five 12-volt lead-acid starter 
+batteries containing six cells each. Because these batteries 
+6-3157 
+are secondary, the recursive training routine previously 
+mentioned was used. Despite the fact that health effects 
+make prediction more difficult, the model still was able to 
+perform well on this chemistry. As seen in Table 1, average 
+prediction error was less than 10%. 
+Test Run 11 Error = 3.0778 
+., 
+0 100 200 300 
+Time (min) 
+Test Run 16 Error = 2.401 7 
+0 I00  200 300 
+Time (min) 
+Figure 12. ARMA SOC prediction results for size C 
+lithium-(CFh batteries 
+Neural Networks Model 
+Artificial Neural Networks-A neural network, or an 
+artificial neural network to be more precise, is a parallel 
+distributed processing system. It consists of information 
+processing units, called neurons or units, interconnected in a 
+specific way through connection weights, to produce a 
+desired output in response to its inputs. Such networks, 
+inspired by biological neural networks, can be feedfirward 
+or recurrent. Feedforward neural networks are usually 
+organized into layers of neurons in which signals can only 
+propagate from the inputs to the outputs and there is no 
+feedback. Most often, the connection weights are restricted 
+to connect only the neurons in adjacent layers. Each neuron 
+accumulates the weighted sum of its inputs through the 
+connection weights and maps it into an output by employing 
+a transfer function, called the activation function, which is 
+usually nonlinear. An important type of activation function 
+is called the threshold function, which produces a binary 
+output based on the comparison of the accumulated input of 
+the neuron with a threshold or bias. Such neurons are very 
+useful in classification tasks. 
+Perhaps the most commonly employed activation in neural 
+networks is the sigmoid function, sometimes called the 
+squashing function since it maps its input into the interval 
+[0,1], with its inflection point being located at the threshold 
+or the bias. If a neuron has N inputs, xi, and the 
+corresponding connection weights, w,, and bias, b, then the 
+neuron output is 
+1 
+1 
+Y =  (9) 
+The two activation functions are related since the threshold 
+function can be seen as the limiting case of the sigmoid 
+function when the slope at the threshold value is infinite. 
+Sigmoid functions have been shown to have very good 
+properties in function approximation. In particular, neural 
+networks consisting of two hidden layers of neurons with 
+sigmoid activation functions are universal approximators. 
+Unlike threshold and sigmoid functions, a radial basis 
+function (RBF) is not a monotonic function, i.e., its output 
+value gets smaller on either side of the threshold or bias 
+value. Typically, RBF neural networks utilize Gaussian 
+functions as the activation function and compare the input 
+vector with its weights vector. The response of the RBF 
+neuron is controlled by the center (weight vector) and a 
+spread parameter, S ,  which determines its "radius" or 
+support region. 
+r 
+Unlike algorithms or de-based systems, neural networks 
+are trained using prior examples. There are several methods 
+used to train neural networks, which can be grouped broadly 
+into supervised and unsupervised training methods. 
+Supervised training or learning utilizes the inputs and the 
+corresponding output values, called target or desired output 
+values, and modifies the weights and biases until there is 
+sufficient agreement in the networks outputs and the target 
+outputs. In unsupervised learning only the inputs are 
+provided and the network modifies weights and biases to 
+minimize some prescribed error criterion. 
+Artificial neural networks have been used successfully in 
+both classification and function approximation tasks. One 
+type of function approximation task is system identification. 
+While neural networks do quite well at modeling linear 
+systems, their main strength is the ability to model nonlinear 
+systems using examples of input-output pairs. This was the 
+basis for choosing neural networks for SOC estimation. 
+6-3158 
+Neural network SOC estimators were trained for lithium 
+batteries of sizes C and 213 A under different loading 
+conditions. For each type of battery a subset (typically 3 to 
+6) of the available parameter vectors was chosen to be used 
+as the model input. Networks were trained to produce either 
+a direct prediction of battery SOC or alternatively an 
+estimation of initial battery capacity during the first few 
+minutes of the run. 
+Feed-forward 
+[6l 
+TimeDelay 
+[71 
+Direct Battery SOC Prediction with Neural Networks-All 
+networks used for battery SOC estimation had one hidden 
+layer. The backpropagation gradient decent learning 
+algorithm is used which uses the error signal to optimize the 
+weights and biases of both network layers. 
+0.2% [I41 2.5 % 6.0% [ I l l  
+1.5% [I81 5.0 % 7.4% [17] 
+0.3% [I41 3.0 % 7.1% [ I l l  
+0.8% [I81 4.7% 8.0% [20] 
+Figure 13 shows the processing flow for using battery 
+measurements and parameters to predict SOC. 
+... 
+Trained Networlc 
+Figure 13. Flow diagram for direct prediction of SOC using 
+neural networks 
+Selection of Inputs and Preprocessing-Discharge current, 
+In, was chosen as input to monitor the effect of the load on 
+the battery. In some cases battery discharge voltage, V,, was 
+also found to be useful. In addition, among the derived 
+parameters & , 0 , and C, were found to be useful for the 
+reasons described above. Various combinations of these 
+inputs were tried to see their effect on training and testing 
+performance. This provided some understanding of the 
+relative importance of those inputs for predicting SOC. ID 
+was found to be the most important input followed closely 
+by b. The inputs were filtered as for the ARMA case to 
+obtain smoothed input vectors. Normalization of inputs 
+eliminated the large variation in magnitude of the selected 
+inputs and allowed smaller networks to provide good 
+results. Smaller networks also tend to be better at 
+generalization. For time-delay neural networks the selection 
+of the number of delays and the length of the delays is 
+crucial to the performance of the networks. Both short and 
+long delays were tried during different training runs. The 
+short delays gave better performance, which indicates that 
+the battery SOC does not involve long time-constants. This 
+is also evident from the ARMA examples. 
+Neural Network Training-Several types of neural networks 
+were trained with battery data and extracted impedance 
+parameters to directly predict the battery SOC. Different 
+training methods were explored, e.g., backpropagation of 
+errors with and without momentum, backpropagation of 
+errors with and without learning rate adaptation, and 
+backpropagation of errors with the Levenburg-Marquadt (L- 
+M) method. The L-M method was found to be the best in 
+this comparison. The size of the network was also important 
+in training. An excessively small network size results in 
+inadequate training and larger than necessary network size 
+leads to overtraining and poorer generalization. 
+Results-The performance of the neural networks was 
+found to be quite consistent. The results for size C lithium 
+batteries (runs 9-16) and size 213 A lithium batteries (runs 
+17-25) are given in Table 2. 
+It is noted that battery 11 represents an anomaly when 
+compared to the other tested batteries and therefore 
+represents a worst-case scenario for this prediction method. 
+On the other hand, battery 16 is a representative of average 
+prediction results. 
+Table 2. Error rates for direct SOC prediction with neural 
+networks 
+Maximum Average 
+Topology Testing 
+[Run #I 
+[#Hidden 
+Neurons] 
+~~ 
+Networks trained to produce SOC directly provided several 
+advantages. Most notable is that no post processing of the 
+network output is required. This feature would make 
+realization of the network in hardware comparatively less 
+complex. Also, the network’s SOC prediction can converge 
+to the actual battery SOC as the run progresses. This 
+convergence behavior was noted on several of the 
+implemented networks. The networks tend to slightly 
+underestimate the battery SOC. This is very important since 
+6-3159 
+in practice this would result in a conservative estimate and 
+avoid unscheduled downtime. 
+Battery SOC Prediction using Initial Capacity Estimation 
+with Neural Networks-Networks were also trained to 
+estimate the initial capacity of the battery during the first 
+few minutes of the test. The SOC of the battery can then be 
+calculated directly by using the cumulative discharge 
+current. This method can be used as a powerful tool in 
+mission planning. Hypothetical load profiles could be used 
+to predict if the battery would survive or fail during given 
+mission, thus preventing the high cost and risk of batteries 
+failing in the field. Figure 14 shows the flow diagram for 
+initial capacity estimation using neural networks. 
+Selection of Inputs and Preprocessing-Inputs were 
+selected as described above. Selection of training set for the 
+RBF networks required more training runs since by design, 
+RBFs are limited support networks. Since a single radial 
+basis neuron only responds to a small local region of the 
+input space, the inputs for this network were first 
+normalized to the average value of the training set. Three 
+training sets were chosen to cover the range of normalized 
+input space. The parameters of battery 13 were the lowest 
+in magnitude relative to the other sets, the parameters of 
+battery 14 were relatively the highest and the parameters 
+from battery 16 were closest to the middle. Such a diverse 
+training set helps to promote good network generalization 
+for batteries whose parameters lie in the same area of the 
+input space. 
+... 
+Trained Netwow 
+T 
+Figure 14. Flow diagram for battery initial SOC estimation 
+with neural networks 
+An important difference between the previous predictors 
+and this one is the way SOC is being presented. The battery 
+is not assumed to start from 100% SOC. Therefore, when 
+presenting the results for this subsection, the battery SOC is 
+presented in Ah. It is seen that there is noticeable difference 
+between the batteries in their initial capacity. Once a good 
+estimate of the initial capacity is obtained, the SOC can be 
+predicted by reducing the initial SOC by the accumulated 
+discharge current. 
+Table 3. Error rates for SOC Prediction based on Initial 
+Capacity Estimation with neural networks. 
+Network 
+Topology 
+[#Hidden 
+Neurons] c Feed-forward 
+Radial Basis 
+Error Testing 
+Set] 
+2.4 % 
+3.0 % 
+[17 18 201 
+0.6% 
+[ I3  14 161 
+2.3 % 
+[17 18 201 
+5.7 % 
+7.9 % 
+4.6 % 
+3.4 % 
+i13 14 
+Maximum 
+Testing 
+Error 
+[Run #] 
+9.1 % [II] 
+10.4% [23] 
+6.8 % [I51 
+4.9 % [19] 
+Results-The performance of the neural networks was 
+found to be better than direct prediction neural networks. 
+The results for size C lithium batteries (runs 9-16) and size 
+2/3 A lithium batteries (runs 17-25) are given in Table 3. 
+Sample prediction results for size C lithium batteries are 
+shown in Figure 15 (next page). Especially noteworthy is 
+the significantly better performance of the RBF network 
+predicting initial SOC on battery 11, as compared to the 
+direct SOC predictor. 
+SOC Modeling Remarks 
+The results are quite impressive since very little training 
+data is used to produce the predictors. As more data are 
+collected and several runs of each level of initial battery 
+SOC become available, the robustness of the predictors is 
+likely to improve. The key distinction between the ARMA 
+and neural network approaches is that the ARMA model 
+assumes an explicit linear form of the predictor, while the 
+neural network attempts to discover an implicit (size and 
+topology for the) nonlinear model that captures the 
+intricacies of the battery dynamics. If the model is of 
+adequate degree then the ARMA model should require 
+fewer runs than the neural network. However, the neural 
+network can better represent nonlinearity and thus, provide 
+better generalization in and out of the sample. The neural 
+network is also more likely to provide better results if the 
+load is changed or is variable. 
+The results for the neural network predictors are very good. 
+Though the average error is a little higher than for the 
+ARMA predictors, there are two important strengths of the 
+6-3160 
+neural network predictors that outweigh that drawback: (i) 
+maximum error on outliers was not significantly larger than 
+the average error, and (ii) the network provides a 
+conservative prediction, i.e., it does not over-predict the 
+SOC. Both of these advantages are very important in 
+practical systems where certification and low false alarms 
+are not just requirements but can make a difference between 
+a system that is actually used or shelved. 
+Battery I I, Error: 4.9498 
+0 I 0 0  200 300 
+Time (min] 
+Battery 16, Error: 0.62359 
+Tlme (min) 
+Figure 15. SOC prediction based on initial SOC estimation 
+using RBF neural networks; size C lithium-(CFX batteries 
+Of the seventeen lithium (CF), batteries, two were examples 
+of outliers that can skew most predictors. For such cases the 
+best predictors do not try to get very accurate prediction for 
+the outliers but rather attempt to get rough conservative 
+estimates that can quickly allow the system to flag them as 
+outliers. These are examples of batteries that were faulty in 
+some respect. Also, two additional batteries were unable to 
+provide the required 2V discharge voltage and thus were 
+considered bad. It is the focus of the SOH research to 
+identify and assess the severity of existing or impending 
+faults in the battery. This topic is presently being researched 
+and is discussed briefly later in this paper. The benefit of a 
+good initial capacity estimator is a valuable capability not 
+only during the operational scenario but also for quality 
+control purposes. 
+Currently, neural network, ARMA, and fuzzy logic 
+predictors are being developed for the nickel-cadmium and 
+lead-acid batteries. Further research is also being conducted 
+to examine the benefit of using alternative error criteria in 
+developing more robust SOC predictors that help the 
+operator make improved decisions based on the SOC 
+information. 
+5 .  FAULT AND END OF LIFE PREDICTION 
+For primary batteries, the SOC is also the SOL; once the 
+charge is depleted the battery cannot be used again. 
+However, for secondary batteries the SOC only represents 
+the cycle life and not the life of the battery since it can have 
+multiple discharges. 
+State-of-Health 
+For secondary batteries, the life of the battery is dictated by 
+the number of usable cycles. For example, it is common 
+practice to remove a battery from service if the discharge 
+capacity has reduced to 65% the original capacity [2]. Other 
+conditions include short-circuited cells and low terminal 
+voltage. Table 4 (next page) shows the most common faults 
+that occur in secondary batteries. Each of these possible 
+failure mechanisms (dry-out, passivation, etc.) will wear the 
+battery at different rates and can occur simultaneously. 
+Identifying what faults are occurring and to what degree will 
+dictate what SOL prediction model should be used. 
+Classification of what faults are occurring in the battery is 
+an estimation of the SOH. Much like the SOC approach to 
+having three separate, parallel processing methodologies for 
+prediction, the SOH estimation processing has three 
+different processing branches. 
+Table 4. Common fault types for battery cells [2] 
+~~ 
+Separation 1 LOW capacity Open Circuit 
+Bridging I Low Capacity I Shortcircuit 
+en Circuit 
+Voltage 
+Open Circuit 
+Charging Voltage 
+Grid High Self-Discharge Internal Short 
+Corrosion Circuit 
+6-3161 
+The three-prong approach includes statistical pattern 
+recognition using linear discriminant functions, neural 
+network based pattern recognition, and fuzzy logic based 
+classification [ 141. Furthermore, domain knowledge and 
+test data can be used in combination to take advantage of the 
+complimentary benefits of implicit and explicit knowledge 
+representations, while avoiding their disadvantages [ 151. 
+Limited data on the different failure modes is available at 
+this time. Since the failures are not seeded, batteries are 
+transitioned to failures under controlled operating conditions 
+only. Depending on chemistry and design, data collection 
+must endure tens to thousands of chargeldischarge cycles to 
+acquire a complete set of battery failure data. Therefore, 
+much of this work is in early stages; results and further 
+detail will not be provided in this paper. 
+State-of-life 
+Once faults and their severity are identified from the SOH 
+processing, the proper SOL prediction model can be 
+selected. Figure 16 shows a case where dry-out was 
+identified as the dominant SOH condition in a lead-acid 
+starter battery and a dry-out trained SOL predictor was used 
+to predict the remaining usable cycles. Had a different 
+dominant failure mechanism been identified from the SOH 
+processing, a different SOL prediction model would have 
+been used. 
+This SOL prediction assumes the tested battery was run 
+under the same operating conditions as the battery the 
+training set came from. These SOL results are still very 
+preliminary and only presented here to illustrate the 
+connection between the SOC, SOH, and SOL processing. 
+1 8 0  
+1 6 0  
+1 4 0  
+1 2 0  
+1 0 0  
+a o  
+6 0  
+4 0  
+2 0  
+Decision Fusion Processing 
+Data fusion can be used to improve the quality of condition 
+assessment and increase the confidence the assessment [ 161, 
+[17]. As previously mentioned, the SOC, SOH, and SOL 
+processing makes three parallel predictions. This approach 
+provides three opinions about the condition of the battery. 
+These three predictions are fed into an upper level decision 
+processing routine that determines how well the predictors 
+did relative to each other, processed sensor data, previous 
+history, and knowledge about the battery type. Using this 
+information, the decision processing outputs a combined 
+prediction of the SOC, SOH, or SOL with a measure of 
+confidence. For example, three SOC predictions were fed to 
+the decision fusion processing, 85%, 83%, and 30%. The 
+decision processing also retrieved the SOC information 
+from the previous cycle and battery type information. The 
+processing then decides that the two SOC predictions, 85% 
+and 83% are more likely to be correct than the other, not 
+only because they agree with each other but because the 
+previous cycle SOC was more similar to these estimates 
+under the current operating conditions. The 30% SOC 
+prediction is then de-weighted, a single SOC prediction is 
+calculated, and a confidence is assigned to the new SOC 
+estimate. 
+The decision processing also has access to the sensor signals 
+that are fed to the SOC, SOH, and SOL predictors. 
+Consider the previous example; a dead sensor signal, may 
+have caused the bad 30% SOC prediction. If the other two 
+SOC estimators did not use the dead sensors signal, it is 
+likely that this is the case and a flag could be raised as a 
+result. 
+o !  
+0 2 0  4 0  6 0  8 0  1 0 0  1 2 0  1 4 0  1 6 0  1 8 0  
+P r e s e n t  C y c l e  
+Figure 16. ARMA SOL prediction based on dry-out dominated SOH 
+6-3162 
+As with the SOH estimation processing, much of this 
+work is in early stages so results and further detail will 
+not be provided in this paper. Referring back to Figure 8, 
+the decision fusion represents the final stage of the 
+processing and the output of this is then fed to a user 
+interface that can display or coordinate the battery 
+condition data. 
+6 .  CONCLUSIONS 
+Condition-based maintenance provides a means for 
+improved reliability and extracting more usable life from 
+primary and secondary batteries. For primary batteries, 
+this represents using the full capacity of the battery before 
+they are replaced. For secondary batteries, this represents 
+cycling the battery to its true last usable cycle and not a 
+conservatively based statistical last cycle. In the case of a 
+backup or standby battery, this represents knowledge of 
+usage capacity prior to putting the battery online. 
+The model-based approach describe in this paper provides 
+a framework for predicting SOC, SOH, and SOL. We 
+have shown that in addition to measuring voltages, 
+current and temperature, measurement of internal 
+electrical impedance of the battery ties closely to the 
+physical processes that drive capacity and aging. A 
+robust identification routine was developed and these 
+identified parameters, along with measured signals, were 
+used develop and test SOC, SOH, and SOL predictors. 
+The developed ARMA and neural network SOC 
+prediction models were discussed and results were 
+presented showing good performance across different 
+chemistries and sizes. Some initial results were present 
+from the SOH and SOL prediction development but this 
+work is still in early stages. Also, the framework for the 
+decision fusion processing was discussed and provides 
+additional error checking and performance enhancement. 
+Most of the analyzed data was collected on a laboratory 
+test stand under controlled conditions. Plans are being 
+made to have field data collected so the developed model- 
+based predictive diagnostics can be tested on battery 
+systems (and other electrochemical energy sources) under 
+real-world operating conditions. 
+7. ACKNOWLEDGEMENT 
+The sponsorship of this work by the Office of Naval 
+Research and Dr. Phillip Abraham, Code 331, under ONR 
+Grant NO00 14-98-1-0795 is gratefully acknowledged. 
+8. REFERENCES 
+[l] J. A. Stover, D. L. Hall, and R. E. Gibson, “A Fuzzy- 
+Logic Architecture for Autonomous Multisensor Data 
+Fusion,” IEEE Transactions on Industrial Electronics, pp. 
+403-410, June 1996. 
+[2] D. Berndt, Maintenance-Free Batteries, 2”d Edition, 
+John Wiley & Sons Inc., New York, NY, 1997. 
+[3] A. J. Bard and L. R. Faulkner, Electrochemical 
+Methods: Fundamentals and Applications, Wiley, New 
+York, NY, 1980. 
+[4] M. Sluyters-Rehbach and J. H. Sluyther, “Sine Wave 
+Methods in the Study of Electrode Processes”, 
+Electroanalytic Chemistry, vol. 4, Dekker, NY, 1970. 
+[5] J. P. Diard, B. LeGorrec, and C. Montella, “EIS study 
+of electrochemical battery discharge on constant load”, 
+Journal ofpower Sources, vol. 70, pp. 78-84, 1998. 
+[6] J. D. Kozlowski, T. Cawley, and C. S. Byington, 
+“Model-Based Predictive Diagnostics for Primary and 
+Secondary Batteries: Phase I Report,” Technical 
+Memorandum, File No. 99-076, Applied Research 
+Laboratory, The Pennsylvania State University, June 17, 
+1999. 
+[7] J. A. Bialacki, N. A. Hampson, and E. J. Pearson, 
+“The A.C. Impedance of Porous PbOz on a Lead Support 
+in Sulfuric Acid,” Surface Technology, vol. 23, pp. 117- 
+125,1984. 
+[SI Boukamp, B. A., “A Nonlinear Least Squares Fit 
+Procedure for Analysis of Immittance Data of 
+Electrochemical Systems,” Solid State Ionics, vol. 20, pp. 
+31-44, 1986. 
+[9] MacDonald, J. R., and L. D. Potter, “A Flexible 
+Procedure for Analyzing Impedance Spectroscopy 
+Results: Description and Illustrations,” Solid State Ionics, 
+vol. 23, pp. 61-79, 1987. 
+[lo] Pirlot, M., “General Local Search Methods,” 
+European Journal of Operational Research, vol. 92, pp. 
+493-511,1996. 
+[ll] Jeong, I. K. and J. J. Lee, “Adaptive Simulated 
+Genetic Algorithm for System Identification,” 
+Engineering Applications of Artificial Intelligence, vol. 9, 
+no. 5, pp. 523-532. 1996. 
+[12] B. Gebhart, Heat Transfer, 2”d Edition, McGraw- 
+Hill, New York, NY, 1971. 
+6-3163 
+[13] L. Ljung, System Identification, Theory For The 
+User, 2nd Edition, Prentice Hall PRT, Upper Saddle 
+River, NJ, 1999. 
+[ 141 R. Schalkoff, Pattern Recognition, Statistical, 
+Structural and Neural Approaches, John Wiley & Sons, 
+Inc., New York, NY, 1992. 
+[ 151 A. K. Garga, “A Hybrid ImplicitExplicit Automated 
+Reasoning Approach for Condition-Based Maintenance,” 
+Proceedings of the ASNE Intelligent Ships Symposium 11, 
+Philadelphia, 25-26 November, 1996. 
+[16] Hall, D.L. and J. Llinas, Editors. Handbook of 
+Multisensor Data Fusion. Boca Raton, FL: CRC Press, 
+May 200 1. 
+[ 171 D. L. Hall and A. K. Garga, “Pitfalls in Data Fusion 
+(and How to Avoid Them),’’ Proceedings of 2“‘ 
+International Conference on Information Fusion 
+(FUSION 99), Sunnyvale, CA, 6-9 July 1999. 
+9. BIOGRAPHIES 
+James D. Kozlowski is a Research 
+Assistant at the Applied Research 
+Laboratory at the Pennsylvania State 
+University. He works in the Condition- 
+Based Maintenance Department, where 
+his focus has been in predictive 
+diagnostics for primary and secondary batteries. His 
+interests in this area include data acquisition, system 
+identification, data fusion, and automated reasoning 
+techniques for condition monitoring. Mr. Kozlowski 
+received his BSEE and MSEE from Temple University 
+and is a PhD candidate in Electrical Engineering 
+department at Penn State University. He is also a member 
+of the IEEE and Eta Kappa Nu. 
+Carl S.  Byington is a Professional 
+Engineer and the Department Head of the 
+Condition-Based Maintenance Department 
+at the Penn State Applied Research 
+Laboratory (ARL). He has extensive 
+experience in the design and testing of 
+thermal, mechanical and fluid power 
+systems. Carl performed high-speed propulsion research 
+at the NASA Langley Research Center from 1988 through 
+1990. From 1991 to 1995, he worked on the development 
+and testing of advanced thermal powerplants for 
+underwater vehicle applications at ARL. Since that time, 
+he has been involved in the development of predictive 
+failure diagnostics technology for machinery, and he 
+serves as the modeling thrust leader for a large University 
+Research Initiative in machinery prognostics, He is also 
+the lead engineer and principal investigator on several 
+projects related to sensing, classifying and tracking failure 
+modes in mechanical transmissions, engines, and 
+electrochemical systems for Navy platforms. His interests 
+include failure diagnostics, mechanicayfluid systems 
+modeling, system design analysis, and optimization 
+methods. Carl received an MS in Aeronautical 
+Engineering from the George Washington University and 
+his BS in Mechanical Engineering from the University of 
+Pennsylvania. He is a member of ASME, ASM, STLE, 
+and SAE professional societies. 
+Amulya K. Garga is a Research Associate 
+at the Applied Research Laboratory at the 
+Pennsylvania State University. He was the 
+project manager (1997-99) for an ONR 
+MURI grant for Integrated Predictive 
+Diagnostics research to advance the 
+prognostic capability of large machinery of interest to the 
+Navy and industry. His current research is focused on 
+hybrid and neural approaches to automated reasoning and 
+data fusion. His previous research included signal and 
+image processing, target tracking, and VLSI systems. He 
+holds a Ph.D. in Electrical Engineering from the 
+Pennsylvania State University. Dr. Garga was recently 
+awarded the E E E  Third Millennium medal. He is a 
+member of the IEEE, Eta Kappa Nu, and Sigma Xi 
+Research Society. He is currently the Chairman of the 
+Central Pennsylvania chapter of the lEEE Signal 
+Processing Society. 
+Matthew J. Watson is a recent graduate of 
+Penn State University with a BS in 
+Mechanical Engineering. He is currently 
+continuing his undergraduate research 
+(predictive diagnostics for primary and 
+secondary batteries) at the Applied 
+Research Laboratory. His interests there include heat 
+transfer, data acquisition, and system identification. He is 
+a member of Tau Beta Pi. 
+I 
+Todd A. Hay is an undergraduate student 
+at Penn State University currently pursuing 
+his BSEE degree and a minor in 
+Mathematics. He is working part-time at 
+the Applied Research Lab. Mr. Hay’s 
+interests there include pattern recognition 
+and neural networks. He enjoys backpacking and 
+mountain biking in his free time. 
+6-3164 

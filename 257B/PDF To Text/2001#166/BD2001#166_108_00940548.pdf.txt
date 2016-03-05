@@ -1,0 +1,349 @@
+JOINT SOURCE-CHANNEL TURBO DECODING OF VLC-CODED MARKOV SOURCES 
+E. Fabre, A .  GuyadeK C. Guillemot 
+IRISA-INRIA, Campus universitaire de Beaulieu, 
+35042 Rennes Cedex, FRANCE. E-mail : name@irisa.fr 
+ABSTRACT 
+We analyse the dependencies between the variables involved 
+in the source and channel coding chain. This chain is com- 
+posed of 11 a Markov source of symbols, followed by 21 a 
+variable length source coder, and 31 a channel coder. The 
+output process is analysed in the framework of Bayesian 
+networks, which provide both an intuitive representation of 
+the structure of dependencies, and a way of deriving joint 
+(soft) decoding algorithms. Joint decoding relying on the 
+hidden Markov model (HMM) of the global coding chain is 
+intractable, except in trivial cases, due to the high dimen- 
+sionality of the state space. We advocate instead an iter- 
+ative procedure inspired from serial turbo codes, in which 
+the three models of the coding chain are used in alternance. 
+This idea of using separately each factor of a big prod- 
+uct model inside an iterative procedure usually requires the 
+presence of an interleaver between successive components. 
+We show that only one interleaver is necessary here, placed 
+between the source coder and the channel coder. As a sub- 
+product, we also derive a soft VLC decoder with good (and 
+adjustable) synchronization properties. 
+1. INTRODUCTION 
+The wide usage of variable length codes (VLCs) in data 
+compression has motivated recent work on robust decod- 
+ing of variable length coded streams [l], [ 2 ] ,  [ 3 ] ,  [4]. The 
+authors in [ 2 ]  derive a global stochastic automaton by com- 
+puting the product of the separate automata of the Markov 
+source, the source coder and the channel coder. The result- 
+ing automaton is used to perform a MAP decoding with the 
+Viterbi algorithm. Although states which cannot be reached 
+through any valid sequence of transitions can be eliminated, 
+the state space can remain very large. In [4], the authors 
+propose a serially concatenated iterative system consisting 
+of an outer variable length encoder and of an inner binary 
+convolutional coder separated by an interleaver. 
+In this paper,we also follow these lines in the case of a 
+very general coding chain, encompassing as particular cases 
+the models of the papers above. We focus on an analysis 
+and modeling of the dependencies between the variables in- 
+volved in the complete chain of source and channel coding, 
+by means of the Bayesian-network formalism. Our starting 
+point is a state space model of the three different elements 
+in the chain : the source of symbols, the source coder and 
+the channel coder. These models are cascaded to produce 
+the bitstream sent over the channel, and the randomness of 
+variables is introduced by assuming a white noise input of 
+the cascade. The product of these three automata induce 
+immediately a state variable model of the bitstream: the 
+triple of states - one state for each model - appears to be 
+a Markov chain, the transitions of which generate the se- 
+quence of output bits, that are sent over the channel. The ob- 
+served output of a memoryless channel corresponds to noisy 
+measurements of these bits. Therefore, we are exactly in the 
+HMM framework for which fast estimation algorithms are 
+well known. 
+This nice picture suffers from two difficulties. First, 
+the presence of two time indexes : the symbol clock of the 
+source model, and the bit clock of the channel coder model. 
+The translation is performed by the VLC source coder. Since 
+not all symbols have the same length, the number of bits of 
+the coded sequence (as well as the position of symbol starts) 
+is a random variable, which is quite unusual. We therefore 
+have to solve a joint segmentation + estimation problem. 
+The second difficulty is more classical : it comes from the 
+fact that the state space dimension of the product model ex- 
+plodes in most practical cases, so that a direct application of 
+usual techniques is unaffordable, except in trivial cases. 
+In this paper, we thus rely on properties evidenced by 
+serial turbo-codes to design an estimation strategy : instead 
+of using the big product model, inference can be done in an 
+iterative way, making use of part of the global model at each 
+time. This decreases complexity since smaller state spaces 
+are involved. We use this idea in the following way, as it 
+was already suggested in [4] : we introduce an interleaver 
+between the source coder and the channel coder. This al- 
+lows the construction of an iterative soft decoder alternating 
+between the channel coder model and the joint model of 
+the source + source coder I ,  with the bit clock as time in- 
+dex. But the idea can be pushed further : why not splitting 
+also the joint model source (MS) + source coder (SC) ? We 
+~ 
+'By contrast, [4] is assuming an i.i.d. source, which makes the source 
+model useless. 
+0-7803-703 1 -4:O 1/$10.00 0200 1 IEEE 2657 
+demonstrate that, due to the pointwise translation of sym- 
+bols into bits, there is no need of an interleaver there. The 
+joint MS+SC model can actually be processed optimally 
+by a sequential use of the SC model, followed by the MS 
+model. 
+2 . PROBLEM STATEMENT 
+Let S = SI ... SK be the sequence of quantized source sym- 
+bols taking their values in a finite alphabet composed of 
+29  symbols. The sequence S I .  . . SK is assumed to be a 
+Markov chain. The symbols are then coded into a sequence 
+of useful bits U = U1 ... U N ,  by means of a variable length 
+code. The length N of the information bitstream is a ran- 
+dom variable, function of S .  U is then fed to the chan- 
+nel coder (a convolutional code), which yields the sequence 
+R = R1 ... RM of redundant bits. In the triple (S ,  U ,  R),  
+all the randomness comes from S ,  since U and R are deter- 
+ministic functions of S.  The bitstream (U, R) is sent over a 
+memoryless channel and received as measurements (Y, 2); 
+so the problem we address consists in estimating S given 
+the observed values y = y1 . . . y ~  and z = ~1 ...zM, point- 
+wise measurements on useful and redundant bits, respec- 
+tively. Therefore we are exactly in an HMM framework for 
+which fast estimation algorithms exist [ 5 ] .  
+3. JOINT MODEL OF THE PAIR SOURCE + 
+SOURCE CODER 
+Let us first assume that S I  . . . SK is a white noise sequence, 
+each s k  obeying a stationary distribution P,. For a non 
+dyadic P,, and despite the optimality of the Huffman code, 
+the average length of a codeword remains strictly above the 
+lower bound (at most 1 bit above it). Therefore there re- 
+mains some correlation between the bits at the output of 
+the coder. This form of redundancy can be modeled and 
+exploited to help the segmentation + estimation of the bit- 
+stream (and thus the estimation of the symbol sequence). 
+However, this inner codeword redundancy is quite low. The 
+MS model incorporates the major part of the redundancy. 
+A model of the distribution of U ,  capturing both in- 
+ner codeword and intersymbol correlation, can be obtained 
+by mapping the transition probability Pt(Sk+l Is,) on the 
+Huffman tree, which requires to keep track of the last sym- 
+bol sk produced. The state variable of a bit clock model 
+of U thus takes the form X ,  = (w, s), where s is the last 
+symbol produced, and 11 is a vertex on the Huffman tree. 
+It is also necessary to count symbols, in order to ensure 
+that the last state X N  corresponds to a correct segmenta- 
+tion of the bitstream into K symbols. So the actual state 
+variable is X ,  = ( w , s , k ) ,  where k is augmented by 1 
+each time U reaches a leaf of the Huffman tree. Bits of 
+U are produced by transitions of this Markov chain X ,  i.e. 
+U, = q5(X,-l, X,). This yields the dependency structure 
+shown on the upper part of fig. 1, which is well adapted to 
+fast MAP or MPM estimation (by a BCJR), provided the 
+state space for X ,  is not too large. One can further extend 
+this model with a semi-Markov model of the channel coder 
+(CC), taking U as input and producing R, with state variable 
+XA (lower part of fig. 1). A global (product) HMM model 
+of the pair (U, R)  follows by gathering the state variables 
+X ,  and XA, but this model is intractable in practice. 
+Markov source { xo x1 x2 yxN + source coder model 
+... 
+channel coder 
+model 
+Fig. 1. A graphical model representing dependencies be- 
+tween the model of U and the channel coder model, pro- 
+ducing R. X ,  is the state of the source + Huffman coder 
+model, and XA is the intemal state of the convolutional 
+coder. Pointwise measurements Y and 2 on U and R are 
+not represented for clarity. 
+4. ITERATIVE ESTIMATION 
+A direct estimation based on the global Hh4M model is only 
+affordable for trivial cases, and should be approximated in 
+most practical situations. We consider instead iterative in- 
+ference, using in alternance parts of the model. 
+4.1. Two model case 
+We first consider a separate representation of the state vari- 
+ables of the two models: x, for the source + Huffman 
+coder model, and XA for the channel convolutional coder 
+model, in order to make apparent dependencies between 
+them. The Bayesian network incorporating the complete 
+chain MS+SC+CC is depicted on fig. 1 : the top part repre- 
+sents the bit clock product model for MS+SC, and the bot- 
+tom part represents the serial concatenation of a convolu- 
+tional encoder. Variables of R are depicted as functions of 
+the coder state X’, but could as well be functions of state 
+transitions. State spaces of variables X ,  = (w, s, k )  and 
+XA = (m)  are smaller than in the global HMM, obtained 
+by agregating X ,  and XA into the same state variable. 
+The price to pay for this expansion is a quite complex 
+Bayesian network (or Markov field) which is not a tree. 
+Hence, we go out of the range of fast algorithms like BCJR 
+or Viterbi, that only extend to trees. However, if cycles 
+of the graph are long enough, efficient approximate MPM 
+(max of posterior marginals) or MAP estimators can be ob- 
+tained by running a belief propagation algorithm on the graph 
+2658 
+as if it were a tree, ignoring the presence of cycles [6,7]. As 
+discovered by [8], cycles can be made “long” at no cost by 
+simply introducing an interleaver between the two models 
+(fig. 2) ,  which evidences a structure similar to serial turbo 
+codes. 
+Belief propagation on this graph can arrange message 
+circulations in such a way that it amounts to performing a 
+soft decoding on each model separately. One ends up with 
+an iterative estimation procedure, alternating use of the two 
+models, with exchange of soft information, just like for se- 
+rial turbo codes. The only difference is in the last step, cho- 
+sen to be a standard MAP step instead of an MPM step as 
+usual, in order to prevent finding a non decodable bitstream, 
+or a bitstream associated to an incorrect number of symbols. 
+However, the estimation of the joint MS+SC model still re- 
+mains hardly tractable beyond 4 or 5 bits quantization of the 
+source, for K around several hundreds. 
+Fig. 2. Introducing an interleaver between the two hid- 
+den Markov models augments the minimal length of depen- 
+dency cycles. 
+4.2. Three model case. 
+Therefore, one can further decide to process separately the 
+MS and the SC models, applying the same method. Surpris- 
+ingly, in this case, there is no need of an extra interleaver, 
+and the successive use of the SC model and the MS model 
+is optimal, which is a new result for soft VLC decoding. 
+The SC model alone assumes an input of independent 
+symbols, and thus only makes use of the intra-codeword re- 
+dundancy, and of the constraint on the number of symbols. 
+Its state variable X ,  reduces to a pair (w, k), since memory 
+of the last symbol is useless. On the other side, the state 
+variable X L  of the Markov source model cannot be reduced 
+to the last symbol produced (s). Actually, the difficulty of 
+VLC decoding comes from the lack of synchronization be- 
+tween the symbol clock and the bit clock. In other words, 
+the estimation of the transmitted symbols (or bits) must be 
+performed jointly with the segmentation of the received bit 
+stream. Hence the MS model state variable must include a 
+counter of the number of bits produced by the first k sym- 
+bols, which yields X p  = (s, n).  Joint MS+SC soft decod- 
+ing then amounts to estimating X assuming an input of in- 
+dependent symbols, then translating soft information on X ,  
+into soft information on S k ,  which requires some “clock 
+conversion,” and finally estimating X“. In other words, the 
+joint MS+SC decoding first assumes a white source for soft 
+VLC decoding, and then takes inter-symbol correlation into 
+account. 
+For decoding the complete chain MS+SC+CC, we thus 
+end up with a turbo procedure alternating between the two 
+sources of redundancy, the Marko source and the channel 
+code, where the intermediary VLC source coder model is 
+used as a translator of soft information from the bit clock to 
+the symbol clock. Full details can be found in [9]. 
+5. EXPERIMENTAL RESULTS 
+To evaluate the performance of the joint decoding proce- 
+dure, experiments have been performed on a first-order Gauss- 
+Markov source, with zero-mean, unit-variance and correla- 
+tion factor p = 0.9. The source is quantized with a 16 lev- 
+els uniform quantizer (4 bits) on the interval [-3,3], and 
+we consider sequences of K = 200 symbols. The VLC 
+source coder is based on a Huffman code, designed for the 
+stationary distribution of the source. The channel code is 
+a recursive systematic convolutional code of rate 112 de- 
+fined by the polynomials F ( z )  = l + z + z2 + z4 and 
+G(z) = 1 + z3 + z4.  Since very few errors have been 
+observed with rate 112, we have augmented it to 314 by 
+puncturing the redundant bit stream. A variable size inter- 
+leaver is introduced between the source coder and the chan- 
+nel coder. All the simulations have been performed assum- 
+ing an AWGN channel with a BPSK modulation. 
+1 ‘\ I 
+t 
+Fig. 3. Residual BER (le)) and SER (right) vs EblNo, for 
+successive iterations, with a Gauss-Markov source. 
+Figure 3 provides the residual bit error rates (BER) and 
+symbol error rates (SER) for different channel EbINo. On 
+each plot, the top curve corresponds to an ML estimation 
+of the bitstream assuming independent bits (and no chan- 
+2659 
+ne1 coding), followed by a hard Huffman decoding. On the 
+BER plot, the second curve corresponds to a MAP channel 
+decoding, assuming an input of independent bits. The third 
+one is the result of the first iteration, where knowledge on 
+symbol correlation and codeword structure has been intro- 
+duced. Successive curves show the extra gain of iterations in 
+the procedure, which depends on the degree of redundancy 
+present on both sides of the source coder. 
+t i 
+E- 
+10 ’ 
+Fig.  4. Same conditions as the previous figure, except that 
+inter-symbol correlation is not taken into account. 
+The same experiments have been performed assuming 
+the symbol source is white (fig. 4), in order to evidence 
+the gain introduced by the intersymbol correlation. On the 
+BER plot, the top curve still represents the error rate with- 
+out channel coding. The second one is obtained using the 
+CC model only (1st step of the 1st iteration). Then comes 
+the BER after the first iteration for a white noise model, 
+which can be viewed as the BER at the output of the SC 
+model for the Gauss-Markov source. The lowest curve is the 
+BER at the end of the first iteration for the Gauss-Markov 
+source. Hence these four curves help understanding the ef- 
+fect of each component in the model. As expected, the SC 
+model has little influence since it uses little bit correlation 
+and mainly relies on constraints on the number of bits and 
+on codeword structure. Nevertheless, this effect is sufficient 
+enough to evidence some gain in the successive iterations, 
+when symbols are assumed to be independent. A compari- 
+son with the Markov source case shows that taking the inter- 
+symbol correlation into account brings a gain of more than 
+2 dB for the SER. 
+6. CONCLUSION 
+It is a promising strategy that has improved existing estima- 
+tion algorithms in many problems, at almost no cost. We 
+have shown that this strategy performs well in this specific 
+problem of joint source-channel decoding. However, its use 
+is not always relevant : in the particular case of the prod- 
+uct model of the source + source coder, one doesn’t need 
+to separate factors by an interleaver. The iterative use of the 
+factors can be optimal. This advocates a careful understand- 
+ing of dependencies before choosing a turbo strategy. 
+Finally, let us mention that using the three models sep- 
+arately allows many variations. For example, a variable 
+source coder can be used, in particular to introduce dummy 
+bits at some known symbol positions, in order to facili- 
+tate the resynchronization of the symbol stream and the bit 
+stream, which is the major weakness of VLC schemes. This 
+“soft synchronization” possibility could be an alternative to 
+the use of reversible variable length codes (RVLC), and of- 
+fers the advantage of being easily tunable in terms of rate 
+loss vs resynchronization power. 
+7. REFERENCES 
+[I] M. Park and D.J. Miller, “Decoding entropy-coded symbols 
+over noisy channels by MAP sequence estimation for asyn- 
+chronous HMMs,” in Proc. Conf: on Info. Sciences and Sys- 
+tems, May 1998. 
+[2] A.H. Murad and T.E. Fuja, “Joint source-channel decoding of 
+variable length encoded sources,” in Proc. Information The0 y 
+Workshop, ITW, June 1998, pp. 94-95. 
+[3] N. Demir and K. Sayood, “Joint source-channel coding for 
+variable length codes,” in Proc. IEEE Data Compression Con- 
+ference, DCC, March 1998, pp. 139-148. 
+[4] R. Bauer and J. Hagenauer, “Iterative sourcekhannel decod- 
+ing based on a trellis representation for variable length codes,” 
+in Proc. IEEE Intl. Symposium on Information Theoq, ISIT, 
+June 2000, p. 117. 
+[5] . R. Bahl, J. Cocke, F.Jel inek, and J. Raviv, “Optimal decod- 
+ing of linear codes for minimizing symbol error rates,”IEE E 
+Trans. on Information Theoiy,pp. 284-287, March 1974. 
+[6] B.J. Frey and D.J.C. MacKay, “A revolution: belief propa- 
+gation in graphs with cycles,” in Proceedings of the Neural 
+Inform. Processing Systems ConJ,De cember 1997. 
+[7] R.J. McEliece, D.J.C. MacKay, and J.-F. Cheng, “Turbo de- 
+coding as an instance of pearl’s belief propagation algorithm,” 
+IEEE J.  on Sel. Areas in Com., vol. 16, no. 2, pp. 140-152, 
+February 1998. 
+[8] C. Berrou and A. Glavieux, “Near optimum error correcting 
+coding and decoding: turbocodes,” IEEE Trans. on Commti- 
+nications,v 01. 44, no. IO,  October 1996. 
+[9] A. Guyader, E. Fabre, C. Guillemot, and M. Robert, “Joint 
+source and channel turbo decoding of entropy-coded sources,” 
+submitted to IEEEJ. on Sel. Areas in Com.,2000. 
+The turbo principle, revealed by turbo codes, can be gener- 
+alized into the iterative use of factors of a big product model. 
+2660 

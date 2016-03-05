@@ -1,0 +1,379 @@
+55 
+Sound Detection in Noisy Environment - 
+Locating Drilling Sound by using an Artificial 
+Ear 
+K. Bergsfrand’, K. Carlsson’, P. Wide’, B. Lindgren’ ’ Cenfer for Applied Autonomous Sensor System 
+Dept. of Technology, University of Orebro, Sweden 
+’Atlas Copco Rock Drills Equipment AB, Orebro, Sweden 
+bergstrand.karin@telia.com, peter.wide@tech.oru.se 
+AbsImct- In rock drilling, as in many industries today, the 
+drive towards unmanned equipment and full rummatian is 8 big 
+issue. A challenge io the automation process for rock drilling is 
+the retraclian of the drill steels when the drilling is completed. 
+Today the drilling can be perlormed automntically to some 
+extend, but B human ear is required for the final part: when the 
+splices between the drill steels are opened up enough to allow 
+retraction. 
+This paper discusses a Fast Fourier Transform (FFT) method 
+to search through aodio datn in order to detect and loeate speci6c 
+sounds appearing wben retraction of the drill steels is possible, 
+and to investigate if achieving full automation of the drilling 
+process is passible. The use of Waveleb has also been evaluated. 
+As far as the authors know, there is no system today for 
+automatic retraction of the drill steels. 
+By recording and analysing souads from rock drill rigs, a 
+Comparison between a system implemented with an electronic ear 
+and B buman ear bas been evaluated. The FFT has been applied 
+as a preprocessing method and examines features of power 
+spectrum for the detection of the sound, when the splices are 
+opened up. This sound contains higher power spectrum than 
+sounds from the rest of the drilling procedure. Using these 
+features, a classification program has been designed. The 
+experimental results shows that there is B good possibility to 
+make a commercislized product that automntically detect when 
+the drill steels are ready to be retracted. 
+I. INTRODUCTION 
+The use of the human sense hearing as a part of examination 
+and diagnosing is used in many fields. The piano teacher 
+listens to the students chords to evaluate the correctness of 
+them, the same way the car engineer listens to the sounds of 
+the car engine to analyse possible damaged parts. A doctor 
+listens to a patients heartbeat to detect abnormalities. In the 
+aim of letting technology perform human tasks, we have to let 
+a system imitate the human conception of “normal behavior” 
+and teach the system to react when there is an unexpected 
+deviation, the same way the senses informs humans. By using 
+different analysing methods this imitation is implemented in 
+many applications. James Walker [I] describes a method to 
+detect abnormal heart rhythm by using Wavelets Transforms 
+(WT). Kotani el al [2] describes the use of frequency and 
+amplitude to extract a gas leakage sound from a noisy 
+environment. Another system based on Artificial Neural 
+Networks (ANN) and sound recordings for aircraft 
+identification is evaluated by Claesson, unpublished, [3]. 
+Also in the mining indusky the use of the human perception 
+is essential, and some research has been done in this area. FU 
+et al. [4] have developed a matching pursuit approach to 
+predict small drill bit breakage in the drilling process. By 
+applying ANN, Abu-Mahfouz [5]  uses vibration features for 
+detecting drilling wear. The approach described in this paper, 
+however, is focused on automatic sound measurements, not 
+vibration measurements. 
+In the aim of producing drill rigs with a high level of 
+automation, Atlas Copco Rock Drill Equipment AB is 
+developing a rig control system, RCS, for a new generation of 
+more automated drill rigs. Using the control system to its full 
+extend, hy gathering information from sensors located on the 
+rig, it can perform a complete drilling without the interference 
+of a machine operator. The part still missing for full 
+automation, is the retraction of the drill steels when the 
+drilling is completed, see Fig. 1. Today, a machine operator 
+must determine if the splices between the drill steels are 
+opened up enough to be retracted. This is achieved by 
+listening for a specific sound appearing when the splices open 
+up. If a system could be able to detect this specific sound, it 
+would be one step closer to an unmanned rig. 
+0-7803-8296-W04/$20.00 02004 IEEE 
+56 
+Choose drilling 
+Drill to 
+predetermined 
+depth 
+Stop percussion feeding pressure 
+Fig. 1. First the location of the drill hole is decided (a), lhcn tbc drilling is 
+pclfamcd until pre~ot dcplh is  reached, by joining drill steels togcUler (b). 
+The percussion runs for a short while without pressure until the machine 
+operator h m  the specific sound, canying the informing fhat the splices we 
+opened up (c). The percussion is terminated (d) and thc drill steels can be 
+mracted (e). 
+n. PROBLEM DEFINITION 
+Thc rig control system, designed by Atlas Copco, is 
+implemented on their tophammer surface drill rig ROC D7 C. 
+The drill rigs used for measurements are ROC F9 (next drill 
+rig to be implemented with RCS) and ROC D7 C. The drill 
+rigs will he referred to as F9 and D7 C. 
+The RCS is based on CAN-bus technology and consists of 
+WO units, calculation units and operator units. The operator 
+sets the parameters, such as depth and leaning of the hole, and 
+activates the automatic rod handling. The control system then 
+drills the hole to the preset depth by joining the drill steels 
+together, and constantly gathering information from the 
+sensors located on the rig fur controlling the progress of the 
+drilling. In Fig. 2 the principle of tophammer drilling is 
+presented, and Fig. 3 show how a drill rig is designed. 
+The percussive drilling bnaks the rock by hammering 
+impacts transferred from the rock drill to the drill bit (Fig. 2)  
+at the hole bottom. A hydraulic or pneumatic rock drill 
+generates the energy required to break the rock. When the 
+energy is released, the built up pressure drives the piston 
+(impacl piston) forwards. The piston strikes on the shank 
+adapter, which converts the kinetic energy of the piston into a 
+s w s s  wave. This wave is transferred to the bonum hole 
+through the drill steel (drill rod). When the shock wave 
+reaches the drill bit, it is forced against the rock, thereby 
+crushing it. 
+1 I 
+Pig. 2 Principle oftaphammer drilling. 
+Fig. 3. Tophammer &ill rig, drill sfccIs joined together by rod handling. 
+The splices between the drill steels are bard drawn together 
+during the drilling. When the drill bole is completed, the 
+machine operator has to “open up” the splices in order to 
+separate the drill steels and retract them. This is achieved by 
+letting the percussion run for a short while without pressure, to 
+“shake” the splices open. The p m  of the drilling sequence 
+when the percussion runs without pressure in order to open up 
+the splices, will be referred to as shaking. When the splices 
+have been opened up, normally after 0.5 - 2 seconds, there is a 
+characteristic sound appearing from the drill steels. The 
+machine operator describes this sound to be more intense than 
+the rest of the drilling sound. When this distinct sound 
+appears, the machine operator stops the shaking and retracts 
+the drill steels one at a time from the completed drill bole. 
+The part missing in the RCS, for achieving a completely 
+automatically drilling, is the retraction of the drill steels. 
+RCS knows today what the current state is in the drilling 
+process: 
+Drilling 
+Shaking 
+Machinery 
+What must be complemented for achieving full automation 
+is to let the system know when the splices are opened up and 
+57 
+the drill steels are ready to be retracted. For this purpose, a 
+fourth state is introduced 
+Drill Steels Aparf 
+D7C or F9 Microphone Computer 
+Fig. 4 shows the different states in a drilling process as a 
+time - amplitude plot. 
+3 r  I I I I , , , , , , 
+Shaking 
+:Y 
+311 1 2  3 4 5 6 7 8 9 s 
+Fig. 4. Plot of B drilling sequence. Notice that Dell Stt& Apart is a part of 
+Shaking. 
+The sound change characteristically when the splices open 
+up, and if the human ear is capable to recognize the sound, it 
+should also be possible for an artificial system to detect it. The 
+main goal of the project in the future is to further develop the 
+full automation of the drill rig. The control system can then 
+perform a complete drilling process, including the rehaction of 
+the drill steels. The first part of the project was to investigate 
+the possibility of a system that is able to detect the distinct 
+sound that appears whcn the splices open up and the drill 
+steels go apart. 
+111. EXPERIMENTALS 
+Sound and vibration are possible features for trigging the 
+control system to retract the drill steels from the completed 
+drill hole. Sound signals have been chosen in these 
+cxperimentals, due to the consideration that the vibrations are 
+too substantial on the rigs in interest. 
+The sound recordings from the drill rig contain the four 
+basic states of a drilling sequence: Drilling, Shaking, 
+Machinery and Drill Steels Apart. Fig. 4. presents all four 
+states in a time-amplitude plot. The amplitude easily separates 
+the states Drilling, Shaking and Machmety, hut since the 
+splices are opened up wiihin the Shaking state, i t  is therefore a 
+condition that the states have to be separated. 
+During the measurements, the microphone was placed 
+outside the cabin at a distance of 3 meters respectively 4.5 
+meters from the drill steels, see Fig. 5.  The distances where 
+chosen based on a suitable future distance in a drill rig and to 
+make the recordings rescmble real environmental 
+circumstances. 
+Fig. 5. MeaSuremmt sclup. Microphone placed st a distance of 3 or 4.5 meters 
+from bc drill steels and caoncckd to B computer. 
+One limitation in the measurements was the large amount of 
+data the sound recordings produce. To be able to analyse the 
+whole frequency spectrum that can be heard by a human ear, 
+i.e. 20 Hz - 20 kHz, the sample frequency was set to 48 a, 
+with a resolution of 16 bits. Each measurement is a 20-second 
+sequence, which means that one single measurement produces 
+960000 values, i.e. a file at about 1.8MB. 
+W. SIGNAL PROCESSING 
+To he able to separate the different drilling states from each 
+other, analyses of the frequency content were performed. Both 
+the use of fast Fourier Transform (FFT) and Wavelet 
+Transforms (WT) has been evaluated. 
+The basic idea of using FFT is to investigate preseocc of 
+typical changes in the frequency content behveen the states 
+Shaking and Drill Steels Apart (Fig. 4). By using a handpass 
+filter to focus on a few frequency spectrums, the amount of 
+data is reduced. The optimal result of applying the WT, is to 
+detect a waveform that is typical for the exact time when the 
+splices open up and create a new wavelet. This new wavelet 
+can then be used to compare incoming data with. The example 
+shown in Walker [ I ]  i s  based on the idea that a wavelet is 
+created afier a specific abnormality in an ElectroCardioGram, 
+ECG, and the new wavelet is then compared in real time with 
+a patients ECG to detect the presence of these specific 
+abnormality. 
+A. FFT 
+The FFT ( I )  decomposes a signal (or a function) into 
+sinusoids of various frequencies, which when added together 
+again recreates the original signal (or function). What this 
+transform does, in short words, is that it separates the different 
+frequencies along with their respective amplitude. This makes 
+it possible to detect and analyse the frequency content of any 
+signal or function. 
+One method for the detection of the sound when the splices 
+are opened up, is to apply the FFT as a pre-processing method 
+and then examine features of power spectrum. In Fig. 6. and 
+Fig. 7 Power Spectral Density, PSD, plots can be seen. The 
+58 
+Drillinq 
+I 
+Shaking 
+Dell Steels Apart 
+A.% . I 
+Machinery c 1 
+0 5 10 15 20 25 k H i  
+Fig. 7. All four sfafes represented in the frequency domain, in a 
+PSD plot. The signal is from the drill rig D7 C. 
+In Fig. 6 and Fig. 7 the drilling is divided into four subplots, 
+each representing on of the four states: Drilling, Shaking, Drill 
+Steels Apart and Machinery. Each subplot is a FFT analysis on 
+respective state, visualized as PSD plots. The energy content is 
+continuously increasing from the state Drilling to state Drill 
+Steels Apart, to be very low in the state Machinery. The states 
+Shaking and Drill Steels Apart, consists of higher frequencies 
+(> 7 Mz) and the energy content is higher than in the states 
+Drilling and Machinery. Comparing the states Shaking and 
+Drill Steels Apart, the state Drill Steels Apart has the highest 
+energy content. In Fig. 8. and Fig. 9. the difference in 
+frequency between Shaking and Drill Steels Apart is 
+visualized. Drill Steels Apart (black) contains more energy 
+than Shaking (grey). Fig. 8 - 9 are both FFT plots with one 
+FFT analysis on a file containing only Shaking data (grey) and 
+another file containing only Drill Steels Apart data (black) 
+HZ 
+Fig. 8. Differencss behueen Shaking (grey) and MI1 Steels Apart (black) on 
+the F9. 
+Fig. 9. Differences behueen SbaLiog (grey) and Drill Steels Apart (black) 00 
+thc D7 C. 
+For classifying the state Drill Steels Apart, two frequency 
+intervals for the two different drill rigs have been tested. The 
+first interval used to test the idea of classification with FFT for 
+the first rig type, F9, was [7,5 - 8,s kHz] (Fig. 8). The interval 
+[9 - 10 !&I21 was used at the second rig type, D7 C, (Fig. 9). 
+The intervals was chosen based on where the state Drill Steels 
+Apart shows distinguished differences in the frequency 
+content, compared to the state Shaking. By using these 
+intervals, it is possible to separate the state Drill Steels Apart 
+from Shaking, by using algorithm (2). 
+The energy content of the intervals shown in Fig. 8 - 9 has 
+been used for classification: 
+59 
+(2) 
+where E, = total mc%y, E. =energy at respective frequency, 
+6 = lower hqumcy limit, f, = higher frequency limit 
+Using this energy function Er with data From the F9, the 
+lower frequency limit is set to 7.5 kHz, and the upper 
+frequency limit to 8.5 kHz. In a similar way, the lower limit 
+for the D7 C is 9 kHz and the upper limit is IO kHz. 
+When classifying a measured signal containing all four 
+states, a windowing method was used. The window function 
+splits the signal into short segments, of 1024 samples (0.02 
+seconds), performs a FFT analysis on each segment and 
+classifies the segment as one of the four states. This depends 
+on which preset threshold value the segment folds into. The 
+position where the state Drill Steels Apart is separated from 
+the state Shaking is hereby found. 
+The systems performance can be evaluated by comparing 
+result From the FFT classification and a decision based on a 
+human ear. The tests show that FFT analyses recognize the 
+sound when the splices are opened up at the same time, or in 
+some cases a little while before, than the human ear does. In 
+the test shown in Fig. 6 and Fig. 8, the Drill Steels Apart state 
+is located 0.17 seconds earlier with the artificial system, 
+compared with an experienced operator’s human ear. 
+B. Wavelet Trmqforms 
+In many applications the FFT is not enough efficient to 
+perform adequate analyses because, of the time information 
+loss. In this cases, the WT (3) can he very useful, mainly 
+because it is not only based on sine waves like the FFT, but it 
+is also able to use almost any waveform in analysing signals. 
+The advantage of this analysing technique is that it has the 
+possibility to detect all kinds of changes in a signal and also 
+the possibility to present the signal in a time-frequency plot 
+[61. 
+(3) 
+Wavelet analysis has, as a complement to FFT analysis, 
+been used in order to detect the exact time when the splices 
+open up. When this event occurs, the sound from the Shaking 
+changes and becomes more “varied and intense”. The signal 
+changes at this time and this can he considered as a significant 
+change, that a wavelet analyse can be able to detect. 
+In MatLabs toolbox “Wavelet” [6], there are a large 
+number of wavelets. In this project the Dauhechies wavelets 
+have been tested. By using these wavelets, rapid changes of 
+the signal are expected to he detected. In order to detect 
+discontinuitics, dbl to dbl0 has been tested. 
+In Fig. IO, thc original signal can be seen. In this original 
+signal there is no information visible regarding any abrupt 
+behavior in the signal. In order to extract the relevant features 
+for Drill Steels Apart, a special technique has been applied 
+while using thc wavelet transform. The Drilling, Shaking and 
+Machinery states have been considered as the main trend (or 
+behavior) of the whole signal in order to classify the opening 
+of the splices as an abnormal behavior to he detected. Then the 
+first level approximation obtained by daub10 wavelet was 
+subtracted from the original signal ( s )  in the aim of gening a 
+resulting signal from which the opening of the splices could be 
+seen. Fig. 11 shows the resulting signal, in a time plot, where 
+the square indicates a different behavior of the signal, at the 
+time around 8 seconds. The position of this change of behavior 
+matches the human ear recognition very well, i.e. the human 
+operator also detect the change of the sound characteristic in 
+the same interval. 
+~ * w I , P I  ‘L t- ,.ma-, 
+0 2 4 I I I O  $2 $4 ,I 
+. I d  
+I(’
+Fig. IO. Original time- amplitude plot of signal fmm h e  drill rig F9. 
+I U 
+v. CONCLUSION 
+The best result for identifying and classifying a drilling 
+sound comes from the FFT analyses, however, both tested 
+analysing methods exhibit the same performance as the 
+experienced operator. The analyses in this paper show that 
+there are measurable frequency differences between all four 
+states in a drilling process, and it has been shown that it is 
+60 
+possible to separate the state Drill Steels Apart from the state 
+Shaking. It has also been shown that the fiequency rangc for a 
+human ear (20 Hz ~ 20 kHz) can be applied to an electronic 
+ear system. It has, furthermore, been shown that the frequency 
+spec- can he filtered to reduce the amount of incoming 
+data, and the remaining data can still be classified by 
+identifying the energy content. This indicates that a future 
+sound recognition system will have small needs from the 
+processor power on the drill rig. 
+Human ear classification has been compared with 
+classification of a sound detection system, in order to verify 
+the performance of the classification algorithms tested in this 
+approach. The electronic ear is able to detect the specific 
+drilling sound characteristic at the same time, or even before, 
+the human ear. This implies the advantages of further testing 
+on the systems performance on surface drilling rigs. 
+VI. ACKNOWLEDGMENT 
+The authors acknowledge Atlas Copco Rock Drill AB and 
+Department of Technology, drebro University, at AASS for 
+the financial support during the period of this research. 
+VII. REFERENCES 
+[I] Walker, James S.; A Primer an Wavelets and their Scientific 
+Applications, University of Wisconsin, Chapman & HalliCRC 1999 
+[2] Kotani, M., Anmoto, T., Ozawa, S., Akmwa, 4; Application of 
+Independent Component Analysis to Detection of Gas Leakage Sound. 
+IEEE 0-7803-7044-910 p.2287-2291, Kobe University, l a p .  (2001) 
+Claesson, M; Detection and Classification of  Aim& sound, Chalmm 
+Univcnity of  Techoology, 2001 
+Fq LC, Troy C.A. Phillips, P.J; A Matching Pursuit Appmch lo Small 
+Drill Bit Breakage Prediction, International Journal of Production 
+Rcxareh, 1999, Vol. 37,No. 14.3247-3261 
+Ahu-Mahfouz, I s m ;  Drilling Wear Detection and Classiflcatioo using 
+Vibration Sig~als and ktiflcial Neural Nchvork, lntemational Journal af 
+Machine Tools & Manufachlrc 43 (2003) 707 - 720 
+[3] 
+[4] 
+[5 ]  
+161 MatLah H e b  Version 6.5 

@@ -1,0 +1,523 @@
+Scalable Conferencing Support for Tightly-Coupled Environments: 
+Services, Mechanisms, and Implementation Design 
+Dirk Trossen 
+Department of Computer Science IV, University of Technology Aachen 
+Ahornstr. 55 
+D-52074 Aachen, Germany 
+E-Mail: trossen@i4.informatik.rwth-aachen.de 
+Abstract-Distributed conferencing applications have become 
+more and more popular in the past. Progress in communication 
+systems and increased functionality of these applications are the 
+main pushing factors from a technical point of view. The increas- 
+ing costs and distribution of institutions are the pulling factors 
+from a user’s point of view. Key features of group communication 
+applications are conference management, multipoint communica- 
+tion, distributed application synchronization, and user data mar- 
+shaling. These features are mostly independent from specific 
+scenarios. Thus, it is useful to provide a generic service to acceler- 
+ate and simplify the development of such applications. For the glo- 
+bal usage in the Internet, scalability in terms of group size and 
+distribution of entities is a big issue in the design of such services. 
+The paper defines requirements for a scalable conferencing service 
+introducing the services as well as the protocol mechanisms. 
+Finally, the implementation design of the service is presented. 
+I. INTRODUCTION 
+Lectures in the Internet, distance learning, and virtual meet- 
+ings form a new group of interactive conferencing applications 
+which become more and more popular. Progress in communica- 
+tion systems and increased knowledge of such applications are 
+the main pushing factors from a technical point of view. The 
+need for tight control within these scenarios (e.g. for synchroni- 
+zation of actions) arises from an application’s point of view in 
+contrast to loosely-coupled scenarios like a simple lecture 
+streaming. Key functions for conferencing applications are mul- 
+tipoint communication among several users, involving marshal- 
+ing and demarshaling of ’typed’ user data, functionality for coor- 
+dination and synchronization of distributed applications and 
+users due to concurrent activities, and management functionality 
+to inquire for information about the state and structure of confer- 
+ences, e.g. to join a conference or to invite other users. 
+All these features are mostly independent from specific sce- 
+narios. Thus, it is useful to provide them by a generic layer to 
+accelerate and simplify the implementation of conferencing 
+applications. Due to the globalization of the internet and the dis- 
+tribution of the participants, scalability in terms of group size 
+and geographical group distribution is a big issue in the develop- 
+ment of a generic conferencing service. 
+In this paper, requirements of group communication applica- 
+tions are defined before proposing the main services for a scal- 
+able conferencing control service (SCCS) as well as the main 
+mechanisms to provide the service in a scalable manner. The 
+design of the protocol is presented by introducing the object and 
+process model of a demo implementation. 
+The paper is organized as follows. In chapter 11, related work 
+is presented before defining requirements of conferencing appli- 
+cations in chapter 111. The services are proposed in chapter IV 
+before introducing main protocol mechanisms of the service in 
+chapter V. The design of an implementation of the service is out- 
+lined in chapter VI before concluding the paper. 
+11. RELATED WORK 
+Several distributed environments were proposed offering 
+group communication facilities. Special conferencing toolkits 
+[1][2] were proposed as well as standardization committees t ied 
+to define standard protocols to simplify the development of con- 
+ferencing applications. 
+The ITU (International Telecommunications Union) specified 
+a set of standards (T. 120 [ 111) providing multipoint and confe- 
+rencing functionality. Synchronization of distributed applica- 
+tions is supported as well as a set of standardized application pro- 
+tocols for shared whiteboard, file transfer, and chat functionality. 
+A tree-based approach of inter-connected service providers is 
+used to which applications are attached. Due to the centralized 
+approach of the resource management (in terms of tokens and 
+channels), the uppermost provider is the single point of failure 
+and leads to a bad scalability of this standard [lo]. 
+The IETF (Internet Engineering Task Force) proposed an 
+internet multimedia conferencing architecture [7] consisting of 
+several protocols. For session initiation, SIP [6] is proposed 
+using a text-based session description (SOP [8]) and a naming 
+service mechanism. For the transport of real-time streams, RTP 
+[ 151 is used as a multicast-capable real-time transport protocol 
+over IP multicast. For the control of tightly-coupled conferences, 
+a conferencing control protocol [3] is proposed, which is very 
+similar to the ITU approach on service level, but there is not yet 
+a protocol specification for this approach. 
+While the presented ITU and IETF work is focussed on archi- 
+tectures for tightly-coupled conferences, there is a lot of work 
+related to the area of loosely-coupled conferences (or light- 
+weight session control [9][14]) following the ALF (application 
+level framing [16]) approach. Using this design, the control is 
+realized by loosely interconnected participants, where the con- 
+trol is mostly multicast-based and lacks of centralized control of 
+e.g. membership and floor holder information. The conference 
+control architecture has to deal with temporal inconsistencies of 
+membership or floor information [9]. 
+Beside special conference protocols, there are platforms for 
+distributed computing in general. The OMG approach CORBA 
+(Common Object Request Broker Architecture [12]) provides a 
+standard for the interoperability of distributed objects in hetero- 
+geneous environments. However, conferencing functionality is 
+not explicitly integrated in CORBA. Another platform for dis- 
+tributed systems was presented by the Horus system [13] con- 
+sisting of an architecture of several small protocol entities. 
+889 
+0-7803-6283-7/00/$10.00 0 2000 IEEE 
+111. REQUIREMENTS OF CONFERENCING APPLICATIONS 
+A number of features are inherent to different conferencing 
+applications. These features can be offered in a generic way by a 
+conferencing service. In this section, a simple conferencing sce- 
+nario is evaluated with regard to application requirements and 
+the system functions that can be derived from them. The essen- 
+tial ones are conference management, multipoint communica- 
+tion, distributed applications support, and user data marshaling. 
+A .  Example: Shared Whiteboard Application 
+In a shared whiteboard application, distributed users work 
+cooperatively on a common document with an additional use of 
+speech communication. Typically, one of the users wants to 
+write on the whiteboard while speaking to the other members. 
+The interactions need to be communicated among the different 
+sites in a coordinated and synchronized fashion. This requires 
+multipoint communication functionality among the users 
+refreshing the whiteboard content at each site to avoid inconsis- 
+tencies. Speech communication and input to the whiteboard can 
+be coordinated byji’oor control mechanisms [5], such as passing 
+the right for conductorship. In heterogeneous settings, the mar- 
+shaling of user data is mandatory. Security is another issue in this 
+scenario when the content is confidential. 
+Another typical situation in conference applications is a user 
+who is establishing a conference or entering the conference, 
+while it is already in progress. This requires mechanisms for con- 
+ference management such as initiating, administrating a confer- 
+ence (inviting or dynamically adding new members to the con- 
+ference), and dynamically reconfiguring a conference (e.g. 
+deleting members from a conference) as well as maintaining a 
+database to hold information about the current members of the 
+conference and their capabilities. 
+B. 
+A conferencing service should at least offer features that can 
+be derived from the whiteboard application of the last section. 
+The conferencing service should enable an efficient implemen- 
+tation of group communication applications. The proposed 
+mechanisms have to be scalable to large scenarios in terms of 
+group size and distribution of the members. The following 
+aspects should be covered by a conferencing service: 
+Features of a Conferencing Service 
+Data communication covers aspects of user data exchange 
+among the participating sites. The communication patterns 
+which must be covered by a conferencing service range from 
+1 : 1 to m:n communication. Multicast exchange of messages 
+should be supported to efficiently use the underlying commu- 
+nication infrastructure. Data priorities are helpful to gain 
+flexibility in prioritizing data transfer. A location-transparent 
+addressing scheme simplifies application development. To 
+increase connectivity in particular in wide area settings, inter- 
+working between different types of networks is required. 
+Conference management covers features to initiate, termi- 
+nate, join, invite or leave a conference, and to manage a con- 
+ference database. Reconfiguration of conferences is crucial 
+for operations e.g. to delete members without destroying the 
+conference or for runtime optimization of the topology. 
+Distributed application support covers aspects to facilitate 
+the operation of distributed applications. This means in par- 
+titular the provision of mechanisms to enable a coordinated 
+access to resources and objects, i.e.floor control [5]. 
+Standardized applications: Applications use the features 
+offered by a conference service. Interoperability among 
+applications on different sites requires a standardization of 
+application protocols. Relevant applications in the confer- 
+ence context are, among others, whiteboard, audio and video 
+conferencing, and multi-point file transfer. 
+For the security aspect, group key mechanisms should be 
+supported for secure communication. 
+For the interoperability among heterogeneous systems, the 
+marshaling of user-data is mandatory. 
+Since the wide variety of features can not be adequately treated 
+in a single paper, we restrict ourselves in the following to only 
+three essential features, namely conference management, multi- 
+point communication, and distributed application support. 
+Iv. SERVICES OF A SCALABLE CONFERENCING SERVICE 
+This chapter introduces the main services of a scalable confe- 
+rencing service with respect to the requirements of chapter B. 
+A .  Conference Management 
+The service is provided by conference servers (provider). 
+Conference clients are connected to one of these providers. A 
+database of members and applications is provided within the 
+conference. Conferences may be created locally by conference 
+clients, which may also join an existing conference at a provider. 
+Existing conferences may also be merged together. Resource 
+conflicts are resolved by remapping the conflict resources. 
+Deleting and moving conference servers from the topology dur- 
+ing runtime of the conference is provided without destroying or 
+blocking the conference during the operation. A reconfiguration 
+of the conference topology might be used to optimize the control 
+request performance during runtime of the conference. 
+B. Multipoint Communication 
+The simple point-to-point as well as multipoint communica- 
+tion is provided to support all communication patterns from 1 : 1, 
+1 :n to m:n. For point-to-point communication, a conference- 
+unique user identifier is used. For multipoint communication, a 
+flexible channel concept is proposed supporting public and pn- 
+vate channels. The latter are convened by a dedicated member of 
+the conference who may invite other members to join the chan- 
+nel. Members can also ask for invitation. The convener may eject 
+members or release the channel. Public channels can be joined 
+by all members in the conference. The channel is released if all 
+members have left this channel. 
+C. Distributed Applications Support 
+For the application state synchronization and floor control [5] 
+of conferencing applications, a token concept is proposed. 
+Tokens are an abstraction of states or access rights for (real) 
+resources in a group communication environment. The mapping 
+of resources or states onto tokens is beyond the scope of the pro- 
+tocol. Tokens may be grabbed exclusively by one member or 
+inhibited non-exclusively by several. The status of a token may 
+be asked, and the ownership may be given to another member if 
+the token is grabbed exclusively. It is also possible to ask the 
+owner for a token and to inquire for the owner(s) of a token. 
+890 
+The proposed services are provided by the scalable conferen- 
+cing control service (SCCS) [18] together with a conversion 
+layer to support marshaling of user data. The T.120 protocol 
+suite of the ITU supports many of the proposed features, but 
+lacks in some features like reconfiguration, resource resolving 
+when merging conferences and query the token owners. 
+v. MECHANISMS OF A SCALABLE CONFERENCING SERVICE 
+The design of the protocol mechanisms of the conferencing 
+service are crucial for the scalability of the resulting system. In 
+this chapter, these mechanisms are presented. I 
+A.  Protocol Stack 
+The services are provided by a conferencing control layer on 
+top of a reliable unicast transport protocol (e.g. TCP). For some 
+control information, a reliable multicast transport protocol (e.g. 
+MTP-SO [4]) is expected. For media-streaming, protocols like 
+RTP may be used. A conversion layer is responsible for marshal- 
+ing and de-marshaling typed user-data. Figure 1 shows the pro- 
+I Aoolication 
+Reliable 
+Transport Reliable Unicast Protocol Protocol Trans ort Prnfnml 
+, , 
+IP/IP Multi 
+Fig. I :  Protocol Layer o/SCCS 
+tocol stack proposed for SCCS on top of IP/IP multicast. 
+B. Conference Management 
+The conferencing control protocol is provided by conference 
+servers (provider) organized in a hierarchical tree topology (see 
+figure 2), which is built during conference establishment using 
+the reliable unicast transport protocol. Clients are connected to 
+one of these providers. Each control request is sent within this 
+topology, some indications like database refreshes are sent back 
+via a multicast indication cloud, established during setting up the 
+conference. This multicast cloud is represented by a dedicated 
+multicast channel each provider is connected to when joining the 
+conference. The database of conference members and applica- 
+tions is replicated at each provider in the tree to minimize read 
+requests. If a database entry changed, the database is only par- 
+tially refreshed, sending a delta refresh using the multicast indi- 
+cation cloud to minimize write requests within the replication. 
+Therefore, scalability of this replication is improved. 
+Fig. 2: Control Topology of SCCS 
+Conferences may be created locally by conference clients, 
+which may also join an existing conference at a provider. Con- 
+ferences may also be merged or splitted. Resource conflicts are 
+resolved by remapping the conflict resources. 
+C. Reconfiguration 
+Due to the tight coupling of environments like SCCS and the 
+stringent routing scheme within the topology, the need for recon- 
+figuration mechanisms arises out of several reasons. First, the 
+support of simple operations like the deletion of existing provid- 
+ers from the tree (e.g. when the corresponding computer is 
+switched off) is needed. Second, the performance of the control 
+request routing depends on the location of the active entities 
+within the tree of providers. Mechanisms like the proposed 
+resource management in SCCS (see chapter E) improve the per- 
+formance of requests which are located locally within the tree. 
+For that, reconfiguration of the existing tree topology during 
+runtime of the conference is crucial to provide re-ordering oper- 
+ations for both providing recovery from node deletion and to 
+improve the control request routing performance after creation 
+of the topology. Additionally, a dynamic reconfiguration 
+scheme, proposed in [20], detects active entities with respect to 
+defined tokens in a conferencing scenario and group them 
+together in a reconfigured tree to handle further resource 
+requests for these tokens more locally. The group of tokens 
+which are taken into account for the dynamic reconfiguration is 
+defined by the applications during runtime. 
+After the determination of the new tree, a static reconfigura- 
+tion scheme rebuilds the topology with the constraints to avoid 
+inconsistencies and 
+blocking the conference during reconfiguration. 
+The static reconfiguration of SCCS fulfils these constraints. 
+Hence, hctionality like removing nodes from the topology dur- 
+ing runtime of the conference is provided in contrast to existing 
+approaches like the T.120 protocol suite. 
+D. Multipoint Communication 
+The multipoint channels of SCCS are directly mapped to ded- 
+icated multicast groups of the underlying multicast layer chosen 
+during creation of the channel. Different protocols are supported, 
+reliable as well as unreliable stacks, covering protocols like 
+MTP-SO [4] or real-time protocols like RTP [15]. 
+Hence, the channels are only administrated by the providers. 
+When joining an SCCS channel, the appropriate provider joins 
+(or creates) a corresponding multicast group of the specified pro- 
+tocol and interfaces further send and receive operations on the 
+SCCS channel directly to the multicast layer. Thus, routing of 
+multipoint user data is done by the underlying multicast trans- 
+port protocol. This improves the scalability of SCCS by using 
+more efficient underlying transport layer functionality. 
+E. Resource Allocation 
+Resources in the context of SCCS are tokens (for floor con- 
+trol) and channels (for multipoint transfer). A resource manage- 
+ment scheme providing high effectiveness in terms of low 
+response time of the requests is crucial for the scalability of the 
+conferencing service and the performance of floor and access 
+control within the environment. 
+To overcome the weaknesses of distributed or centralized 
+schemes in conference resource management, an efficient and 
+consistency aware scheme was designed and proposed in [17]. 
+This approach introduces a compromise between distributed and 
+centralized data administration, called Implicit Information Dis- 
+tribution, resulting in higher performance of resource requests. 
+The main idea of the approach is to send the request upward 
+in the tree until a provider is reached being able to generate a 
+result instead of routing all requests to the top provider as it is 
+done in the T. 122 standard. The needed information within each 
+provider to generate these indications is 
+the state of the resource (free, allocated) and 
+in what branch of the subtree the resource is allocated. 
+This information is distributed implicitly when an allocation 
+request occurs. During the propagation of the confirmation back 
+from the top provider to the user, a resource path is established. 
+The providers along this path only know in which branch of the 
+lower subtree the resource is allocated. They do not know the 
+resource owner. 
+The response time of further requests for the specific resource 
+and location updates of the resource may be improved which 
+results in higher performance for typical operations like floor 
+asking and passing operations in conferencing environments, 
+especially if the operations are local within the tree. 
+To illustrate the mechanism, we use the example in figure 3. 
+A asks for an exclusive resource, which is not yet allocated. 
+Therefore, the state of the resource is changed. Thus, the request 
+must be sent to the top provider which generates the confirm. If 
+A would deallocate the resource, the information along the 
+resource path would be refreshed implicitly when deallocating 
+the resource. Now, requests may be processed faster, as can be 
+seen in figure 3b where B asks for the permission for the 
+resource. The request is sent directly to A via the first node with 
+sufficient information. If C tried to allocate the (exclusive) 
+token, its upper provider would generate a negative results 
+directly, because it has enough information as a member of the 
+resource path. If only the location of a resource but not the state 
+is changed, e.g. by passing a token to another application, the 
+request is sent up to the node with enough information. The loca- 
+tion information in this node is updated and the indication is gen- 
+erated. In figure 3c, A passes the resource to B. The request is 
+only sent to the upper node, which updates its location informa- 
+tion and generates the indication. The (partially) new resource 
+path is now the left branch. Such situations might be calledping 
+situations and are a typical case in group communication scenar- 
+ios when granting a floor to another conference member. 
+Resource-Branch 
+Mapping 
+- resourcepath 
+Improved Location 
+Update 
+Fig. 3: Resource Allocation in SCCS 
+As can be seen, the information, stored in the nodes, is distrib- 
+uted implicitly along the resource path by the request and the 
+corresponding confirm to minimize read instructions. Only state 
+changes have to be forwarded up to the top provider. Thus, token 
+asking and passing requests may be processed much faster than 
+using a centralized resource management scheme. For further 
+details about the complete scheme and the improvement of the 
+overall performance, see [ 171. 
+It can be seen in this section that SCCS was designed to pro- 
+vide a generic conferencing layer for tightly-coupled environ- 
+ments with high scalability of the used mechanisms. This scala- 
+bility of SCCS is reached by extensively using underlying 
+multicast functionality. Furthermore, the proposed resource 
+management provides a high scalability together with a dynamic 
+reconfiguration of the tree by grouping active entities locally 
+during the conference to improve floor control. 
+VI. IMPLEMENTATION DESIGN OF A SCALABLE CONFERENCMG 
+SERVICE 
+For the implementation of an SCCS provider, an object and 
+process model is presented in the next two sections. 
+A .  Object Model 
+Figure 4 shows the object model for a local SCCS provider in 
+I I 
+iference 
+Fig. 4: Object Model of SCCS 
+Unified Modeling Language notation. 
+The Manager object represents the SCCS control service 
+access point. It provides methods to create local conferences, to 
+append and join to remote conferences. The Conference object is 
+created by the Manager object for each local conference provid- 
+ing administration methods. To each Conference object, there 
+are several application-related objects associated. The Member- 
+Interface object is created when a local participant enters the 
+conference. It provides methods to get database entries like name 
+and address of each endsystem. Additionally, a TokenInterface is 
+instantiated when a local member allocates a token. If a local 
+member joins a channel, a Channellnterface is created, which is 
+associated to a dedicated multicast address. The object is used to 
+interface further sendlreceive operations to the underlying proto- 
+col. The TokenInterface, MemberInterface, and ChannelInter- 
+face objects represent the SCCS user service accesspoints. 
+For the connectivity-related part of the implementation, dif- 
+ferent objects are created to realize the provider-to-provider 
+communication within a conference. There may be upward 
+(UpwardConnection) and downward (DownwardConnection) 
+connections, and there is a broadcast channel (BCConnection) 
+892 
+representing the multicast indication cloud (see chapter B). The 
+UserChannel object is created as an abstraction of a dedicated 
+multicast address when a local member has joined a channel. The 
+UCListener object is responsible for listing on incoming control 
+connection requests and for creating the appropriate connection 
+objects, either for upward or downward connections. 
+Several objects (..ZFNot) provide corresponding notification 
+objects to signal information changes like altering the state or 
+adding new members to the conference. These objects have to be 
+implemented and registered during runtime by the application. 
+B. Process Model 
+The proposed object model can be easily mapped to a process 
+Fig. 5: Process Model of SCCS 
+model, shown in figure 5, for the conferencing application and 
+the local service provider, the application is attached to. Each 
+attachment of a user is mapped to an own process to avoid block- 
+ing during a user service request. The manager and conference 
+functionality is provided by the main process of the provider. 
+The BCConnection process is responsible for listening on the 
+multicast indication cloud. For each multipoint connection to 
+which a local user is subscribed, a UserChannel instance is cre- 
+ated to process the incoming data. The UCListener process is lis- 
+tening on incoming connection requests from other providers to 
+create a new UCDownwardConnection process for that connec- 
+tion. The UCUpwardConnection process is created when the 
+provider is connected to an upper provider and is listening for 
+incoming and serving outgoing protocol data units respectively. 
+The proposed process model of SCCS can be easily imple- 
+mented in a multi-threaded environment. Currently, an imple- 
+mentation of SCCS on a Windows NT system based on MTP-SO 
+[4] and TCP is ongoing. 
+VII. CONCLUSIONS 
+The paper discussed requirements, services, mechanisms, and 
+the implementation design for a conferencing service capable to 
+provide large-scaled conferences. For that, requirements of typ- 
+ical applications were outlined, which are common to most sce- 
+narios. After that, the main services for a conferencing environ- 
+ment were proposed. Moreover, the main mechanisms were 
+introduced using a tree-based, tightly-coupled approach with 
+reconfiguration functionality. To improve scalability, underly- 
+ing multicast transport functionality is extensively used both for 
+control and user data. Floor and access control is provided being 
+managed by an own resource management scheme which can 
+dramatically reduce the response time and the system load. The 
+scheme is supplemented with a dynamic reconfiguration of the 
+tree topology. The services and mechanisms are specified in the 
+scalable conferencing control service (SCCS [ 1 S][ 191). 
+It can be summarized that SCCS provides a conferencing ser- 
+vice which fulfils the main requirements of conferencing appli- 
+cations. The introduced mechanisms to realize the services 
+enable a high scalability of the environment to implement large- 
+scaled conferencing applications. 
+The next steps will be to test the service on top of MTP-SO 
+and TCP together with a demonstration application. 
+REFERENCES 
+M. Altenhofen, J. Dittrich, R. Hammerschmidt, T. Kapper, C. 
+Kruschel, A. Kuckes, T. Steinig: The BERKOM multimedia col- 
+laboration service, Proc. of ACM Conf. on Multimedia, 1993 
+V. Anupam, C.L. Bajaji: Collaborative multimedia scientific 
+design in SHASTRA, Proc. of ACM Conf. on Multimedia, 1993 
+C. Borman, J. Ott, C. Reichert: Simple Conference Control Pro- 
+tocol, Intemet-Draft, ftp://ftp.ietf.org/intemet-drafts/draft-bor- 
+man-mtp-so-01 .txt, 1996 
+C. Borman, J. Ott, N. Seifert: MTP/SO: Self-organizing Multi- 
+cast, Internet-Draft, ftp://flp.ietf.org/intemet-drafts/draft-ietf- 
+mmusic-sccp-OO.txt, 1998 
+H.-P. Dommel, J.J. Garcia-Luna-Aceves: Floor Control for  
+Activity Coordination in Networked Multimedia Applications, 
+Proc. of Asian-Pacific Conf. on Communications, 1995 
+M. Handley, H. Schulznnne, E. Schooler, Rosenberg: Session 
+Initiation Protocol, Intemet-Draft, ftp://ftp.ietf.org/intemet- 
+draftddraft-ietf-music-sip-1 1 .txt, 1998 
+M. Handley, J. Crowcroft, C. Bormann, J. Ott: Internet Multhe- 
+diu Conferencing Architecture, Intemet-Draft, ftp://ftp.ietf.org/ 
+intemet-drafts/draft-ietf-mmusic-confarch-O2.txt, 1999 
+M. Handley, V. Jacobson: SDP: Session Description Protocol, 
+Intemet-Draft, ftp://ftp.ietf.org/intemet-drafis/draft-ietf-mmusic- 
+M. Handley, J. Crowcroft Network Text Editor (NTE) : A scala- 
+ble shared text editor for the MBone, Proc. of ACM Sigcomm, 
+1997 
+T. Helbig, D. Trossen: The ITU T.120 Standard Family as Basis 
+for Conferencing Applications, Proc. of SPIE Voice, Video & 
+Data Communications, Conf. on Performance & Control of Net- 
+work Systems, 1997 
+ITU-T Study Group 8: Data Protocols for Multimedia Conferen- 
+cing, ITU-T Recommendation T.120. 1995 
+OMG: The Common Object Request Broker: Architecture and 
+Specification, 1993 
+R. Renesse, K. Birman, S .  Maffeis: Norus: A flexible Group 
+Communication System, Comm. of the ACM, 1996 
+D. Sisalem. H. Schuhinne: The Multimedia Internet Terminal, 
+Joumal on Telecommunication Systems, Vol. 9, No. 3, 1998 
+H. Schulzrinne, S .  Casner, R. Frederick, V. Jacobson: RTP: A 
+Transport Protocol for Real-Time Applications, RFC 1889 
+S .  Floyd, V. Jacobson, S .  Mccanne: A Reliable Multicast Frame- 
+work for Light-weight Sessions and Application Level Framing, 
+Proc. of ACM Sigcomm, 1995 
+D. Trossen, P. Papathemelis, T. Helbig: Improved Resource 
+Management for  the ITU T.122 Standard, Proc. of the IEEE 
+Workshop on Systems Management, 1998 
+D. Trossen: Scalable Conferencing Control Service (SCCS) - 
+Service Specification, Technical Report 001 -98, Department of 
+Computer Science IV, University of Technology Aachen, 1998 
+D. Trossen: Scalable Conferencing Control Service (SCCS) - 
+Protocol Specification, Technical Report 001-99, Department of 
+Computer Science IV, University of Technology Aachen, 1999 
+D. Trossen, P. Kliem: Dynamic Reconfiguration in Tightly-Cou- 
+pled Environments, Proc. of SPIE Voice, Video & Data Commu- 
+nications, Conf. on Multimedia and Applications 11, 1999 
+~dp-07.txt, 1908 
+893 

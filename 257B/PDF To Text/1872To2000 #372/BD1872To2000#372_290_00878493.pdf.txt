@@ -1,0 +1,622 @@
+Radiation Hardened 
+32-Bit RISC Microprocessor 
+Andrew S. Hwang 
+TRW, Space & Electronics Group 
+MIS: 201/1011, One Space Park 
+Redondo Beach, CA 90278 
+andy. hwang @ trw.com 
+3 10-8 14-7531 
+Abstract- TRW has developed a single chip radiation 
+hardened 32-bit RISC microprocessor, the RH32S. The 
+RH32S is based on TRW’s 5-chip version. It has over five 
+million transistors and is implemented using 0.35 Micron 
+SO1 (Silicon On Insulator) Standard Cell Technology. The 
+high-performance architecture provides greater than 40 
+million instructions per second (MIPS) at 50 MHz while 
+only using six watts of power. The RH32S is ideal for space 
+and airborne applications requiring data handling, real-time 
+control, and on-board data analysis. It is currently being 
+designed into multiple flight systems. 
+1. 
+2. 
+3. 
+4. 
+5 .  
+6. 
+7. 
+8. 
+TABLE OF CONTENTS 
+Introduction 
+Architecture 
+a) Central Processing Unit 
+b) Floating Point Unit 
+c) Memory Management Units 
+d) System Control Unit 
+Fault Tolerance 
+Testability 
+Software Tool and Applications 
+Technology 
+Conclusion 
+Reference 
+1. INTRODUCTION 
+The demand for low cost, low power, and high performance 
+processing is high in today’s space and avionics market. It is 
+essential to have the instruction set and the chip that can 
+optimize today’s space and airborne applications requiring 
+fast data management, data processing, and real-time 
+control. In addition, space application requirements include 
+an ability to operate reliably in harsh space environment. 
+This requires a radiation hardened, highly reliable, fault 
+tolerant processor. 
+The RH32S is specially designed to satisfy the above needs. 
+It is optimized to boost performance, security, fault 
+tolerance, and code tracing, ensuring a reliable processor for 
+space and airborne usage. A powerful 32-bit RISC 
+architecture provides high performance execution of the 
+core MIPS instruction set: 40 MIPS @ 50 MHz in the worst 
+case space environment. 
+Some of the key architecture features of the RH32S are: 
+Multiple caches to increase the processing speed. 
+Commonly used floating point functions such as square 
+roots and absolute value incorporated in the hardware. 
+Unique features in the pipeline, 2-levels of prefetching 
+logic, and on-code branch logic (kill bit) boosting 
+performance in instruction processing. 
+Multiple segment addressing modes allowing 
+applications, data, I/O, and OS to work together without 
+interfering with each other. 
+Real-time on-chip fault tolerance monitoring and 
+recovery features simplifying and accelerating detection 
+and isolation of problems. 
+Instructions providing real-time code path 
+tracinglauditing capabilities. 
+An extended interrupt structure and built-in timers, 
+including a watch dog. 
+Added instructions in the Instruction Set Architecture 
+(ISA) such as the Check Signature Monitor (CSM) and 
+Trap On Unsigned Bound Check (TBNDU). 
+All of these key functions are integrated into a single die 
+while maintaining low power by using a deep sub-micron 
+process. The RH32S is implemented in radiation hard, 0.35 
+micron silicon-on-insulator (SOI) complementary metal 
+oxide semiconductor (CMOS) technology. It operates post 
+exposure to greater than 300 Krad with less than 1E-8 
+errorhit-day. Analysis indicates a prompt dose capability 
+exceeding 1E9 Rad (Si)/sec. 
+2. ARCHITECTURE 
+The RH32S consists of five major functional units: the 
+Central Processing Unit (CPU), the Floating Point Unit 
+(FPU), the Instruction Memory Management Unit (IMMU), 
+the Operand Memory Management Unit (OMMU), and the 
+System Control Unit (SCU). Figure 1 shows the block 
+diagram of the RH32S. 
+Top level IO multiplexing allows the RH32S to operate in 
+four different modes: 
+21 9 
+MIOC.  
+Operand Mamorylsharsd 
+Memory Interface 
+D ' ~ ~ ~ t e  Controt lnslrcullon MamOrylMPhPCT 
+IO* MsmorylTP Interface 
+t t 
+4x1 MUX I 2x1 MUX 
+A +  t 
+PO,", Point 
+om"* omup I 2  
+RH32S 
+I I CPUIFPU Inlerlace 1 
+J '  4 w 
+I *, 
+I "  
+SFTM: Slave Fault Tolerant Monitor 
+LMTS: Logic Macrocell Test Slave 
+Figure 1: RH32S Block Diagram 
+The RH32 in shared memory bus mode . 
+0 Core RH32 (CPU, OMMU, IMMU, & FPU) 
+with limited SCU function in dual memory bus 
+mode (full harvard architecture) 
+Core RH32 with limited SCU function in shared 
+memory bus mode and access to test point group 1 
+Core RH32 with limited SCU function in shared 
+memory bus mode and access to test point group 2 
+When the limited SCU mode is selected, the SCU's Built-In- 
+Self-test, Fault tolerance monitor, and Non-intrusive PC 
+trace functions are disabled. All other SCU functions 
+(timers, counters, real time clock, and interrupts) are 
+available as memory mapped operations that still operate 
+normally. 
+a) Central Processing Unit 
+The CPU's Reduced Instruction Set Computer (RISC) 
+architecture provides fast execution of assembly language 
+compatible with the Core Set of Assembly Language 
+Instructions (CSALI). The machine language for the CPU 
+directly supports the following CORE MIPS requirements: 
+both signed and unsigned integer operations, ovefflow 
+detection on signed integer operations, 16-bit signed 
+immediate values, and base plus offset addressing mode for 
+loads and stores of all data types. 
+The CPU, shown in Figure 2, achieves high performance 
+through a full harvard architecture, a five-stage pipeline, 
+multiple intemal busses, a dual 32-word register file, an 
+internal cache for instruction access with instruction prefetch 
+from extemal memory, and an internal cache for operand 
+access with decoupled loads and stores. 
+The instruction fetch unit is responsible for fetching and 
+interpreting the instruction to execute and issuing the proper 
+control signals to the rest of the CPU. Its built-in 
+prefetching logic prefetches the next line of instructions 
+continuously. This feature allows the CPU to maintain high 
+execution mode (can execute up to 4 instructions in every 5 
+220 
+cycles) while running “non cache friendly” code such as in- 
+line code. 
+The CPU’s direct-mapped L1 cache consists of a 1-Kbyte 
+instruction cache and a 1-Kbyte operand cache. It can 
+supply the CPU with an instructioddata every cycle if there 
+is a cache hit. Upon a cache miss, the L1 cache (decoupled 
+from the CPU’s execution units) fetches a four-word line 
+from L2 cache or external memory. 
+_.U Q*, 
+Figure 2: CPU Block Diagram 
+The Arithmetic Logic Unit provides 8, 16, and 32-bit integer 
+arithmetic functions, as well as single and multiple bit 
+manipulation and logical functions. Integer multiplies 
+produce a 64-bit product in both signed and unsigned forms. 
+Multiply results are retrieved via registers. Signed and 
+unsigned integer divides support both 32- and 64-bit 
+dividends. A 32-bit quotient and 32-bit remainder are 
+produced. 
+The addressing modes include four instruction addressing 
+modes and two operand addressing modes. The instruction 
+addressing modes are direct, register indirect, program 
+counter plus offset, and register plus 8-bit trap code. The 
+operand addressing modes are base register plus signed 
+offset and base plus index register. 
+The register file is dual banked with two modes of 
+operation. The second bank can be used for executive 
+functions, such as interrupt handlers, or for fast switches 
+between foreground and background tasks. Of the 32 
+register entries, 29 are general purpose and the other three 
+have predefined restrictions, such as call return address. All 
+internal registers, memories, and buses have error correcting 
+codes. 
+The CPU pipeline is based on a four stage pipeline with an 
+additional delay stage on the register write back for error 
+detection. This additional delay provides fault tolerance 
+without impacting performance. In addition to multiple 
+instructions in the pipeline, the CPU multiply/divide 
+hardware element operates concurrently with the ALU and 
+shifter elements. Once a multiply or divide operation is 
+started, other instructions may execute in the main pipeline 
+during the multiply or divide delay. For conditional branch 
+instructions, the instruction fetch unit retrieves one 
+instruction from the branch cache and one from the in- 
+struction memory, while the branch condition is being 
+evaluated. 
+Figure 3: CPU Pipeline 
+The operand memory is pipelined and decoupled from the 
+processor execution pipelines. A three stage operand 
+memory pipeline allows up to three memory loads to be 
+issued in back to back instructions. By decoupling the 
+memory pipeline from the execution pipeline, data 
+manipulation can continue concurrently with memory 
+accesses. The software development tools schedule the load 
+instructions for execution overlap and to stack multiple 
+loads. 
+A scoreboarding technique and bypass logic is used with the 
+processor registers. Scoreboarding keeps track of pending 
+loads and automatically generates an interlock (pipeline 
+stall) if data requested from memory does not arrive when 
+expected (e.g. due to a cache miss). Bypass logic bypasses 
+the register file and provides data from memory directly to 
+the arithmetic unit requesting it, thus avoiding any delays in 
+delivering the data to the using instruction. 
+The CPU uses delayed branching to minimize pipeline 
+penalties due to changes in program flow. Delayed 
+branching avoids pipeline flushing by conditionally 
+executing the instruction already in the pipeline while the 
+branch target is fetched from memory. The RH32S software 
+development tools schedule a useful instruction in the 
+branch delay slot of each jump branch or cell instruction so 
+that no processor cycles are wasted due to program flow 
+changes. Execution of the instruction in the branch delay 
+slot is under explicit software control through the kill bit 
+value in the conditional branch instruction encoding. This 
+bit allows for elimination of the delay slot if it is not needed 
+or can’t be fitted with a useful instruction. The conditional 
+branch instructions provide single cycle compare and branch 
+instructions, including compare register to register, register 
+221 
+to immediate, and register to zero. Branch on any bit 
+setheset supports packed Boolean variables. 
+There are four processor privilege levels: kernel, supervisor 
+1, supervisor 2, and user. These levels provide a ring-based 
+protection mechanism for multilevel security. The kernel 
+has unlimited access to processor resources while the other 
+levels are limited to the current address space and non- 
+privileged instruction execution. 
+A surprise is any event that causes a break in the current 
+instruction stream and a transfer of control to an event 
+dependent location. Figure 4 shows the family of surprises 
+that are recognized by the RH32S. 
+Figure 4: RH32S Surprises 
+The RH32S provides 16 prioritized interrupts: four of them 
+are maskable in the CPU status register: console interrupt, 
+external interrupt, coprocessor interrupt, and integer 
+overflow 
+When a surprise happens, the hardware follows the 
+flowchart given in Figure 5. 
+Figure 5: Surprise Flowchart 
+A software maskable surprise has a maswenable bit in the 
+status register l(SR1) that can be set or reset under software 
+control. 
+b) Floating Point Unit 
+The Floating Point Unit ( m u ) ,  shown in Figure 6, provides 
+high speed floating point capabilities to enhance 
+performance of the system. The FPU accepts and executes 
+floating point instructions passed to it by the CPU. 
+Figure 6: FPU Block Diagram 
+The FPU is optimized for high speed execution of IEEE-754 
+floating point standard arithmetic operations. MIL-STD- 
+1750A floating point data is supported by providing 
+instructions for conversion between IEEE and 1750A 
+formats. In addition to the standard compare, add, subtract, 
+multiply, and divide arithmetic operations, the FPU 
+implements square root and scale by powers of two 
+instructions. 
+The principal blocks of the FPU are the control pipe, the 
+register file, the alignment shifter, the multiply array, the 
+mantissa adder, the normalizer, and the exponent arithmetic 
+logic unit. 
+The register file contains 16 general purpose 64-bit 
+registers. 
+The multiplier performs a recursive Booth's multiply. A 
+single precision multiply executes in one to two cycles and a 
+double precision multiply executes in one to three cycles in 
+the multiply array. 
+The alignment unit aligns mantissas for single and double 
+precision addition and subtraction. It generates a sticky bit 
+for add and subtract operations, which is required for 
+infinite precision rounding. 
+The mantissa ALU computes all mantissa operations and the 
+final sum for multiplies. It is also used for division and 
+square root operation iterations. 
+The exponent ALU performs exponent processing for all 
+math operations. 
+222 
+The normalizer performs both normalization and rounding 
+operations and is used during format conversions. 
+y,y I". 
+The control pipe is the control path for all pipeline stages in 
+the FPU. It contains a scoreboard for register allocation and 
+determines stalls for register conflicts and multi-cycle 
+operation. 
+,""", 1 1 1 ,  U -_ -I **..". 
+All floating point operations are carried out to infinite 
+precision, then rounded back to the instruction-specified 
+single or double precision format. FPU internal data paths 
+are all double precision (64-bit) sized. 
+- w- - *)jl ..T ,""", 
+The FPU uses a seven-stage pipeline instead of the five- 
+stage pipeline used in the CPU. Like the CPU, the FPU can 
+overlap execution of multiple instructions in the pipeline. 
+Load/store instructions can execute in parallel with 
+arithmetic operations. 
+Figure 7 shows the pipe stages and instruction overlapping 
+in the FPU. 
+I.*,, - ,.U_ M *I,*. 
+Figure 7: FPU Pipeline 
+General pipe stages are operand fetch, multiply/align, 
+arithmetic function, round, normalize, format, and write- 
+back. They are all single cycle operations. Divide, square 
+root, and multiply instructions require "data dependent" 
+multi-cycle arithmetic operations. 
+The FPU can detect seven different types of exceptions: 
+Five IEEE exceptions (Invalid operation, divide by zero, 
+overflow, underflow, and inexact result), Run Time Assist 
+(signaled on ' reserved operations, NaN, Infinity, 
+denormalized numbers), and Illegal Instruction. 
+When a surprise occurs, the FPU takes one of two possible 
+actions. First, if the status register exception mask bit is set, 
+the FPU sets the appropriate surprise bit in its status register 
+to indicate what type of surprise occurred and to interrupt 
+the CPU via COPINTN interrupt. The FPU also sets a 
+corresponding sticky bit. Meantime, the computed result of 
+the excepting instruction is stored in the exception result 
+register. The FPU then freezes the inputs to the execution 
+pipeline and will not accept any new arithmetic instructions 
+from the CPU. Second, if a mask bit is not set, a 
+corresponding surprise only sets the corresponding sticky 
+bits and a default action is taken. No surprise is raised. The 
+default action involves setting the result of the floating-point 
+operation to a predefined value, such as the maximum 
+number in the case of an overflow. Sticky bits are 
+cumulative and will record any surprise that occurrs, even 
+when the surprise trap is disabled by the exception mask 
+(Emsk) bits. Software can clear these sticky bits by writing 
+to the FPU status register. 
+c) Memory Management Units 
+The Memory Management Unit (MMU) provides a high 
+speed cache, virtual to physical address translation, page 
+based access control and protection, fault tolerant memory 
+interface, multiprocessing memory structure capability to 
+enhance the performance of systems based on the Central 
+Processing Unit (CPU). There are two MMUs in the 
+RH32S: one is used for Instruction and the other one is used 
+for Operand. 
+Figure 8 shows the major functional blocks of the MMU. 
+These blocks are the CPU Interface (CPUIO), the Cache, the 
+Translation Lookaside Buffer (TLB), and Memory Interface 
+(MEMIO). 
+I*_." U 
+I R H 3 2 I M U  
+Figure 8: MMU Block Diagram 
+The CPUIO block serves to interface the CPU to the MMU. 
+The CPU (Operand or Instruction) Address Bus is supplied 
+to the TLB for translation to a physical address. The CPU 
+(Operand or Instruction) Data Bus is the pathway for data 
+between the CPU and the cache/main memory. 
+The CACHE block contains a 2-way set associative write 
+through cache. The size is 16,384 bytes. The L2 cache 
+takes only one clock cycle to get its data and can operate in 
+a byte write mode. When there is a cache hit, it can supply 
+the data to the CPU in three to five cycles (MMU pipeline 
+delays). 
+The TLB block provides virtual to physical address 
+translation, page based memory protection, and page based 
+cache and memory control. The page table is stored in the 
+main memory. A fully associative translation lookaside 
+buffer stores 32 address translations. Page size can vary 
+from 1 Kbytes - 256 Kbytes. Figure 9 shows how the 
+address translation is done in this block. 
+Figure 9: Virtual to Physical Translation Diagram 
+The micro TLB is included in this section and provides a 
+high-speed cache of the one most recently used translation. 
+This block also provides 8 kernel regions that can be used in 
+kernel addressing mode. 
+The Memory Interface provides a path to access external 
+memory and devices on the Data Transfer Bus (DTB). The 
+DTB supports byte, half-word, and word accesses. Plus, it 
+supports both 2-way interleaved and 4-word burst transfer 
+modes for high-speed memory transfer under various 
+memory configurations. The RH32S supports both fast and 
+slow DTB bus speed modes. In the fast mode, the 
+peripheral devices operate at same speed as the RH32S to 
+maintain a maximum data transfer rate. On the other hand, 
+in the slow mode, the peripheral devices operate at half the 
+speed of the RH32S to accommodate slow peripheral 
+devices in the system. Finally, the Memory Interface 
+provides the snooping capabilities (transparent to the CPU) 
+to maintain cache coherency in a tightly coupled multi- 
+processing environment. 
+The Memory Interface block contains a 4-device arbiter that 
+is based on a fixed priority arbitration scheme. In addition, 
+a write back buffer is provided which buffers four words of 
+stored data. A DTB control block is provided to generate all 
+the DTB control signals. Level 2 instruction prefetching 
+logic is employed to supply continuous stream of 
+instructions to the CPU. Error protection is provided by 
+EDAC circuitry, which generates a modified hamming code 
+for stores and checks the data on loads for errors and 
+correction. 
+d) System Control Unit 
+The SCU architecture is partitioned into four subsystems: 
+Processing, Built-In Self Test (BIST), Fault Tolerance (FT), 
+and CPU Interface (CPUIF). A detailed SCU block digram 
+is shown in Figure 10. 
+The Processing subsystem consists of the 16-bit embedded 
+Maintenance Processor (MP) block. The MP is used to 
+control the BIST and FT functions and process their 
+subsystem data. 
+The BIST subsystem consists of the Coretester, Logic 
+Macrocell Test Master (LMTM), Logic Macrocell Test 
+Slave (LMTS), and Embedded Memory Tester (EMT) 
+blocks. This subsystem is responsible for initiating all the 
+internal BIST and collecting data. 
+The FT subsystem consists of the Master Fault Tolerant 
+Monitor (MFTM) which is responsible for monitoring and 
+handling the faults in other functional units. 
+I I 
+~ ~~ 
+Figure 10: SCU Block Diagram 
+Since the SCU contains the master functions for the BIST 
+and FT methodology, the SCU interfaces to the Fault 
+Tolerance Monitor (FTM) Bus in order to access remote 
+SFTMs, and the SCU interfaces to the Logic Macrocell Test 
+(LMT) Bus to access remote LMTSs. Both lT and BIST 
+functions are covered more in section 3 and section 4. 
+The CPUIF subsystem consists of the CPU Interface 
+(CPUIF) block and the CPU Program Counter Trace (PCT) 
+blocks. The CPUIF block contains sub-blocks such as CPU 
+timers, CPU/MP interrupts, and CPUMP discrete 
+inputs/outputs. This subsystem interfaces to the CPU 
+operand and instruction buses in order for the CPU to access 
+its timers and interrupts and for the SCU to trace the CPU 
+instruction execution. When the real-time non-intrusive 
+trace function is used with the external logic provided with 
+the development system and the integrated application 
+debugging software at the host (i.e., a Sun computer), the 
+processing stream-instructions and data---can be recorded 
+in real-time. A comprehensive set of control and data 
+224 
+filtering software processes the recorded data for analysis at 
+the host level. 
+3. FAULT OLERANCE 
+The RH32S is designed for use in fault tolerant processing 
+systems for high reliability applications. The hierarchical 
+fault tolerant design is based on the fault containment and 
+recovery region (FCRR) concept. Each level has a tailored 
+set of error detectors and a containment and recovery 
+strategy. The recovery features include micro-retry, cache 
+line refill, and software rollback. The SCU interfaces to all 
+of the RH32S functional units as shown in Figure 11. It 
+monitors these functional units, isolates the errors when 
+detected, and recovers based on programmed recovery 
+procedures. 
+Figure 11: RH32S Fault Tolerance Interface Diagram 
+All of the internal pipe stages and critical control registers in 
+the RH32S are byte parity protected. The memory data 
+transfer bus interface has byte parity and SECDED. In 
+addition, support for a spare bit plane is included. The 
+cache (Both L1 and L2) uses parity error detection and line 
+invalidation to provide fault tolerance. All words in the 
+cache, including the tag, have four parity bits validating their 
+contents. During a cache read operation, if a parity fault is 
+detected on the selected cache entry, a miss is declared and a 
+cache line refill operation is performed. 
+4. TESTABILITY 
+Testability is provided through a combination of design-for- 
+testability principles and hardware test structures. The 
+hardware elements designed into the chips include BIST, 
+scan paths, and JTAG boundary scan. The BIST structures 
+include random pattern generation with signature 
+compression for logic elements and pattern and address 
+generation for the memory elements. The SCU is 
+responsible for initiating all the internal BIST functions. 
+IEEE 1149.1 compliant JTAG boundary scan functions are 
+provided to facilitate board testing. 
+5. SOFTWARE TOOLS AND APPLICATIONS 
+The RH32S software development system is supported by 
+Green Hills MULTI Software Development Environment, as 
+shown in Figure 12. The MULTI environment for 
+embedded software development for the RH32S processor is 
+hosted on a UNIX platform. Green Hills tools include not 
+only the compilers, but all the ancillary tools needed for 
+embedded development, including assemblers, linkers, 
+librarian, standard libraries, and simulators. 
+Unix / GHS Multi GUI 
+I -interrupts I 1 
+Jf 
+I 
+I Accurate Simulation 
+Input loutput  Modules 
+Simulation 1 . interruots . User Customizabie . I/O models uses sockets 
+Symbolic referencing 
+-variables 
+. high level / assembly code 
+break points 
+. Stethoscope 
+. WindView 
+Revision Control 
+.Retrieve and Check-in 
+revisions of software files 
+Non-Intrusive Debug 
+. PC trace 
+-Data watch 
+-Time stamped 
+instructions or branches 
+Figure 12: RH32S Software Development Environment 
+Compilers for C and C++ are provided by Green Hills with a 
+part of the multichip RH32 Ada compiler planned. These 
+compilers are a combination of a language-specific front 
+end, a global optimizer, and an RH32-specific code 
+generator. The Green Hills compiler package supports 
+compiler driver options that are virtually host-independent. 
+These options are grouped as follows: 
+0 
+RH32 specific options 
+Assembler-specific options 
+Library options 
+Linker-specific options 
+General compiler options 
+Data allocation options 
+Debugging options 
+Optimization options 
+Special data area options 
+Position-independent code and data options 
+Run-time error checking options 
+Language-specific options 
+The assembler is a relocatable macro assembler. It 
+translates assembly language statements and directives into 
+machine code and data formats. 
+The linker combines object modules into a single relocatable 
+or executable program. 
+The MULTI debugger is a windowing source level 
+225 
+debugger. It can both debug programs executing on the 
+target computer or being simulated with its simulator. RH32S Snraificatiana 
+The RH32 ISA simulator executes on the SUN workstation 
+under a UNIX environment and simulates the execution of 
+the RH32S at the instruction level. It supports code 
+development and checkout prior to hardware availability. 
+WindRiver VxWorks Version 5.3 is the RH32S real-time 
+executive operating system. It provides a multi-tasking 
+kemel with low side and performance overhead: 
+Preemptive, priority based scheduler- 
+Tightly bounded interrupt latency-quick 
+0 Intertask communication, semaphores, 
+context switching 
+real-time response 
+message queues 
+Support for asynchronous and synchronous 
+interfaces 
+The VxWorks provides Network and U 0  support which 
+includes TCP/IP stack with socket based connection 
+support, interprocessor communication, and remote access: 
+logon, files, commands and functions. In addition, it 
+provides development libraries for math and ancilliary 
+functions. 
+Heritage applications programmed in high-level languages 
+can be easily recompiled for the RH32S. 32-bit systems 
+already using the WindRiver VxWorks OS can easily be 
+migrated to the full-featured RH32S. 
+6. TECHNOLOGY 
+The RH32S, shown in Figure 13 and Table 1, is fabricated 
+using Honeywell’s silicon-on-insulator (SOI) process, 
+RICMOS IV SOL It features SIMOX (Separation by 
+IMplantation of Oxygen) starting material, four layers of 
+metal interconnect, and partially depleted devices. 
+Transistor sources, drains, and gates are silicided to improve 
+performance and routability. The transistors have an 
+effective gate length of 0.28 pn for applications ranging 
+from 2.5V to 3.3V. 
+~~ ~~ ~ ~ 
+T e c h n o l o g y  
+F r e q u e n c y  0 to 50 M H z W C  
+P e r f o r m a n c e  
+(Dais Mix) 
+0 35 CMOS SO1 Technology,  4 levels of metal 
+40 M I P S  8 50 M H z  
+P o w e r  Dissipation 6W 8 50 M H z  (core with 17K I and 17K 0 caches)  
+R a d  H a r d n e s s  > 300 KRad.  <1E-8  ErrorlBit-Day, 1 E 9  R a d  (Si) /sec 
+Vo l tage  3.3v 
+w c W o r ~ t  Care Condition (3 OV,  125OC. slow S I I I C O ~ )  
+Table 1: RH32S Specifications 
+Honeywell’s RICMOS IV SO1 technology provides benefits 
+over bulk technology through improved speed, higher 
+density, lower power dissipation, and improved radiation 
+tolerance. 
+7. CONCLUSION 
+TRW has successfully accomplished the technically 
+challenging task of developing a single chip version of fully 
+radiation hardened 32-bit RISC microprocessor (RH32S) 
+using 0.35 Micron SO1 (Silicon On Insulator) Standard Cell 
+Technology. The high-performance fault tolerant 
+architecture provides a greater than 40 DAIS MIPS at 50 
+MHz while only using 6 watts of power. Plus, beyond the 
+typical full configuration; the RH32S can be expanded into 
+various configurations (for example, dual memory bus with 
+limited SCU mode or low power mode) to further enhance 
+features that might be required for applications. The RH32S 
+is the best integration of performance and fault control for 
+space and airborne applications. 
+8. REFERENCES 
+[l] Andrew Hwang, -32s Chip Specifications, TRW Space & 
+Electronics Group, 1998. 
+[2]  Elliot Carrion, Instruction Set Architecture (ISA) for the 
+Radiation Hardened 32-bit Computer, TRW Space & Electronics 
+Group, 1998. 
+[3] Elliot Carrion, The Radiation Hardened 32-bit Computer 
+User’s Guide, TRW Space & Electronics Group, March, 1998. 
+[4] James Hobbs, “Low Power ASIC Products for Space,” 
+1997 Government Microcircuit Applications Conference, 
+March, 1997. 
+Andrew Hwang is a responsible design engineer for  the 
+RH32S. He has developed and led development of several 
+computer and data processing products at TRW. He is 
+currently a section head in Computer and Signal Processing 
+Department. He has a BSEE from University of California 
+at Santa Barbara and a MSEE from University of Southem 
+California. 
+Figure 13: RH32S Layout 
+226 

@@ -1,0 +1,607 @@
+TRANSPORTING ETHERNET SERVICES 
+IN METROPOLITAN AREA NETWORKS 
+(MANS) ,
+Gianmarco Panza Cecilia Nenov, Glauco Bigini 
+Fabio Valente 
+CEFRIEL Network Systems Unit - Via Fucini 2, 20133 Milan (MI), Italy 
+ALCATEL - Via Trento 30,20059 Vimercate (MI), Italy 
+Abstract - In many big cities in the industrialized world, large 
+dedicated data transport networks (the MANs, Metropolitan 
+Area Networks) have been deployed in the last few years to 
+provide cheap broadband Internet access to citizens, as well as 
+fault protection (the Spanning Tree Protocol) and even basic 
+QoS control and MAC layer authentication (IEEE 802.1~). 
+1.1 n e  spanning Tree prO"J (STP) 
+broadband interconnections between different branches of a 
+business company. The current MANS are based, in  the 
+backbone side, on legacy TDM (Time Division Multiplexing) 
+techniques, like SONET (Synchronous Optical Network) and 
+SDH (Synchronous Digital Hierarchy). The enormous diffusion 
+of the Ethernet technology (wired 8023 or wireless 802.11) in the 
+LAN environments and the availability of Ethernet interfaces 
+with a very low cost has almost forced telecom operators to 
+consider it as the only possible MAN access technology to sell 
+Internet access services to the large public and business. The 
+MPLS protocol has been chosen by the Metro Ethernet Forum 
+( M E 0  111 to adapt Ethernet traffc to the SONETBDH 
+networks. This article aims to characterize the behaviour of the 
+different solutions for transporting Ethernet services in the 
+MANs, with or without MPLS support, in  terms of efficiency, 
+delay, trafiic Engineering capability, fault tolerance, scalability, 
+cost and complexity. 
+1. THE ETHERNET PROTOCOL 
+The Ethernet standard (IEEE 802.3) [6] is a physical layer and 
+MAC layer transport protocol designed in the 70's for 
+supporting cheap Local Area Network (LAN) applications. 
+The physical layer defines the type of media and modulation 
+schemes and allows transmission speeds from I O  to 1000 
+MbiVs. The MAC layer defines a packet switched 
+transmission mode, based on the so called frames, with a 
+concurrent access to medium and collision control based on 
+the CSMAiCD schema. 
+The number of concurrent stations and the maximum distance 
+between two stations depends on the transmission speed. For 
+the IOhaseT standard ( I O  Mbit's full duplex over copper 
+twisted pair), at most 1024 stations are allowed over a single 
+medium with a maximum distance of 4 km between two 
+stations. 
+The Ethemet frame has a maximum total length of 1526 bvtes 
+To avoid the collision effect when many Ethernet station access 
+the same medium, every Ethernet based LAN makes use of 
+Ethemet switches. An Ethernet switch is an active MAC layer 
+device, which has an Ethernet interface for every connected 
+station and automatically builds a MAC forwarding table, to 
+forward to every interface only the frames that are directed to 
+the connected MAC address. With an Ethernet switch the 
+maximum distance between switch and station is only limited 
+by the electric or optical attenuation, since on a station-switch 
+link the medium is not shared by any other station. The Ethernet 
+switches can he connected together to build an all-Ethernet 
+based LAN. To avoid loops in complex Ethernet architectures 
+and to give some kind of fault protection, the Spanning tree 
+protocol has been introduced to transform the physical 
+architecture into logical tree architecture. The STP [IO] operates 
+when the network is first set up by flooding the network of 
+control packets to elect the root node of the tree and, starting 
+from it, to disable links that can lead to loops and build a 
+complete tree of the network. A tree reconfiguration message is 
+sent by the root node when a failure is detected by one of the 
+switches and reported to it. The tree configuration can last more 
+than 60 seconds to complete in complex networks and during 
+the reconfiguration all the stations are not allowed to transmit. 
+The more recent evolutions of the STP are the Rapid and 
+Multiple STP (IEEE 8 0 2 . 1 ~  [IO] and IEEE 802.1s [IO] 
+respectively). The first one is an optimized version of the STP 
+dedicated to switched Ethernet network (without hubs), 
+introducing new type of fault detection and protection to speed 
+up the root election mechanism. The 802.1s allows the 
+simultaneous creation of multiple spanning trees, potentially 
+one for every VLAN, or even backup spanning trees, which can 
+substitute the current spanning tree in case of fault without 
+needing to rebuild a new one. 
+I 
+(octets) including a 22 byte header, a 1500 bytes payload field 
+and a 4 bytes error check code (the FCS). Every station is 
+The 802,1q 
+identified by a 6 bytes MAC address, the MAC layer discards A lack of the early Ethernet MAC layer was the ability to define 
+all the frames that are not addressed to the station MAC virtual LANs. In fact every station connected to an Ethernet 
+address. network is able to contact every other using the broadcast MAC 
+The Ethernet protocol in its original specification lacks in address. The entire frame directed to the broadcast MAC are 
+v i m 1  circuit and in Quality of Service (QoS) support and delivered to all the connected stations. To be able to split the 
+thus is not natively suited for medium to large scale networks broadcast domains and to group Ethernet stations, the 802.1Q 
+and legacy PSTW services. Subsequent evolutions and [IO] standard (subsequently included in the 802.1D 
+enhancements to the base protocols have extended its specification) introduced a small 16 hit tag in the Ethernet 
+capabilities including Virtual LAN support (IEEE 802.lQ), header that identifies a group of stations in the Ethernet 
+network. The tag is compiled by the Ethemet switches and 
+0-7803-8783-X/04/$20.00 0 2004 IEEE 53  
+configured by the operator depending on the physical port, the 
+MAC address or even the IP address of the station. Even 
+stations connected to different switched may have the same 
+802.14 tag, thus building a Virtual LAN (VLAN). The 
+broadcast frames are delivered only to the stations belonging 
+to the same VLAN of ,the frame originator, and the stations 
+outside the VLAN are not visible at MAC layer, just like if 
+they were physically separated. The 802.1Q can be used in 
+complex and large networks to identify virtual channels. 
+2. THE SONETISDH P n o T o c o L  
+The SONETiSDH protocol has been developed by the ANSI 
+(SONET) [7] and the ITU-T (SDH) [B] for transporting data 
+over high bit rate optical fibre based backbone networks. It 
+supports TDMA synchronous transmission of high speed data 
+flows and offers an advanced fault protection mechanism and 
+a reliable add/drop function, to add and extract low hit rate 
+traffic from a high hit rate aggregate. The SONET and the 
+SDH protocols define a hierarchy of “levels”. Each level 
+includes a maximum transmission speed, a frame format and a 
+medium. The levels for SONET are called STS-n if 
+transmitting over copper medium and OC-n if transmitting 
+over optic fibre, the SDH levels are called STM-n for both 
+optical and electric domain, and the SDH STM-I equals the 
+SONET STS-3 or OC-3. For each level a payload rate, a line 
+rate and an overhead rate is defined: the line rate is the 
+theoretical maximum speed of the line, the payload rate is the 
+effective transmission speed of the data and the overhead rate 
+is the transmission speed of every control and O&M 
+information transfer. SONETiSDH defines a 125 
+microseconds frame with a matrix internal structure. The 
+frames contain a highly flexible addressing schema that 
+defines a set of identifiers to address many different traffic 
+flows into the frame. This allows multiplexing many different 
+virtual circuits into a single aggregate to allow 
+addingldropping flows when needed. The circuit identifier 
+length grows when the basic flow is smaller, because a higher 
+aggregation must be done to adapt them to flow into a higher 
+bit rate aggregate. The SONETiSDH protocol is optimized for 
+transporting circuit switched data. A set of adaptation layers 
+are available to transport the most common packet switched 
+traffics like IF’/PPP, ATM and MPLS. A protocol has been 
+defined to allow transporting generic packet switched traffic 
+over SONETiSDH, the GFP - Generic Framing Procedure [9], 
+but is currently not widely used due to its complexity. 
+3. THE MPLS PROTOCOL 
+The main disadvantage of the 1P and Ethernet networks is that 
+to forward packets to the correct destination every traversing 
+node (switch or router) has to check the destination address 
+inside the packet, look up a forwarding table and forward the 
+packet on the correct interface. This mechanism is not 
+optimized in Metropolitan Area Network (MAN) 
+environment, where large virtual LANs are deployed and thus 
+many flows coming from different IP addresses may belong to 
+a single VLAN flow. The MPLS protocol [ I l l  is a Layer 2.5 
+(between layer 2 and 3) protocol, introduced by IETF to 
+overcome the limitation of IP in routing packets and speed up 
+the forwarding process. MPLS introduces a small header 
+between the L2 and the L3 headers, including a label that 
+identifies the packet flow, instead of the sender station. The 
+MPLS header has been defined for all the mostly used layer 2 
+protocols, meaning PPP, Ethernet, ATM and Frame Relay. All 
+the MPLS-enabled backbone devices in the network can thus 
+discriminate a flow by only looking into the MPLS header; in 
+addition to this, non-IP networks may take advantage of the 
+MPLS capability of building up virtual channels starting from 
+the IP tables of the router’s located at the border. MPLS allows 
+the creation of virtual circuits with a similar flavour of ATM 
+and Frame Relay, but over an IP network, using the IP tables of 
+the backbone for building up the circuits. Like these 
+technologies, MPLS includes traffic engineering capabilities 
+and fault protection techniques. It allows creating virtual 
+circuits through the use of the LSP (Label Switched Path), and 
+allows stacking and chaining labels, to get flow aggregation like 
+in the SONETiSDH networks and allows point to point 
+transmission, as well as, point to multipoint (multicast). 
+4. TRANSPORTING ETHERNET TRAFFIC I N  A MAN 
+ENVIRONMENT - HE EOMPLS PROTOCOL 
+Starting from the ubiquity of the Ethernet protocol, that is, 
+simply speaking, the only LAN transport protocol in use today 
+(there are still some token ring and ATM based LANs, hut have 
+a very small weight in the whole LAN market), an important 
+need in building MAN applications is to have an efficient and 
+reliable transport of the Ethernet frames. What users want today 
+is to connect their PCs Ethernet port or their switches to a 
+“backbone Ethemet plug” and have their frames delivered at 
+destination. 
+We must note that Ethernet has still some lacks especially 
+regarding traffic engineering and QoS control that still do not 
+allow it to he deployed as a stand alone MAN transport 
+Because of the growing importance of the Ethemet networks in 
+enterprise environments, the IETF introduced a mechanism for 
+transporting Layer 2 Ethernet frames into MPLS packets, called 
+Ethernet over MF’LS (EoMPLS) [2][3]. The aim is to reduce the 
+overhead of sending out IP traffic over the backbone, and 
+instead send directly the Ethernet frames. This eliminates the 
+need to install a backbone IP gateway for example in the branch 
+offices of an enterprise company and instead use the cheaper 
+Ethernet switches to connect to a backhone access point which 
+is capable of EoMPLS. The EoMPLS solution is based on a 
+work by IETF called the “Martini Draft” from the name of one 
+of its developers and is currently gaining importance in MAN 
+applications. 
+Basically, when an Ethernet frame arrives to the input interface 
+of the EoMPLS-based gateway, the gateway adds an EoMPLS 
+tunnel label and a VC label (the second one depends on the 
+802.14 VLAN tag of the incoming frame) and sends the frame 
+protocol. 
+54 
+over the MPLS network. The tunnel label is used to build a 
+tunnel LSP (T-LSP) used to route the traffic from the ingress 
+gateway towards the egress gateway. The VC label is used 
+only inside the ingress and egress gateways to identify the 
+correct VLAN. Many VC labels can he used inside a single T- 
+LSP, depending on the number of VLANs that must be 
+transported. 
+To foster the use of Ethemet in MAN environment, the Metro 
+Ethemet Forum (an open consortium of Ethemet device 
+manufacturers), adopted the MPLS protocol as a de facto 
+complementary standard to the Ethemet protocol for 
+deploying Ethemet based MANS. 
+The new Ethemet based MANs must face with the existence 
+of large already deployed SONETiSDH or ATM based 
+MANs, and with the fact that these technologies offer a much 
+higher QoS control, fault protection and error control, and that 
+very unlikely telecom operators will switch from a robust 
+backbone to a nearly experimental alBthemet based network. 
+The basic idea is to deploy EoMPLS based MAN access 
+points, that are reached by standard Ethemet equipment 
+installed in the user's home or office, and then transport the 
+Ethemet traffic towards destination using either the robust and 
+reliable SONET/SDH networks or a novel infrastructure based 
+on the last evolutions of Ethernet (e.g. 802.32 and 802.3ae). 
+5. THE SIMULATION SCENARIO 
+The issue of transporting the Ethemet services in MANS 
+concerns the evaluation of important factors, such as the 
+relatively large overhead introduced by the encapsulation of 
+different transport protocols and the end-to-end delay which is 
+influenced by this overhead. In order to quantitatively 
+characterize the different transport solutions in terms of 
+overhead and end-to-end delay we made a complete set of 
+simulation using the OPNET network simulation tool. We 
+considered three different situations: a native Ethemet MAN 
+and the deployment of EoMPLS over Ethemet or 
+SONET/SDH. We identified a MAN scenario with 3 
+intermediate switching points, using the three different 
+transport solutions, plain Ethemet, EoMPLSEthernet, and 
+EoMPLS/SDH. 
+The audio source model is a classic ON-OFF model that is 
+valid for every source coderidecoder since it models the 
+human voice instead of codec behaviour. The model 
+characterizes the voice in terms of two variables, Kon and 
+Koff, which express the activity and inactivity periods of the 
+source. We used two codecs to (de) compress data coming 
+from the source: a G.729 using 20ms packetization, which 
+means 2 G.729 frames per packet, which coincide with a 20 
+bytes payload and 40 bytes header (IP+UDP+RTP), and a 
+G.711 using the same packetization time that leads to a 160 
+bytes packet. 
+The video source model uses a real H.263 video trace read 
+from a file, with 256 kbit/s coding. The maximum frame rate 
+is 25 fps with inter-frame delay of 40 ms. We did choose two 
+different packetizations, one at 576 bytes and the other at 
+1400 bytes payload per packet. A complete frame is 
+packetized and sent when completely available in the sender 
+buffer. The fixed overhead introduced by IPNDPIRTP, as in 
+the ca 
+Table 1 -Simulation scenarios 
+We ran 5 different simulations, including the various sources 
+explained before. The 5 scenarios are listed in the table above, 
+and show the different ingress traffic types. In the AV scenario 
+all the audio and video traffics are sent together inside the 
+network. Every network node is traversed by a background 
+traffic built of video and audio packets. 
+6. THE OVERHEAD PROBLEM 
+The three transport solutions have different overhead given by 
+the packet and frame encapsulation. 
+Figure I  the Ethemet hame format 
+The overhead introduced by Ethemet is 30 bytes per frame 
+(including the 4 bytes VLAN tag), with variable payload length. 
+Using the Plain Ethernet transport solution the complete 
+overhead consists of the fixed 30 bytes overhead plus the time 
+between a just sent frame and the following that can he taken 
+into account as another 12 bytes, that leads to a 42 bytes 
+complete overhead. 
+a nls. 
+Figure 2 .The EoMPLSiEthemet packet format 
+In the second solution (EoMPLSEthemet) we must consider 
+that when encapsulating Ethernet frames in MPLS packets, we 
+should not count the preamble and the FCS, that are included in 
+the transport network frame. This thus leads to an overhead of 
+18 bytes for the inner Ethernet frame with VLAN tag, an 8 
+bytes EoMPLS header and a final complete 26 bytes Ethemet 
+header (without VLAN tag). The complete header is 64 bytes 
+per IP packet sent. 
+- - 
+Figure 3 . Thc EoMPLSlSDH packet format 
+In the third case, keeping the inner Ethemet L2 header and the 
+MPLS header, we have to add the PPP header (in this case 
+EoMPLS is adapted to SDH using the PPP protocol 
+0-7803-8783-X/04/$20.M) 0 2004 E E E  55 
+encapsulation), which is 10 bytes and the SDH header that has 
+not fixed length, but is approximately 1/27 of the transported 
+uavload length. The total overhead in this case varies from a 
+from the values specified in the data sheets of many products 
+from different vendors and has been assigned as in the 
+following table . .  - - 
+minimum of approximately 40 bytes to a maximum of 93 
+bytes, calculated as 18+8+1/27*(header + the minimum 20 Byte 160Byte 516Byte 1400Byte 
+uavload of 46 bvtes and the maximum 1500 bytes). Router 7 ps 9 PS 14ps 24ps . _  ~. 
+In the charts helow we can see the percentage of overhead L2 8 ps 11 ps 1 7 p  19ps 
+compared with the Ethernet frame and with the Payload data 
+(the IP packet) with different packet sizes. As we can see, the 
+EoMPLSiSDH solution has significantly smaller overhead 
+than the EoMPLSEthemet solution when dealing with 
+smaller packets, similar to the Plain Ethernet solution. The 
+overhead difference shrinks when the packet size grows, due 
+to the percentage-based overhead in SDH, getting down to 
+almost zero with 1000 bytes packets. 
+Table 2 -Switching delayj 
+The transmission delay depends on the link capacity and on the 
+packet length and ahs been modelled in the simulations. 
+In the first graph we see the results of the A2 Scenario (see 
+before), with 160 bytes audio packets. We can note that in this 
+the best performance is obtained using the 
+EoMPLSEthemet, shortly followed by the SDH case. The 
+delay is a little higher in the all-Ethemet case. This is due to the 
+._l"lll ........_._.......... ~ .... ~. 
+Figure 4 -Overhead VI payload length 
+I 
+~ ' ~ . . . ~ . .  . ..... ~ ~ .......... ~ 
+*- -%. a.- ?.e- 
+Figure 5 -Overhead VI Elhernel frame size 
+7. THE END-TO-END ELAY PROBLEM 
+To have a quantitative comparison between the different 
+transport solutions in terms of end-to-end delays, we 
+conducted various simulations. 
+Figure 6 .  The simulation network topology 
+The network topology we used is very simple, but still typical 
+for many Metropolitan Area Networks, with 2 ingress nodes 
+and two transit nodes. 
+The end to end delay has been characterized using two 
+components: the processing delay in every node and the 
+transmission delay. The processing delay has been derived 
+higher processing delay introduced by the MAC a 
+switching, that is longer than the MPLS label swapping. 
+.ddress 
+,m m m .m m m 
+-,.I 
+Figure I -End to end delay A2 scenario 
+_I"  
+Figure 8 - End to and delay V2 scenano 
+om,, 
+Figure 9 - End lo end delay AV scenario 
+56 
+160Bt576B I X I  
+EoMPLSiEthemet 
+AI I 138 I +10.9 1 i17.1 I 162 I i 15 .2  1 i 2 i X  
+16OB+14OOB 
+I” .... . 
+AI I 154 I i10.9 I k17.1 I 171 I k15.2 I i23.8 
+A2 I 278 I iR.91 
+I I I I I I I I 
+Table 3 - End to end delay simulation resula 
+The EoMPLS/Ethernet and EoMPLSiSDH solution are 
+substantially equivalent, with a small margin in favour of the 
+former. The all Ethernet shows worse results due to the longei 
+frame switching time. The results let us conclude that the 
+introduction of MPLS over an Ethernet based MAN allows 
+reaching almost the same performance as in the case of SDH. 
+in terms of end-to-end delay. 
+8. THE TRAFFIC ENGINEERING PROBLEM 
+One of the main concerns about building an all-Ethernet MAN 
+is related to the poor performance of the QoS control 
+mechanisms provided bv this protocol. Ethernet relies in facl 
+.~ 
+a meaningful example, shown in Figure lo. We simulated an all- 
+Ethernet and an MPLS network with background link load of 
+50% (links are all 10 Mbitls) and sent into the network two 
+flows of 2 Mbitls video traffic. Using MPLS the path cost 
+could be calculated as a function ofthe link loads and the packet 
+forwarding is decided basing on this cost. When sending the 
+flows, in the Ethernet case, the already built tree has selected 
+path A because of the smaller number of transit nodes, while 
+MPLS dynamically can take into account of the network load 
+and select alternative paths. 
+I ,  
+i l  
+( 5  
+I 
+* * “ n 1 s 8 I I L * I I * U . )  
+Figure 11 -End to end delay comparison all8themet YS MPLS 
+As we can see the introduction of MPLS greatly reduces the 
+end-to-end delay variation (jitter), giving a better control on the 
+QoS than the simple Ethernet protocol, even in a very simple 
+network topology like this. 
+For what concerns the SONET/SDH based solution, native TE 
+functionality of such technology can be also exploited, mainly 
+in a static manner due to configuration issues. However, to 
+achieve a greater flexibility, MPLS capabilities have to be 
+employed. 
+9. THE FAULT PROTECTION PROBLEM 
+Ethernet protocol has no other way to protect the network from 
+faults than using the Spanning Tree Protocol. which takes too 
+only on the .STP to b;ild a network tree and to distribute long to rebuild; whole delivery tree when a fault is reported 
+traftic. Traffic engineering Capabilities of MPLS allow to from a switch. Using the Rapid STP (802 .1~)  reduces the tree 
+dynamically distributing traffic on the network links to building time from tens of seconds or more to 1 or 2 seconds. 
+optimize resources utilization and indirectly to reduce delay The 802.1s is not a speed improvement, but only a flexibility 
+and losses. The problem is that the STP calculates a single enhancement, to support the VLAN management, thus 
+recovering an Ethernet network from a fault would require, in 
+0-7803-8783-X/O4/$20.M) 0 2004 IEEE 51 
+the best case, 1-2 seconds for Rapid STP to rebuild the 
+network tree. 
+Figure 11. Application of MPLS fast reroue with either recovely path and 
+shortcuts, or de-tour palh (LER - Label Edge Router, SP - Switching Point, 
+DP -Detection Point; I = I ,  N=3) 
+The introduction of the MPLS protocol between layer 2 and 3 
+eliminates the need to use any fault protection mechanism 
+provided by the lower layer. MPLS has its own protection 
+schemas that have been developed with the specific aim to 
+reach the same fault protection level of SONET/SDH, that is, 
+within 60 milliseconds, where IO ms are for the fault detection 
+and 50 ms are for switching to a backup circuit. This objective 
+is driven by the fact that the SDH networks have been 
+developed to support telephone network lraffic, the most 
+demanding in terms of reliability (today’s telephone network 
+have reliability levels of more then 99.99999%). 
+While the switching time on the backup circuit is determined 
+by the MPLS mechanisms, the fault detection time is still 
+given by the underlying layer 1 and 2 technologies. There are 
+in fact 2 types of faults: link fault and node fault (the entire 
+node is not responding). The detection times are different in 
+the two cases. As previously said, in a SDH network the link 
+fault detection time is about IO ms, while in an Ethernet 
+network is about 16 ms (time frequency of dedicated signal 
+for the purpose). The node failure detection time is instead 
+similar in the two cases and can reach various tens of 
+milliseconds. 
+After the fault has been detected, an alternative path must be 
+taken to bypass the fault. This is done by MPLS with various 
+techniques. The most widely accepted is called Fast Reroute 
+[5]. In fast reroute, the node that detects the fault simply 
+resends the traffic hack to the preceding node without sending 
+any signalling; the preceding node fonvards the reflected 
+traffic back in the path and so on, until it reaches a switching 
+node which has an altemative path configured. When this 
+node detects the retumed traffic, it stops sending traffic on the 
+primary path (the working path) and reroutes it on the 
+recovery path. To optimize the switching time, a complete 
+recovery path is configured a priori and all the designated 
+switching nodes of the concerned primary path have shortcuts 
+to it. If the recovery path and the shortcuts are not configured, 
+the issued switching node will set them run-time using 
+standard MPLS signalling. Another possibility is to consider a 
+de-tour path for each failure along the working path that simply 
+goes around the fault. 
+Assuming that the fast reroute mechanism is used, we can 
+model the total MPLS fault recovery time as follows: Trec = 
+Td+Tr, where Td is the fault detection time and Tr the recovery 
+time, defined as the interval between the detection of the fault 
+and the switching to either the recovery path or the de-tour path. 
+Td is 16 ms as stated before in the case of Ethernet and 10 ms in 
+SDH. 
+It can be shown [ 5 ]  that the recovery time Tr is 3LTcross+(ZN- 
+1)Tp. Where, L is the number of nodes from the fault detection 
+point to the switching point and N is the total number of nodes 
+constituting the shortcut or the de-tour path. In the second term 
+of the equation Tp is the processing time needed to process (and 
+transmit) the MPLS signalling, and is about IOms; this term is 
+simply about 1 ms if the shortcut or the de-tour path has already 
+been configured. Tcross is the time needed to cross a node. It 
+can he shown that due to buffering delays the time to switch 
+from the working to the recovery path after the shortcut or the 
+de-tour path establishment is 3LTcross; instead, if no packet 
+reordering is provided, the nodes do not buffer traffic and hence 
+such a time is LTcross. Tcross can he assumed 10 ms when the 
+reflected traffic is treated with high priority (the common case. 
+In a well configured MPLS network, N and 1 are no more than 
+3. In the former mentioned case of fast-reroute, the recovery 
+path and the shortcuts are typically already configured, thus to 
+the first term of the TI expression, about just 1 ms of further 
+delay should be added. 
+A total count of the recovery time, in a worst case, leads us to 
+Trec=16+9*10+5*10=166 ms. A typical case, where the detour 
+path or the recovery path together with the related shortcuts 
+have been already configured, we have Trec equals to 10-20 ms 
+plus 90 or 30 ms (at worst, with 1=3) if the detection and 
+recovery points do not coincide, respectively with or without 
+node buffering. 
+This analvsis shows that. if the network is well confirmred. the 
+I ~~~~~ ~ , 
+recovery mechanisms developed for MPLS networks reach the 
+target of SDH-like performance. Thus an EoMPLSEthernet 
+solution can he seen as nearly equivalent to an all-SDH solution 
+in terms of fault protection and reliability. Finally, for an 
+EoMPLSiSDH solution the results are extremely similar. 
+10. THE SCALABILITY PROBLEM 
+Scalability is a matter of size of the network. SDH is a protocol 
+that has been designed for large scale optical networks, but is 
+not well suited due to its cost to small networks, where Ethemet 
+reigns without opponents. On the other side, the Ethernet 
+protocol is not sufficiently scalable for being used in large 
+networks such as MANS. 
+Figure 13 -The 802.1Q a g  format 
+58 
+Starting from the virtual LANs, Ethernet supports this type of 
+services through the 802.1Q standard, hut since the 802.1Q 
+tag is only 4 bytes long, with only 12 bits used for actual 
+VLAN identification (the VID field in Figure 13), there is an 
+upper limit of 4096 different virtual LANs for every MAN. 
+Another scalability problem introduced by Ethernet is the 
+relatively slow spanning tree protocol which introduces a high 
+computational overhead in the network nodes, and the fact 
+that currently available Ethernet switches have not been 
+designed to work in a complex and large scale environment, 
+with a great number of MAC addresses to handle. The 
+introduction of MPLS overcomes these limitations. At fust an 
+MPLS label is 20 bits long, thus targeting 1 million virtual 
+paths, much more than the 802.1Q standard. Furthermore, 
+MPLS allows other scalability features such as label stacking 
+and increases the switching speed due to the small size of the 
+labels. Metro Ethernet Forum suggests the introduction of an 
+additional tag to improve scalability in all-Ethernet networks. 
+This solution (Ethernet Multiplexing Function) partially 
+solves the scalability problem, but introduces interoperability 
+issues and an increased complexity of the Ethernet hardware 
+to he deployed. 
+11. THE COST AND COMPLEXITY 
+The SDH devices are far more complex than the Ethernet 
+switches, still being more stable and reliable. The same 
+situation applies to cost considerations, where SDH devices 
+greatly overtake Ethernet hardware. Even the protocol stacks 
+in using the EoMPLSlSDH solution are more complex 
+because of the greater number of adaptation layer needed to 
+transport the Ethernet traffic over the SDH infrastructure. 
+There is even another issue when SDH is used in MAN 
+environments, where a large number of small virtual LANs 
+are deployed, which also deals with scalability concerns: the 
+fragmentation of bandwidth. This problem, which has 
+partially been solved in the next generation SDH networks, 
+happens because SDH has not been designed for supporting 
+fine grain traffic engineering, and wastes bandwidth when too 
+many low bandwidth channels are allocated inside a large 
+capable backbone. The solution that considers Ethernet as the 
+transport infrastructure is of course simpler and cheaper, 
+especially from the customer equipment side. 
+Therefore, the upper adaptation layer of EoMPLS and MPLS 
+of course, with a small cost overhead greatly reduces 
+complexity while increasing scalability. 
+12. CONCLUSIONS 
+This paper mainly analyzes the performance of different 
+solutions for transporting Ethernet services in MANS based on 
+EoMPLS either over SONETISDH or over Ethernet, 
+quantitatively characterizing , the overhead and 
+encapsulatioddecapsulation delays, as well as QoS 
+capabilities in general, and to identify the weaknesses of this 
+technology. The EoMPLS over SONETISDH or over Ethernet 
+has also been compared with a full-Ethernet MAN solution, 
+which considers Ethernet as the only transport protocol inside 
+the MAN. Moreover, a comparison has been made between the 
+different fault protection mechanisms that can he exploited in 
+the above analyzed MAN technologies. 
+What we have obtained as a result is that the full Ethernet 
+solution is obviously not well suited for deployment in a large 
+MAN, since it doesn't offer in any way traffic engineering 
+capabilities, sufficient QoS control mechanisms, scalability and 
+flexibility in assigning and maintaining VF" channel that are 
+mandatory in such environments. The EoMPLS either over 
+Ethernet or over SONETISDH offers much better results. In 
+particular, the first approach allows to dramatically reduce the 
+cost and complexity of the backbone equipment (IPMF'LS 
+routers with standard Ethernet interfaces) and of O&M, still 
+making use of the advantages of MPLS for QoS functionalities 
+and VPN support, while the last one is much more expensive, 
+but shows typically a lower overhead (the SONETISDH frame 
+header is smaller compared to the Ethemet header for nearly all 
+packet sizes, up to about 1400 bytes), a greater fault tolerance 
+and reliability and has the advantage of reusing the already 
+existing SONETISDH infrastructure (natively deployed to 
+transport PSTN telephone traffic). 
+The large diffusion of cheap broadband MAN access is the 
+starting point for the successful deployment of value added 
+services. The SONETISDH and the Ethernet are mature 
+technologies: a good candidate for a contact point between these 
+two different worlds needed to build robust, cheap and reliable 
+Metropolitan Area Network is the MPLS protocol. We may 
+conclude, on the basis of the results obtained in this study, that 
+the EoMPLS over Ethernet is the hest solution for new MAN 
+networks; while the EoMF'LS over SONETISDH can actually 
+be considered as the only option for legacy reasons and 
+leveraging the investments, where a SDH MAN infrastructure 
+already exists. 
+13. REFERENCES 
+111 Metro Ethernet Forum web page 
+bttnd/www.metroethernetforum.ord 
+121 Luca Martini et al - Transport ofLwer 2 Frames over W L S  - 
+IETF Internet Draft 
+131 Luca Martini et nI - Encapsulation Metho& f r  Tronsporr of 
+Elhernet Fromes over IP/WLSNefworla - IETF Internet Draft 
+141 Framework for Mulri-Protocol Label Switching (MPLS)-based 
+Recoveq, - IETF RFC 3469 
+151 L. Hundessa, J. Domingo-Pascual - Reliable andfast rerouting 
+mechanism for aprotected label swirchedpath - Proceedings 
+IEEE Globecom 2002 
+IEEE - IEEE 802.3 CSMAiCD (ETHERNET) -161 
+htt~://www.ieeeEOZ.ord3/ 
+(71 ANSI - TI.105: Soner- www.ansi.org 
+181 ITU-T-G.707.G.781, G.782, G.783, G.803:SDH-www.itu.int 
+191 ITU-T ~ IP overSONET/SDHlTU-T G.7041 Generic Framing 
+Procedure - www.itu.int. June 2002 
+1101 IEEE - IEEE 802.lseries pope - httr:l/www.ieee802.ordl/ 
+0-7803-8783-X/04/$20.00 Q 2001 IEEE 59 

@@ -1,0 +1,816 @@
+ 1
+ Measurement-to-Track Cost Assignment Computation 
+when Tracking with the IMM Estimator 
+ 
+Lisa Ehrman, Andy Register and W. Dale Blair 
+Georgia Tech Research Institute 
+7220 Richardson Rd. 
+Smyrna, GA 30080 
+ (770) 528 - 7079, (770) 528 - 4916, (770) 528 - 7934 
+lisa.ehrman@gtri.gatech.edu, andy.register@gtri.gatech.edu, dale.blair@gtri.gatech.edu
+                                                          
+0-7803-8870-4/05/$20.00© 2005 IEEE 
+IEEEAC paper #1353, Version 3, Updated December 17, 2004 
+ 
+Abstract— In the multi-target tracking problem, the 
+association of measurements to tracks is typically conducted 
+using an m x n cost matrix, where there are m tracks and n 
+measurements.  Each element of this cost matrix is 
+computed based on some measure of the statistical distance 
+between the estimated track state and the measurement.  A 
+common approach is to calculate a negative log-likelihood 
+value that includes the uncertainty of the estimate and 
+measurement.   When tracking with an Interacting Multiple 
+Model (IMM) estimator, multiple mode likelihood values 
+are possible for each measurement/track pair.  Computing 
+the cost assignment matrix given these likelihoods is a 
+critical design issue.  This paper compares two approaches 
+for computing the cost assignment matrix. The first 
+computes the likelihood with the mode that maximizes the 
+likelihood for each given measurement.  An alternate 
+approach evaluates the pure likelihood of the Gaussian 
+mixture. To focus on data association, we assume that the 
+objects are perfectly resolved.  The impact of imperfect 
+object resolution is reserved for future work. 
+ 
+ 
+TABLE OF CONTENTS 
+ 
+1. INTRODUCTION ........................................................... 1 
+2. TWO APPROACHES TO THE COST ASSIGNMENT 
+COMPUTATION............................................................  2 
+3. MONTE CARLO RESULTS USING A PERIODIC RADAR 
+REVISIT RATE ............................................................  4 
+4. MONTE CARLO RESULTS USING AN ADAPTIVE RADAR 
+REVISIT RATE ............................................................. 7 
+5. CONCLUSIONS .............................................................. 9 
+REFERENCES ..................................................................... 10 
+BIOGRAPHY ....................................................................... 10 
+ 
+ 
+ 
+ 
+ 
+ 
+1. INTRODUCTION 
+ 
+Motivation for a new approach to the measurement-to-track 
+cost assignment computation 
+  
+One major design issue inherent to the multi-target tracking 
+problem is the algorithm used in computing the cost 
+assignment matrix.  This matrix, which is m x n when there 
+are m tracks and n measurements, contains the computed 
+costs of assigning each measurement to each track.  A 
+common approach is to calculate each cost as a negative 
+log-likelihood value that includes the uncertainty of both the 
+estimate and the measurement.  At first glance, this appears 
+to be straightforward.  However, when the track filter uses 
+an Interacting Multiple Model (IMM) estimator [1], 
+multiple mode likelihood values are possible for each 
+measurement/track pair.   
+ 
+One approach to this problem, dubbed the maximum 
+likelihood model selection approach in this paper, computes 
+the likelihood with the model that maximizes the likelihood 
+for each given measurement.  Although this approach seems 
+reasonable and is commonly used [2], it leads to a 
+frequently observed problem.  Consider the case of an IMM 
+estimator composed of two extended Kalman filters (EKFs), 
+both of which compensate for acceleration due to gravity.  
+The first EKF uses a nearly-constant velocity (CV) model, 
+which assumes that target acceleration is limited to that 
+which is attributed to gravity.  A nearly-constant 
+acceleration (CA) model makes up the second half of the 
+IMM estimator.  By incorporating both models, the IMM 
+estimator should be able to accurately track both 
+accelerating, (or boosting), and coasting, (or ballistic), 
+targets.  Nevertheless, the CV model probability fluctuates 
+away from one in regions of the trajectory where the targets 
+should be well modeled by the CV EKF.  As a result, the 
+CA model’s state and covariance are incorrectly 
+incorporated into the mixed state estimate and the blended 
+state estimate, diminishing track accuracy.   
+ 2
+In response to this problem, a new approach for computing 
+the cost assignment matrix is suggested.  This method, 
+dubbed the weighted likelihood approach, computes the 
+assignment cost matrix using a weighted sum of mode 
+likelihoods, where the weights are the prior mode 
+probabilities.  In doing so, this approach exploits the fact 
+that the prior distribution is a Gaussian mixture.  Simulation 
+results show that incorporating prior information into the 
+computation of the cost assignment matrix (i.e., the 
+weighted likelihood approach) reduces the occurrence of 
+CV model probability fluctuations and improves the 
+accuracy of the track estimates. 
+ 
+These two methods for computing the measurement-to-track 
+cost assignment matrix are compared using a two-mode 
+IMM estimator that tracks separating ballistic missile 
+components.  This is not meant to imply that the weighted 
+likelihood approach is only useful in this specific 
+application.  Rather, this application is simply a convenient 
+vehicle for comparing the cost assignment approaches. 
+ 
+Targets in this analysis are assumed to be perfectly 
+resolved.  This simplification allows the study to focus on 
+the impact of data association on CV model probability 
+fluctuations.  Sensor biases are set to zero, and atmospheric 
+refraction is not included for the same reason.  Simulation 
+studies that include these features, as well as finite sensor 
+resolution, will be conducted as part of future work. 
+ 
+ 
+Interaction between data association and the IMM 
+estimator 
+ 
+Fluctuations in the CV model probability appear to be 
+caused by two factors: measurement-to-track data 
+association errors and measurement noise.  Measurement 
+noise is largely dictated by waveform and sensor 
+characteristics, rendering it difficult to mitigate this effect 
+without changing those parameters.  For that reason, this 
+analysis focuses on reducing the occurrence of data 
+association errors.  Along these lines, the cost assignment 
+approach that generates the fewest data association errors is 
+preferable. 
+ 
+The fact that association errors and noise degrade track 
+accuracy is well known.  However, the lasting effect of 
+these factors is less obvious and more problematic.  
+Consider the case in which a “poor” measurement is 
+assigned to a track at time k.  This “poor” measurement 
+could be the result of particularly bad measurement noise or 
+a data association error.  In either case, the “poor” 
+measurement is used by both EKFs in the measurement 
+update stage, affecting the blended state estimates at time k 
+and the mixed state estimates at time k+1.  This also 
+impacts the filter residual, ikZ
+~
+, and residual covariance, 
+i
+kS , of both EKFs.  These errors then propagate to the 
+model likelihoods, which are computed using  
+ 
+( ) ( ) ( )ikikTik ZSZ
+i
+k
+i
+k e
+S
+~~5.0
+1
+2
+1 −
+−
+=Λ
+π
+.                   (1) 
+ 
+Since the mode likelihoods are used in  
+ 
+2
+1|
+21
+1|
+1
+1
+1|
+1
+1
+|
+−−
+−
+Λ+Λ
+Λ
+=
+kkkkkk
+kkk
+kk µµ
+µµ                        (2) 
+ 
+and 
+2
+1|
+21
+1|
+1
+2
+1|
+2
+2
+|
+−−
+−
+Λ+Λ
+Λ
+=
+kkkkkk
+kkk
+kk µµ
+µµ                       (3) 
+ 
+to update the mode probabilities, the impact of the poor 
+measurement continues to propagate.  The model 
+likelihoods are also used to fill the cost assignment matrix at 
+time k.  Thus, the impact of a single poor measurement at 
+time k propagates forward in time until the likelihoods and 
+model probabilities settle back to the correct values.  Figure 
+1 depicts this interaction between data association and IMM 
+estimates.   
+ 
+ 
+Figure 1 – Interaction between IMM estimator and data 
+association 
+ 
+ 
+2. TWO APPROACHES TO THE COST 
+ASSIGNMENT COMPUTATION 
+ 
+Maximum likelihood model selection approach 
+ 
+The maximum likelihood model selection approach assigns 
+the cost for associating the mth track with the nth 
+measurement at time k using the function 
+ 
+ ( )[ ]21, ,maxlog kknmkC ΛΛ−= ,                 (3) 
+ 
+ 3
+where 1kΛ and 
+2
+kΛ  are the mode likelihoods for modes 1 
+and 2, respectively.  Thus, the (m, n) entry in the cost matrix 
+is a function of the likelihood of the mode with the 
+maximum likelihood. 
+ 
+Weighted likelihood approach 
+ 
+In contrast, the weighted likelihood approach computes the 
+cost of assigning the nth measurement to the mth track at time 
+k  with 
+ ( )2 1|21 1|1, log −− Λ+Λ−= kkkkkknmkC µµ ,             (4) 
+ 
+where i kk 1| −µ  is the probability that model i is correct at 
+time k, given the state at time k-1.  Unlike the maximum 
+likelihood model selection approach, which uses the 
+likelihood of the better of the two Gaussian densities, the 
+weighted likelihood approach evaluates the likelihood of the 
+true Gaussian mixture of the IMM estimator.  The resulting 
+increase in computational complexity is minor. 
+ 
+An example demonstrates the advantage of this approach.  
+Consider the scenario depicted in Figure 2.  In this example, 
+two measurements, 1kz and
+2
+kz , are available for assignment 
+into two existing tracks whose gates overlap.  The IMM 
+estimator tracking the targets incorporates two models, the 
+second of which is much less likely to match the data.  As 
+luck would have it, the prediction of the second target using 
+the second model, denoted by 2,2kz , is closer to the center of 
+the first track’s gate than is the prediction of the first target 
+using the first model, 1,1kz .   
+ 
+ 
+Figure 2 – Overlapping track gates 
+ 
+Figure 3 depicts the PDFs of the two modes and the 
+Gaussian mixture.  The maximum likelihood model 
+selection approach evaluates both modes using the 
+measurement from the first target.  It then computes the 
+likelihood of assigning the first measurement to the first 
+track, 1,1kΛ , by selecting the mode with the maximum 
+likelihood.  In this scenario, the first mode has a much 
+larger likelihood than the second.  Thus, 1,1kΛ is the 
+likelihood of the first mode evaluated using the 
+measurement from the first target.  The corresponding cost, 
+1,1
+kC , is simply the negative log of this value.  This process 
+is repeated using the measurement from the second target.  
+In this case, the likelihood of the second mode is much 
+larger than that of the first.  Thus, 2,1kC is computed to be 
+the negative log-likelihood of the second mode evaluated 
+using the measurement from the second target, 2,1kΛ . 
+ 
+ 
+Figure 3 – Two Gaussian distributions and one Gaussian 
+mixture 
+ 
+Problems ensue when the cost matrix is used to assign the 
+measurements to tracks.  Since 2,1kΛ  is larger than 
+1,1
+kΛ , the 
+cost of assigning the second measurement to the first track 
+is smaller than the cost of assigning the first measurement to 
+the first track.  Therefore, using the maximum likelihood 
+model selection approach causes the measurement from the 
+second target to be incorrectly associated with the track 
+from the first.  The downfall of the maximum likelihood 
+model selection approach is that it fails to consider how 
+likely each of the modes is to occur.  It seems intuitive that 
+less weight should be given to predictions from modes that 
+are less likely to occur.   
+ 
+The weighted likelihood approach is based on this principle. 
+ By evaluating the pure Guassian mixture, the weighted 
+likelihood approach produces a likelihood, 1,1kΛ , that is 
+larger than 2,1kΛ .  The cost of assigning the first 
+measurement to the first track is less than the cost of 
+assigning the second measurement to the first track.  As a 
+consequence, the weighted likelihood avoids making a data 
+association error. 
+ 4
+ 
+3. RESULTS FOR A PERIODIC RADAR 
+REVISIT TIME 
+ 
+Parameters 
+ 
+A high fidelity ballistic missile defense simulation is used to 
+compare the two approaches to the measurement-to-track 
+cost assignment computation.  The target is a separating 
+ballistic missile with seven components that split apart at 
+various times during the scenario.  This is depicted with a 
+timeline in Figure 4.  Note that ACM stands for attitude 
+control module and RV stands for re-entry vehicle.  An S-
+band radar using a horizon fence search technique serves as 
+the radar platform for the comparison. 
+ 
+ 
+Figure 4 – Timeline for separating missile objects  
+ 
+To establish a fair comparison, 100 Monte Carlo trials were 
+conducted using each cost assignment technique.  To 
+determine the extent of the association problem attributable 
+to measurement noise rather than data association errors, 
+another 100 trials were executed using the maximum 
+likelihood model selection approach in conjunction with 
+perfect data association. 
+ 
+Comparison metrics 
+ 
+The cost assignment computation methods are compared 
+using four metrics.  The first three metrics are  
+• the number of tracks in which the CV model 
+probability drops below a set threshold,  
+• the length of time the CV model probability spends 
+below that threshold, and  
+• the minimum value of the CV model probability.   
+The fourth metric quantifies the impact that model 
+probability fluctuations have on track accuracy by 
+computing the root mean square error (RMSE) of the 
+position and velocity estimates.  By comparing both the 
+extent of the fluctuations and the impact of the fluctuations 
+on the track accuracy, this set of four metrics provides a 
+strong basis for comparing the cost assignment computation 
+methods. 
+ 
+Figure 5 provides an example of a fluctuating CV model 
+probability that occurs in the track associated with the RV.  
+Near 130 s, the combined RV/ACM separates into two 
+pieces.  After this separation, the RV’s true target state is 
+known to be well modeled by the CV filter.  As expected, 
+the CV model probability rises to approximately one shortly 
+after separation.  As time progresses, the geometry of the 
+engagement changes, thus changing the radar’s view of the 
+complex target.  Approximately 200 s into the encounter, 
+target geometry, track estimates, and measurement 
+processes conspire to produce a very challenging 
+assignment situation.  Even though all of the targets are 
+ballistic, and thus well modeled by the CV filter, at 200 s, 
+the CV model probability drops almost to zero and stays 
+there for a significant period of time.   
+ 
+To quantify the occurrence of this phenomenon using the 
+first three metrics, a threshold must be selected.  When the 
+CV model probability drops below this threshold, it is 
+deemed problematic.  A threshold of 0.9 is used to 
+demonstrate the concept.  In Figure 4, the CV model 
+probability stays below the threshold for 15.52 s reaching a 
+minimum value of 1.3E-4. 
+ 
+ 
+Figure 5 – Example of model probability vs. time 
+ 
+ 
+Results 
+ 
+The percentage of tracks in which the CV model probability 
+drops below a threshold is shown in Figure 6 as a function 
+of the threshold.  Using the weighted likelihood approach 
+instead of the maximum likelihood model selection 
+approach clearly reduces the percentage of tracks 
+experiencing the fluctuating CV model probabilities.   
+ 
+As expected, the best results are obtained when perfect 
+assignment occurs, (i.e. no data association errors).  
+However, even those results are not perfect.  This is an 
+indication that some of the CV model probability 
+fluctuations can be attributed to measurement noise rather 
+than data association errors.  Table 1 breaks down the 
+number of times the CV model probability drops below a 
+ 5
+threshold of 0.95 based on the most likely cause1.  The 
+number of CV model probability fluctuations exceeds the 
+number of tracks because multiple fluctuations can occur in 
+one track.   
+ 
+Although the overall reduction of CV model probability 
+fluctuations by the weighted likelihood approach appears 
+modest, the number of fluctuations attributable to data 
+association errors is actually reduced by approximately 30% 
+when the threshold is 0.95. 
+ 
+ 
+Figure 6  - Percentage of tracks in which µCV drops below a 
+threshold vs. threshold level 
+ 
+Table 1 – Occurrence of fluctuating CV model probabilities 
+ 
+ 
+The mean length of time the CV model probability spends 
+below a threshold of 0.95 is shown in Table 2.  The 
+minimum value of the CV model probability when it is 
+below the threshold of 0.95 is given in Table 3.  Tables 1 
+through 3 indicate that the superiority of one cost-
+assignment approach over another is not clear-cut.  When 
+the weighted likelihood approach is used, fewer tracks 
+exhibit fluctuating CV model probabilities.  Nevertheless, 
+the CV model probabilities take longer to return to the 
+correct values with the weighted likelihood approach.  
+Weighting with prior model probabilities prevents the 
+current model probabilities from changing rapidly. 
+                                                          
+1 Fluctuations are determined to be caused by data association errors if 
+more than one missile object is mapped into the same track during the time 
+interval [tstart – 10, tstop], where [tstart, tstop] is the time interval during which 
+the CV model probability is below the threshold of 0.95.  Fluctuations not 
+meeting this criterion are assumed to be caused by measurement noise. 
+Although this prevents some of the fluctuations, it also 
+causes the fluctuations to last longer. 
+ 
+The RSME for position and velocity are shown in Figures 7 
+through 12 for the lethal missile components.  These include 
+the re-entry vehicle (RV), the spent first stage tank, and the 
+first booster tank segment. 
+ 
+Table 2 – Mean time spent below a threshold of 0.95 
+ 
+ 
+ 
+Table 3 – Minimum CV model probability reached while 
+below a threshold of 0.95, averaged over all occurrences 
+ 
+ 
+ 
+Figure 7 – RMSE of position vs. time for the RV 
+ 
+ 6
+ 
+Figure 8 – RMSE of velocity vs. time for the RV 
+ 
+ 
+Figure 9 – RMSE of position vs. time for the spent first 
+stage tank 
+ 
+ 
+Figure 10 – RMSE of velocity vs. time for the spent first 
+stage tank 
+ 
+ 
+Figure 11 – RMSE of position vs. time for the first booster 
+tank segment 
+ 
+ 
+Figure 12 – RMSE of velocity vs. time for the first booster 
+tank segment 
+ 
+The track accuracy plots corresponding to the RV require 
+explanation.  All three approaches shown in Figures 7 and 8 
+demonstrate similar track accuracy until approximately 270 
+s.  At that point, track accuracy severely degrades using 
+both the maximum likelihood model selection approach and 
+the weighted likelihood approach.  The explanation is 
+simple; by that time, the radar cross section (RCS) of the 
+RV is significantly lower than the RCS of the other missile 
+objects.  As a result, the signal-to-noise ratio (SNR) of the 
+RV track is significantly lower.  In fact, in roughly 75% of 
+the Monte Carlo trials, the RV track is dropped between 250 
+and 350 s. The tracks that are not dropped have poor SNR, 
+often resulting in data association errors and degraded state 
+estimates.   
+ 
+During this period, the track accuracy computed using the 
+maximum likelihood model selection with perfect data 
+association outperforms the other two approaches.  This is 
+to be expected because the track filter is never updated with 
+incorrectly assigned measurements.  The decreasing SNR of 
+the RV track is reflected in the increasing RMSE error, but 
+ 7
+this error is far less severe compared to the other two 
+approaches.  It is also worth noting that by 370 s, the RCS 
+of the RV is so low that it ceases to pass the radar’s 
+detection threshold.  This implies that measurements 
+appearing in the RV tracks after about 370 s must be 
+coming from other missile objects.  For that reason, the 
+maximum time shown in the track accuracy plots for the RV 
+is 370 s. 
+ 
+The track accuracy plots shown in Figures 9 and 10 also 
+require interpretation.  It is noteworthy that the results using 
+the maximum likelihood model selection with perfect data 
+association appear to be the worst at 100s.  This can be 
+attributed to the fact that only firm tracks are considered in 
+the track accuracy metrics and tracks tend to become firm 
+sooner using perfect data association.  This is true because 
+all measurements, regardless of quality, are correctly 
+associated.  In contrast, when perfect association is not 
+used, these poor initial measurements commonly result in a 
+misassignment.  Thus, the track filters miss an opportunity 
+to update and do not obtain firm status as quickly.  As a 
+result, these poor initial measurements are not reflected in 
+the track accuracy metrics of the maximum likelihood 
+model selection and weighted likelihood approaches.  
+Nevertheless, both realistic approaches generate similar 
+performance, with the weighted likelihood approach doing 
+slightly better at 110 s than the maximum likelihood model 
+selection approach. 
+ 
+Similar reasoning is used in analyzing the track accuracy 
+results for the first booster tank segment.  In this case, the 
+maximum likelihood model selection approach outperforms 
+the weighted likelihood approach from 280 – 500 s.  
+However, both exhibit much larger errors compared to the 
+true assignment.  This can be attributed to a significant 
+number of track swaps between 275 and 325 s when the 
+more mature track is dropped and a new track is initiated.    
+New tracks initially have poor state estimates, especially in 
+the velocity components.  These new tracks appear in 
+enough of the Monte Carlo trials to cause visible increase in 
+average track error during that time period. 
+ 
+ 
+4. RESULTS FOR AN ADAPTIVE RADAR 
+REVISIT TIME 
+ 
+The analysis conducted in Section 3 used a periodic target 
+revisit rate.  In this section, the analysis is repeated using an 
+adaptive revisit method.  The adaptive revisit rate is similar 
+to the periodic revisit rate if the track is tentative or failed to 
+generate a detection during the previous dwell.  However, if 
+the track is firm and the previous dwell resulted in a 
+detection, the revisit rate is computed as a function of the 
+prior mode probabilities and model switching probabilities. 
+ Thus, fewer dwells are typically spent on firm targets when 
+the adaptive revisit scheme is implemented.   
+ 
+The percentage of tracks affected by fluctuating CV model 
+probabilities is plotted in Figure 13, for both adaptive and 
+periodic radar revisit rates.  A significant trend is observed. 
+ According to this metric, the maximum likelihood model 
+selection approach appears to be incompatible with the 
+adaptive revisit method while the weighted likelihood 
+approach coupled with the adaptive revisit method shows a 
+significant improvement. 
+ 
+ 
+Figure 13 – Percentage of tracks in which µCV drops below 
+a threshold for both periodic and adaptive radar revisit rates 
+ 
+The number of times the CV model probability drops below 
+0.95 is shown in Table 4.  The number of data association 
+errors for the weighted likelihood approach is half that of 
+the maximum likelihood approach.  The weighted 
+likelihood approach also reduces the total number of 
+affected tracks by approximately 30%.  This constitutes a 
+substantial improvement. 
+ 
+Table 4 – Occurrence of fluctuating CV model probabilities 
+ 
+ 
+The second and third metrics, Tables 5 and 6, respectively, 
+also show an improvement for the weighted likelihood 
+approach compared to the maximum likelihood model 
+selection approach.  While it is true that the mean time spent 
+below the threshold is larger with the weighted likelihood 
+approach, focusing on data association errors yields a 
+smaller set of affected tracks.   The average time spent 
+below the threshold decreases by 0.26 s for the weighted 
+likelihood approach compared to the maximum likelihood 
+model selection approach.  Additionally, the minimum 
+value for the weighted likelihood approach is closer to the 
+correct value.  From the first three metrics, the weighted 
+likelihood approach seems to be very compatible with an 
+ 8
+adaptive revisit time. 
+ 
+Table 5 – Mean time spent below a threshold of 0.95 
+ 
+ 
+Table 6 – Minimum CV model probability reached while 
+below a threshold of 0.95, averaged over all occurrences 
+ 
+ 
+Figures 14 through 19 depict the RSME of position and 
+velocity for the RV, spent first stage tank, and first booster 
+tank segment.  The trends are similar to those observed 
+using the periodic revisit rate.  Both approaches to the cost 
+assignment computation perform similarly with the RV until 
+roughly 270 s, when the error significantly increases.  As 
+before, the SNR of the RV is too low to generate detections 
+by 370 s.  Both approaches also perform similarly for the 
+spent first stage tank, again with perfect data association the 
+worst at 100 s.  As discussed in Section 3, this is attributed 
+to the correct assignment of noisy measurements. The track 
+accuracy for the first booster tank segment is also similar 
+for both approaches, as is shown in Figures 18 and 19.   
+ 
+It is worth noting that the track accuracy plots obtained 
+using an adaptive revisit rate have the potential to be 
+misleading.  The nature of the adaptive revisit scheme is 
+that good tracks are revisited less often than poor ones.  As 
+the revisit times become less frequent, track accuracy 
+degrades.  Some degradation is accepted as a worthwhile 
+tradeoff for more efficient use of radar resources.  For this 
+reason, care must be taken when comparing track accuracy 
+plots resulting from an adaptive revisit scheme.  Degraded 
+track accuracy may simply be a sign that the radar is 
+producing fewer measurements compared to a periodic 
+revisit rate. 
+ 
+ 
+  Figure 14 – RMSE of position vs. time for the RV 
+ 
+ 
+ 
+Figure 15 – RMSE of velocity vs. time for the RV 
+ 
+ 
+ 
+Figure 16 – RMSE of position vs. time for the spent first 
+stage tank 
+ 
+ 9
+ 
+Figure 17 – RMSE of velocity vs. time for the spent first 
+stage tank 
+ 
+ 
+Figure 18 – RMSE of position vs. time for the first booster 
+tank segment 
+ 
+ 
+Figure 19 – RMSE of velocity vs. time for the first booster 
+tank segment 
+ 
+ 
+5. CONCLUSIONS 
+ 
+Several conclusions are drawn from the data presented in 
+Sections 3 and 4.  Section 3 demonstrates that when a 
+periodic radar revisit rate is used, the weighted likelihood 
+approach outperforms the maximum likelihood model 
+selection in terms of the percentage of tracks affected by 
+fluctuating CV model probabilities, the minimum value 
+reached by the CV model probabilities, and the track 
+accuracy.  Even so, the weighted likelihood approach does 
+appear to extend the length of time that the CV model 
+probability of affected tracks remains below a threshold. 
+ 
+When an adaptive radar revisit rate is employed, the 
+weighted likelihood approach still outperforms the 
+maximum likelihood approach on the first two metrics, (and 
+does so by a wider margin), and it outperforms the 
+maximum likelihood approach as judged by the third metric. 
+ With an adaptive radar revisit rate, the length of time that 
+the CV model probability stays below the threshold is now 
+smaller with the weighted likelihood approach compared to 
+the maximum likelihood model selection approach.   
+ 
+Executing a comparison of track accuracy using an adaptive 
+radar revisit rate is somewhat problematic because good 
+tracks are revisited less often than poor ones, leading to a 
+small increase in track error on the good tracks.  
+Qualitatively, though, the two revisit time methods appear 
+to provide similar track accuracy. 
+ 
+A difference in performance is also noted between the 
+adaptive and periodic radar revisit rates.  Regardless of the 
+cost assignment approach, the number of CV model 
+probability fluctuations decreased by approximately 30% 
+when the adaptive radar revisit rate was used in place of the 
+periodic one.  However, because the adaptive revisit method 
+sets revisit times of good tracks farther apart, the model 
+probabilities are updated less frequently, leading to longer 
+recovery times when fluctuations occur.  This effect also 
+leads to increased track error when using the adaptive 
+revisit rate.  Despite these drawbacks, adaptive revisit rates 
+allow for more efficient use of radar resources and are often 
+implemented in modern radar systems. 
+ 
+Future work will investigate the impact of merged 
+measurements, sensor biases, and atmospheric refraction on 
+the selection of a cost assignment algorithm. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 10
+REFERENCES 
+ 
+[1]  Mazor, E., Averbuch, A., Bar-Shalom, Y., Dayan, J.,  
+“Interacting multiple model methods in target tracking: a 
+survey,” IEEE Transactions on Aerospace and Electronic 
+Systems, vol. 34 , issue 1, Jan. 1998, pp. 103-123. 
+ 
+[2]    Bar-Shalom, Y., Li, X., Kirubarajan, T., Estimation 
+with Applications to Tracking and Navigation, John Wiley 
+& Sons, Inc., 2001. 
+ 
+ 
+ACKNOWLEDGEMENTS 
+ 
+This research was accomplished through funding under 
+ONR Contract N00014-03-C-0114. 
+ 
+ 
+BIOGRAPHIES 
+ 
+Lisa Ehrman is a Research Engineer at the Georgia Tech 
+Research Institute whose current fields of interest include 
+target tracking and identification via radar.  She also has 
+experience with UV/IR missile warning systems, obtained in 
+2000-2002 when she was employed by MacAulay Brown.  
+She received her B.S. from the University of Dayton in 2000 
+and her M.S. from the Georgia Institute of Technology in 
+2004, both in electrical engineering.  She hopes to complete 
+her Ph.D. at the Georgia Institute of Technology in 2005. 
+ 
+Andy Register 
+Dr. Register earned BS, MS, and Ph.D. degrees in 
+Electrical Engineering from the Georgia Institute of 
+Technology.  His doctoral research emphasized the 
+simulation and real-time control of nonminimum phase 
+mechanical systems.  Dr. Register has approximately 17 
+years of experience in R&D with his current employer, 
+Georgia Tech, and product development at two early-phase 
+startups. Dr. Register’s work has been published in journals 
+and conference proceedings relative to mechanical 
+vibration, robotics, computer architecture, programming 
+techniques, and radar tracking.  More recently Dr. Register 
+has been developing advanced radar tracking algorithms 
+and a software architecture for the ballistic missile tracking 
+benchmark. 
+ 
+W. Dale Blair received the BS and MS degrees in electrical 
+engineering from Tennessee Technological University in 
+1985 and1987, and the Ph.D. degree in electrical 
+engineering from theUniverity of Virginia in 1998. From 
+1987 to 1990, he was with the Naval System Division of 
+FMC Corporation in Dahlgren, Virginia. 
+From 1990 to 1997, Dr. Blair joined the Naval Surface 
+Warfare Center, Dahlgren Division (NSWCDD) in 
+Dahlgren, Virginia. At NSWCDD, Dr. Blair directed a real-
+time experiment that demonstrated that modern tracking 
+algorithms can be used to improve the efficiency of phased 
+array radars.  Dr. Blair is internationally recognized for 
+conceptualizing and developing benchmarks for comparison 
+and evaluation of target tracking algorithms.  Dr. Blair 
+developed NSWC Tracking Benchmarks I and II and 
+originated ONR/NSWC Tracking Benchmarks III and IV.   
+SWC Tracking Benchmark II has been used in the United 
+Kingdom, France, Italy, and throughout the United States, 
+and the results of the benchmark have been presented in 
+numerous conference and journal articles.  In 1997, he 
+joined the General Faculty of the Georgia Institute of 
+Technology as a Senior Research Engineer and was 
+promoted to Principal Research Engineer in 2000.  Dr. 
+Blair is co-editor of the Multitarget-Multisensor Tracking: 
+Applications and Advances III.  He has co-authored 18 
+refereed journal articles, 16 refereed conference papers, 67 
+papers and reports, and two book chapters. Dr. Blair's 
+research interest include radar signal processing and 
+control, resource allocation for multifunction radars, 
+multisensor resource allocation, tracking maneuvering 
+targets, and multisensor integation and data fusion. His 
+research at the Univerity of Virginia involved monopulse 
+tracking of unresolved targets. He is a member of the Board 
+of Governors of the IEEE Aerospace and Electronic 
+Systems Society and currently serves the as the Editor for 
+Radar Systems for IEEE Transactions on Aerospace and 
+Electronic Systems. Dr. Blair is the developer and 
+coordinator of the short course Target Tracking in Sensor 
+Systems for the Continuing Education Department at the 
+Georgia Institute of Technology. Recognition of Dr. Blair 
+as a technical expert has lead to his election to Fellow of 
+the IEEE, appointments of Editor for Radar Systems and 
+Editor-In-Chief of the IEEE Transactions on Aerospace and 
+Electronic Systems (AES), and election to the Board of 
+Governors of the IEEE AES Society, 1998-2003. 

@@ -1,0 +1,319 @@
+Proceedngs of /€E€ TiNCON’02 
+Dynamic Memory Allocation/Deallocation Behavior 
+in Java Programs 
+Anthony S .  Fong, Richard C.L. Li 
+Department of Electronic Engineering 
+City University of Hong Kong 
+E-mail: ccfong@cityu.edu.& 
+83 Tat Chee Avenue, Kowloon, Hong Kong. China 
+Abstract 
+As object-oriented paradigm becomes the mainstream 
+paradigm on software development, due to its attractive 
+features that can effectively divide a complex software 
+problem into several independent modules, one of the 
+object-oriented languages - Java, becomes popular in 
+recent years because it is widely used in the rapidly 
+growing Internet computing. However, similar to other 
+object-oriented languages, Java has a big drawback of poor 
+performance. 
+One of the main causes of the performance deficiency 
+is the extensive use of dynamic memory allocations and 
+deallocations during object or array creations and 
+destructions. Even a simple Othello applet game easily 
+requires half a million of memory allocations for only one 
+game play. 
+AAer analysis on the memory allocation behavior of 
+Java programs, it is concluded that about 99% of the 
+allocations are of sizes le’ss than 1024 bytes. The analysis 
+also shows that most of the allocated chunks in small size 
+will survive only a very short period of time and after they 
+are garbage collected, they can be reused in the very near 
+future. This implies the memory allocation / deallocation 
+pattern in Java is bounded to a certain kind of locality. 
+The information presented in this paper is a reference 
+for designing an efficient hardware memory allocation / 
+deallocation unit. 
+Keywords: Java, memory allocation, memory 
+deallocation, object-oriented programming 
+1. Introduction 
+Nowadays, object-oriented paradigm becomes the 
+mainstream paradigm on software development, due to its 
+attractive features that can effectively divide a complex 
+software problem into several independent modules. It 
+performs better on the development of more reliable and 
+more maintdinahle software than the traditional 
+datdprocedure-oriented paradigm. Among a variety of 
+object-oriented languages, Java becomes popular in recent 
+years because it is widely used in the rapidly growing 
+Internet computing. Although Java promises- to deliver 
+powerful features such as secured software distribution, 
+plalrorm independent, and ease of soflware updates, 
+similar to other ohject-oriented languages, Java has a big 
+drawback of poor performance. 
+One of the main causes of the performance deficiency 
+is the extensive use of dynamic mernory allocations during 
+object and array creations. In 113 and [2], the empirical 
+data shows that C+t programs perform an order of 
+magnitude more allocations than Comparable C programs. 
+This syndrome should be similar in Java programs, since 
+both Java and C++ are object-oriented languages. 
+However, no data has been reported regarding the dynamic 
+memory behavior in Java programs at this point. Therefore 
+a quantitative analysis on the dynamic memory allocation 
+and deallocation patterns is needed to outline a way to 
+provide better support in dynamic memory management 
+for Java programs. 
+This paper presents an approach to investigate the 
+behavior of the memory allocations in Java programs by 
+modifying the jdk  source code for tracing the program 
+execution. 
+2. The Tracing Tool 
+In order to obtain the statistics of the memory 
+allocation on Java programs, the source code of the SUN 
+jdk 1.3 is obtained and modified so that it will dump out 
+memory allocation details when executing Java programs. 
+The source code file responsible for memory 
+management resides in the following path of the jdk 1.3 
+source: 
+jdkl.3/src/share/javavrn/runtime/gc.c 
+The function for allocating a chunk of memory is 
+CacheAlloc. IL lakes the size in bytes as one or  its 
+parameters, allocates a chunk of memory with the given 
+size, and returns a handle of that chunk back to the caller. 
+It is called by three different functions in gc .  c for 
+diffcrent types of allocations. They are: 
+1. allocClass 
+2. allocObject 
+3. allocArray 
+They are responsible for class allocations, object 
+allocations and array allocations respectively. 
+Class allocation is invoked during the loading of a 
+class, which is less frequent to be invoked than the other 
+two. The object allocation and the array allocation are 
+invoked when creating new objects or arrays through the 
+(‘new’’ keyword of Java programs. They are more frequent 
+and should be taken into serious consideration. 
+Some codes are added to these three different 
+allocation functions to dump out an allocation record via 
+0-7803-7490-8/02/$17.0002002 IEEE. 
+3‘ 14 
+s t d e r r  in text format whenever a memory allocation 
+occurs. The record fomut is listed in Table 1 .  
+Table 1 : Information Collected 
+- 222-mpegaudio 
+- 227-mtrt 
+Using thc modified JVM to cxecutc Java programs 
+generates very large amount of, text dump. Storing the 
+records in text format is not efficient. Therefore a program 
+is developed to c,apture the text dump and convert it into 
+binary data files in parallel with the. Java program 
+execution. In this way, the output from the N M  is 
+rcdirccted to a FIFO pipe, which is opened by the 
+conversion program in background to convert the text 
+dump into more compact binary format and is saved to a 
+file. 
+An application that decompresses 
+audio files that conform to the IS0  
+MPEG Layer-3 audio specification. 
+A raytracer that works on a scenc 
+3. ‘The Experiment 
+The Java programs traced in our experiment include 
+the SUN Java2D demo, SUN Forle4J, SPEC JVM98 
+benchmark, and Othello. 
+Java2D is a JFC demo application includcd in the jdk 
+1.3. Parameters can be used lo make it run automatically 
+for benchnmking. The parameters used in this test are: 
+ruils=l dclay=120 
+- 228jack 
+which means to run for one loop and sleep for 120 seconds 
+between each tab 
+Forle for Java is an incegraled development 
+environment for Java and is written entirely on Java, the 
+behavior is captured during the normal use ofthis software. 
+SPEC JVM98 bericlimark is a commercial Java 
+benchmark program developed by Standard Performance 
+Evaluation Corporation (SPEC 1. The benchmarks 
+executed are summarized in Table 2. Additional options 
+for autorun setup are 
+-a -d3000 -g -n12 -M4 -slOO 
+features of the JVM to ensure that it 
+provides a suitable environment for 
+340KB in size. 
+A Java parser generator based on the 
+Purdue Compiler Construction Tool 
+Set (PCCTS). 
+-202jess 
+-209-db 
+Ion memory resident database. 
+1This is the Java compiler from the JDK -2 13-iavac 
+benchmark from CPU95. 
+The Java Expert Shell Syslem is based 
+on NASA’s CLIPS expert shell system. 
+Perfomis multiple database functions 
+depicting a dinosaur, where each of the 
+two threads renders the scene in the 
+input filc time-test model, which ‘is 
+Othello is a Java applet that plays an Othello game. It 
+is tested for one game play in the most difficult level using 
+the appletviewer in the modified jdk 1.3. 
+4. The Results 
+4.1 Allocation Characteristics 
+After analyzing the data obtained, the statistics on the 
+allocation frequencies of different sizes are obtained. The 
+total number of different allocations on a certain type is 
+summarized in Table 3. 
+Program 
+Table 3: Summary of Allocations Count 
+The maximum and minimum sizes of different 
+allocations are summarized in Table 4. 
+Program 
+Java2D 
+Forte4 J 
+Class Arrav 
+Othello 4-316 1 - 64,128 
+Table 4: Summary of Allocation Size Ranges 
+From thc rcsults obtaincd in Tablc 3 and Tablc 4, thc 
+class allocations are always invoked with fixed sizes and- 
+the frequency of invocations are much less comparing to 
+the object allocations and array allocations. Therefore 
+class allocation is omitted in hrther analysis. 
+The total allocation counts of various programs are 
+extremely large that even a very simple Othello game 
+needs half a million of memory allocations for only one 
+game play. These large amounts of memory allocations 
+become one of the most significant causes of slow 
+execution in Java programs. 
+The object allocation counts die generally more than 
+315 
+the array allocation counts by 01 
+allocations are often with small si 
+bytes. lfthey,can be handled quic 
+be boosted significantly 
+To make a better analysis, several plots on the 
+allocation frequencies versus block sizes are generated. In 
+order to eliminate the domination effects on the plots due 
+to wide range of total allocation counts, the percentages of 
+total allocations are used instead of raw frequencies. To 
+makc thc plots visually clearcr, a logz scalc is used in 
+plotting the block sizes. Figure 1, 2, and 3 show the 
+frequencies versus the block sizes of different types of 
+allocations, while Figure 4, 5, and 6 show the cumulative 
+frequencies versus the block sizes of different types of 
+allocati om. 
+The frequency plots show the allocations 
+concentrate on small block sizes 
+allocations or the array allocations 
+bytes are being allocated most frequently. Although the 
+array allocations have sizes in wider range, there are 
+almost no allocations beyond the size of 1024 bytes. 
+Companng this result with the cumulative plots, there are 
+90% of the total allocations are with sizes less than 256 
+bytes 
+4.2 Chunk Life Timc Characteristics 
+For the life time characteristrcs, chunks with size less 
+than 1K bytcs docs not show any significant differences 
+with the chunk in larger sizes. However these small sized 
+chunh have very low minimum life 
+even deallocate right after an alloc 
+quantifies the chunk sizes and plot the distribution of life 
+times for the individual sizes, it yields an interesting 
+diagram showing that there is some locality of the life 
+times. 
+4.3 Deallocation to Re-allocation Behavior- 
+distance also show so 
+5. Conclusions 
+During the execution of Java programs, massive of 
+memory allocations are invoked. Even a very simple 
+Othello game needs half a million of memory allocations 
+.allocation is dcfinitcly 
+formance of Java. This 
+to design a system for 
+proficient Java execution 
+If hardware can be used for iiieniory allocations so that 
+each allocations lakes only oiie cycle or even one pipeline 
+stage, the performance can be greatly enhanced. However 
+designing a hardware that can do a mal loc  as software 
+does is not a simple task. There are trade-offs between 
+efficient memory usage and rapid allocations. To make 
+best use of memory, multiple-step algorithms may be used. 
+To make memory allocation fast, large amount of memory 
+will be wasted for free space trackmg. 
+It is interesting th 
+Rased on the fact that around 99% of the total 
+allocations are with small sizes (size > 1K bytes), we can 
+tackle the problem by using hardware/software co-design. 
+For small block sizes, simple hardware can be used for 
+memory allocations in a quick ‘way; while for large block 
+sizes, traditional m a l  loc-like software method can be 
+used. This can ensure the memory allocations are 
+efficiently done in 99% of the time and the performance 
+can be greatly enhanced. 
+As there are localities in the chunk lifetime and 
+allocation to re-allocation distance, a cache like 
+mechanism may be used to tackle the allocation arid 
+deallocation information so that the gate counts can be 
+minimize while the performance can be maximize. 
+A hardware mechanism called Memory Management 
+Cache is being developed and submitted as another paper. 
+It is based on this.result. and gives excellent hit rate. 
+6. Future Work 
+A more detailed evaluation will be conducted with 
+variation of different parameters of the MMC and the 
+evaluation target is a multi-programming environment for 
+Java, so that the best parameters can be tuned for the 
+support of multiple Java programs execution. 
+Acknowledgement 
+Grant 7001 056 of City University of Hong Kong. 
+This study is partially funded by Strategic Research 
+References 
+[l] David Detlefs, A1 Dosser, and Bejamin Zorn. “Memory 
+allocation costs in large C and C++ programs.”. 
+Software - Practice and Experience, pp. 527-542, 
+June 1994. 
+[2] Brad Caldcr, dirk Grunwald, and Benjamin Zorn, 
+Quantifying Behavioral D1ference.r Between C and 
+C+ + Progmns, Technical Report CU-CS-698-95, 
+Department of Computer Science, University of 
+Colorado, Boulder, CO, Ja.nuary 1995. 
+[3] M. Chang, Woo Hyong Lee:, and Y. Hasan. “Measuring 
+dynamic memory invocations in object-oriented 
+programs”. IEEE International Computing and 
+Communications Conference Performance I999, pp. 
+268-274. IEEE Computer Society Press, Feb 1999. 
+[4] J.M. Chang and E.F. Gehringer. “A high performance 
+memory allocator for object-oriented systems”. IEEE 
+Transactions on Computers, volume 45, issue 3, pp. 
+357-366. IEEE Computer Society Press, Mar 1996. 
+[5] H. Cam, M. Abd-El-Barr, and S. M. Salt. ”A 
+high-performance hard.ware-efficient memory 
+allocation technique and design”. International 
+Conference on Computer Design, 1999. (ICCD ‘99 1, 
+pp. 274-276. IEEE Computer Society Press, Oct 1999. 
+316 
+0 5 t  I I  
+0 2  
+01 
+Block sue in rower at 2 
+Figure I : Frequencies of Object Allocations in Different 
+Block Sizes 
+I 
+Figure 2: Frequencies of Array Allocations in Different 
+Block Sizes 
+, 
+B ~ ~ ~ ~ S K ~ ~ ~ P O W ~ ~ O I ~  
+Figure 3 .  Frequencies of All Allocations in Different Block 
+Sizes 
+a 
+z 
+~ l o d ; s u e ~ n r ~ w e r ~ i z  
+Figure 6: Cumulative Frequencies of All Allocations in 
+Different Block Sizes 
+J 
+Block Sue in Powerof 2 
+Figure 3: Cumulative Frequencies of Object Allocations in 
+Different Block Sizes 
+0 2 4 6 8 10 12 14 16 18 20 22 
+8106 Sue in Power of 2 
+Figure 4: Cumulative Frequencies of Array Allocations in 
+., Different Block Sizes 
+317 

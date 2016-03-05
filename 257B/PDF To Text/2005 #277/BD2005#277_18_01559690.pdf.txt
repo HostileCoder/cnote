@@ -1,0 +1,648 @@
+Integrated Diagnostics of Rocket Flight Control
+Dimitry Gorinevsky*, Sikandar Samart,
+Honeywell Labs, Fremont, CA 94539
+John Bain,
+Honeywell Space Systems, Houston, TX 77058
+and Gordon Aaseng,
+Honeywell Space Systems, Glendale, AZ 85308
+Abstract- This paper describes an integrated approach to cal models available for the GN&C (Guidance, Navigation,
+parametric diagnostics demonstrated in a flight control sim- and Control) system design and analysis. We demonstrate
+ulation of a space launch vehicle. The proposed diagnostic the approach by using simulated telemetry data for a launch
+approach is able to detect incipient faults despite the natural vehicle of Space Shuttle class. Faults seeded in the simula-
+masking properties of feedback in the guidance and control tion are subsequently estimated by the VHM algorithms to
+loops. Estimation of time varying fault parameters uses para- validate their performance. The estimated fault parameters
+metric vehicle-level data and detailed dynamical models. The include air drag change from aerodynamic surface damage.
+algorithms explicitly utilize the knowledge of fault mono- This could model leading edge damage like that sustained in
+tonicity (damage can only increase, never improve with time) the Columbia Accident STS- 107 mission. We also consider
+where available. The developed algorithms can be applied estimation and trending of such parameters as propulsion per-
+to health management of next generation space systems. We formance, thrust vectoring actuator/gimbal wear, and a drift
+present a simulation case study of rocket ascent application in one of GN&C sensors (pitch angle). These are choosen as
+to illustrate and validate the proposed approach. plausible representative faults that demonstrate the detection
+algorithm effectiveness. Development of a practical VHM
+TABLE OF CONTENTS system would require an additional careful analysis and engi-
+neering of the fault models in the VHM algorithms.
+1 INTRODUCTION
+The fault estimation capabilities described in this paper will
+2 APPLICATION PROBLEM integrate smoothly with vehicle health management systems
+3 ESTIMATION PROBLEM STATEMENT that use a test and diagnosis methodology. Systems such
+4 SOLUTION APPROACH as the Honeywell's Boeing 777 Central Maintenance Com-
+5 ESTIMATION RESULTS puter (CMC) integrate discrete Buit-in-Test (BIT) data usingvehicle-level diagnostic models to provide a substantial added
+6 DISCUSSION OF INTEGRATED DIAGNOSTICS value [14]. Adapting this approach to space systems, we
+7 CONCLUSIONS continuously monitored simulated ISS telemetry data, gener-
+ated test results from that data, and processed the test results
+through a model-based reasoner [1]. The system is expected
+to dramatically improve fault isolation and discrimination of
+the root cause from Caution & Warnings and sensor data,
+This paper is focused on the developement of algorithms for analysis that is performed manually by mission controllers.
+vehicle health management (VHM) of a launch vehicle in
+closed-loop flight including vehicle dynamics, flight control Advanced testing methods are needed to detect systems dy-
+actuators, sensors, navigation, and propulsion system. Flight namics and incipient faults. In this work we integrate para-
+control related faults can have severe impact on crew and ve- metric sensor data using vehicle-level models to estimate
+hicle safety during ascent. Safety margins could be improved fault parameters for prognostics and incipient fault diagnos-
+by early detection of incipient faults (prognostics) to enable tics. The challenge is to estimate incipient faults and trend
+timely mission decision. system degradation hiding behind dynamical variation, feed-
+back guidance and control, and noise of the sensor signals.
+We are evolving a software-based capability for fault estima- We address this by using accurate dynamical vehicle models
+tion by fusing cross-vehicle parametric data without introduc- and optimal statistical estimation of fault condition. These
+ing any additional sensors. The approach re-uses dynami- results will significantly extend the capabilities of diagnos-
+tic reasoners by providing information about additional types
+of faults that can't be obtained through subsystem BIT and
+*Corresponding author: dimitry.gorinevsky@honeywell.com simple limit-checking.
+tPresently at Information Systems Laboratory, Stanford University, Stan-
+ford, CA 94305
+0-7803-8870-4/05/$20.00 ®)2005 IEEE We envisioned that initially the algorithms demonstrated in
+IEEEAC paper #1001, Version 7, Updated October 27, 2004
+1
+this work could be deployed on-ground in a mission control based estimation allows us to achieve flexible modeling, in-
+center. The algorithms would use a stream of telemery data corporate knowledge that damage conditions might only grow
+coming from a vehicle and provide on-line estimation of the worse with time for some faults, and also make estimates ro-
+fault parameters for mission management decision support. bust to modeling errors. The optimization problem is a con-
+For the next generation space vehicles, the algorithms could vex Quadratic Programming (QP) problem and a solution can
+be also deployed in on board avionics to support greater au- be computed in efficient, scalable way using the state of the
+tonomy. art solvers. Such optimization can be embedded into the on-
+line computations.
+This work is a case study demonstrating fesibility of estimat-
+ing fault parameters during an ascent of a space launch vehi- The paper is organized as follows. Section 2 introduces the
+cle. At the same time, the technical approach presented herein application problem and gives an overview of the different
+is innovative as well. faults and subsystems under consideration. In Section 3 we
+describe the residual based estimation approach. Section 4
+There is a large body of work on model-based parametric di- provides a mathematical formulation for the estimation prob-
+agnostics using detailed models of system dynamics. Much lem which serves as an input to the solver. The results of the
+of this work was historically associated with controls commu- estimation are given in Section 5.
+nity and considers linear dynamical systems. For examples
+of classical parametric estimation and identification methods 2. APPLICATION PROBLEM
+applied to diagnostics see [6], [7], [11]. Modern systems the-
+ory methods applied to designing dynamical observer filters
+for fault estimation include H2, Ho, and such, e.g., see [3], The diagnostic algorithms developed in this paper are demon-
+[13]. strated through a simulation study of the ascent of the Shuttle-
+class vehicle depicted in Figure 1 [2]. We simulate the ve-
+The approach of this paper is related to the cited work in spirit hicle dynamics, kinematics, guidance, navigation & control
+but is different in a few respects. First, in the problem at hand (GN&C), propulsion, and consider some representative sys-
+the telemetry data is sampled at a high rate whereas the esti- tem faults. The detailed simulation model and the models
+mation update is relatively slower. This results in a multi-rate
+estimation problem. Second, the application problem consid- 275.09 ft
+ered in this work is inherently nonlinear. We use nonlinear A
+models for computing prediction residuals and then linearize
+the problem with respect to the faults similar to how it is done
+in [5]. Third, and the most important difference is that we take
+some of the faults to be monotonic, i.e., they describe deterio- Payload
+ration that can only get worse with time, never improve. The 120,000 lbs
+optimal statistical estimates for such faults can be computed
+in a batch mode. We make use of all the available data at
+any instant as opposed to a standard Kalman Filter recursive 148.09 ft
+solution. The monotonic fault approach extends that of [9], 0
+[16]. 2nd Stage
+There has been a recent focus on constrained state estima-
+H
+tion as discussed in [8], [9], [15]. These techniques allow 82.12 ft ___
+using a broad range of nonlinear filtering models. Some re-
+cent work has also discussed in depth the implementation of 02
+receding horizon filters implementing constraint problem so- 1SSa
+lutions, which are most useful for an on-line implementation, H2
+e.g., see [4].
+4.2 ft __
+In this work, some of the estimated faults are modeled to be _
+monotonic similar to [9]. Some other faults are modeled as
+non-monotonic, or simply constant. This results in a multi- Figure 1. Block Stations
+rate estimation problem with a multi-variable mixture of fault
+parameters subject to constraints. We estimate the unknown
+faults by numerical optimization of the log-likelihood func- used for fault detection are developed in-house and described
+tion. The formulation and optimization of the log-likelihood in detail elsewhere [10]. The measured states and control his-
+loss index reflects fault signature models, measurement noise tory of the simulation are logged as simulated telemetry data.
+statistics, and fault evolution models. Using optimization- This data is subsequently used for validating the fault estima-
+tion algorithms developed in Section 3.
+2
+As a part of the case study, a simulation model of the launch (NE) closed-loop guidance uses a point mass simulation to
+vehicle ascent was developed. This is a simplified model of calculate the minimum fuel trajectory [2]. NE guidance is
+a Space Shuttle class vehicle that is based on data published implemented as full-state proportional feedback, which does
+in the open literature [2]. The detailed engineering simula- not steer back to the original optimal trajectory. Instead, at
+tion used by NASA for the Space Shuttle has in excess of 100 each guidance calculation, if the vehicle has deviated from
+states and thousands of parameters. Details of such complex the optimal path, NE guidance provides the desired control
+simulations are understood by teams of people. To demon- for the optimal trajectory from that point to the desired end-
+strate our diagnostics algorithms, we choose to create a more point. In the reported results, a PID controller tuned using
+manageable yet representative example. The rocket launch trial-and-error is used for the main engine gimbal actuator to
+simulation set up in this study has on the order of 10 states, keep the vehicle on the NE trajectory.
+a few dozen parameters, and is easily understood by a single
+person. Though the details of the simulation are not presented As shown in Figure 3, the state variables for this vehicle sim-
+here, the highlights are presented below. ulation are:
+The dynamical model of this simulation consists of a set of . i is the downrange angle measured in rad
+ordinary differential equations (ODE) that are numerically . h is the vehicle's altitude in ft
+integrated. This ODE system is stiff, since the timescales . v is the vehicle's velocity in ft/s
+for rocket motion and fast GN&C actuators are very differ- . -y is the flight path angle measured in rad
+ent. Also, the magnitude of the variables runs many orders . 0 is the vehicle's pitch angle measured in rad
+of magnitude, i.e. the control torque is required to move an . d is the engine gimbal angle measured in rad
+engine bell producing 5 x 106 lb thrust for angle tracking of . We iS the engine rotational rate in rad/s
+i0- deg.; while the final value of the achieved altitude is . w is the vehicle's rotational rate in rad/s
+5 x 105 ft.
+where h is positive up, i is increasing as the rocket flies
+We simulate a two-stage vehicle with liquid fuel (H2 and 02) downrange, and We iS positive in the direction pictured as pos-
+delivering a medium payload to low Earth orbit. We consider itive 6. Using this state definition, the equations of motion for
+in-plane dynamics only for planar equatorial flight that termi-
+nates in a 00 inclination orbit. The modeling includes varia- b
+tion of mass, center of gravity, and moment of inertia with the
+propellant expenditure. The aerodynamic model is borrowed v
+from an asymmetric vehicle (the first stage drag minimum is
+at small positive angle of attack) [2]. The model assumes a u
+non-rotating spherical Earth and uses an inverse square grav- L
+itational field and an exponential atmosphere. In the diag-
+nostics example to follow, the first stage of the trajectory is
+primarily considered since the nonlinearities of the aerody-
+namic model are most predominant while still in the thick
+atmosphere. Expansion to the full launch sequence would be
+straightforward. T
+As depicted in Figure 2, a GN&C system is implemented as a
+part of this simulation. For this trajectory-following guidance
+optimal traiectorV Xopt
+(offline) ./ /,optimal thrust alpha opt
+angle plant
+EOM
+-K- ++ thrust angl e ro cm Integrator
+err r
+~~~~Xdot- ImNE gain Pl otolrDm
+(offline) PIDucotrolle D
+measured thrust
+a delta
+angle a d l
+x
+Figure 2. Block Diagram Figure 3. Rocket
+this vehicle are [10]
+and control scheme, the engine bell is gimbaled to attain the
+desired pitch angle while the thrust is maintained at 100% (it v COS)/(1
+is a function of altitude and stage). We assume full-state mea- rS + h' 1
+surements for the navigation model. Neighboring Extremal h vsinty, (2)
+3
+v m +1me [(T -meleaw) cos (a + d) an ability to add (seed) the faults as described below. The
+m +Mme e simulated telemetry data is subsequently used for validating
+- (m + me)g sin ty-mew21 cos a the fault estimation algorithms that do not have an access to
+- mele.e sin(a + d) + ml9 sin a - D], (3) the seeded faults and should estimate them from the trajectory
+1 data.
+(m. + m.e)v [(T - melew2) sin (a + d)
+- (m + me)g cos y + L + melece cos(a + d) Modeledfaults
+2 v Cos 4 The algorithms developed in this work offer a great deal
+- mhlcosa -melw sin a] + r + h (4) of flexibility in the estimation of parametric faults. These
+(5) algorithms are capable of estimating constant, step, mono-
+tonic, and non-monotonic time-varying faults. The nature of
+(6) the faults is not a limiting factor (though fault observability
+through the available data is). The particular faults chosen
+in this study were the ones providing a good demonstration
+J U + Jc6'e cos d = J 2 sin d of the approach capabilities and are not meant to represent
+mlTsin5 a practical design of a vehicle health management system.
++ Q- They are representative of real faults that span several sys-
+/ n m+ rnetems of concern within the closed-loop flight system.
++ 1cp- (Lcosa+Dsina), (7)\ m+ me)J We consider the following four parametric faults aggregated
+JfCe + Jcc- cos d -JCw2 sin6 - Q into a fault vector to be estimated:
++ mele [L cos (a + 6) + D sin (a + s)]. (8) [ Thrust Loss, percent 1
+m + me Drag Increase, percent
+In Equations (1) to (8) Gimbal Sluggishness, percent
+[ Pitch Sensor Offset, percent (
+J* = J + m1ine (9) The first fault vector component, percentage of thrust loss, is
+,M +,me'
+mmel2 related to the propulsion subsystem. It describes the degrada-
+Je = ic + e (10) tion that occurs in the propulsion engine over a period of time.
+m + me We model this fault as a monotonic one assuming that the ef-
+if mme' (1 1) ficiency of the rocket engine can only decrease (deteriorate)
+m + with time.
+ag = 0 - -. (12)
+The second component of vector f describes an increase in
+Inll. Theionsa(7 andt(8), is heltoqu ftmove atheegn the aerodynamic drag of the vehicle. The drag mostly impactsbell.the girmbal atuato is odele as firs ordr actator the dynamics during first stage ascent while the vehicle is still
+in the thick atmosphere. The importance of estimating this
+Q = 20k(Xd-X) (13) fault parameter can be related to the Columbia accident. Theincrease in drag might indicate damage to the aerodynamic
+where Xd is the desired servo actuator position, x, is the servo (and heat shielding surfaces).
+position, and k is the servo position-to-torque gain. Addi-
+tionally, m is the rocket mass, J is the rocket inertia, I is the The third element in the fault vector is the percentage of slug-
+distance from the gimbal pivot to the rocket center of gravity, gishness of the gimbal actuator. The gimbal actuator is used
+and 1cp is the distance from the gimbal pivot to the center of for vectoring the main engine thrust and is the primary con-
+pressure. The engine bell has corresponding quantities me, trol actuator. Gimbal sluggishness during a vehicle's launch
+Je, and le The lift and drag forces are L and D, thrust is T, may be caused by a pressure loss in the actuator's hydraulic
+and gravity is denoted g. system, some hydraulic valve problem, or in wear of of me-
+chanical gears or bearings. This sluggishness may lead to a
+The simulation is PC based and programmed in Mathworks' deviation from the desired trajectory since it effects the con-
+Simulink (double precision) as a continuous time model with trol system for the vectored thrust steering torque.
+Runge-Kutta integration of the ODEs. The simulation cov-
+ers the 371 sec. trajectory of ascent into an 80 x 150 nm The fourth fault we consider in this work relates to drift of
+equatorial orbit. The vehicle launch mass is 1.03 x i05 slugs, the pitch sensor in the GN&C system. The origin of this fault
+mass flow rate is constant in each stage, and staging occurs may have to do with some error in calibration of the sensor
+upon expending of first stage propellant at the time 153.54 s. or in wiring induced noise or offset. This fault may lead to
+The sensor and control data is logged at aO0.1 s sampling inter- an incorrect value of the vehicle's pitch angle used by the
+val and saved into a data file. The simulation model includes guidance and control laws.
+4
+The developed simulation includes the faults of interest as the fault estimates must be computed on-line, the fault signa-
+parts of the propulsion subsystem, flight dynamics (GN&C) tures and other data used by the estimation algorithms can be
+subsystem and the gimbal actuation subsystem models. pre-computed off-line for the planned ascent trajectory as is
+explained below. The on-line estimation is cast as a convex
+Diagnostics data availability optimization problem that can be solved very efficiently.
+The 'telemetry' data stream used by the algorithms is pro-
+duced by the simulation discussed in Subsection 2. This data Vehicle Compute model
+is available at a lOOms sampling interval. At each sample, the data stream (data: rprediction
+data generated by the simulation consists of (i) vehicle state x(t) residuals: y(t)
+data (8 values), (ii) vehicle acceleration data (4 values), and
+(iii) gimbal servo data (2 values). At sampling time t these Data
+data make the 14-component data vector x(t). history
+buffer: Run fault Fault
+We assume vehicle rigid-body acceleration data is available from Runestimation FestimatesF,
+as a part of telemetry. The accelerations are normally avail- start to , algorithms
+able to the vehicle GN&C system from on-board accelerome- present:
+ter or a navigation Kalman Filter estimator that could also use 15s rate update
+position and velocity data. The bandwidth of the acceleration
+measurement and estimation would be much higher than the Figure 5. Fault estimation timeline
+10 Hz sampling rate of the telemetry data. The vector of ac-
+celerations has the following components:
+Prediction Model
+. v is the vehicle's vertical acceleration in ft/s2*) is the veighis vrticangle acceleration in rads The prediction model is a key part of the estimation algo-* y is the flight path angle rate measured in rad/s rithms. It computes parity relationships between the mea-
+* 6e is the engine's rotational acceleration in rad/s2 sured variables. The prediction model outputs should be
+* U is the vehicle's rotational acceleration in rad/s2
+zero in the absence of faults and reflect the fault parameters.
+The prediction models for the three subsystems: propulsion,
+GN&C, and gimbal actuation, are developed separately and
+* Xact is the gimbal actuator position measured in rad then integrated. Though the prediction model is logically dif-
+* Xd is the gimbal actuator servo command measured in rad ferent from the simulation model discussed in Section 2, bothare based on the same dynamical knowledge. One major dif-
+ference between the simulation and prediction models is thatFigure 4 illustrates telemetry data obtained for the first stage the simulationi s d- prGN&cwile the predic-
+ascent of a launch vehicle in the simulation example that is
+further discussed in Section 5. tion uses the applied control input to compute the expected(predicted) system outputs (such as vehicle rigid body accel-
+3. ESTIMATION PROBLEM STATEMENT erations) and is thus independent of the control algorithms.
+In this work we use multirate data processing assuming that For each of the three subsystems, prediction models take the
+the fault estimation algorithms take longer than the 100 ms relevant telemetry data and computed data from other sub-
+sampling interval to execute. As the new data vectors x(t) systems as inputs and predict some outputs (other telemetry
+from (simulated) telemetry become available, they are stored data). The difference between the predicted and the actually
+till the next cycle of algorithm execution. The described time- observed outputs yields the prediction residuals. The predic-
+line of the data processing logic is illustrated in Figure 5. The tion models used in this work also accept the four faults as
+results of Section 5 have been obtained with the estimation additional inputs. This is needed for modeling fault signa-
+update algorithms running every 15 seconds to process the tures.
+data including the new 150 vectors x(t) accumulated through
+that time. The GN&C prediction model takes as its inputs the data vec-
+tor X(t) including the vehicle state and the gimbal actua-
+The algorithms' outputs are the fault estimates in the form of tor position. It also inputs the thrust value predicted by the
+time functions. We validate algorithms by demonstrating that propulsion subsystem model. The outputs are three residuals
+these estimates match the time-varying faults seeded in the for predicting (i) vertical acceleration, (ii) flight angle rate,
+simulation when generating the 'telemetry' data. and (iii) pitch acceleration.
+The fault estimation algorithms perform on-line computa- Consider now the prediction model for the gimbal actuation
+tions using the residuals and fault signatures from the pre- subsystem. The hydraulic actuator of the main engine gimbal
+diction models as inputs and providing estimates of unknown suspension is used for vectoring the main engine thrust and
+fault parameters as a function of time at the outputs. Whereas provides the control for the GN&C system. The gimbal ac-
+5
+DOWNRANGE ANGLE RAD x 104 ALTITUDE FT
+10-
+-1 .4 5 -- --- --- --- -
+20 40 60 80 100 120 140 20 40 60 80 100 120 140
+VELOCITY FT/S FLIGHT PATH ANGLE RAD
+4000 _,
+2000-
+20 40 60 80 100 120 140 20 40 60 80 100 120 140
+X 1 0-3 ENGINE GIMBAL ANGLE RAD ENGINE ROTATIONAL RATE RAD/S
+20 40 60 80 100 120 140 20 40 60 80 100 120 140
+VEHICLE ROTATIONAL RATE RAD/S PITCH ANGLE RAD
+0.01 ,/ 1
+0 0.5,20 40 60 80 100 120 140 20 40 60 80 100 120 140
+ACCELERATION FT/S A PATH ANGLE RATE RAD/S
+@l | 4 ] ~~~~~~ ~~~50-[
+20 40 60 80 100 120 140 20 40 60 80 100 120 140
+X 103 PITCH ACCELERATION RAD/2 1 PATHNGINEACCELERATION RAD/S
+-5 F
+-15 ti°
+20 40 60 80 100 120 140 20 40 60 80 100 120 140
+GIMBAL COMMAND RAD GIMBAL POSITION RAD
+0.01 | II,0
+20 40 60 80 100 120 140 20 40 60 80 100 120 140
+TIME [s] TIME [s]
+Figure 4. Telemetry Data for First Stage Ascent Simulation
+6
+tuation includes a servo-system for tracking the desired vec-
+toring angle. The dynamics are linearized by the closed-loop Vehicle
+feedback and are assumed to have the form data: GN&C model predlctediC
+1act (= i(d- act)WJf, (15) x() Propulsion model
+*IGimbal model aredcted '
+where wf is the bandwidth of the closed-loop feedback con- actuator rate
+trol servo system which guides the vehicle along the desired
+trajectory. The reduction of the bandwidth parameter wf in- models:1 . . ~~~~~~~FaultSignatures: St residuals:dicates the gimbal actuator sluggishness. - Reduced thrust y(t)
+- Air drag changeFal
+The predictive residual is computed such that it is zero if Xd - Sluggish gimbal estimation
+and 1act satisfy the model (15). The nonzero residual should - Pitch sensor drift algorithms
+reflect the change in wf. The difficulty is that differentiation
+of the signal Xact(t) is required to verify if (15) holds. To
+avoid increasing the noise in a finite difference estimation of
+the derivative, we use a smoothing differentiator. The model
+prediction residual is computed as follows When processing the data x(t), the algorithms first use
+detailed prediction models for computing residuals - mis-
+rgimbal(t) S+ t_- +s (16) matches between model prediction and actually observed sys-
+s + TS s + TS tem outputs. The faults are then estimated from the residuals
+where rgimbal (t) is the servo rate residual (in rad/s), s is the using the fault signatures (fault models). This is illustrated inL aevrgimbal(t) dis servo rate residual (in rad/s), Sis the Figure 6 and explained in more detail in the remainder of this
+Laplace variable (differentiator operator), Ts is a smoothing section.
+filter pole (time constant) and the two transfer functions de-
+scribe the filtering operators applied to the two respective sig- The residual data y(t) is sampled at a high rate of lOOms.
+nals. The two filters in the r.h.s. of (16) have proper and There are approximately 1530 samples in the residual vector
+strictly proper transfer functions respectively and can be easy for the 153 seconds of the first stage ascent duration. The es-
+implemented. Note that if (15) is satisfied, then the residual timation algorithm runs at a much slower rate, once every M
+in (16) is exactly zero. Applying a smoothing filter is a linear high-rate samples. In our example the update is every 15 sec-
+transformation of the signal. It does not offset the residual, onds, i.e., for every M = 150 samples of residual data. The
+just brings about a filtering delay while enabling differentia- choice of the update interval depends on a variety of factors
+tor implementation. including the efficiency of the algorithm and the hardware
+limitations of the on-board processors.
+The overall residual vector y(t) is a combination of the
+GN&C subsystem residuals and the gimbal subsystem resid- For the multi-rate system explained in the preceding para-
+ual graph, we let T be the estimation update cycle. Then the
+2 1 residual data vector accumulated from the lift-off till the esti-
+Flight angle rate residual,ra/s mation update cycle number T will be denoted as(ta . Flight angle rate residual, rad/s (17)y(t)
+-~Pitch acceleration residual, rad/s21 (1 ) [ y(1) 1
+L Servo rate residual, rad/s J YT = (18)
+The residual vector y(t) is calculated at the same rate as the y(T M)
+sampling rate for the telemetry data x(t), which in our case The sampled-data estimation logic assumes that fault param-
+corresponds to a sampling time of lOOms.
+eters f (t) (14) are constant through each estimate cycle, i.e.,
+Residual-based Estimation fJ(t) = F(n), for M(n - 1) < t < Mn. This assump-
+tion reduces the number of the fault values that are estimated
+A non-zero residual vector in (17) indicates an off-nominal and improves statistical averaging propertices of the estima-
+behavior and implies presence of faults. The integrated di- tion scheme. At the same time, there is little loss of estima-
+agnostics algorithms use these residuals along with the fault tion performance in addition to the already accepted sampling
+signatures as inputs to determine the fault estimates. The fault time delay of the estimation update. The fault parameter vec-
+signatures, also referred to as the fault sensitivities, provide a tor accumulated from the lift-off till the estimation update cy-
+mapping between the unknown faults and the residuals. In cle number T will be denoted as
+many practical cases, including the one in hand, this mapping F(1)
+can be assumed linear. This allows us to efficiently solve the F1
+estimation problem by reducing it to a convex optimization FT (19)
+problem. [F(T)J
+7
+The algorithm objective is finding the unknown fault parame-
+GIMBAL SLUGGISHNESS-HRUST REDUCTION DRAG INCREASlITCH MEASUREMENT OFFSET
+ter vector F. This requires relating FT to the available resid- 1 0.08 0
+ual data vector Y. If the faults don't change the underlying 0.6 0.06 -0.02
+system dynamics substantially, we can linearize dependence 0 04 0.04 0.04
+o) 0.2 0.02 -0.06between the residuals and the unknown faults. This assump- 0.
+tion allows us to express the relationship in the form 50 100 150 50 100 150 50 100 150 50 100 150
+Lw x 10 x 10-6 x 10-4
+1 0
+YT(FT) ST FT + (T (20) 4 2X1 -
+H
+~~~~~~~~~~~~~~~~-2
+_J-1 0 0
+where ST is the fault sensitivity matrix, (T is the noise vec- L 50 100 150 50 100 150 50 100 150 50 100 150
+tor which accounts for all the modeling uncertainties such 00 04xl
+as propulsion generated vibration, thrust fluctuations, turbu- 0 -1 -2
+lence, unmodeled flexible dynamics of the rocket, fuel slosh, -2
+model p m rr ssm u ene c-1.5model parameter errors, sensor measurement noise, etc. Note _ -3 ~ ~50 100 150 50 100 150 50 100 150 50 100 150
+that if (T= 0 in (20) (no noise, no modeling error), then the w x 10-5
+residual in the absense of fault YT( 0) =0, as it should be. °1
+cLcU 21 1 o °H°Z ~ ~
+~~~00 0
+The dependence of the residual data vector YT on the faults Z 3
+FT in general is not available in an analytical form for com- - 50 100 150 50 100 150 50 100 150 50 100 150
+puting the sensitivity (Jacobian) matrix ST. This dependence
+is however encoded into our prediction model and we can
+compute the sensitivity matrix by a finite difference method. Figure 7. Fault signatures computed for an interval during
+This is done by simply incrementing each component of the the first stage ascend
+fault vector FT and then running the prediction model with
+the corresponding fault inputs to compute pointwise values
+of the residual data vector YT( FT). The finite difference es- 4. SOLUTION APPROACH
+timate of the columns of ST is obtained by normalizing in-
+crematen of the obumnservedTresidutalivetor change.aT sn- Given the statistical models in (20), (24), the estimation prob-crements of the observed residual vector change. he sen- lem is to find the unknown fault parameter sequence F from
+sitivity matrix computation may be performed off-line prior the residual data Y. Index T is dropped, it can be anything orto the launch of the vehicle. The pre-computed sensitivity
+matrix may then be stored and later used by the estimation
+algorithms during on-line computations. Such a computation
+of ST assumes that the vehicle will closely follow the nominal T eqMaximum Liked (L esimat ofttheaunknown
+trajectory during the flight. If the actual state of the vehicle faultkeq sde th
+doesn't match the desired trajectory, then there will be an in-
+accuracy in the computed sensitivity matrix. J -log P(F Y) -> min (21)
+An alternate method is to compute the sensitivity matrix on- By using Bayes rule and independence of the fault vector
+line using the actual vehicle state obtained from the sensors. components Fk (T) in (24) for different k we obtain
+In this approach the nominal prediction model is run along- 4
+side the prediction models with each of the fault inputs in an P(F Y) = const P(Y F) I|J P(Fk()), (22)
+online setting using the actual vehicle state at that time of the k=1
+flight. where FkI(*) denotes the entire time series Fk (1), . . ., Fk (L).
+The discussion above was about the matrix ST corresponding We assume that in the model (20), the noise ((T) is normally
+to the estimation update cycle T. This matrix does not need distributed zero-mean with covariance Q. This is a usual as-
+to be computed from scratch at each update cycle. Instead it sumption leading to a least-square fit estimation. In that case
+can be computed once for the terminal update cycleT= T of )TQ-l(yT T of we have log P(Y F) = (Y- SF l( SF).the ascent. For any T < T the matrix ST is a truncation of the 2
+matrix ST (a MT X T submatrix of the MT x T matrix ST). Using the Bayesian conditional probabilities (22), we can
+thus present the loss function (21) in the form
+Figure 7 shows the columns of the linear operator S(T) for
+the update cycle T 4, i.e., 45 < t < 60). The operator 1
+is causal in the sense that since y(t FT) does not depend on J 2(Y-SF)TQ l(Y -SF) +ZEJk (23)
+F(P), P > t/M. It is also clear from the figure that the map k=1
+is sparse in time because of the negligible influence of fault The terms Jk =-log P9(Fk (.)) in the loss index (23) depend
+after-effect on the residual vector for the next cycle, on the nature of each fault in the fault vector F.
+8
+We use a random walk model for the probabilistic modeling tuning parameters, similar to how the noise covariances are
+of the unknown fault parameter sequence, i.e., selected in the Kalman Filtering practice. If the real faults
+do not exactly follow the assumed models, the estimation al-
+Fk (n + 1) = Fk (n) + k (in), k(in) - Pk(X), (24) gorithms should still produce meaningful results compatible
+with the made assumptions (e.g., monotonicity).
+where Fk (n) denotes the respective fault component at the
+update cycle n and (k (n) is the process noise driving the evo- Estimation Algorithm
+lution of Fk. We assume that (k (n) are mutually independent
+for different k and n and have probablity distributions with As discussed in the previous section, the problem of minimiz-
+the density functions Pk (x). Then ing the performance index (23) with or without the constraints
+is a convex optimization problem. Several efficient routines
+L are available to solve such QP problems. To enable embedded
+Jk S -logpk (Fk (n) - Fk((n - 1)). (25) implementation, we use a solver based on an interior point
+T=2 method. This high performance convex solver provides an
+The initial fault state vector F(1) is assumed to be unknown estimate of the fault vector F as a solution to the constrained
+(its components Fk (1) do not contribute to Jk in (25) ). The (or unconstrained) QP problem given the fault sensitivity ma-
+distribution Pk(x) of the random variable k(k(n) reflects a trix S and the residual data vector Y. The solver is imple-
+prior knowledge about the fault and a fault evolution model. mented in Matlab, the simulation and prediction models were
+In this work we consider three types of such models: the developed in Simulink. The solver uses sparse arithmetic and
+faults that are non-monotonic, monotonic, or constant. exploits the problem structure of the problem under consid-
+eration to efficiently compute the fault estimates. It can esti-
+Case I: Non-monotonic Faults- Assume the driving noise mate fault parameters that fall in any of the three categories
+(k (n) of the fault evolution model (24) to be zero mean nor- discussed above by minimizing the appropriate loss index.
+mally distributed with covariance rk. This yields a standard
+random walk model and -logpk (x) = x2/(2rk). In this The covariances of the noises ((t) and ~(n) are used as tuning
+case Jk adds a quadratic penalty term to the loss index (23) parameters in the optimization solution. They are empirically
+and the problem becomes an unconstrained generalized least chosen to obtain good fault estimates. The efficiency of the
+squares estimation. A recursive solution of such problem can computation largely depends on the individual problem struc-
+be computed using a Kalman Filter formulation. In the ex- ture, i.e., the number of constraints in the problem and the
+ample to follow, pitch sensor offset is assumed to be a non- sparsity structure of the arrays involved. The estimates will
+monotonic fault. in general be computed more efficiently if the fault signatures
+are calculated off-line.
+Case 2: Monotonic Faults-In some instances the faults are
+known to increase (or decrease) with time, e.g., because the For the launch vehicle ascent example, the estimation algo-
+accumulation of an irreversive damage. For such monotonic rithms consist of two parts. The first part are off-line pre-
+faults we consider k (in) to have an exponential distribution launch preparation computations. During this phase each
+with width Ak such that - logPk (x) = x/Ak in (25) with a of the considered faults is in turn seeded in the simulation
+constraint that x > 0. The performance index (23) now in- model. The simulation is then run to obtain the residuals cor-
+cludes a linear penalty in Jk and should be minimized subject responding to this fault These residuals correspond to fault
+to the constraints Fk (n + 1) > Fk (n). This yields a con- signatures and allow to compute the fault sensitivity matrix S
+strained quadratic programming (QP) problem which can be using the procedure described given in Secton 3.
+solved efficiently using convex optimization solvers. More
+detail on monotonic fault modeling and estimation can be bAfter the off-line preparation is complete the optimization-
+found in [9]. In the example to follow, thrust loss and drag based estimation is run on-line as the telemetry data is re-
+increase are assumed to be monotonically increasing faults. eived. T
+estimation.
+Case 3: Constant Faults-A fault may describe an unknown 5. ESTIMATION RESULTS
+condition that does not change after the liftoff (or staging).
+Such fault may be assumed to be constant. In this case the The specific fault estimation problem considered in this paper
+loss function (23) can be assumed to have Jk = 0 for respec- has a four element fault vector given in (14). For the purpose
+tive k while being subject and to an equality constraints of of a simulation we decided to assign different values to these
+the form Fk (n + 1) = Fk (n). In the simulation example to four faults as shown in Figure 9. The sluggishness of the
+follow, gimbal sluggishness is assumed to be a constant fault. gimbal actuator was assumed constant during the first phase
+of the flight. A value of 20 percent was seeded for this fault.
+The above described models of fault evolution are of course The percentage of thrust loss in the propulsion subsystem was
+empirical models and a careful engineering judgement should assumed to grow with the expenditure of fuel. A gradual in-
+be exercised when deciding which one to use. The probability crease in thrust loss from 1 to 3.5 percent was seeded. For the
+distribution parameters in these models can be considered as
+9
+GIMBAL SLUGGISHNESS, PERCENT
+O 4 3- - Seeded Fault
+rr U) 3 25
+L 2 - 20
+oD 1_15
+<_20 40 60 80 100 120 140 15-
+LU -2 20 40 60 80 100 120 140 160
+< x10 THRUST REDUCTION, PERCENT
+Wj 0 4
+z
+q
+-1 3 -
+H -2 - - Seeded FaultI-3__ __ __ __ __ _ 2-
+20 40 60 80 100 120 140
+x 10-3 20 40 60 80 100 120 140 160
+Er uz _ | 6DRAG INCREASE, PERCENT
+1U Seed Faullt
+<c:l
+-22 4-
+20 40 60 80 100 120 140
+< x10
+rr, ~~~ ~~~ ~~~ ~~~~~~~~~~~~~2040 60 8010 120 140 160
+W PITCH MEASUREMENT OFFSET, PERCENT
+< < 2 0.8 - _ Seeded Fault
+z
+-4 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~0.6-
+20 40 60 80 100 120 140 0.4tL TIME [s] 0.2 ,
+0
+Figure 8. Prediction Residuals for First Stage Ascent 20 40 60 80 100 120 140 160
+Figure 9. Comparison of Seeded Faults and Fault Estimates
+drag a four percent step increase after 60 seconds of the flight
+was seeded in the simulation model. This may correspond to
+a sudden increase due to the aerodynamics surface damage, The scaling was selected empirically to make all the nondi-
+such as a piece of the fuel tank insulation foam falling off
+and damaging the leading edge of the wing in the Columbia imesona vribles aoutts oe m ue
+accident. The pitch sensor drift in the GN&C sensor is as-
+sumed to vary sinusoidally between 0.1 to 0. 8 percent during For validation, the obtained estimates are compared against
+the course of the first stage of the flight. To verify the validity the faults that were actually seeded in the initial simulation.
+of the estimation approach, the seeded faults were selected to Figure 9 shows the estimates computed at t 70, 115, and
+span all three cases discussed in the previous section: non-
+monooni,mootoic,and onsant aul. Te siulaion 150. As seen in the plots the estimates improve with time,monotonic, monotonic, constantf t. h simulat as more data are accumulated, and match the unknown faultsproduced 'telemetry' data that was logged and provided to . ' .
+the fault estimation algorithms. First, the prediction model is nreasonably well despite the nose and the unaccounted non-
+' . . ~~~~linearity. The estimates may be tuned further by running an
+run to compute the residuals for this data. The resulting resid- update every 4 or 8 seconds instead of the chosen 15 seconds
+ual data vector is shown in Figure 8. These nonzero residu-
+als indicate the presence of faults. To make the simulation interval.
+more realistic, a uniformly distributed uncorrelated random 6. DiscusSION OF INTEGRATED DIAGNOSTICS
+noise was added to the telemetry signals. The noise mag-
+nitude makes about 5-10% of the residuals. The residuals The multivariate trending and detection of parametric faults
+were processed by the multirate optimization-based estima- is a part of a holistic approach to Integrated Vehicle Health
+tion algorithm described in Section 3. As mentioned earlier Monitoring (IVHM). This paper has described a methodol-
+the data in this example is sampled every 100 ms. The estima- ogy for detecting a class of faults that will contribute substan-
+tion algorithm runs every 15 seconds producing a total of 15 tially to an overall understanding of the vehicle health state.
+estimates during the 153 second of the first stage ascent. To By combining the results of multivariate detection with all
+enable this fault estimation, we pre-compute the sensitivity of the subsystem Fault Identification Detection and Recovery
+matrix S as explained in Section 3. (FDIR) logic, subsystem BIT, limit checking, simple trend
+detection, and other symptom detection methods, a diagnos-
+Before running the estimation calculations, the inputs are tic system can be made substantially more capable.
+scaled. This is necessary, since the variables values mea-
+sured in different physical units might differ by many orders An envisioned advanced integrated diagnostic system of a
+of magnitude from one another. As an example, the vehicle space vehicle will present to the users as complete a picture
+climbs to an altitude of approximately 5 i05 ft whereas the of the health state of the vehicle as practicable [1]. The health
+angle tracking is on the order of about i0-3 radians. To avoid state is a description of the ability of the systems, subsystems
+poor conditioning of the sensitivity matrix, the estimates of all and components to perform their designed function. Each ye-
+variables are scaled and converted into nondimensional units. hidle element is described as nominal or off-nominal, along
+10
+with the degree of degradation of off-nominal elements. This [3] R.K. Douglas, and J.L. Speyer, "H-infinity bounded
+paper demonstrates an ability to detect fault conditions before fault detection filter," AIAA Journal of Guidance, Con-
+they have fully developed. This allows to characterize incipi- trol, and Dynamics, Vol. 22, No. 1, 1999, pp. 129-138.
+ent failure modes; rather than waiting for a major degradation [4] G. Ferrari-Trecate, D. Mignone, and M. Morari, "Mov-
+in functionality, the onset of the deterioration is identified. As ing horizon estimation for hybrid systems," IEEE Trans-
+with other more familiar failure modes, the identification of actions on Automatic Control, Vol. 47, No. 10, 2002, pp.
+the root cause likely requires correlation between several in- 1663-1676.
+dications. For example the "gimbal sluggishness" indication
+may correspond to other symptoms in the hydraulic, electrical [5] 5 Ganguli, S. Deo, and D. Gorinevsky, "Parametric
+or other systems indicated by BIT messages. These correla- fault modeling and diagnostics of a turbofan engine,"
+tions may be completed using a vehicle level reasoner. IEEE Conference on Control Applications, Taipei, Tai-
+wan, September 2004.
+In order to understand the root cause of a failure, it is nec- [6] J. Gertler, Fault detection and diagnosis in engineering
+essary to correlate all of the effects of the failure and trace systems, New York: Marcel Dekker, 1998.
+the effects back to the root cause. In a system using only [7] J. Gertler, "Survey of model-based failure detection
+BIT, it is likely that not all of the information needed to iso- and isolation in complex plants," IEEE Control Systems
+late the cause will be available. Adding sensors could pos- Magazine, Vol. 8, No. 6, 1988, pp. 3-11.
+sibly remove ambiguity in the diagnostic information; how- Gaz in , N. 6,198 pp.3-11.
+ever, each sensor adds weight, power draw and complexity. [8] GC. Goodwin, M. Seron, and J.A. De Dona, Con-
+The ability to get more information out of existing sensors sraiNedcorol andestimation Aoizoap-
+using advanced analytical techniques as we have described is proach, New York: Springer-Verlag, 2004.
+a significant advantage toward the goal of total health state [9] D. Gorinevsky, "Monotonic regression filters for trend-
+knowledge. ing gradual deterioration faults," American Control
+Conference, Boston, MA, June 30-July 2, 2004.
+7. CONCLUSIONS [10] D. Gorinevsky, J.R.Bain, and G.A. Aaseng "Parametric
+This paper described an approach to mutivariable integrated diagnostics of flight control and propulsion for rocket
+diagnostics and trending of parametric faults. The approach ascent," Technical Report, Honeywell Aerospace Elec-
+was discussed and illustrated for a case study of flight con- tronics Systems, Fremont, CA, January 2004
+trol system diagnostics during space lauch vehicle ascent. [11] R. Isermann, "Supervision, fault-detection and fault-
+The approach might be useful in many other aerospace ap- diagnosis methods-an introduction," Control Engineer-
+plications. The developed algorithms require using detailed ing Practice, Vol. 5, No. 5, 1997, pp. 638-652.
+models for computing fault residuals and signatures. Such
+'controls' type models are typically available as a part of [12] E.O. Nwadiogbu, M.J. Roemer, and G. Bloor, "Devel-l . . . l . ^ op~~~~~~~oment of dia nostic and prognostic technolo ies for
+control system design and analysis for aerospace systems. gn gng
+The estimation is based on embedded optimization and of- aerospace health management applications," Proceed-
+fers flexibility in types of faults that can be estimated: con- ings ofIEEE Aerospace Conference, Vol. 6, pp. 3139-
+stant, time-varying, and monotonic. Using state-of-the-art 3147, Big Sky, Montana, March 2001.
+convex solvers allows achieving high computational perfor- [13] R.J. Patton, J. Chen, and B.S. Nielsen, "Model-based
+mance. This implies both ground telemetry-based and on-line methods for fault diagnosis: some guidelines," Transac-
+embedded implementation of the algorithms can be feasible. tions of The Institute ofMeasurement and Control, Vol.
+17, No. 2, 1995, pp. 73-83.
+8. ACKNOWLEDGEMENTS [14] G. Ramohalli, "The Honeywell on-board diagnostic and
+The authors wish to thank Gordon Collier, Roger Wacker, maintenance system for the Boeing 777," Proceedings
+Kailash Krishnaswamy of Honeywell Space Systems, and of 11th IEEE/AIAA Digital Avionics Systems Confer-
+William Othon of NASA JSC for useful discussions. ence, pages 485-490, October 1992.
+[15] C.V. Rao, J.B. Rawlings, and D.Q Mayne, "Constrained
+REFERENCES state estimation for nonlinear discrete-time systems:
+Stability and moving horizon approximations," IEEE
+[1] G. Aaseng, "Blueprint for an Integrated Vehicle Health Transactions on Automatic Control, Vol. 48, No. 2,
+Management System," IEEE 20th Digital Avionics Sys- 2003, pp. 246-258.
+tems Conference Proceedings, Daytona Beach, Florida, [16] 5. Samar, D. Gorinevsky, and S. Boyd, Moving horizon
+Oct 14-Oct 18, 2001 filter for monotonic trends," IEEE Conference on Deci-
+sion and Control, Paradise Island, Bahamas, December[2] J. Bain and J. Speyer, "Robust neighboring extremal 14-17, 2004.
+guidance for the advanced launch system." Proceedings
+of the AIAA Guidance, Navigation and Control Confer-
+ence, Monterey, CA. August, 1993.
+11
+Dimitry Gorinevsky is a Senior Staff Gordon Aaseng is a Senior Staff En-
+Scientist with Honeywell Labs and a gineer with 14 years experience in
+Consulting Professor of Electrical En- aerospace engineering programs. He is
+gineering at Stanford University. He currently Technical Director of Honey-
+obtained a Ph.D. from Moscow State well's VHMIR&D projects in space sys-
+(Lomonosov) University. He worked on tems area and IVHM Integrated Prod-
+a broad range of decision and control uct Team Lead, responsible for projects
+system applications in US, Canada, Ger- developing architectures and prototype
+many, and Russia. He published a book systems for diagnostics, prognostics,
+and 130+ technical papers. Dr Gorinevsky is an Associate and related health management technologies. He led Honey-
+Editor ofIEEE Transactions on Control Systems Technology. well's development of the IVHM demonstration project cur-
+He is a recipient of Control Systems Technology Award and rently installed in the Quest Lab at NASA JSC, and has given
+Transactions on Control Systems Technology Outstanding Pa- numerous IVHM demonstrations and presentations to NASA
+per Award, both ofthe IEEE Control Systems Society. For last and industry. His experience with the ISS program includes
+several years, he works on health management systems. leading the systems engineering for the MATE program used
+for development and qualification testing of ISS flight soft-
+ware and developing requirements and architecture for Mis-
+sion Control Center systems at JSC. Prior to entering the
+Sikandar Samar is a Ph.D. candidate in engineering field, he was a U. S. Naval Officer and Aviator
+Xthe department of Aeronautics and As- accumulating over 2500 flight hours. He holds a Master's
+tronautics at Stanford University, CA. Degree in Computer Science from Texas A&M University at
+He works as a Research Assistant at the Corpus Christi.
+Information Systems Laboratory in the
+Department ofElectrical Engineering at
+Stanford. He worked as a summer in-
+tern with Honeywell Laboratories. His
+research interests include large scale es-
+timation via convex optimization and applications of systems
+and control theory. He obtained an M.S. degree in Me-
+chanical Engineering from University of Illinois at Urbana-
+Champaign in 2003 with afocus in control systems.
+John Bain is an engineer with Honey-
+well Space Systems in Houston, Texas.
+His research interests include guidance
+and controlfor a range ofaerospace ve-
+hicles. He is the author of over 10 ar-
+ticles in the areas indicated above. Dr
+Bain obtained an B.S. degree in electri-
+cal engineering from the University of
+Texas at Austin in 1985, and a Ph.D. in
+aerospace Engineeringfrom the University of California, Los
+Angeles in 1997 where his research advisor was Jason Speyer
+He is a member ofIEEE and AIAA.
+12

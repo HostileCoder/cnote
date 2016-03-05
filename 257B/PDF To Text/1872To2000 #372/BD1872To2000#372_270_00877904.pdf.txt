@@ -1,0 +1,1126 @@
+Shipboard Machinery Diagnostics and 
+PrognosticsKondition Based Maintenance: A Progress 
+Report 
+George D. Hadden 
+Peter Bergstrom 
+Honeywell Technology Center 
+3660 Technology Drive 
+Minneapolis, MN 55418 
+Bonnie Holte Bennett 
+Knowledge Partners of Minnesota 
+9 Salem Lane, Suite 100 
+Saint Paul, MN 551 18-4700 
+Abstract - The Honeywell Technology Center (HTC) and its 
+teammates (PredictDLI, Knowledge Partners of Minnesota, 
+the Georgia Institute of Technology, York International, and 
+WM Engineering) have developed a distributed shipboard 
+system to perform diagnostics and prognostics on 
+mechanical equipment (e.g. engines, generators, and chilled 
+water systems) for the Office of Naval Research (ONR). 
+This Condition Based Maintenance (CBM) system (called 
+MPROS for Machinery PrognosticdDiagnostics System) 
+consists of MEMS and conventional sensors on the 
+machinery, local intelligent signal processing devices (called 
+“Data Concentrators”), and a centrally located subsystem 
+(called the PDME for Prognostics, Diagnostics, Monitoring 
+Engine) which is designed so that it can run under shipboard 
+monitoring systems such as ICAS (Integrated Condition 
+Assessment System). 
+MPROS includes and augments periodic vibration analysis 
+by collecting data continuously from vibration and other 
+sensors, including temperature, pressure, current, voltage, 
+and so on. These data streams are integrated as necessary in 
+the Data Concentrators (data fusion). A second level of 
+integration (knowledge fusion) occurs in the PDME. At this 
+level, the conclusions of different diagnostic and prognostic 
+reasoning mechanisms are fused to yield the best possible 
+analysis. 
+In this paper, we discuss recent progress in design and 
+implementation of the software and hardware required to 
+suppoa our system. 
+The authors gratefully acknowledge the support of the 
+Office of Naval Research, grant number N00014-96-C- 
+0373. 
+George Vachtsevanos 
+School of Electrical and Computer Engineering 
+The Georgia Institute of Technology 
+Atlanta, GA 30332-0250 
+Joe Van Dyke 
+(formerly at PredictDLI) 
+Systems Analysis and Software Engineering 
+9665 Timberlane Place 
+Bainbridge Island, WA 981 10 
+1.  INTRODUCTION 
+The ONR CBM system, called MPROS (for Machinery 
+Prognostics and Diagnostics System), is a distributed, open, 
+extensible architecture for hosting multiple on-line 
+diagnostic and prognostic algorithms. Additionally, our 
+prototype contains four sets of algorithms aimed specifically 
+at centrifugal chillers. These are: 
+PredictDLI’s (a company in Bainbridge Island, 
+Washington that has a Navy contract to do 
+CBM on shipboard machinery) vibration based 
+expert system adapted to run in a continuous 
+mode. 
+State Based Feature Recognition (SBFR), an 
+HTC-developed embeddable technique that 
+facilitates recognition of time-correlated events 
+in multiple data streams. Originally developed 
+for Space Station Freedom, this technique has 
+been used in a number of NASA related 
+programs. 
+Wavelet-Neural Network (WNN) diagnostics 
+and prognostics developed by Professor 
+George Vachtsevanos and his colleagues at 
+Georgia Tech. This technique is, like DLI’s, 
+aimed at vibration data, however, unlike 
+DLI’s, their algorithm excels at drawing 
+conclusions from transitory phenomena rather 
+than steady state data. 
+’ 0-7803-5846-5/00/$10.00 0 2000 IEEE 
+277 
+4. Fuzzy Logic diagnostics and prognostics also dictated the requirement for a correspondingly complex and 
+developed by Georgia Tech which draws versatile monitoring system. Dynamic vibration signals 
+diagnostic and prognostic conclusions from must be acquired using high sampling rates and complex 
+non-vibrational data. spectrum and waveform analysis. Slower changing 
+Since these algorithms (and others we may add later) have 
+overlapping areas of expertise, they may sometimes disagree 
+about what is ailing the machine. They may also reinforce 
+each other by reaching the same conclusions from similar 
+data. In these cases, another subsystem, called Knowledge 
+Fusion (KF), is invoked to make some sense of these 
+conclusions. We use a technique called Dempster-Shafer 
+Rules of Evidence to combine conclusions reached by the 
+various algorithms. It can be extended to handle any 
+parameters such as temperatures and pressures must also be 
+monitored, but at a lower frequency and can be treated as 
+scalars rather than vectors as with vibration spectra. All of 
+these monitored parameters and analysis techniques are 
+combined using a versatile diagnostic system. The final 
+product has the inherent capability of diagnosing not just the 
+whole A/C system, but each of its parts as well, making it a 
+potentially very useful tool for monitoring any pump, motor, 
+gearset, or centrifugal compressor in the fleet. 
+number of inputs. !Secondly, the selection of A/C system as the subject will 
+MPROS is distributed in the following sense: Devices called 
+Datu Concentrators (DC) are placed near the ship’s 
+machinery. Each of these is a computer in its own right and 
+has the major responsibility for diagnostics and prognostics. 
+The algorithms described above run. on the DC. 
+Conclusions reached by these algorithms are then sent over 
+the ship’s network to a centrally located machine containing 
+the other part of our system - the 
+Progizostic/Diagnostic/Moizitoring Engine (PDME). KF is 
+located in the PDME. Also in the PDME is the Object 
+Oriented Ships Model (OOSM). The OOSM represents 
+parts of the ship (e.g. compressor, chiller, pump, deck, 
+machinery space, etc.) and a number of relationships among 
+them (part-of, proximity, kind-of, etc.). It also serves as a 
+repository of diagnostic conclusions - both those of the 
+individual algorithms and those reached by KF. 
+Communication among the DC’s and the PDME is done 
+using DCOM (Distributed Common Object Modules), a 
+standard developed by Microsoft. 
+The MPROS program had two phases. The first phase had 
+MPROS installed and running in the lab. During the second 
+phase, we extended MPROS’s capability somewhat and 
+installed it on the Navy Hospital Ship, Mercy, in San Diego. 
+Mission - Our central mission in this project was to design 
+a shipwide CBM system to predict remaining life of all 
+shipboard mechanical equipment. However, implementation 
+of such a system in its entirety would have been much too 
+ambitious for this project. In light of this, we chose to 
+illustrate the general principles of our design by 
+implementing it in a specific way on the Centrifugal Chilled 
+Water System. The result of this philosophy is that 
+occasionally we chose a more general way of solving a 
+problem over a “centrifugal chiller-specific” solution. 
+why Centrifugals? - There were two main reasons for 
+our choice of centrifugal chillers: System complexity and 
+commercial applicability. These A/C systems combine 
+several rotating machinery equipment types (i.e. induction 
+motors, gear transmissions, pumps, and centrifugal 
+compressors) with a fluid power cycle to form a complex 
+system with several different parameters to monitor. This 
+provide a high probability of commercial applicability of the 
+resultant monitoring system. There are a great deal of 
+facilities industrial, military, commercial, and institutional 
+that use large centrifugal chiller based A/C systems 
+throughout the US and the world. 
+2. SOFTWARE 
+Figure 1 shows a diagram of the MPROS system. Here we 
+describe the various parts. 
+PDME 
+The Prognostic, Diagnostic, Monitoring Engine (PDME) is 
+the logical center of the MPROS system. Diagnostic and 
+prognostic conclusions are collected from DC-resident 
+algorithms as well as PDME-resident algorithms. Fusion of 
+conflicting and reinforcing source conclusions is performed 
+lo form a prioritized list for the use of maintenance 
+personnel. 
+The PDME is implemented on a Windows NT platform as a 
+!;et of communicating servers built using Microsoft’s 
+Component Object Model (COM) libraries and services. 
+Choosing COM as the interface design technique has 
+idlowed us to build some components in C++ and others in 
+Visual Basic, with an expected improvement in development 
+productivity as the outcome. Some components were 
+prototyped using Microsoft Excel and we continue to use 
+Excel worksheets and macros to drive some testing of the 
+system. Communications between DC components and 
+IPDME components depend on Distributed COM (DCOM) 
+services built into Microsoft’s operating systems. 
+User inte$ace - As shown in Figure 2, an interface to the 
+MPROS conclusions has been built. The sample screen 
+shown indicates that for machine A/C Compressor Motor 1, 
+six condition reports from four different knowledge sources 
+(expert systems) have been received, some conflicting and 
+some reinforcing. 
+278 
+I 1 I 1  Ship’s Network 
+Machinery Sensors 
+Figure 1 The MPROS System 
+After these reports are processed by the Knowledge Fusion 
+component, the predictions of failure for each machine 
+condition group are shown at the bottom of the screen. 
+This display is updated as new reports arrive at the PDME 
+and are accumulated in the OOSM. 
+Object Oriented Ship Model - The Object Oriented 
+Ship Model (OOSM) is a persistent repository for machinery 
+state information used for communication between the 
+various prognostic and diagnostic software modules. In 
+addition to diagnostic and prognostic reports, the OOSM 
+also models the physical, mechanical, and energy 
+characteristics of the machinery being monitored. Exposing 
+an integrated programming interface to all of this 
+information eases the development of new knowledge-based 
+algorithms for diagnostics and prognostics. 
+Object Model. An object-oriented design was chosen to 
+provide a consistent interface to all the developers using the 
+OOSM to store, retrieve and monitor changes to information 
+of interest to MPROS components. 
+Entities in the OOSM are modeled as objects with properties 
+and relationships to other entities. Some of the OOSM 
+objects represent physical entities such as sensors, motors, 
+compressors, decks, and ships while other OOSM objects 
+represent more abstract items such as a failure prediction 
+report or a knowledge source. Some common properties 
+include name, manufacturer, energy usage, capacity, and 
+location. Common relationships include part-of, kind-of, 
+connected-to, and energy flow. 
+As part of easing the use of an object-oriented model for 
+developers, the persistence is entirely managed in the 
+background. In fact, save for retrieving the first object in a 
+connected graph of objects, no understanding of the 
+persistence mechanism is necessary. 
+Contents. We have modeled a portion of the information 
+about the system under observation in the OOSM. This 
+includes information about the motors, compressors and 
+evaporators in the chillers we are working with. We have 
+also modeled relationships between the failure predictions 
+and the relevant equipment to provide for a future expert 
+system to analyze interactions between equipment 
+subsystems. 
+279 
+Figure 2 MPROS lJser Interface 
+Applications Programming Interface (API). As 
+mentioned in preceding sections, a consistent API for 
+developers has been defined. Briefly, it consists of 
+functions to retrieve specific object instances, to view the 
+values of properties, to update their properties and 
+relationships, and to create and delete instances. This M I ,  
+based upon COM, has been used from C++, Visual Basic, 
+and Java programs to work with the OOSM. 
+Events. An event model has been implemented for the 
+OOSM that allows client programs to be notified of changes 
+to property or relationship values without the need to poll. 
+This facility is provided by OLE Automation events, making 
+it usable from C++, Visual Basic, and Java. The Knowledge 
+Fusion component uses this to automatically process failure 
+prediction reports as they are delivered to the OOSM. The 
+PDME browser also uses events to update its display for 
+users. 
+Persistence of object state in the OOSM is implemented 
+using a relational database. Object types are mapped to 
+tables and properties and relationships are mapped to 
+columns and helper tables. This mapping approach has 
+helped in system debugging and has proven to be very 
+reliable in operation. 
+Implementation. The OOSM is implemented in C++ using 
+Microsoft's Active Template Library (ATL) and Active 
+Data Objects (ADO) library. We chose this approach 
+because of the control it offered over object lifetime, 
+performance, and reliability. 
+Knowledge Fusion - Knowledge fusion is the 
+coordination of individual data reports from a variety of 
+sensors. It is higher level than pure "data fusion" which 
+generally seeks to correlate common-platform data. 
+Knowledge fusion, for example, seeks to integrate reports 
+from acoustic, vibration, oil analysis, and other sources, and 
+eventually to incorporate trend data, histories, and other 
+components necessary for true prognostics. 
+The knowledge fusion components must be able to 
+accommodate inputs that are incomplete, time-disordered, 
+fragmentary, and that have gaps, inconsistencies, and 
+contradictions. In addition, knowledge fusion components 
+must be able to collate, compare, integrate, and interpret 
+data from a variety of sources. To do this, it must provide 
+both inference control that accommodates a variety of input 
+data and fusion algorithms with the ability to deal with 
+disparate inputs. 
+Knowledge fusion follows this procedure: 
+1. New reports arriving to the PDME are posted in the 
+OOSM. 
+New reports posted in the OOSM generate "new data" 
+messages to the knowledge fusion components. 
+The knowledge fusion components access the newly 
+arrived data from the OOSM. They perform knowledge 
+fusion of diagnostic reports and knowledge fusion of 
+2. 
+3. 
+280 
+prognostic reports. 
+Conclusions from the knowledge fusion components are 
+posted to the OOSM and presented in user displays in 
+the graphical user interface. , 
+4. 
+Implementation. To date, two levels of knowledge fusion 
+have been implemented: one for diagnostics and one for 
+prognostics. 
+Our approach for implementing knowledge fusion for 
+diagnostics uses Dempster-Shafer belief maintenance for 
+correlating incoming reports. This is facilitated by use of a 
+heuristic that groups similar failures into logical groups. 
+Dempster-Shafer theory is a calculus for qualifying beliefs 
+using numerical expressions. For example, given a belief of 
+40% that A will occur and another belief of 75% that B or C 
+will occur, it will conclude that A is 14% likely, B or C is 
+64% likely, and assign 22% of belief to unknown 
+possibilities. This maintenance of the likelihood of 
+unknown possibilities is both a differentiator and a strength 
+of Dempster-Shafer theory. It was chosen over other 
+approaches (e.g., Bayes nets) because the others require 
+prior estimates of the conditional probability relating two 
+failures - data not yet available for the shipboard domain. 
+The system was augmented by heuristically collecting 
+similar failures into logical groups. This facilitates 
+processing and streamlines operation because Dempster- 
+Shafer analysis looks at each failure in light of every other 
+possible failure and is required to produce the likelihood of 
+unknown possibilities. In the MPROS case, this is 
+inadequate because it would assume mutual exclusivity of 
+failures. However, this is not a realistic assumption. There 
+can, in fact, be several failures at one time, and two or more 
+of them might be independent of one another. Thus, we 
+developed the concept of logical groups of failures. Failures 
+that are all part of the same logical groups are related to 
+each other (for example, one group might be electrical 
+failures, another lubricant failures, etc.). Moreover, failures 
+within a group might be mistaken for one another, so any 
+two of them are logically related and should share 
+probabilities when they are both under consideration. Note 
+that this does not preclude multiple failures within a group 
+all being suspected concurrently; it simply ensures that they 
+are tracked and weighted correctly. 
+The second level of knowledge fusion combines time to 
+failure estimates. Time to failure is represented in our 
+system as a list of one or more time points, probability pairs, 
+called the ‘prognostic vector’. For example, the prognostic 
+vector with the single member ‘((3 months, .l))’ indicates 
+that the system has a 10% likelihood of failure within 3 
+months. The prognostic vector ‘((2 weeks, .l) (1 month, .5) 
+(2 months, .9))’ indicates a likelihood of failure of 10% 
+within 2 weeks, 50% within 1 month, and 90% within 2 
+months. 
+Our approach to the fusion of prognostics information is to 
+combine the lists, taking the most conservative estimate at 
+any given time period and interpolating a smooth curve from 
+point to point. For example, suppose we have a prognostic 
+for a given component that indicates it will perform well for 
+3 months, then experience some trouble making it as likely 
+to fail as not by 4 months and almost surely to fail within 5 
+months. The prognostic vector for this case is ((3 months, 
+.01) (4 months, .5) (5  months, .99)). Suppose further that 
+we need to combine this with another report showing that 
+the same component will experience some small trouble at 
+4-1/2 months. This prognostic vector is ((4.5 months, .12)). 
+Under our current approach, we ignore the second report 
+and stick with the first, which is more conservative. If, 
+however, the second report indicates a much higher 
+likelihood of failure, say ((4.5 months, .95)), then this report 
+would dominate and the extrapolation of the curve beyond 
+this point would indicate an even earlier demise of the 
+component than the first prognostic vector. 
+Interfaces provided One of the goals of the MPROS 
+system is to encourage the incorporation of many diverse 
+expert systems supplying diagnostic and prognostic 
+conclusions based on similar, overlapping, or entirely 
+disjoint sensor readings. At the same time, we recognized 
+that these diverse results must be unified into a meaningful 
+report to the system’s users. To this end, a standard protocol 
+has been defined for reporting failure predictions to the 
+PDME for fusion and display. 
+The general incoming report format may contain the 
+following data fields (not all reports need use all fields): 
+1. 
+2. 
+3. 
+4. 
+5. 
+6.  
+7. 
+8. 
+9. 
+KnowledgeSourceID: The unique MPROS object ID 
+for the instance of the diagnostic/prognostic algorithm 
+generating the report. 
+SensedObjectID: The unique MPROS object ID for the 
+sensed object to which this report applies. 
+MachineConditionID: The unique MPROS object ID 
+for the diagnosed machine condition (usually a failure 
+mode). 
+Severity: Numeric value in the range 0.0 to 1.0 
+indicating relative severity of machine condition to 
+operation. Maximal severity is 1 .O. 
+Belief: Numeric value in the range 0.0 to 1.0 indicating 
+belief that this diagnosis is true. Maximal belief is 1.0. 
+Explanation: An optional text string providing a human- 
+readable description of the diagnosis. 
+Recommendations: An optional text string providing a 
+human-readable description of the recommended 
+actions to take. 
+Timestamp: The timestamp for when this report should 
+be considered effective. 
+Additional Information: An optional text string 
+providing human-readable additional information. 
+10. Prognostic vector: A vector of time point, probability 
+pairs indicating projected likelihood of failure (as 
+28 1 
+described above). 
+Diagnostic knowledge fusion generates a new fused belief 
+whenever a diagnostic report arrives for a suspect 
+component. This updates the belief for that suspect 
+component and for every other failure in the logical group 
+for that component. It also updates the belief of ‘unknown’ 
+failure for the logical group for that component. 
+Prognostic knowledge fusion generates a new prognostic 
+vector for each suspect component whenever a new 
+prognostic report arrives. 
+Future directions for knowledge fusion. Several high- 
+level control extensions are under consideration for future 
+extensions. First, multilevel data are represented by the 
+OOSM. We are not currently exploiting this fully. For 
+example, we could reason about the health of a system based 
+on the health of a constituent part. Currently, only the parts 
+are tracked. Second, spatial reasoning using the OOSM 
+could lead us to fuse information about spatially related 
+components. One example of a spatial relation is proximity. 
+For example, a device might be vibrating because a 
+component next to it is broken and vibrating wildly. Another 
+example is flow. Flows are relationships that represent fluid 
+flow through the system (one component passing fouled 
+fluids on to other components downstream), electrical flow, 
+or mechanical flow of physical energy. Third, temporal 
+reasoning components could be implemented to scrutinize 
+failure histories and provide better projections of future 
+faults as they develop. 
+Two other future directions for knowledge fusion are the 
+refinement of specific knowledge fusion components for 
+diagnostics and for prognostics. For example, Bayes nets 
+seem to be a promising approach to diagnostic knowledge 
+fusion when causal relations and a priori relationships can 
+be teased out of historical data. Prognostic knowledge 
+fusion could be improved with the addition of techniques 
+from the analysis of hazard and survival data. These 
+approaches scrutinize history data to refine the estimates of 
+life-cycle performance for failures, and the refined inputs to 
+the prognostic analysis should yield better projections of 
+future failures. 
+Resident Algorithms - As the reader can see from 
+Figure 1, the PDME has the capability to host prognostic 
+and diagnostic algorithms. Some reasons for placing the 
+algorithms in the PDME rather than the DC include: the 
+algorithm requires data from widely separate parts of the 
+ship, the algorithm can reason from PDME resident 
+components (a model-based diagnostic and prognostic 
+system, for instance, might use only the OOSM), and so on. 
+Although we provide this capability in our general 
+architecture, our system does not place any 
+diagnostic/prognostic algorithms in the PDME - all of them 
+run in the data concentrators. 
+Data Concentrator (DC) 
+Scheduler - At the heart of the DC software is an event 
+scheduler. This software component runs the show by 
+organizing all necessary events. For example, the standard 
+vibration test and analysis is executed routinely by the 
+scheduler. To do a standard vibration test, the scheduler 
+first triggers execution of vibration data acquisition 
+component, and when that operation is complete the 
+scheduler fires off the vibration analysis component and then 
+triggers communication of the results. In similar fashion, the 
+scheduler conducts wavelet and neural network testing and 
+analysis and state based feature recognition routines to 
+collect and analyze process variables. 
+13ehind the scenes, the vibration data acquisition component 
+must control the MUX, extract sensor setup information 
+from the DC database, request several specific PCMCIA 
+card tests, and store the results in the DC database (see next 
+section). Then the processing begins by extracting the 
+stored vibration data, equipment descriptors, and diagnostic 
+criteria from the database. All of this is then sent to an 
+expert system DLL that applies stored rules for each 
+equipment type and derives the diagnoses. The DLL then 
+passes the results back to the DC database. 
+Each of the components extract information from and store 
+data in the DC database, which is configured as a database 
+server and can be accessed by client PC’s on the network. 
+In this way, the PDME or any other client can command the 
+scheduler to conduct another test and analysis routine. 
+Data Base - Central to the operation of the DC is an open 
+architecture ODBC compliant relational database designed 
+to store all of the instrumentation configuration information, 
+rnachinery configuration information, test schedules, 
+resultant measurements, diagnostic results, and condition 
+reports. The database design is a commercially available 
+database already field tested and proven effective in many 
+industrial facilities. The design was slightly altered to 
+accommodate particular DC hardware settings and 
+scheduling parameters. This database approach allowed the 
+autonomous development of various kinds of measurement 
+and analysis techniques by several of the DC development 
+team members while still using the same database and 
+communications protocol with the PDME. 
+lDrognostic/Dingnostic Algorithms - MPROS has 
+four sets of prognostic/diagnostic algorithms: the DLI 
+Expert System, Wavelet Neural Networks, Fuzzy Logic, and 
+State Based Feature Recognition. 
+DLI Expert System. Currently, all standard machinery 
+vibration FFT analysis and associated diagnostics in the 
+Data Concentrator are handled by the DLI expert system. 
+This system was initially developed for use in the MCA 
+(Machinery Condition Assessment) program in 1988. MCA 
+is a US Navy program on the aircraft carriers that has 
+efficient fleet maintenance as an ultimate goal. Beyond 
+282 
+Navy applications, this expert system is installed in 
+hundreds of industrial and manufacturing facilities where it 
+is steadily improved through the introduction of rules and 
+procedures for analyzing industrial machines (such as 
+extruders) typically not found on the aircraft carriers. For 
+the Navy, this expert system runs on desktop PCs as part of 
+a system built around walk-around data gathering and 
+analysis. It provides savings in analysis time for contractors 
+doing on-board machine condition monitoring and puts a 
+sophisticated and powerful diagnostic tool in the hands of 
+sailors on the ships. In one study, it was found that the 
+system exceeds 95% agreement with human expert analysts 
+for machinery aboard the Nimitz class ships. 
+The Data Concentrator takes this scenario one step further in 
+that it provides this same powerful diagnostic capability 
+without the need for manual vibration measurement 
+collection. All necessary measurements are made and 
+analysis steps are completed in the DC with only the 
+diagnostic results routinely fed up to the PDME for eventual 
+human consumption. Spectra and diagnostic back-up 
+information are also available on request, but are not 
+primary outputs. 
+The DLI expert system provides an intermediate level of 
+sensor and knowledge fusion. The frame based rules 
+application method employed allows the spectral vibration 
+features to be analyzed in conjunction with process 
+parameters such as load or bearing temperatures to arrive at 
+a more accurate and knowledgeable machinery diagnosis. 
+For example, since some compressors vibrate more at 
+certain frequencies when unloaded, the DLI expert system 
+rule for bearing looseness can be sensitized to available load 
+indicators (such as pre-rotation vane position) in order to 
+ensure that a false positive bearing looseness call is not 
+made when the compressor enters a low load period of 
+operation. This kind of knowledge and sensor fusion is 
+found again at the PDME, which ascertains the relative 
+believabilities of the various diagnostic systems and derives 
+a reasonable conclusion. It is however advantageous for the 
+vibration expert system to utilize all available known system 
+responses when analyzing the vibration patterns because it 
+minimizes the necessary PDME decisions and improves 
+overall system accuracy. 
+On the horizon, efforts are underway to develop a new 
+system component that will apply certain fundamental time 
+domain vibration analysis and feature extraction techniques 
+to the data sampled for FFT analysis. This new DLI expert 
+system component will enhance the ability of the Data 
+Concentrator to more easily and accurately discern various 
+gear and bearing faults and reduce the possibilities of false 
+positive bearing wear diagnoses on water pump systems 
+operating with cavitation or flow noise. This enhancement 
+will be made possible through the combination of time 
+domain features with spectral features in one matrix for rules 
+application. 
+An elementary level of machinery prognostics has always 
+been provided by the DLI expert system which since its 
+inception, has provided a numerical severity score along 
+with the fault diagnosis. This numerical score is interpreted 
+through empirical methods that map it into four gradient 
+categories. These categories are Slight, Moderate, Serious, 
+and Extreme and correspond to expected lengths of time to 
+failure described loosely as: no foreseeable failure, failure in 
+months, weeks, and days of operation. This approach to 
+prognostics was developed and improved upon during the 
+last 10 years and was refined further for the Data 
+Concentrator and the PDME through the introduction of 
+believability factors for each of the diagnoses. These 
+believability factors are based on DLI’s statistical database, 
+which demonstrates the individual accuracy of each 
+diagnosis by tracking how often each was reversed or 
+modified by a human analyst prior to report approval. 
+Integrated Wavelet Neural Networks and Fuzzy Logic. 
+Components, machines, and processes fail in varying ways 
+depending upon their constituent materials, operating 
+conditions, etc. Failure modes are typically monitored by a 
+sensor suite which is intended, for failure analysis purposes, 
+to capture those failure symptoms that are characteristic of a 
+particular failure mode. Consider, for example, the case of a 
+typical process such as an industrial chiller found on navy 
+ships, commercial and other facilities that require climate 
+control. Typical failure modes include evaporator tube 
+freezing, decreased sea water flow through condenser, etc. 
+which are characteristic of process failures as well as a 
+variety of vibration induced faults that are affecting 
+mechanical and electro-mechanical process elements. 
+283 
+The Diagnc~tic Module 
+._. 
+I 
+High-frequency failure modes 
+(vibrations, etc.): me W a  Velet 
+A Two-Prong 
+APPI+W&I 13.- 
+Low-hquency events 
+(Temperature, Pressure. etc.): 
+The c ADD- 
+.... ... ... I 
+Figure 3 The Two-Pronged Approach of the Diagnostic Module 
+It is generally possible to break down the sensor data (and, 
+correspondingly, the symptomatic evidence) into two broad 
+categories (see Figure 3): The first one concemed with low- 
+bandwidth measurements, such as those originating from 
+process variables, temperature, pressure, level, etc., while 
+the second exemplifies high-bandwidth measurements, for 
+example vibrations, current spikes, etc. Failure modes 
+associated with the first category may develop slowly and 
+Sensor Data 
+..I ... "I .-n IF-- , 
+data is sampled at slow rates without loss of trending 
+patterns. High-frequency phenomena though, such as those 
+accompanying a bearing failure, require a much faster 
+sampling rate in order to permit a reasonable capture and 
+characterization of the failure signature. Moreover, process- 
+related measurements and associated failure mode signatures 
+are numerous and may overlap, thus presenting serious 
+challenges in resolving conflicts and accounting for 
+uncertainty. This dichotomy suggests an obvious integrated 
+Features .... ... .... .. .  ... ....;, . i ,.- I I ! I  I - ... t - I  
+Feature Extraction 
+I,*. - I I 1 Zgks 1 I FdfyFeatures Inference Engine 1 
+-, t ,J- 
+Failure Mode 
+(1) If symptom A is high & symptom B is low 
+(2) ... 
+then failure mode is F1 
+Figure 4 Fuzzy Diagnostic System Layout with Feature Extraction 
+284 
+approach to the fault diagnosis problem: Process related 
+low-bandwidth faults may be treated with a fuzzy rule base 
+set as an expert system (see Figure 4) while high-bandwidth 
+faults are better diagnosed via a feature extractorheural 
+network classifier topology (see Figure 5). This approach is 
+adopted below in addressing typical chiller failures. 
+Although the chiller is used as the demonstration testbed, the 
+basic diagnostic architecture is generic and applicable to a 
+wide variety of complex engineered systems and industrial 
+processes. 
+The knowledge base consists of a fuzzy rule set. Typical 
+rules for diagnostic purposes are of the form: 
+1. If Evaporator Liquid Temperature is Low and 
+difference between Chill Water Discharge Temperature 
+and Evaporator Liquid Temperature is Increasing, then 
+Failure Mode is Refrigerant Charge Low. 
+2. If Evaporator Liquid Temperature is Low and 
+Compressor Evaporator Suction Pressure is Low, then 
+Failure Mode is Refrigerant Charge Low. 
+The linguistic labels Low, Increasing, etc. are assigned 
+appropriate fuzzy membership functions and an inference 
+engine is called upon, given input sensor data (the 
+symptomatic evidence) to declare a fault condition. 
+The diagnostic system uses Dempster-Shafer theory to 
+return a “degree of certainty” or belief in the failure mode 
+that has been detected by the fuzzy logic routine. Using 
+results from evidence and possibility theories, one can 
+extract mass functions from fuzzy input membership 
+functions. A mass function is a mapping from the power set 
+of the set of propositions to the interval, [0,1]. Obtaining 
+mass functions is the key step in determining the belief of a 
+failure mode. 
+Once the mass functions are obtained for each sensor, 
+Dempster’s rule of combination is performed on each to 
+combine the evidence supporting the different propositions. 
+Dempster’s rule of combination is presented above, where 
+the A, B, C‘s are sets of propositions, m’s are mass function, 
+and K is a normalizing constant. The set, A, could, for 
+example, represent the failure mode, refrigerant charge low 
+or could be a set of failure modes such as evaporator tube 
+freezing and chiller tube fouling. 
+I - K  
+After determining the final combined evidence mass 
+function, a belief function can be constructed. Belief 
+functions map the power set of the set of propositions to the 
+interval, [0,1]. Belief functions present a lower bound on 
+probability distributions. Plausibility functions, which can 
+also be created from mass functions, are considered an 
+upper bound on probability distributions. A degree of 
+certainty measure can now be obtained which conveys how 
+much belief there is in a detected failure mode occurring. 
+Degree of Certainty = m(Fai1ure of Interest) - 
+Belief(not(Fai1ure of Interest)) 
+The combined use of fuzzy logic and Dempster-Shafer 
+theory is greatly facilitated through the utility of the same 
+rulebase and input membership functions for both; i.e. they 
+share the same expert knowledge base. 
+Vibration Analysis - High - Bandwidth Failure Detection 
+and Identification. The Wavelet Neural Network (WNN) 
+belongs to a new class of neural networks with such unique 
+capabilities as multi-resolution and localization in 
+addressing classification problems. For fault diagnosis, the 
+WNN serves as a classifier to classify the occumng faults. 
+A fault diagnostic system based on the WNN is illustrated in 
+Figure 5. Critical process variables are monitored via 
+appropriate sensors. 
+The data obtained from the measurements are processed and 
+features are extracted. The latter are organized into a 
+feature vector, which is fed into the WNN. Then, the WNN 
+carries out the fault diagnosis task. In most cases, the direct 
+output of the WNN must be decoded in order to produce a 
+feasible format for display or action. 
+For example, the WNN can be used to perform the diagnosis 
+of a bearing fault. As a matter of fact, many bearing faults 
+can be classified, such as those on races, rolling balls and 
+lubrication materials. Here, for simplicity, the focus is 
+placed on the diagnosis of whether the bearing is normal or 
+defective. Through vibration measurements, a number of 
+vibration signals for a bearing are obtained. Then, the peak 
+of the signal amplitude and the peak of the signal’s PSD are 
+chosen as the features. By the way, many other quantities, 
+Extraction Decoding 
+Sensors 
+Figure 5 A Fault Diagnostic System Based on the Wavelet Neural Networks 
+285 
+such as the standard deviation, cepstrum, DCT coefficients, 
+wavelet maps, temperature, humidity, speed, mass, etc can 
+be selected as the features. From the vibration signals, a 
+training data set is obtained, which was then used to train the 
+WNN. 
+Once trained, the WNN can be employed to perform the 
+fault diagnosis. Signals and their PSDs from a normal 
+bearing and a defective one are shown in Figure 6. 
+For the good bearing, features = [0.3960 0.13481 
+For the defective bearing, features = [4.9120 
+9.21821 
+[O 11 = WNN([0.3960 0.13481) ===> The 
+bearing is good! 
+[l 01 = WNN([4.9120 9.21821) ===> The 
+bearing is defective! 
+This result can easily be extended to include the cases in 
+which multiple fault classes are concerned. 
+State Based Feature Recognition. SBFR is a technique for 
+the hierarchical recognition of temporally correlated features 
+in multi-channel input. It consists of a set of several 
+enhanced finite-state machines operating in parallel. Each 
+state machine can transition based on sensor input, its own 
+state, the state of another state machine, measured elapsed 
+time, or any logical combination of these. This implies that 
+systems based on SBFR can be built with a layered 
+architecture, so that it is possible use them to draw complex 
+(conclusions, such as prognostic or diagnostic decisions. 
+(Our implementation of the SBFR system requires very little 
+memory (100 state machines operating in parallel and their 
+interpreter can fit in less than 32K bytes) and can cycle with 
+#a period of less than four milliseconds. It is thus ideal for 
+(embedding into the DC. We have successfully applied 
+SBFR-based diagnostic and prognostic modules to several 
+]problems and platforms, including valve degradation and 
+Failure prediction in the Space Shuttle’s Orbital 
+Maneuvering System, imminent seize-up in Electro- 
+Mechanical Actuators through electrical current signature 
+. 
+PSDs from good and defective bearings 
+0.4 5 
+0.3 4 
+0.2 3 
+0.1 2 
+0 1 
+-0.1 0 
+-0.2 1 
+-0.3 2 
+-0 4 3 
+I -4 L I 
+0 200 400 600 800 1000 200 4 00 600 8 00 1000 
+-0.5 I 
+Signals from good and defective bearings 
+Figure 6 Signals and Their PSDs from Normal and Defective Bearings 
+286 
+analysis and other parameters, and failure prediction in 
+several subsystems (including Control Moment Gyro 
+bearing failure) in the Space Station Freedom's Attitude 
+Determination and Control System. 
+To give a sense for how SBFR works, here is an example 
+from the aerospace domain. The two state machine system 
+shown in Figure 7 was used to predict a seize-up failure 
+mode in an electro-mechanical actuator (EMA). EMAs are 
+essentially large solenoids meant to replace hydraulic 
+actuators for the steering of rocket engines. Prediction of 
+this fault was done by recognizing stiction in the mechanism. 
+The two state machines recognize stiction in the following 
+way: Machine 0 recognizes spikes in the drive motor 
+current. Machine 1 counts the spikes that are not associated 
+with a commanded position change (CPOS). When the 
+count is greater than four, a stiction condition is flagged, and 
+higher level software (e.g., the PDME) can conclude that a 
+seize-up failure is imminent. 
+We now consider these machines in more detail. Starting 
+with Machine 1,  notice that it has two states labeled Wait 
+and Stiction. Each state has transitions into and out of it 
+with labels C and A, standing for condition and action, 
+Current SPIKE Machine (Machine 0) 
+C: Current Increase 
+C: Current t Increase & 
+A T 5 4  
+SPIKE 
+C: Status: 0 = 0 5C: A: Current Status:O Decrease 4 Status:Ov & AT 5 4 1 
+EMA Stiction Machine (Machine 1) 
+C: Local:l > 4 
+A: Status:l 4 Status:l v 1 
+C: Status:O O 0 & CPOS unchanged 
+A: Status:O 4 0; Local:l 4 local:l + 1 A: Local:l 4 0 
+C: Status1 = 0 
+Figure 7 Two State Machines 
+287 
+respectively. The condition on one of the transitions out of 
+the Wait state is “Status:O t 0 & CPOS unchanged’. This 
+means that the transition will be taken if both of the 
+following are true: First, the status of Machine 0 (the other 
+one) must be nonzero. This means that a spike has occurred. 
+Second, no command has been issued to change the position 
+of the EMA. If both of these are true, the action associated 
+with this condition is executed. In this transition, the action 
+is 1) to set the status register of Machine 0 back to 0 so that 
+it can continue looking for spikes in parallel with the actions 
+of any other state machines and 2) to increment local 
+variable 1 (Local:l), which represents the number of spikes 
+noticed by Machine 1. 
+Notice two things: first, a state machine can transition states 
+based on the state of another machine. Second, each 
+machine can have any number of local variables, one of 
+which, the “status”, is distinguished by being readable and 
+writeable by any of the state machines. 
+Another transition out of the Wait state occurs if local 
+variable 1 is greater than four (i.e., more than four spikes 
+have been noticed). If this transition is taken, the status 
+register of Machine 1 (the current machine) is set to 1. 
+(Actually, only the lowest bit is set to one, since we would 
+like to save the option of using other bits for some other 
+purpose.) Machine 1 then enters the Stiction state. At this 
+point some other agent - another state machine or some 
+other software - can recognize that stiction has occurred 
+and take appropriate action (e.g., notify the operator). That 
+agent has the responsibility to then reset Machine 1’s status 
+register to 0 allowing the machine itself to set the count back 
+to 0 and start over. 
+The Spike recognition machine (Machine 0) is somewhat 
+more complex: it has four states and seven transitions. 
+Although it is not necessary to cover this machine in detail, 
+there are a few points to make. The most important is that 
+this spike recognition machine is relatively noise free. 
+There are time constraints (AT in the figure) with which 
+changes in the current must be consistent before a spike can 
+be recognized. Intermediate states (Possible Spike 1 and 
+Possible Spike 2), from which the machine can return to the 
+Wait state, exist so that the machine can be sure about 
+whether the fluctuation in the current should be labeled a 
+spike or not. Notice also that some of the transitions can be 
+taken without any explicit actions. 
+The Spike state has one transition out of it. This occurs 
+when Machine 0’s status register (the current machine) is 
+reset to 0. Recall that Machine 1 did this after it had 
+recorded the existence of the spike. 
+The sizes of the current spike machine (Machine 0) and the 
+stiction machine (Machine 1) are respectively 229 and 93 
+bytes. The interpreter that executes the SBFR system in the 
+DCs is about 2000 bytes long. 
+We chose twelve failure modes to address with SBFR in 
+MPROS. Each of these has an associated set of one or more 
+state machines used to predict that failure mode. 
+3. HARDWARE 
+We discuss in this section the hardware for both the PDME 
+and the DC. 
+I’rognostics/Diagnostics/Monitoring Engine 
+Unlike the Data Concentrator, the PDME is entirely 
+software. ’ It runs on any sufficiently powerful NT machine. 
+Currently, the PDME runs in the office of one of our 
+developers communicating over HTC’s data network with 
+the Data Concentrator in the basement. 
+Llata Concentrator (DC) 
+The DC hardware (Figure 8 shows the HTC-installed DC, 
+and Figure 9 shows a schematic of the hardware) consists of 
+a PC104 single board Pentium PC (about 6”x6”) with flat 
+screen LCD display monitor, a PCMCIA host board, a 4 
+channel PCMCIA DSP card, two multiplexer (MUX) cards, 
+and a terminal bus for sensor cable connections. The 
+operating system is Win95 and there are connections for 
+keyboard and mouse. Data is stored via DRAM. The DC is 
+enclosed in a NEMA enclosure with a transparent front door 
+and fans for cooling. Overall dimensions are 1O”x12”x4”. 
+The system was built entirely with commercial off the shelf 
+components with the exception of the MUX cards which are 
+a DLI hardware subcomponent and the PCMCIA card which 
+was modified from a commercial 2 channel unit to meet the 
+needs of the project. 
+The 4-channel PCMCIA card samples DC and AC dynamic 
+signals. Highest sampling rate exceeds 40,000 Hz and the 
+length of sampled signals is limited only by the PC’s storage 
+capacity. 
+The MUX cards provide power to standard accelerometers 
+and are controlled using the PC’s IO port. Each of the 2 
+h4UX cards can switch between 4 sets of 4 channels each 
+yielding up to 32 channels of data. Of those 32 channels, 24 
+can power standard accelerometers. All channels can be 
+configured to sample DC voltage signals. Additionally, all 
+channels are equipped with an RMS detector which can be 
+configure to provide a digital signal when the RMS of the 
+incoming signal exceeds a programmed value. This allows 
+for real-time and constant alarming for all sensors. 
+4. VALIDATION 
+One question we are often asked is “How are you going to 
+288 
+Figure 8 Data Concentrator Installed at HTC 
+prove that your system does what you say it does?" ' This 
+question, as it turns out, is a quite difficult one. The 
+problem is that we are developing a system that we claim 
+will predict failures in devices, and that in real life, these 
+devices fail relatively rarely. In fact, for any one failure 
+mode, it is entirely possible that the failure mode (although 
+valid) may never have occurred on any piece of equipment 
+on any ship in the fleet! We have a number of answers to 
+the question: 
+We are still going to look for the failure modes. We 
+have a number of installed data collectors both on land 
+and on ships. In addition, DLI is collecting time 
+domain data for a number of parameters whenever their 
+vibration-based expert system predicts a failure on 
+shipboard chillers. This will give us data that we can 
+use to test our system. 
+As Honeywell upgrades its air conditioning systems to 
+be compliant with new non-polluting refrigerant 
+regulations, older chillers become obsolete. We have 
+managed to acquire one of these chillers that HTC 
+replaced. It has been shipped to York, and we are now 
+constructing a test plan to collect data from this chiller 
+through carefully orchestrated destructive testing. 
+Seeded faults are worth doing. Our partners in the 
+Mechanical Engineering Department of Georgia Tech 
+are seeding faults in bearings and collecting the data. 
+These tests have the drawback that they might not 
+exhibit the same precursors as real-world failures, 
+especially in the case of accelerated tests. 
+Honeywell, York, DLI, NRL, and WM Engineering 
+have archives of maintenance data that we will take full 
+advantage of in constructing our prognostic and 
+diagnostic models. 
+Similarly, these partners have human expertise that we 
+are able to tap in building our models. 
+Although persuasive, these answers are far from conclusive. 
+The authors would welcome any input on how to validate a 
+failure prediction system. 
+0 
+289 
+Figure 9 Data Concentrator Hardware 
+5. MERCY INSTALLATION 
+Our system is complete and currently installed in two places: 
+in the basement of the Honeywell Technology Center on a 
+Carrier 19DK chiller and in San Diego on the USNS 
+Mercy's (T-AG-019) #1 AC plant - a York 363 Ton chiller. 
+The system has detected and reported a number of problems 
+including a bad bearing on one of the seawater pumps. 
+The Mercy was chosen for a number of reasons: 
+1. It is in a climate that was more likely to require cooling 
+during the winter shipboard test phase of our centrifugal 
+chiller prognostics and diagnostics system. 
+It was likely to stay stationary and not put out to sea (as, 
+for instance, a carrier would). 
+It contains pieces of equipment that are the target of our 
+prognostics and diagnostics efforts. 
+We have a good working relationship with the crew. 
+2.  
+3. 
+4. 
+6. CURRENT AND FUTURE A c w m s  
+Other activities outside our current contract are: 
+1. RSVP (Reduced Shipboard Manning through Virtual 
+Presence). Honeywell is teamed with Pennsylvania 
+State University for this CBM follow-on. 
+2. ACI Integration. Honeywell led an effort to combine 
+the Advanced Capability Initiatives. These include 
+CBM, Corrosion, Oil Debris Monitoring, and Human 
+Computer Interaction. This proposal includes a 
+destructive test on three centrifugal chillers. Honeywell 
+has donated a surplus centrifugal chiller (and will 
+donate two more later this year) for use by the 
+prognostics/diagnostics community. Our proposal 
+includes a test plan to take full advantage of this 
+opportunity, both to validate our existing system and to 
+discover new indicators of incipient failure that can be 
+incorporated into future versions of our and others' 
+systems. 
+3. Other potential CBM related activities. There are a 
+number of these, both inside and outside our partners' 
+organizations. 
+7. BIBLIOGRAPHY 
+Bennett, B.H. and Hadden, G.D. (1999) Condition-based 
+maintenance: algorithms and applications for embedded 
+high performance computing. Proceedings of the 4th 
+International Workshop on Embedded HPC Systems and 
+Applications (EHPC'99). 
+Bristow, J., Hadden, G.D., Busch, D., Wrest, D., Kramer, 
+K., Schoess, J., Menon, S., Lewis, S. and Gibson, P. (1999) 
+Integrated diagnostics and prognostics systems. Proceedings 
+of the 53rd Meeting of the Society for Machinery Failure 
+Preveiztion Technology (invited). 
+Echauz, J. and Vachtsevanos, G. (1996) Elliptic and radial 
+wavelet neural networks. Proceedings of the 2'ld World 
+Automation Congress, Montpellier, France, May 27-30. 
+Edwards, T.G. and Hadden, G.D. (1997) An autonomous 
+diagnostic/prognostic system for shipboard chilled water 
+plants. Proceedings of the 51'' Meeting of the Society for 
+Machinery Failure Prevention Technology. 
+Hadden, G.D., Bennett, B.H., Bergstrom, P., Vachtsevanos, 
+G. and Van Dyke, J. (1999) Machinery diagnostics and 
+prognostics/condition based maintenance: a progress report. 
+290 
+Proceedings of the 53' Meeting of the Society for 
+Machinery Failure Prevention Technology. 
+Tools Group at the Honeywell Technology Center in 
+Minneapolis, MN. He is active in research and development 
+in System Health Management. He received his B.A. in 
+Computer Science from Macalester College in St. Paul, 
+Minnesota. Since joining the Honeywell Technology Center 
+in 1991, he has developed applications in Honeywell's 
+avionics, industrial, building and home control business 
+units. 
+Hadden, G.D., Bennett, B.H., Bergstrom, P., Vachtsevanos, 
+G. and Van Dyke, J. (1999) Shipboard machinery 
+diagnostics and prognosticslcondition based maintenance: a 
+progress report. Proceedings of the 1999 Maintenance and 
+Reliability Cor?ference (MARCON99). 
+Hadden, G.D., Edwards, T.G. and Van Dyke, J. (1998) 
+Shipboard machinery condition based maintenance. 
+Proceedings of the Maintenance and Reliability Conference 
+(MARCON98). 
+Hadden, G.D., Edwards, T.G. and Van Dyke, J. (1996) 
+Condition based maintenance for shipboard machinery. 
+Proceedings of the 67'" Shock and Vibration Symposium. 
+Hadden, G.D., Nelson, K.S. and Edwards, T. (1994). State- 
+based feature recognition. Proceedings of the 1 7fh Annual 
+AAS Guidance and Control Coizference. 
+Kang, H., Cheng, J., Kim, I. and Vachtsevanos, G. (1991) 
+An application of fuzzy logic and Dempster-Shafer theory to 
+failure detection and identification. Proceedings of the 30th 
+IEEE Conference on Decision and Control, Brighton, 
+England, 1555-1560. 
+Mufti, M. and Vachtsevanos, G. (1995) An intelligent 
+approach to fault detection and identification. Proceedings 
+of the American Control Conference. 
+Nelson, K.S. and Hadden, G.D. (1994) Real-time feature 
+recognition in medical data. Proceedings of the AAAI 1994 
+w n g  Symposium, Artijicial Intelligence in Medicine. 
+Vachtsevanos, G., Kang, H., Cheng, J. and Kim, I. (1992) 
+On the detection and identification of axial flow compressor 
+instabilities. American Institute of Aeronautics and 
+Astronautics, Joumal of Guidance, Control, and Dynamics, 
+15(5), 1216-1223. 
+George D. Hadden is a Senior 
+Research Fellow at the 
+Honeywell Technology Center 
+and a recipient of the H. W. 
+Sweatt award -- Honeywell's 
+highest technical honor -- for a 
+preventive maintenance expert 
+system. He is principal 
+investigator of a project to 
+p e r f o i  condition based maintenance on Navy equipment. 
+Dr. Hadden received his Ph.D. and Masters in Electrical 
+Engineering from the University of Illinois where he 
+specialized in the study of Artificial Intelligence and his 
+Bachelors in Electrical Engineering from Purdue University. 
+He has published over thirty-five 
+technical papers and has been 
+invited to give several 
+presentations. 
+Peter Bergstrom is a Principal 
+Research Scientist in the Software 
+Bonnie Holte Bennett is an 
+Associate Professor in the 
+Graduate Programs in Software at 
+the University of St. Thomas in 
+St. Paul, Minnesota. She is the 
+founder and director of the 
+Artificial IntelligenceEIigh 
+Performance and Parallel 
+Computing Lab. She is also a 
+principal with Knowledge 
+Partners of Minnesota, Inc. (www.kmni.com). She consults 
+extensively with Fortune 200 companies in the areas of 
+knowledge-based systems and knowledge management. 
+Previously, she spent 14 years at the Honeywell Technology 
+Center in Minneapolis, Minnesota. She holds Ph.D. and 
+M.S. degrees in Computer Science from the University of 
+Minnesota, and a Bachelors degree in Computer Science and 
+English from the College of St. Thomas. 
+George Vachtsevanos is 
+Professor of Electrical 
+Engineering at the School of 
+Electrical and Computer 
+Engineering of the Georgia 
+Institute of Technology. He 
+received the BEE degree from 
+the City College of New York, 
+the MEE degree from New 
+York University and a Ph.D. 
+degree in EE from the City 
+University of New York. He is directing the Intelligent 
+Control Systems laboratory at Georgia Tech and teaches 
+courses and conducts research in intelligent systems, fuzzy 
+logic and neural networks, diagnostics and prognostics and 
+manufacturing systems. His R&D activities are sponsored by 
+industry and government agencies. He has published over 
+250 technical papers in his area of expertise and is the 
+inventor or co-inventor of six U.S. patents. He is a senior 
+member of IEEE and has chaired the Association for 
+Electronics Manufacturing Board of Advisors of SME. He 
+serves as the associate editor of the Intemational Journal of 
+Intelligent and Robotic Systems. 
+Joe Van Dyke, formerly of 
+PredictDLI, has been involved 
+in the predictive maintenance 
+field for 13 years managing 
+software development projects, 
+teaching machinery vibration 
+analysis, and performing a 
+2 91 
+broad range of mechanical and monitoring systems analysis 
+work. Currently his software development consulting 
+company is working to develop new and specialized 
+vibration analysis components for use in industrial 
+machinery vibration monitoring. Joe Van Dyke holds an 
+M.S. degree in Mechanical Engineering from the University 
+of Washington and a P.E. license in the State of 
+Washington. 
+292 

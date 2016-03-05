@@ -1,0 +1,834 @@
+Developing a Flexible System-Modeling Environment for Engineers
+David R. Gardner Joseph P. Castro Paul N. Demmie Mark A. Gonzales
+Gary L. Hennigan Michael F. Young Sudip S. Dosanjh
+Sandia National Laboratories
+Albuquerque, New Mexico 87185-0316
+fdrgardn,jpcastr,pndemmi,margonzg@sandia.gov
+fglhenni,mfyoung,ssdosang@sandia.gov
+Abstract
+We are developing a module-oriented, multiphysics,
+mixed-fidelity system simulation environment that will en-
+able engineers to rapidly analyze the performance of a sys-
+tem and to optimize its design. In the environment, phys-
+ical components of the system are represented by software
+components, and are linked by ports that transfer and trans-
+form data between them. The model fidelity in a composite
+module may be specified independently, e.g., one compos-
+ite module may have a parametric model and another may
+have a three-dimensional finite-element model. In a proto-
+type of the environment users can specify thermal radiation
+models for each system component, embed electrical cir-
+cuits in each component, and set the external conditions for
+the system. During the simulation users can monitor the
+thermal and electrical behavior of the system. The latest
+software design for the environment promises greater flexi-
+bility in extending the environment for analyzing and opti-
+mizing a variety of complex systems.
+1. Introduction
+In fulfillment of the national security mission of San-
+dia National Laboratories, engineers there simulate or test
+a wide variety of complex systems. These systems range
+from national infrastructure to nuclear power plants to
+weapons to micro-electrical-mechanical systems (MEMS)
+to living cells.
+Historically, engineers at Sandia have relied on tests to
+characterize many such systems. Political, economic, and
+environmental factors increasingly constrain the ability of
+engineers to conduct tests as they have in the past. Now
+Sandia engineers must rely increasingly on modeling and
+simulation of these disparate complex systems.
+This work was performed at Sandia National Laboratories. Sandia is
+a multiprogram laboratory operated by Sandia Corporation, a Lockheed
+Martin Company, for the United States Department of Energy under Con-
+tract DE-AC04-94AL85000.
+These disparate, complex systems must be modeled at
+many different levels of fidelity. For example, risk assess-
+ment studies for nuclear reactors are conducted with fault
+tree models in which the component models are of very
+low fidelity (e.g., binary decisions) [17]. In contrast, stud-
+ies of systems such as neutron generators use the highest
+fidelity physics models available, and tax the capabilities of
+the most powerful computers in the world [3].
+As engineers rely more and more on modeling and sim-
+ulation, they will also use more mixed-fidelity system sim-
+ulations, simulations that contain models of differing fideli-
+ties. For example, a drift-diffusion model of a transistor
+might be used in a lumped-parameter circuit model to more
+accurately model the transistor behavior in a radiation envi-
+ronment.
+Such mixed-fidelity models have several advantages.
+They enable a component design to be evaluated in the con-
+text of a full system, and allow more realistic boundary
+conditions for the model of the component. They enable
+more rapid system-level analysis and optimization, because
+changes to the higher fidelity model can be incorporated di-
+rectly into the system model without constructing an equiv-
+alent lower fidelity model. They enable the uncertainty in
+knowledge of a component to be reflected in the fidelity of
+the model used for the component, independent of the fi-
+delities of models used for other components. And the res-
+olution and fidelity of the simulation can be tailored to the
+requirements of the analysis, using lower fidelity models for
+exploratory studies and hence making better use of comput-
+ing and personnel resources [4, 5].
+Mixed-fidelity modeling (also called numerical zoom-
+ing) is being investigated at Sandia and elsewhere. For
+example, Reed and Afjeh have used a three-dimensional,
+Navier-Stokes model of a fan to compute performance
+maps for zero-dimensional (lumped-parameter) thermody-
+namic component models in a turbofan engine simula-
+tion [12, 13, 14]. Follen and auBouchon have implemented
+mixed-fidelity modeling in the National Cycle Program of
+the National Propulsion System Simulation by inserting
+one-dimensional compressor models in a zero-dimensional
+Proceedings of the 35th Hawaii International Conference on System Sciences - 2002
+0-7695-1435-9/02 $17.00 (c) 2002 IEEE 1
+Proceedings of the 35th  Annual Hawaii International Conference on System Sciences (HICSS-3502) 
+0-7695-1435-9/02 $17.00 © 2002 IEEE 
+model of a turbofan engine [5].
+To meet the expanding modeling and simulation needs
+of engineers at Sandia, we are developing an environment
+for mixed-fidelity, system-level modeling and simulation of
+complex systems. In the next section we present the design
+goals for the environment. Then we describe a prototype
+implementation of the environment for coupled thermal-
+electrical modeling and discuss its limitations. Next we dis-
+cuss our recent experience in developing mixed-fidelity sys-
+tem models for thermal radiation heat transfer. Finally, we
+describe an improved architecture for the environment that
+we are currently implementing. The environment is called
+the Entero environment.
+2. The Entero System Engineering Environ-
+ment
+The long-term goal for the Entero environment is
+to research and develop a module-oriented, multiphysics,
+mixed-fidelity system simulation environment for engineers
+to enable rapid system performance analysis and design op-
+timization. Major design goals for the Entero environ-
+ment include providing a systems view of the system to
+be analyzed, providing a module-oriented view of the sys-
+tem, enabling models of different physics types to be cou-
+pled together, providing mixed-fidelity models for the anal-
+ysis, and enabling optimization and uncertainty quantifica-
+tion studies.
+Thus the Entero environment will represent the physi-
+cal system to be analyzed as a whole, from a system level.
+In addition, the environment will represent the system as a
+collection of interacting modules, so that engineers can as-
+semble systems in ways that reflect the physical assembly
+of the systems.
+The Entero environment will enable models of differ-
+ent physics types to be loosely coupled together. For exam-
+ple, an engineer will be able to model an electrical circuit in
+a thermal or radiation environment, and monitor its perfor-
+mance.
+The Entero environment will incorporate mixed-
+fidelity modeling, so that engineers can select model fidelity
+for each component and easily change it. For example, an
+engineer will be able to easily replace a coarser finite ele-
+ment mesh with a finer one, or a linear model with a non-
+linear model. Users will be able to select from parametric
+models to the highest fidelity numerical models available.
+And the Entero environment will enable engineers to
+optimize designs, and to quantify uncertainties in system
+performance due to variability in environmental conditions,
+material properties, part specifications, and modeling as-
+sumptions.
+Figure 1. Model-integrated view of the prototype
+Entero environment, emphasizing the functional
+levels in the architecture.
+3. A Prototype Environment for Coupled
+Thermal-Electrical Modeling
+One focus of our current development of the Entero
+environment is modeling systems containing electrical cir-
+cuits that are exposed to fires. If the electrical circuits fail
+in a fire, they must fail so that the system remains safe (al-
+though the system itself may be destroyed). This problem
+motivated the development of our prototype environment.
+The development goal for the Entero prototype en-
+vironment was to build and demonstrate an environ-
+ment for coupled thermal-electrical simulations using zero-
+dimensional thermal models. In the following subsections
+we describe the software architecture for the prototype, the
+preprocessor, the library of modules, and the physics man-
+ager.
+3.1. The Software Architecture
+A high-level view of the software architecture for the
+prototype is shown in Figure 1. This figure emphasizes
+the three functional levels in the architecture: the specifica-
+tion level, which provides the graphical user interface; the
+interpretation level, which translates the specification into
+software; and the analysis level, which executes the physics
+analysis.
+Users interact with the Entero environment in the
+specification level. Systems are assembled graphically in
+the visual editor using icons. Each icon represents a soft-
+ware module that in turn represents a physical component.
+The software modules are stored in a library in the in-
+terpretation level. The model interpreter links the software
+modules into a system that represents the physical system
+Proceedings of the 35th Hawaii International Conference on System Sciences - 2002
+0-7695-1435-9/02 $17.00 (c) 2002 IEEE 2
+Proceedings of the 35th  Annual Hawaii International Conference on System Sciences (HICSS-3502) 
+0-7695-1435-9/02 $17.00 © 2002 IEEE 
+Figure 2. The Entero prototype graphical user
+interface and postprocessor.
+using modules called ports and passes the system specifica-
+tion to the physics manager. The functionality of the model
+interpreter was incorporated into the user interface.
+Engineering analysis occurs in the analysis level, by ex-
+ternal or custom application programs. Numerical results
+are then displayed at the specification level through a post-
+processing interface to external or local tools.
+3.2. The Prototype Preprocessor
+The preprocessor functions as the graphical user inter-
+face and the model interpreter. It enables a user to display
+a graphical view of a system consisting of multiple mod-
+ules. Users select modules from a library and connect them
+into a system using ports. External boundary conditions are
+also implemented as modules. Users can save the assem-
+bled system and reload it later. Users can set module prop-
+erties such as heat capacity and initial temperature using the
+interface.
+The preprocessor was written in the JavaTM [9, 10] pro-
+gramming language to reduce the complexity of develop-
+ing and maintaining software on multiple platforms. In ad-
+dition, the JavaBeans [15, 16] component architecture
+closely matched desired properties for the Entero mod-
+ules in the prototype. An example of the Entero prototype
+graphical user interface is shown in Figure 2.
+3.3. The Modules Library
+In the Entero prototype, a module is a software com-
+ponent that represents a physical component having prop-
+erties and physics that may be modeled with one or more
+JPanel
+Generic Customizer
+Entero Module
+JComponent
+SimpleBeanInfo
+Entero Module BeanInfo
+Entero Module CustomizerGeneric Module
+Figure 3. The class hierarchy for an Entero
+module. A rectangular box indicates a built-in
+JavaTM class while boxes with rounded corners
+represent classes written for the Entero environ-
+ment.
+applications. Six different modules are implemented in the
+prototype modules library.
+Four of the modules represent physical components. For
+each component, a user selects the desired physics type such
+as thermal radiation and electrical activity and the fidelity
+of each physics model (only zero-dimensional models are
+available in the prototype; development of mixed-fidelity
+models is discussed in Section 4).
+The two other modules in the library are the Environ-
+ment and the Portmodules. The Environmentmodule
+allows a user to specify a time-dependent external temper-
+ature. The Port module describes the physical coupling
+between the component modules, e.g., radiative heat trans-
+fer.
+Each module in the library is a JavaBean and extends
+a generic module, which then extends a JavaTM JCom-
+ponent. The Entero module uses a type of Bean-
+Info class, which extends the JavaTM SimpleBeanInfo
+class. A customizer is specified in the BeanInfo file of
+each module. The customizer extends a generic customizer,
+which, in turn, extends a JavaTM JPanel (Figure 3).
+3.4. The Physics Manager
+The physics manager advances the state of the model
+system from the initial state to the state at the specified final
+time. The thermal behavior of each component is modeled
+with a zero-dimensional model, i.e., each module was as-
+sumed to have a single, time-dependent temperature. The
+temperature for each module is determined by conservation
+of energy assuming that each module radiates and absorbs
+thermal energy as a black body.
+View factors for the model system are pre-calculated us-
+ing the CHAPARRAL program [8]. Thus the geometric re-
+Proceedings of the 35th Hawaii International Conference on System Sciences - 2002
+0-7695-1435-9/02 $17.00 (c) 2002 IEEE 3
+Proceedings of the 35th  Annual Hawaii International Conference on System Sciences (HICSS-3502) 
+0-7695-1435-9/02 $17.00 © 2002 IEEE 
+lationships among the modules are implicitly specified via
+the view factors, but can be changed by a knowledgeable
+user.
+Electrical circuits can be embedded in each module, but
+not connected between modules. Electrical activity is cal-
+culated using the Spice 3f5 circuit simulator [2] and circuits
+are specified through standard Spice netlist files. The cou-
+pling between the zero-dimensional thermal models and the
+circuit models is loose and one-way. That is, the temper-
+ature of a module is computed using the zero-dimensional
+thermal models, and then this temperature is imposed on
+any circuit embedded in the module. Heat generated by the
+circuit is neglected.
+A view of the graphical user interface and a post-
+processing plot from a coupled thermal-electrical simula-
+tion of a generic system is shown in Figure 2.
+3.5. Limitations of the Prototype Architecture
+While the use of JavaTM enabled us to add new features
+to the Entero environment quickly, we discovered that the
+initial architecture incorporated insufficient abstractions of
+the object hierarchies and insufficient encapsulation of var-
+ious implementation details.
+Many attributes and methods were duplicated in each
+module instead of being abstracted into the common mod-
+ule base class. To add a new common property or method, it
+was necessary for code in each existing module to be modi-
+fied. To add a new module, code for an existing module was
+typically copied and then modified, increasing possibilities
+for errors and duplicating both effort and code.
+External applications were tightly integrated into the
+physics manager, without a specified interface. To add a
+new application it was necessary to make significant, often
+drastic, changes to the physics manager.
+The JavaBeans architecture offered some initial ad-
+vantages in developing a prototype system, such as rapidly
+developing software for visually assembling a system of
+modules. However, because the visualization properties of
+a module are tightly coupled to the physics properties, the
+JavaBeans architecture limited the Entero software to
+interfaces based on JavaBeans. User interfaces based on
+a variety of architectures are required to support different
+modeling domains (e.g., penetration mechanics modeling
+and safety engineering). Thus the flexibility and extensi-
+bility of the software were diminished.
+Another limitation with JavaTM arises from the serializa-
+tion mechanism, when it is used as a means of storing per-
+sistent objects. The mechanism assumes that the classes
+required to instantiate a serialized object change in only
+severely circumscribed ways. Any such objects that were
+saved prior to even minor class changes in the code were
+incompatible with the new code. Thus it was necessary to
+continually re-enter system configurations manually after
+any changes to class attributes, such as changes to default
+values for display properties.
+Extending and maintaining the software became increas-
+ingly complex, error-prone, and costly. To alleviate these
+difficulties the code architecture was redesigned to be more
+flexible and extensible.
+4. Mixed-Fidelity Models for Thermal Radia-
+tion
+An important design goal for the Entero environment
+is to provide mixed-fidelity system models. In such models,
+the fidelity used to simulate a given component need not
+be the same for all components in the system. To this end,
+we are developing a method for linking zero-dimensional
+thermal models for components to three-dimensional mod-
+els when the components are coupled by thermal radiation.
+In the method, a simulation is controlled by a zero-
+dimensional model of the system. The temperature of each
+component is determined by the model assigned to it. Thus
+if a zero-dimensional model is assigned to a component, its
+temperature is computed by a zero-dimensional model. If
+a three-dimensional model is assigned to a component, its
+temperature is computed using a three-dimensional model,
+and an appropriate average temperature is transmitted to the
+system model. This approach resembles that used by Follen
+and auBuchon to link zero-dimensional models of the com-
+ponents of a turbofan engine to a one-dimensional model of
+the compressor [5].
+Preliminary results indicate that, depending on the user’s
+requirements for accuracy and execution speed, the mixed-
+fidelity system model can provide reasonable temperature
+approximations for average component temperatures and
+also internal temperatures for the three-dimensional compo-
+nents, compared to a full three-dimensional system model,
+in a much shorter simulation time. Some representative re-
+sults are shown in Figure 4.
+5. An Improved Software Architecture
+The Entero software is intended to provide an environ-
+ment that continually evolves as new applications are inte-
+grated into it and new functionality is added to it. There-
+fore, the Entero code architecture must be flexible, dy-
+namic, and scalable. To achieve these qualities, we used an
+object-oriented design methodology, and we used a library
+environment rather than a framework environment. These
+two environments are compared in Table 1. The primary
+advantage of the framework approach lies in its faster com-
+munication between the environment and the application.
+The primary disadvantage is that the application must be
+Proceedings of the 35th Hawaii International Conference on System Sciences - 2002
+0-7695-1435-9/02 $17.00 (c) 2002 IEEE 4
+Proceedings of the 35th  Annual Hawaii International Conference on System Sciences (HICSS-3502) 
+0-7695-1435-9/02 $17.00 © 2002 IEEE 
+Time [s]
+Te
+m
+pe
+ra
+tu
+re
+[K
+]
+0 10000 20000 30000300
+400
+500
+600
+700
+800
+900
+1000
+1100
+Ts [Mixed]
+Ts [0D]
+Environment
+Ts [3D]
+Figure 4. Representative temperature predic-
+tions for the mixed-fidelity model [Mixed], com-
+pared to the three-dimensional model [3D] and
+the zero-dimensional model [0D] for a constant-
+temperature environment. The mixed-fidelity
+model consisted of a three-dimensional module
+embedded in a zero-dimensional system.
+built within the framework, and hence it may not be able to
+run independently from the framework. In contrast, the pri-
+mary disadvantage to the library approach is its slower com-
+munication, but its primary advantage is that it has much
+greater flexibility for integrating applications. In the library
+approach, stand-alone applications are integrated into the
+environment by simply placing a interface wrapper around
+the application. For the requirements of the Entero en-
+vironment, it is much more important to have the flexibil-
+ity for integrating applications than to have communication
+performance. Hence, we adopted the library approach for
+our improved architecture. If, in the future, the commu-
+nication performance becomes a higher priority, incorpo-
+rating more tightly coupled communication into the library
+environment will be much easier than incorporating a more
+modular structure into a framework environment.
+5.1. Modular Functionality
+One of the main priorities of the improved architecture is
+to make the functionality of the environment as modular as
+possible. In addition, the architecture must have the ability
+to dynamically add and remove these modules of function-
+ality as needed by the user.
+We call the entities representing these modules of func-
+tionality a Module. Note that for the prototype architecture
+the term module was used to describe the component, envi-
+ronment, and port modules. In the improved architecture,
+the term Module is used to describe a particular function-
+ality. Therefore what was termed component module will
+now be a composite of Modules.
+5.2. Implementing an Object-Oriented Design
+To properly define objects and their relationships it is
+not only important that we use object-oriented design, but
+proven object-oriented design principles and proven soft-
+ware design patterns. In particular, the object-oriented de-
+sign principles the improved architecture will closely ad-
+here to are [6]
+ Program to an interface not an implementation.
+Manipulating objects through an interface shields the
+type and class of the object. This hides underlying
+code and clients can manipulate any type of object as
+long as it implements the appropriate interface, thus
+allowing increased code reuse.
+ Favor object composition over inheritance.
+Objects add functionality by being composed of other
+objects rather than through inheritance. This allows
+functionality to be added dynamically (at run time)
+rather than statically (at compile time).
+ Objects should delegate responsibilities.
+Objects delegate operations, through interfaces or me-
+diator objects, to objects that encapsulate the behavior
+to handle the operation. This allows objects to encap-
+sulate a specific type of functionality and allows other
+objects to make use of it.
+It follows immediately from these principles is that most
+behavior and functionality should be defined via interfaces,
+so that manipulating objects can be done with only the view
+of that object’s interface. In particular, Module will be
+defined as an interface.
+5.3. Modules
+One of the design goals for the Entero environment
+is to incorporate different types of physics applications, so
+there must be a Module that encapsulates physics prop-
+erties. There must be various subtypes of these physics
+modules to represent different categories of physics, e.g.,
+thermal radiation and electrical activity, and each of these
+subtypes will contain attributes corresponding to the cate-
+gory of physics it is encapsulating, e.g., a thermal physics
+module will contain a temperature attribute. These physics
+modules are abstracted as PrimitiveModules, where
+different types of modules are set by the Primitive-
+Module’s member object ModuleType. Categories of
+Proceedings of the 35th Hawaii International Conference on System Sciences - 2002
+0-7695-1435-9/02 $17.00 (c) 2002 IEEE 5
+Proceedings of the 35th  Annual Hawaii International Conference on System Sciences (HICSS-3502) 
+0-7695-1435-9/02 $17.00 © 2002 IEEE 
+Table 1. Comparison of Framework and Library Environments
+Framework Environment Library Environment
+Integrating Application must be built within the Interface wrappers that conform to the environment
+Applications environment and conform to its standards are placed around the application
+Communication Tightly coupled; hence higher performance Loosely coupled; hence lower performance
+Functional Typically none; must utilitze the entire The functionality of the environment is modularized
+Modularity framework to use any of its functionality so that it may add and remove what is needed
+Stand-Alone Once the application is built within the This environment is intended to integrate stand-alone
+Applications environment it typically cannot be run applications
+stand-alone
+module types are represented by ModuleType’s sub-
+classes, e.g., PhysicsPMType represents physics mod-
+ules (where PM is shorthand for Primitive Module) and sub-
+types are enumerations within each subclass (e.g., THER-
+MAL PHYSICS MODULE). Different types of modules may
+be added simply and without changing the general infras-
+tructure by creating a new ModuleType subclass or an
+enumeration within an existing subclass.
+Each PrimitiveModule also contains methods that
+manipulate attributes, such as get and set methods. At-
+tributes are generic entities that represent Primitive-
+Module properties. Each attribute has a value and units.
+Figure 5 is a Unified Modeling Language (UML) dia-
+gram of the relationship among the interface Module,
+the PrimitiveModule and its ModuleType. Prim-
+itiveModule objects alone do not provide all that is
+needed to model a physical component; a container must
+be provided to hold a composition of modules, and a means
+must be provided to build and manage this composition.
+In the prototype architecture a physical component was
+modeled using inheritance and contained an extensive list of
+properties with their corresponding get/set methods. This
+produced a monolithic model that was difficult to modify
+and manage. In the improved architecture we apply the sec-
+ond principle of good object-oriented design and favor ob-
+ject composition over inheritance. A physical component
+is now represented as a CompositeModule, which is
+a composite of Module objects (including Primitive-
+Module objects) that may be dynamically added to or re-
+moved from the model at run time. Since Composite-
+Module is a type of Module as well, it implements the
+Module interface, it may contain other CompositeMod-
+ule objects (Figure 6). This structure allows us to model
+Figure 5. UML diagram of the relationships
+among theModule interface, the Primitive-
+Module, and the ModuleType. All subtypes
+of PhysicsPMType are represented as enu-
+merations.
+Proceedings of the 35th Hawaii International Conference on System Sciences - 2002
+0-7695-1435-9/02 $17.00 (c) 2002 IEEE 6
+Proceedings of the 35th  Annual Hawaii International Conference on System Sciences (HICSS-3502) 
+0-7695-1435-9/02 $17.00 © 2002 IEEE 
+Figure 6. A CompositeModule is an aggre-
+gation of Modules. This includes Primi-
+tiveModule objects and CompositeModule
+objects, since the CompositeModule imple-
+ments the Module interface (i.e., is a type of
+Module).
+hierarchical physical components, e.g., an electrical circuit
+embedded in a component.
+The primary function of the CompositeModule is to
+act as a container: all its functionality is implemented in
+the various Module objects it contains. Applying the third
+principle of good object-oriented design, that objects should
+delegate responsibilities, the addition, removal, and man-
+agement of the Module objects within the Composite-
+Module are delegated to manager and handler objects.
+A CompositeModule may contain many Module
+objects of differing types (ModuleTypes). The addi-
+tion or removal of these different types adheres to cer-
+tain type-dependent rules. For example, there should only
+be a single module of a given type of PhysicsPM-
+Type in a CompositeModule object, e.g., a THER-
+MAL PHYSICS MODULE. This is to prevent multiple rep-
+resentations of the same attribute (e.g., temperature) in
+a CompositeModule object. The interface Module-
+Handler enforces such rules when adding or removing a
+module from a composite. Each ModuleType will have
+a ModuleHandler type associated with it (this is en-
+forced by the interface). As seen in Figure 7, the Phys-
+icsPMType class and all its subtypes will be associated
+with the PhysicsModuleHandler class. The Phys-
+icsModuleHandler class implements the method is-
+ModuleAdded() from ModuleHandler. This method
+contains and enforces the rules specific to the addition of
+PhysicsPMType subtypes. There will be many other
+ModuleTypes such as GeometryPMType, Applica-
+tionPMType, and PortPMType. Each of these Mod-
+uleTypes will have its corresponding ModuleHandler
+Figure 7. PhysicsPMType is associated with
+the PhysicsModuleHandler class. Thus all
+subtypes will have this handler class.
+type as well; thus a CompositeModule has the ability to
+manage multiple handler objects.
+Depending on what Module objects of a given Mod-
+uleType are added to the CompositeModule, vari-
+ous ModuleHandler types must be instantiated and man-
+aged. This is done with the class ModuleHandlerMan-
+ager, which is a single member of every Composite-
+Module class. The primary function of the Module-
+HandlerManager is to manage data through the handler
+classes. For example, if a THERMAL PHYSICS MODULE
+object is added to a CompositeModule object, the ad-
+dition is initially delegated to the manager object from the
+composite. The manager object then gets the type of han-
+dler it must instantiate from the added module, in this case
+PhysicsModuleHandler, and then the manager dele-
+gates the addition of the module to that handler. The addi-
+tion of a module is delegated by the delegator implement-
+ing the ModuleManagerInterface, through which the
+delegatee object calls the addModule() method. The
+ModuleHandlerManager’s object relationships are il-
+lustrated in Figure 8.
+5.4. Data Persistence
+One of the primary limitations in the prototype archi-
+tecture was that the meta-data was embedded in the model
+itself. The improved architecture remedies this by placing
+the properties in the modules, allowing them to be dynam-
+ically added to and removed from the model. In the fu-
+ture ModuleTypes will be stored as meta-data and will
+be loaded dynamically. All of these data structures will be
+stored using the eXtensble Markup Language (XML) and
+Proceedings of the 35th Hawaii International Conference on System Sciences - 2002
+0-7695-1435-9/02 $17.00 (c) 2002 IEEE 7
+Proceedings of the 35th  Annual Hawaii International Conference on System Sciences (HICSS-3502) 
+0-7695-1435-9/02 $17.00 © 2002 IEEE 
+Figure 8. A CompositeModule delegates the
+addition and removal of modules to the Mod-
+uleHandlerManager through the Module-
+ManagerInterface.
+transformed, by the JSX mechanism [1], into JavaTM ob-
+jects to be used at run time. The JSX mechanism will also
+convert the JavaTM objects back into XML entities that can
+be stored as persistent objects. There are many advantages
+to saving meta-data in the XML format, including [11]
+ XML allows flexibility of data formatting, with the
+ability to nest tags and define the contents of the data
+in an object-oriented format.
+ XML separates content and presentation. The data
+is not tied to a particular view, thus different graphical
+user interfaces may utilize the same data.
+ XML is not tied to a particular client. Though we
+have chosen JavaTM, nothing prevents us from reading
+the same meta-data into C++ objects with the appro-
+priate interfaces.
+ XML is a purely textual representation of data
+which has many advantages. In particular serialization
+and versioning become much more viable since text
+files are easily parsed.
+ JavaTM + XML = Portable Code + Portable Data
+Ultimately what XML gives the Entero environment is
+the ability to access data from a common data repository in
+which the data defines its structure independent of its im-
+plementation.
+Figure 9. The ApplicationModule becomes
+a builder simply by extending the Module-
+BuilderInterface. Coyote is a finite el-
+ement code for nonlinear heat conduction
+problems used at Sandia [7].
+5.5. Application Integration
+An important feature of the Entero architecture is the
+ability to easily integrate stand-alone applications into it.
+This is done with an ApplicationModule, which ex-
+tends PrimitiveModule and provides a wrapper for the
+application in the Entero environment. This module will
+have attribute information specific to the application, e.g., a
+list of different solvers that may be used in the application,
+an input file parser, or a version number. Applications will
+also require data that is encapsulated in specific Physics-
+PMTypes and GeometryPMTypes, thus the Applica-
+tionModule must store this information as well. Since
+the application knows what external modules it requires in
+order to be used by a model, it must have the ability to add
+these modules to the CompositeModule to which it is
+being added. This is accomplished by implementing the
+ModuleManagerInterface in the Application-
+Module; in so doing it can now delegate the module ad-
+ditions to the appropriate ModuleHandlerManager ob-
+ject (Figure 9). By encapsulating particular functionalities
+within interfaces it becomes a simple task to make a mod-
+ule a builder, and so we are able to encapsulate all informa-
+tion about the application within an ApplicationMod-
+ule object.
+Ports are the entities that connect system components
+and transfer data of differing fidelities or physics between
+them. Port functionality is encapsulated in a PortMod-
+ule which extends PrimitiveModule and holds the
+identities of the source and target it links. Since data is
+accessed through the PrimitiveModule interface, con-
+Proceedings of the 35th Hawaii International Conference on System Sciences - 2002
+0-7695-1435-9/02 $17.00 (c) 2002 IEEE 8
+Proceedings of the 35th  Annual Hawaii International Conference on System Sciences (HICSS-3502) 
+0-7695-1435-9/02 $17.00 © 2002 IEEE 
+necting two components is a matter of coupling the source
+attribute and target attribute and then performing the appro-
+priate data conversion and transfer between them. The data
+translation is kept separate from the PortModule so that
+the interpolation of data will be independent of the architec-
+ture (Figure 10).
+A specific example of coupling two componens with
+a port is coupling a component modeled with a three-
+dimensional finite-element code to a system of zero-
+dimensional components (Section 4). To accomplish this,
+the three-dimensional model must be linked to a zero-
+dimensional view of the model, and the zero-dimensional
+view is coupled to the zero-dimensional system model.
+Specifically, the three-dimensional component’s tempera-
+ture field must be linked to a scalar temperature for a zero-
+dimensional component. To perform this task a Port-
+Module is created where the source attribute is the tem-
+perature field and the target attribute is the scalar temper-
+ature. Through the Module interface, the PortModule
+gets the data types of the two temperatures, and determines
+that a conversion from a temperature field to a scalar tem-
+perature is needed. A DataTranslator object from a
+pre-compiled set of data conversion objects (which hold
+the type-specific conversion algorithms) is called by the
+DataTranslatorManager to perform the translation,
+in this case a conversion from a field to a scalar. Again,
+through the PrimitiveModule interface the port then
+sets the appropriate scalar temperature in the target zero-
+dimensional model. Since the data translation is separate
+from the PortModule and is determined at run time, the
+types of conversions a port may do can be added dynam-
+ically simply by adding new DataTranslator objects
+(Figure 11). Coding to interfaces and keeping the trans-
+lation algorithms independent of the software architecture
+allows port objects to become much more flexible and dy-
+namic in the improved code architecture.
+6. Summary
+Increased use of modeling and simulation in designing
+complex engineering systems and in assessing their perfor-
+mance can result in higher quality systems at lower cost.
+Modeling and simulation of complex systems at various lev-
+els of fidelity is increasingly important at Sandia National
+Laboratories in fulfillment of its national security mission.
+In this paper we have described the design and initial de-
+velopment of the Entero environment, a module-oriented,
+mixed-fidelity system simulation environment for engineers
+to enable rapid system performance analysis and design op-
+timization.
+Design goals for the Entero environment include rep-
+resenting a complex system as an interacting collection of
+components, user-selectable model fidelity for each compo-
+Figure 10. UML diagram of PortModule. The
+DataTranslatorobjects contain the transla-
+tion algorithms, therefore the algorithms are
+not a part of the port architecture.
+nent independent of the other components, and integrated
+support for optimization and uncertainty quantification.
+In the Entero environment, a model of a complex en-
+gineered system is assembled by selecting modules from
+a library and placing icons that represent the components
+in a workspace of a visual editor. Module properties can
+be changed through the editor, including selecting zero-
+dimensional or higher dimensional models. The compo-
+nents are linked via ports that represent the physical cou-
+pling between them and control the transfer and transfor-
+mation of information between the components. Physical
+analysis of the system is controlled by a physics manager
+that may use custom or standard analysis codes.
+An important feature of the Entero environment is
+the capability for mixed-fidelity system modeling, in which
+models of different spatial dimensionalities are coupled to-
+gether. Specifically, we briefly described a method for cou-
+pling zero-dimensional (lumped-parameter) models of sys-
+tem components to a three-dimensional model of a compo-
+nent for thermal radiation, and presented some comparisons
+of temperatures predicted by a mixed-fidelity system model
+to temperatures predicted by a full three-dimensional sys-
+tem model.
+A prototype of the Entero environment enabled users
+to link simple thermal models of components together and
+to embed electrical circuits in any of the components. Expe-
+rience with the prototype revealed some design limitations
+that have been remedied in an improved software architec-
+ture.
+Features and benefits of the improved architecture in-
+clude
+Proceedings of the 35th Hawaii International Conference on System Sciences - 2002
+0-7695-1435-9/02 $17.00 (c) 2002 IEEE 9
+Proceedings of the 35th  Annual Hawaii International Conference on System Sciences (HICSS-3502) 
+0-7695-1435-9/02 $17.00 © 2002 IEEE 
+Figure 11. A PortModule links the temper-
+atures of a three-dimensional finite element
+model and a zero-dimensional model. Based
+on the source and target attribute types, the
+PortModule calls the DataTranslator ob-
+ject (through the DataTranslatorManager)
+which contains the algorithm for transform-
+ing a temperature array to a scalar tempera-
+ture.
+ System components are built modularly and dynami-
+cally by object composition.
+ Data is independent of the system component and is
+stored in the XML format. Thus properties can be
+added easily and dynamically, data serialization is not
+dependent on the implementation, versioning becomes
+viable, and multiple user interface frameworks can be
+easily used.
+ Module interaction and functionality are implemented
+through interfaces. Manipulating objects through in-
+terfaces “hides” underlying changing code leading to
+an overall improvement in code reuse. Application
+modules add the appropriate physics and geometry
+needed to use an application through interfaces. Ports
+also handle data through interfaces, allowing interpo-
+lation algorithms to be independent of software archi-
+tecture.
+ Mixed-fidelity modeling is supported through ports.
+This improved architecture for the Entero environment
+is now being implemented.
+References
+[1] JSX home page. www.csse.monash.edu.au/
+˜bren/JSX.
+[2] The Spice circuit simulator home page.
+infopad.eecs.berkeley.edu:80/˜icdesign/
+SPICE.
+[3] ASCI Update. Sandia National Laboratories, Albuquerque,
+New Mexico, Oct. 2000.
+www.sandia.gov/ASCI/asciupdate/
+0010update.pdf.
+[4] P. K. Davis. Exploratory analysis enabled by multiresolu-
+tion, multiperspective modeling. In J. A. Joines, R. R. Bur-
+ton, K. Kang, and P. A. Fishwick, editors, Proceedings of
+the 2000 Winter Simulation Conference, pages 293–302, Or-
+lando, FL, 10–13 Dec. 2000. IEEE.
+[5] G. Follen and M. auBouchon. Numerical zooming between
+the NPSS Version 1 and a 1-dimensional meanline design
+analysis code. In Proceedings of the ISABE, the 14th In-
+ternational Symposium on Air Breathing Engines, Florence,
+Italy, 5–10 Sept. 1999. AIAA-99-7196.
+[6] E. Gamma, R. Helm, R. Johnson, and J. Vlissides. Design
+Patterns, Elements of Reusable Object-Oriented Software.
+Addison-Wesley, Reading, Massachusetts, 1995.
+[7] D. K. Gartling and R. E. Hogan. Coyote–A finite element
+computer program for nonlinear heat conduction problems.
+Technical Report SAND94-1173, Sandia National Labora-
+tories, Albuquerque, NM, Oct. 1994.
+[8] M. W. Glass. CHAPARRAL: A library for solving large
+enclosure radiation heat transfer problems. Technical Re-
+port SAND95-2049, Sandia National Laboratories, Albu-
+querque, NM, Aug. 1995.
+[9] J. Gosling, B. Joy, and G. Steele. The JavaTM Language
+Specification. JavaTM Series. Addison-Wesley, Boston, MA,
+2nd edition, 1996.
+[10] J. Gosling and H. McGilton. The JavaTM language environ-
+ment: A white paper. Sun Microsystems, Inc., 1997.
+java.sun.com/docs/white/langenv.
+[11] B. McLaughlin. Java and XML. O’Reilly & Associates,
+Inc., Sebastopol, CA 2000.
+[12] J. A. Reed and A. A. Afjeh. Connecting components of vary-
+ing fidelity in a turbofan engine simulation. Modeling and
+Simulation—Control, Signal Processing, Robotics, Power,
+23(4):2291–2298, 1992.
+[13] J. A. Reed and A. A. Afjeh. Integrating computer generated
+fan performance data with a turbofan engine simulator. In
+Proceedings of the Modelling, Simulation, and Identification
+Conference, pages 83–90, Vancouver, BC, Aug. 1992.
+[14] J. A. Reed and A. A. Afjeh. A comparative study of high and
+low fidelity fan models for turbofan engine system simula-
+tion. In Proceedings of the IASTED International Confer-
+ence on Applied Modelling and Simulation, Banff, Canada,
+July 1997.
+[15] S. E. Services. JavaBeans Component Development. Sun
+Microsystems, B edition, Apr. 1999.
+[16] Sun Microsystems. Sun Microsystems JavaBeans API, 1.01
+edition, July 1997.
+[17] W. E. Vesely, F. F. Goldberg, N. H. Roberts, and D. F.
+Haasl. Fault Tree Handbook. Technical Report NUREG-
+0492, United States Nuclear Regulatory Commission, Jan.
+1981.
+Proceedings of the 35th Hawaii International Conference on System Sciences - 2002
+0-7695-1435-9/02 $17.00 (c) 2002 IEEE 10
+Proceedings of the 35th  Annual Hawaii International Conference on System Sciences (HICSS-3502) 
+0-7695-1435-9/02 $17.00 © 2002 IEEE 

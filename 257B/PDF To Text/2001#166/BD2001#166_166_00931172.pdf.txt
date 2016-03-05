@@ -1,0 +1,742 @@
+Efficient Data Fusion For Multi-Sensor Management 
+Marcel L. Hernandez 
+Defence Evaluation and Research Agency 
+St. Andrew's Road, Malvern 
+Worcestershire, WR14 3PS, UK 
+Marcel @ signaLdera.g0V.uk 
+Abstract-This paper is concerned with the development of 
+a general framework for the management of multiple sen- 
+sors in tracking a single target. To achieve this aim we draw 
+on concepts from data fusion, particle filtering and heuristic 
+optimization. Previous work gave the Multi-Sensor Fusion 
+Management algorithm which provided a rigid scheme un- 
+der which sensors were placed to maximize the probabil- 
+ity of detecting the target. We present an adaptation to this 
+scheme in which sensor placements are chosen to minimize 
+a measure of uncertainty in the target position. We demon- 
+strate the algorithm in an Anti-submarine Warfare scenario 
+in which we use passive sonobuoys to generate bearings 
+and frequency (Doppler) data. We show that the quality of 
++e track increases dramatically with the combined use of 
+the two data sources and that the new sensor management 
+algorithm further improves the track, and uses significantly 
+fewer sensors in the process. 
+TABLE OF CONTENTS 
+1.  INTRODUCTION 
+2. BACKGROUND 
+3. SENSOR MANAGEMENT 
+4. THE ANTI-SUBMARINE WARFARE SCENARIO 
+5 .  RESULTS 
+6. CONCLUSIONS 
+1. INTRODUCTION 
+There exists a great body of research concerning the use of 
+sensor data in tracking (multiple) targets, using both analyt- 
+ical techniques, such as the Kalman Filter (for a review, see 
+[I]), and stochastic simulation using Monte Carlo meth- 
+ods (for a review, see [2]) .  However very few studies have 
+looked at the mechanisms for controlling the acquisition 
+process itself (see [3] and references therein). Sensors are 
+often expensive, they are not in limitless supply, and we are 
+often restricted in the number of sensors we can use at any 
+one time. Such considerations make us aware of the need 
+to configure and make use of sensors in a manner that will 
+make the most efficient use of the data they provide, given 
+the constraints of the tracking scenario being analyzed. 
+Sensor management has important civil and military ap- 
+plications. For example, efficient placement of seismic 
+sensors can warn of potential earthquakes, likewise radars 
+placed to reduce multipath and terrain screening effects 
+provide warning of enemy attack. Additionally sensor 
+management scenarios can either be stationary (i.e. sen- 
+sors are fixed, as in the above examples), or they can be 
+dynamic, in which case sensors can either be repositioned, 
+or redeployed to refine our opinion of the target state. 
+0-7803-6599-2/01/$10.00 @ 2001 IEEE British Crown Copyright 
+Previously the Multi-Sensor Fusion Management (MSFM) 
+algorithm was developed for a dynamic problem in which 
+sensors can either be reused, or redeployed at discrete time 
+epochs (see [3], [4], [5]). Sensor configurations were cho- 
+sen to maximize the probability of detecting the target, and 
+determined using gradient ascent [6].  Although the MSFM 
+algorithm is effective in reducing false alarm rates it does 
+not take into account the type of information provided by 
+each sensor. In particular, when bearing information is pro- 
+duced the sensor positions do not always achieve the tri- 
+angulation necessary to obtain a strong localization of the 
+target. 
+The overall aim of this paper is to make the most efficient 
+use of different types of data in target tracking and sen- 
+sor management, and to determine sensor configurations on 
+the basis of the effect they will have on a suitable measure 
+of the target uncertainty. We consider an Anti-submarine 
+Warfare (ASW) scenario in which passive sonobuoys pro- 
+vide bearings and frequency (Doppler) information. The 
+nonlinearity in the measurements means we cannot use the 
+Kalman Filter directly, although we can make a linear ap- 
+proximation and use the Extended Kalman Filter (EKF) 
+(again, see [l]). However, this method is not particularly 
+effective when the measurement equations are highly non- 
+linear, as is the case here (see [7]) and as an alternative we 
+use the Particle Filter (again, see [7]). 
+The sensor positions are initially chosen to maximize the 
+probability of detection, using the MSFM algorithm devel- 
+oped in [3], but are then offset in such a way as to minimize 
+a prediction of the uncertainty in the target position sub- 
+sequent to update. Although this new sensor management 
+algorithm is presented in the context of a specific ASW sce- 
+nario it is broadly applicable to sensor management prob- 
+lems in which the general aim is to reduce the number of 
+sensors required to track a target. 
+2. BACKGROUND 
+I. Recursive Bayesian Estimation 
+Let 3 denote the target state at time epoch t. In general 
+this state will consist of the position of the target, (xt, pt) 
+together with its components of velocity and acceleration 
+along the two coordinate axes. This is assumed to evolve 
+according to the following system model 
+4 + 1  = ft(%'Wt), (1) 
+where ft is the system transition function and wt is a noise 
+sequence independent of past and current states. At discrete 
+time epochs, measurements it become available. These 
+measurements are related to the state vector via the obser- 
+vation equation 
+it = Mzt, 4, (2) 
+5-2161 
+W 1 I G l G  t r t  15 L U G  IIlGasulGIIIGlIL IUIIbUUlI aI1U V t  15 a l l 'Ul5G 3c- 
+quence of known probability density function (PDF), inde- 
+pendent of past and present states and the system noise. 
+: j = 1, . . . , t } denote the set consisting of 
+the measurements taken up to and including time t. Sup- 
+pose the PDF of the target state at time t - 1 is given by 
+p(zt-llIt-l). The dual aim of this work is to accurately 
+predict the target distribution at the time of the next sub- 
+sequent deployment (i.e. determine p(gt IIt-1)) and then 
+place the required number of new sensors in a configura- 
+tion that will minimize a suitable measure of the variation 
+in the distribution p ( 3  IIt). Now, using the system model 
+Let It = { 
+P(Zt ILl)  = P(% k -  1,It-1 Mzt- 1 11,- 1 )&.-l .  (3) J 
+We can now update the target distribution, given the sensor 
+information at time t by using Bayes Rule 
+where the denominator is given by 
+dit I It - 1 ) = dit 1% 7 It - 1 M Z t  I It - 1 ) dz t .  (5 ) 
+Equations (3) and (4) represent the solution to the Bayesian 
+recursive problem. However, analytic solutions ere only 
+available in a restrictive number of cases. These include 
+the Kalman Filter (again, see [l]), in which both the sys- 
+tem transition function and measurement function are lin- 
+ear functions of the state vector 5, and the measurement 
+noise and system noise have Gaussian distributions. 
+J 
+II. The Particle Filter 
+The Particle Filter represents the density, p(%-,(It-1) of 
+the state vector zt-l at time epoch t - 1 as a set of random 
+samples ('particles') -t-l : i = 1, - . . , 
+{ x ( i )  
+dom samples are propagated and updated recursively by the 
+Particle Filter using the method of Sampling Importance 
+Resampling (SIR) (see [8], [9]) to provide estimates of the 
+target distribution as and when new measurements become 
+available. The general method is as follows. 
+Prediction: Pass each particle &?l through the: system 
+proximately distributed as p ( z t  IIt-1). 
+Update: Give each particle &i) a normalized impor- 
+tance weight 
+model (I), to generate a sample gt(i) : i = 1, . . . , N }  ap- 
+I. Background 
+Given the particle representation { gt(i) : i = 1,. . . , N} 
+of the prior density p(gtlIt-l),  the overall aim is to 
+control a measure of the variation in the distribution 
+{$ : i == 1, . . . , N} subsequent to update. Hence at each 
+deployment epoch there is a need to determine the exact 
+number of new sensors that should be deployed, and the 
+positions in which these new sensors should be placed in 
+relation to the existing sensors and the current particle rep- 
+resentation of the target distribution. 
+II. Predicted Particle Variability 
+We assess the overall performance of a proposed sensor 
+configuration by making a prediction of the effect such a 
+deployment will have on the particle variability subsequent 
+to update. Of course the measurement it will not be made 
+until the sensors are actu$ly placed and activated, but we 
+can generate an estimate, it ,  of it by selecting a single ran- 
+dom particle &.) and simulating a measurement as if the 
+target were at this position. Using this measurement we can 
+then calculate estimates of the particle weights, 
+(7) 
+Now, an empirical estimate of the distribution p ( 3  11,) is 
+given by 
+n 
+i=l 
+where 
+n 
+i=l 
+Let A1 and A2 denote the two eigenvalues of the sub-matrix 
+of (9) that consists of covariance terms relating only to the 
+target position (q, yt). These eigenvalues represent the 
+particle positional variance along the two principal axes of 
+the distribution. We let 
+(s-(.))~ = max(A1,Az). (11) 
+and then resample Using these new weights to gen':rate the A total of times we repeat the process of selecting a ran- 
+dom particle T, simulating a measurement, and then deter- new Set of Particles { $' : i = 1, - - . > N aPPr0:hatelY 
+distributed a~ p(gt  [ I t )  . 
+The Particle Filter provides a mechanism for the simu- 
+lation of the relations (3) and (4). The accuracy of the es- 
+timate depends on the number of particles employed. The 
+strength of the technique is that we are not restricted to as- 
+sumptions of linearity (or Gaussian noise) as we would be 
+mining associated importance weights (given by equation 
+7) and the estimated covariance matrix (equation 9). In as- 
+sessing the performance of a given sensor configuration we 
+use the average, if of the m S(,.) values obtained, i.e. 
+m 
+a = C(+, (12) 
+in using the Kalman Filter. k=l 
+5-2162 
+WIIGIG u ( r ) E  ID LllG V a l u G  VI U(,-) UGLGIIIUIIGU IVI UIG bu1 DG- 
+lection of a random particle T .  
+HI. Number Of New Sensors 
+At the first stage we deploy the maximum number of sen- 
+sors, n that can be processed at any one time. At subse- 
+quent decision epochs we place the minimum number of 
+new sensors that will give us a prediction 0 that achieves 
+a predetermined value. At each stage the sensors selected 
+to be reused are those with the highest individual proba- 
+bilities of detecting the target. The sensor configuration 
+themselves are determined as follows. 
+IV. Initial Positioning: Maximizing Probability Of Detec- 
+tion 
+Suppose at time epoch t we wish to determine the po- 
+sitions of nneur(< n) new sensors. We use the particle 
+representation, {&a) : i = 1, . . . , N of the prior density 
+p ( ~ ~ I I t - 1 )  as a basis for determining the new sensor posi- 
+tions. Initially, we position the new sensors so that when 
+used in conjunction with the (n - nnew) sensors selected 
+to remain activated we maximize the probability of detect- 
+ing the target. The fused probability of detecting the target, 
+given that it is at sample point j and using OR fusion (see 
+1 
+[W, [ I l l )  is 
+k=l 
+where Dk is the event that sensor k detects the target. If 
+we use the Theorem of Total Probability (for example, see 
+[ 121, page 67) then 
+If we substitute equation (13) into equation (14) then 
+Let xsi denote the x-coordinate of sensor i. It is trivial to 
+show that 
+a - [Pr(D)] = 
+axsr 
+provided the partial derivative & Pr(Di1zt = @))] 
+exists. A similar expression gives & [Pr(D)] . 
+We can now determine the sensor positions that will 
+maximize the fused probability of detecting the target by 
+using gradient ascent [6],  following the approach of [3] 
+and [4]. The sensors are moved simultaneously. At each 
+stage the position of each new sensor is adjusted by adding 
+[ 
+a iiiuiupir; A VI LIIG v c L c u i  g i a u & i i L ,  A ID LIIVDGII DV u i a L  UIG 
+average sensor movement is 6. 
+Hence X = e, where Asum = 
+~ 
+5-2163 
+Initially we set 6 = 0.5, but each time incrementing the 
+sensors causes a decrease in Pr(D)  (i.e. we have 'jumped' 
+over the optimum) 6 is halved. The optimization procedure 
+continues until the increment in the probability of detecting 
+the target is small, specifically we stop when 
+where Prm(D) is the value of Pr(D)  after m sets of sen- 
+sor movements. 
+V. Sensor Optimization: Minimizing Predicted Particle 
+Variability 
+The very nature of the MSFM algorithm lends itself to- 
+wards recommending symmetrical sensor configurations to 
+be placed within the particle cluster (see figures l(a) and 
+l(b)). This represents an effective means of guaranteeing 
+at least some contact with the target, and can work well if 
+the target prior is a symmetric distribution (see figure 2(a)). 
+However, the MSFM algorithm does not recommend posi- 
+tions on the basis of the type of information provided by 
+each sensor, and as a result sensor configurations do not al- 
+ways make efficient use of the data. For example, in figure 
+l(b) the symmetric nature of the configuration does not al- 
+low bearing triangulation of the target, resulting in a large 
+target uncertainty subsequent to update (see figure 2(b)). 
+In this section we introduce a scheme for adjusting the 
+sensor positions determined under the MSFM algorithm in 
+such a way as to minimize the predicted particle variabil- 
+ity, 0 subsequent to update. This sensor management algo- 
+rithm, which we refer to as the minimum variability (MV) 
+algorithm is demonstrated in figures 1 (c), in which the sen- 
+sor offset now achieves the required degree of triangulation 
+(see figure 2(c)). 
+The general procedure is as follows. 
+Step 0: Determine (Tmin, the value of (7 based on the 
+initial sensor positions. 
+Step 1: Select a sensor and mutate its position by adding 
+a random increment to its x-coodinate. 
+Step 2: Determine a, based on the new sensor configu- 
+ration. 
+Step 3: Have an acceptance policy as follows: 
+If a 5 
+umin = 0 
+accept the new sensor position and let 
+- - 
+(a) 
+38.0 38.6 39.2 39.8 40.4 41.0 41.6 
+- 
+. 
+- 
+- 
+38.0 38.6 39.2 39.8 40.4 41.0 41.6 
+- _  - 
+pandes 
+- 
+A 
+- "  " 
+I I I I I I I I I  I I I I ~ I I I I  I I I  
+x-coordinate x-coordinate 
+(b) 
+380 386 392 398 404 410 416 
+x-coordinate 
+U target 
+f I pamdes 
+:: F? 380 386 392 398 404 410 416 
+x-coordinate 
+Fig. 1. Sensor positions under the MSFM algorithm (figures (a) and (b)) 
+and the Mv algorithm (figure (c)), for the ASW scenario (described 
+in section 4. In each case the particles form a random sample of size 
+5000 drawn from a 2-D Gaussian distribution, in (a) the standard 
+deviations of this distribution are = U, = 1.0, and in figures (b) 
+and (c) oZ = 1.0, g, = 0.1. The target position is (40,140) and the 
+sensor bearings subsequent to deployment are. also shown. 
+x-coordinate 
+(c) 
+38.0 38.6 39.2 39.8 40.4 41.0 41.6 
+x-coordinate 
+Fig. 2. A demonstration of the better control of the target uncertainty 
+caused by positioning the sensors to minimize the predicted standard 
+deviation. Shown are the updated particle distributions for each of the 
+three sensor configurations given in figure 1. We observe that in (c) 
+the sensor offset allows bearing triangulation, resulting in increased 
+target localization at update. The number of particles was kept fixed 
+by using regularisatiodjittering (see [71, [131). 
+5-2164 
+P = exp (-a [ b - 11) , 
+amin 
+a is a suitable increasing function of the time period over 
+which we have been mutating the sensor positions. This ap- 
+proach allows us to accept suboptimal moves. However this 
+has the advantage of enabling us to move away from local 
+optima in the direction of the global optimum even though 
+there may be no immediate benefit in doing so (see [14]). 
+The probability of allowing a suboptimal move decreases 
+both with the time over which we have been repositioning 
+the sensors and with the degree of the suboptimality. 
+Step 4: Repeat steps 1 - 3, but this time allowing the 
+sensor position to mutate in the y-direction. 
+Step 5: Repeat steps 1 - 4 for each of the other new 
+sensors, and continue until a suitable convergence criterion 
+is satisfied. 
+Note that under this scheme the sensors are moved sequen- 
+tially, with their movements in the 2 and y directions de- 
+coupled. Several alternative schemes were attempted, one 
+in which the sensors were moved simultaneously, and an- 
+other in which the sensors were again moved sequentially, 
+but the position of each was allowed to mutate within the 
+two dimensional plane. However, neither of these schemes 
+proved to be as effective as the one presented in this paper. 
+4. THE ANTI-SUBMARINE WARFARE 
+SCENARIO 
+I. Background 
+We consider the problem of locating and tracking a single 
+submarine using passive sonobuoys. The sonobuoys are 
+deployed at 10 minute intervals from a single aircraft, and 
+data can be processed from up to 8 sensors at any one time. 
+We consider a shallow water scenario in which the per- 
+formance characteristics of each sensor are modeled using 
+a two dimensional Gaussian, centered on the sensor (for a 
+justification see [15]). Hence the probability of detecting a 
+target at ( x t ,  yt) with a sensor placed at gsi = (zsi, ys,) 
+is 
+W l l G l C  vi,true LJ UlG L L U G  U G p l L l l &  L.G.  
+and E ~ , I  - N ( 0 ,  a:), with a1 a function of the distance be- 
+tween the target and the sensor (i.e. a1 (esi, q, yl)). Addi- 
+tionally 
+where ci,2 - N ( 0 ,  a;), c is the speed of sound in water, 
+ft,.,, is the true frequency of the sound emitted from the 
+target, ut is the speed of the target and Bt is its trajectory 
+(see figure 3). Let Bt (respectively F t )  be the set of bearing 
+(respectively frequency) measurements taken at time t. 
+trajectory r 
+sensor i 
+Fig. 3. .The bearing, bi,trzle, at sensor i, and the target trajectory, 8t 
+III. Implementation One: Bearings Only Tracking 
+Given a set of particles : i = 1,. . . , N }  we prop- 
+agate and update these particles to obtain the set 
+{ gii) : i = 1, . . . , N} by following the standard procedure 
+outlined in section 2. The importance weight of each parti- 
+cle d(i) that has been passed through the nearly CV model 
+is given by 
+We determine wi by noting that 
+where (the sensor standard deviation) is a constant pre- with 
+scribing the level of sound propagation in the water. The 
+target motion is prescribed by a nearly constant-velocity 
+(CV) model (see [16]). (22) 
+II. The Measurement Model 
+The measurements provided by sensor i at each time epoch 
+t will comprise of a bearing bi to the target, together with 
+the frequency fi of the sound emitted by the target observed 
+at the sensor. A frequency shift is caused by the relative 
+motion of the target. If we let the position of sensor i be 
+denoted by gsi = (zs, , ys,) then 
+bi = &,true + ci,1, (18) 
+5 -  
+~ 
+N. Implementation Two: Bearings And Frequency Track- 
+Let us now denote the state of the target at time t - 1 by 
+gt-l = (pi-', %-'), where et-' is the position of the tar- 
+get, with its velocity given by gtP1. For the particle repre- 
+sentation of the target state we have $il = (ppll, &Il). 
+We now update the particles by following the procedure 
+overleaf. 
+ing 
+,2165 
+0 mey 1; A s  UI;IUlG, pass CtiGII p i u u G l G  &,L'u&-l) 
+through the CV system model to give 
+Step 2: Using the importance weights wi detemlined in 
+the previous scheme resample to update the particle posi- 
+tions to 
+Step 3: Calculate the new importance weights w: given 
+IJ:(~)). 
+p ( i )  : i = 1 . . . , L-1 
+by 
+wheregt is themeanof 
+We determine wi by noting that f k  [Et = t~:(~), p t  = &] 
+has a Gaussian distribution with mean 
+: i = 1, .  . . , N } .  L-1 
+[ 
+and variance 022,  u$i) is the speed of particle i ,  6$($) is its 
+trajectory, and b k  is given by 
+where& = (&,st ) .  
+Step 4: Resample using the importance weights w: to 
+update the particle velocities to { gia) : i = 1, . . . , N } .  
+At first sight it might seem strange that the bearing and 
+frequency measurements have been used sequentially. A 
+priori one might have expected these measuremerits to be 
+combined to give a single importance weight, which could 
+then be used to update the particle positions and veloci- 
+ties simultaneously. However, this approach was not par- 
+ticularly effective, and did not improve the tracking perfor- 
+mance significantly. 
+In offering an explanation for this it is important to note 
+that the frequency information depends on both the target 
+location and its velocity (see equation (20)). Consequently, 
+any particle that has position and velocity consistlent with 
+the measurements will be favored, irrespective of whether it 
+is the correct position and velocity. The frequent selection 
+of such particles can then result in a poor tracking perfor- 
+mance. 
+However, adopting this sequential scheme allows us to 
+first update the distribution of the target location by using 
+bearing information, and then use frequency measurements 
+to refine the motion dynamics. In general, the mean of the 
+particle cluster provides a good estimate of the target loca- 
+tion (see figure 6(b)). Hence by using the particle mean, to- 
+gether with the frequency measurements we can ac:curately 
+ascertain which of the particles have the correct velocity, 
+and update accordingly. It is a case of dividing the problem 
+into one in which we sequentially update the distribution 
+V I  u l l l G l G l l L  LulllyullGllrs U1 UIG L c l L g a  SLPCG. 111 p l I I I b q J l G  LIUS 
+scheme is very similar to the Partition Sampling technique 
+introduced by [ 171 and the sequential use of measurements 
+in the EKF, in which the most accurate measurements are 
+used first (see [l], page 166). 
+5. RESULTS 
+There are three measures we use in assessing the quality of 
+the particle track. The first two are the distance between 
+the target and the mean of the particle cluster after forward 
+prediction and after update. The final performance measure 
+is the variability in the target position subsequent to update 
+The combined use of frequency and bearing measure- 
+ments in the particle update resulted in a dramatic improve- 
+ment in tracking performance. A demonstration of this 
+is given in figures 4 and 6, with figures 8 and 9 showing 
+the results of 20 Monte Carlo runs, each of 100 iterations. 
+In each case sensor positions are chosen to maximize the 
+probability of detection. The inclusion of frequency in- 
+formation has caused a significant decrease in the distance 
+between the particle mean and the target position, both at 
+prediction and update. 
+The exploitation of the frequency information has en- 
+abled us to make a more refined estimate of the target mo- 
+tion at each decision epoch, and this has greatly improved 
+the accuracy of the particle forward prediction (see figure 
+4). It are the predicted particle positions that are used as the 
+basis for determining the sensor configuration and a more 
+accurate prediction leads to more effective sensor place- 
+ment. The benefits of this at update are shown by the gen- 
+eral reduction in the distance between the target and the 
+particle mean (see figures 6 and 9(a)) and the reduced vari- 
+ability in the particle positions (see figures 8(b), and 9(b)). 
+The improved tracking performance resulting from the 
+use of frequency information is also achieved whilst using 
+significantly fewer sensors (see figures 8(c) and 9(c)). In- 
+deed on nearly 70% of deployments we are able to place 
+just a single sensor (as opposed to only 40% when we are 
+using bearing information alone), and we need to place two 
+or more sensors on less than 25% of deployments, com- 
+pared to over 50% of the time when using bearing data 
+alone. The overall result is that we have achieved a signifi- 
+cant improvement in tracking performance, whilst using far 
+fewer sensors. 
+The overall aim of the MV sensor management algo- 
+rithm is to make more efficient use of the data available, 
+hence reducing the particle variability subsequent to update 
+and the overall number of sensors deployed in tracking the 
+target. With this aim in mind the improvement (over the 
+MSFM algorithm) shown in figures 8(b) and 9(b) is what 
+we would hope for and expect. Additionally there is a 
+marginal improvement in the distance between the target 
+and particle mean, both at prediction and update. 
+However, in implementing both the MSFh4 algorithm, 
+and the MV algorithm the aim is to keep the uncertainty 
+in the target location within a certain error radius. This 
+translates to exerting a measure of control over the particle 
+variability subsequent to update, and each of the respective 
+algorithms will employ the necessary number of sensors to 
+achieve its aim. Hence it is unsurprising that the quality of 
+(max(X1, X2)). 
+5-2166 
+. ,  
+l , , , , , , , , , , , , , , , , , , , , , ]  
+95 (b) 
+0 5 15 25 35 45 55 65 75 85 
+m m"wm 
+m -e 
+.... I 1  ................................................ I .............................................. 1 
+0 5 15 25 35 45 55 85 75 85 95 
+decision epoch, t 
+A demonstration of the improvement caused in particle predic- 
+tion as a result of the use of doppler information. In (a) we p&orm 
+bearings only tracking, placing sensors to maximize the probability of 
+detection. In (b) we use both bearings and doppler data. 
+......... 
+-ha 
+...... 
+.......... 
+... 
+...... 
+!i 2 E > - 1  I 
+0 ........................................ .................................. 
+Q 5 i o  15 M 25 30 35 40 6 50 55 60 a m 75 80 85 90 85 
+decision epoch, t 
+Fig. 5. A demonstration of the target position uncertainty subsequent to 
+update under the MSFM algorithm, in which sensors are positioned 
+in order to maximize the probability of detecting the target. loo0 
+particles were used, and the update uses both bearing and doppler data. 
+the track is comparable under the two management algo- 
+rithms. However the real measure of tracking improvement 
+using the new algorithm is the overall number of sensors 
+needed to achieve the required tracking performance. The 
+MV algorithm established here places a single sensor over 
+10% more frequently than under the MSFM algorithm. Ad- 
+ditionally the MV algorithm rarely needs to recommend the 
+placement of more than two sensors, whereas the MSFM 
+algorithm places three or more sensors on more than 10% 
+of deployments. This is the measure of improvement that 
+separates the new sensor management algorithm from its 
+predecessor. 
+It is also worth noting that in the Monte Carlo runs used 
+for comparing the two sensor management algorithms, at 
+each stage the prediction of the particle variability & was 
+made by averaging over just 10 values of &(T) .  As a conse- 
+quence the value of 3 can be strongly affected by the noise 
+on the predicted measurements, and this can lead to sub- 
+optimal sensor placement under the M V  algorithm. This 
+problem becomes less significant if the average is deter- 
+mined using a large (- 100) number of U values, and leads 
+to the improvement of the new algorithm over the MSFM 
+3 .... I ................................................................................................ .i 
+0 5 15 25 35 45 55 65 75 85 95 
+decision epoch, t 
+Fig. 6. A demonstration of the improvement in particle update as a result 
+of the use of doppler information. In (a) we perform bearings only 
+tracking, placing sensors to maximize the probability of detection. In 
+(b) we use both bearings and doppler data. 
+.............................................. .......... 
+m pedded1-d 
+..................................................................... 
+....................................................................................................... 
+............................................................................... ................... 
+0 5 10 15 20 25 30 35 40 45 U) 55 60 65 70 75 80 115 00 85 
+decision epoch, t 
+Fig. 7. A demonstration of the improvement in the target position uncer- 
+tainty subsequent to update under the MV algorithm, in which sensors 
+are positioned in order to minimize max(X1, Xz). Again lo00 parti- 
+cles were used, and the target update exploits both bearing and doppler 
+data 
+algorithm becoming more pronounced. However the model 
+presented in this paper has been specifically chosen be- 
+cause of real-time run-time constraints. It is able to give 
+a sensor recommendation well within the 10 minutes be- 
+tween deployments making it practical for use in a real dy- 
+namic tracking scenario. 
+6 .  CONCLUSIONS 
+In this paper we have determined two means of efficiently 
+using sensor data, within the context of an ASW scenario. 
+The sequential use of bearing and frequency data enabled 
+us to make a more refined estimate of the target state at 
+each decision epoch, aiding us greatly in particle predic- 
+tion and subsequent sensor positioning. This resulted in 
+a significant improvement in tracking performance, whilst 
+using far fewer sensors. 
+Although this result is specific to the ASW scenario the 
+general approach may be applicable to a wider range of 
+tracking problems. In cases in which certain measurements 
+are related to both the target location and its velocity there 
+will typically exist a large number of combinations of these 
+state components that are consistent with the measurements 
+5-2167 
+distance from target to particle mean (at prediction) distance from target to particle mean (at update) 
+d o I 0  
+update particle variability, d m  after update iability, d-1, x,> aft( particle vi 
+number of sensors placed at each decision epoch number of sensors placed at each decision epoch 
+Fig. 8. Comparison of tracking performance of placing the sensors to 
+maximize probability of detection (bearing only: white bars., bearings 
+and doppler: grey bars) and of placing the sensors to m i n i n k  stan- 
+dard deviation (using bearings and doppler, black bars). Hxtograms 
+showing the results of 20 runs, each with 1 0 0  decision epochs, for the 
+ASW tracking scenario, loo0 particles were used in each case. The 
+results relating to the ‘bum-in’ of the first 10 iterations of each run are 
+not included. 
+Fig. 9. Further comparison of tracking performance of placing the sen- 
+sors to maximize probability of detection (bearing only: white bars, 
+bearings and doppler: grey bars) and of placing the sensors to mini- 
+mize standard deviation (using bearings and doppler, black bars). His- 
+tograms again show the results of 20 runs, each with 100 decision 
+epochs, for the ASW tracking scenario. Again, lo00 particles were 
+used in each case and the results relating to the ‘bum-in’ of the first 
+10 iterations of each run are not included. 
+ing a large number of particles increases the computation 
+time greatly, and the technique may then not be suitable for 
+‘real’ dynamic tracking scenarios, in which a sensor rec- 
+ommendation may need to be provided quickly. 
+We observe that the M V  sensor management algorithm 
+improved upon the MSFM algorithm by achieving a lower 
+variance track. However, the main advantage of this new 
+algorithm is that it makes more efficient use of the type of 
+sensor data available, leading to a significant decrease in 
+the number of sensors needed in tracking the target. The 
+implementation presented in this paper is also suitable for 
+a real-time application, with calculation time significantly 
+less than the time between sensor deployments. 
+The MV sensor management algorithm was introduced 
+in the context of an ASW scenario in which bearing in- 
+formation was used in updating the distribution of the tar- 
+get position. However in minimizing a measure of the 
+Direct application of these measurements in updating the 
+target state could then lead to a poor tracking perfoirmance, 
+as a result of the frequent selection of particles that are in 
+incorrect states which are never the less consistent with the 
+measurements. 
+However the approach of using the measurements se- 
+quentially, and updating the distribution of components of 
+the target state sequentially may refine the target slate suf- 
+ficiently to cause a huge improvement in tracking perfor- 
+mance. 
+As already stated, this approach is similar in principle to 
+the Partition Sampling technique introduced by [17]. Parti- 
+tion Sampling helps to overcome the ‘curse of dixriension- 
+ality’ (again, see [17]). Indeed, in the current problem, if 
+a large number of particles had been used it may not have 
+been necessary to use the bearing and frequency informa- 
+tion sequentially to achieve an efficient track. However, us- 
+5-2168 
+p G u l L L G u  uuf;GL UIICGI L a l l l L y  LllG rugullullll 1lllplL’Lly L a c *  
+into account the type of sensor information available. As a 
+consequence it can easily be tailored to deal with different 
+types of sensor data, making it applicable to a wide range 
+of sensor management problems. 
+ACKNOWLEDGEMENTS 
+This research was sponsored by the United Kingdom Min- 
+istry of Defence Corporate Research program TGlO. 
+REFERENCES 
+[l] S .  Blackman and R. Popoli, ‘Design and Analysis of 
+Modem Tracking Systems’, Artech House, Boston, 
+MA, 1999. 
+[2] N. J. Gordon, A. D. Marrs and D. J. Salmond. ‘Se- 
+quential analysis of nonlinear systems using particles 
+and mixtures’, in W. J .  Fitzgerald, R. L. Smith, A. 
+T. Walden and P. C. Young, eds, Nonlinear and Non- 
+stationary Signal Processing, Cambridge University 
+Press, Cambridge, 2001 
+[3] D. E. Penny, ‘The Automatic Management of Multi- 
+Sensor Systems’, Proceedings of the Intemational 
+Conference on Multi-Source - Mulitsensor Information 
+Fusion, H. R. Arabnia and D. Zhu, eds, pp 748-756, 
+CSREA, Las Vegas, 1998. 
+[4] D. E. Penny, ‘Sensor management in an ASW data 
+fusion system’, Proceedings of Sensor Fusion: Ar- 
+chitectures, Algorithms, and Applications III, SPIE’s 
+AeroSense, Orlando, 1999. 
+[SI D. Penny and M. Williams, ‘A sequential approach to 
+multi-sensor resource management using particle fil- 
+ters’, Proceedings of SPZE, 0. Drummond, ed, 4048, 
+[6] W. H. Press, S .  A. Teukolsky, W. T. Vetterling and B. 
+P. Flannery, ‘Numerical Recipes in C’, Cambridge 
+University Press, Cambridge, 1997. 
+[7] N. J. Gordon, D. J. Salmond and A. F. M. Smith, 
+‘Novel approach to nonlinearhon-Gaussian Bayesian 
+state estimation’, IEE Proceedings-F, 140, pp. 107- 
+113,1993. 
+[SI D. B. Rubin, ‘Using the SIR Algorithm to Simulate 
+Posterior Distributions’, Bayesian Statistics ,3, Oxford 
+University Press, 1992. 
+[9] A. E M Smith and A. E. Gelfand, ‘Bayesian Statistics 
+Without Tears: A Sampling Resampling Perspective’, 
+The American Statistician, 46,2, 1992. 
+[lo] B. V. Dasarathy, ‘Decision Fusion’, IEEE Computer 
+Society Press, Los Alamitos, CA, 1994. 
+[ 1 13 P. K. Varshney, ‘Distributed Detection And Data Fu- 
+sion ’, Springer-Verlag, 1996. 
+[12] G. R. Grimmett and D. R. Stirzaker, ‘Probability and 
+Random Processes ’, Clarendon Press, Oxford, 1995. 
+[I31 C. Musso, N. Oudjane and E Le Gland, ‘Improving 
+regularisedparticlejlters’, in A. Doucet, N. de Freitas 
+and N. Gordon, e&, Sequential Monte Carlo Methods 
+in Practice, Springer-Verlag, New York, 2001. 
+[14] E. H. L. Aarts and P. J. M. Laarhoven, ‘Simulated 
+Annealing: Theory and Applications ’, Academic Pub- 
+lishers, 1987. 
+‘Principles of Underwater Sound’, 
+McGraw-Hill, 1983. 
+pp 598-609,20oO. 
+[15] R. J. Ulrick, 
+L L V J  1. ua-aiiaiviii auu A. I\. LI, Lj.ximuiiuri uiiu I IULIL- 
+ing: Principles, Techniques, and Sofmare ’, Artech 
+House, Boston, MA, 1993. 
+[17] J. MacCormick and A. Blake, ‘A probabilistic ex- 
+clusion principle for tracking multiple targets’, Pro- 
+ceedings of the International Conference of Computer 
+Vision, , pp 572-578, 1999. 
+Marcel L. Hernandez was born 
+in Oxford on April 24, 1971. 
+He received a B.Sc. degree in 
+Mathematics (with 1st class hon- 
+ors) from Manchester University 
+in 1992, and in 1993 he com- 
+pleted a Diploma in Mathematical 
+Statistics at Trinity Hall College, 
+Cambridge. In 1999 he received a 
+Ph.D. degree in Applied Probabil- - -  
+ity Theory from Bristol University. 
+Dr. Hemandez is now employed by the Defence Evalua- 
+tion and Research Agency, England, where he works in the 
+Signal Processing and Imagery department. His areas of 
+expertise include game theory, heuristic optimization and 
+the application of probability theory to the study of behav- 
+ioral ecology. Current projects include the use of Particle 
+Filter techniques in target tracking and sensor management, 
+and the application of heuristic techniques to stochastic op- 
+timization problems. 
+5-2169 

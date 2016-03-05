@@ -1,0 +1,416 @@
+Mechanism to Improve the Reliability 
+ of the Broadcasting for Multi Sources 
+ 
+Song Yean Cho, Jin Hyun Sin, Byung In Mun 
+Samsung Electronics 
+Apkujong Bldg, 599-4, Shinsadong 
+Kangnam-gu, Seoul, Korea 
+sycho94; jh31.sin; bimun@samsung.com
+ 
+ 
+Abstract— In contrast to broadcasting data packets in wired 
+networks, broadcasting data packets in mobile ad hoc network 
+(MANET) is a big challenge due to the high bit error rate and the 
+high collision probability. Even though broadcasting in MANET 
+is intrinsically unreliable, ad hoc routing protocols (AODV, DSR) 
+and application protocols (SDP, IP auto-configuration) must use 
+it to distribute important information. To make matters worse, 
+broadcast is used by several protocols on a node in MANET, so 
+more than one nodes can broadcast data packet at the same time. 
+Simultaneous broadcasting from multi-sources makes packet 
+delivery rate drop more severely than broadcasting from single 
+source because of overlapped data paths from multi-sources. To 
+solve these broadcasting problems in MANET, we propose the 
+high reliable broadcast mechanism. Considering that network 
+resource value in wireless network, the proposed mechanism 
+minimizes network overhead to improve reliability using 
+neighbor knowledge obtained through periodically exchanging 
+Hello message. As the result of simulation using ns-2 shows, our 
+mechanism achieves high reliability of packet delivery to whole 
+nodes minimizing network resource consumption efficiently. 
+Keywords-– ad hoc, broadcast, MAC, MANET, WLAN, and 
+reliable and efficient broadcast 
+ 
+I.  INTRODUCTION  
+As wireless communication technique is advanced and 
+mobile devices with high computing power become affordable, 
+the wireless communication becomes popular. Wireless 
+communication enables nodes to move around independently 
+and freely, but on the other hand, it also has limitation due to 
+radio power limitation, poor channel utilization, and mobile 
+device’s battery limitation. To remove these limitations and 
+provide network service for dynamically changing network, 
+MANET protocols are the best solution. It’s because MANET 
+protocols supports autonomous and instant network 
+configuration. Every node in MANET forms temporary 
+network to exchange data with any node in the networks 
+without help of any existing network infrastructure or 
+centralized administration. These MANET features lead active 
+investigation in recent years. In this paper, among many 
+problems in MANET we focus on sending broadcast data 
+packet reliably and efficiently.  
+Many protocols such as routing protocols, service discovery 
+protocols, and auto IP configuration use broadcasting, to 
+deliver data to all nodes in the network. Up to now, the 
+bandwidth limitation of wireless link leads the research of the 
+broadcasting in MANET to focus on reducing additional 
+bandwidth consumption [1][2][3][4]. Yet as the broadcast 
+mechanism becomes more efficient by reducing redundant 
+packets, it becomes less reliable because single packet loss 
+influence becomes larger. Especially, under multi-sources 
+broadcasting in which more than one nodes try to send 
+broadcast packet at the same time, broadcast packet distribution 
+tree from the different sources can be met in some nodes. The 
+overlapping of the broadcast path increases the collision 
+possibility more and more. Unfortunately in real world, we 
+can’t make sure that only one broadcast source sends the 
+broadcast packet at a time. Hence to achieve both efficiency 
+and reliability, new mechanism is required to support reliability 
+and efficient broadcast. In this paper, we propose the 
+mechanism not only to improve reliability but also to be 
+applicable to any efficient broadcast protocol with little 
+additional bandwidth consumption.  
+The rest of this paper is organized as follows: in section 2 we 
+describe the broadcast problem in MANET and in section 3 we 
+propose our mechanism. In section 4, we present and analyze the 
+simulation result and then in section 5, the paper is concluded 
+and future work is presented.  
+ 
+II. BROADCAST IN MANET  
+Broadcasting is the process to deliver one packet originated 
+from a source node to all other nodes in the network. The 
+simplest broadcast mechanism is Flooding [5,6]. In Flooding, a 
+source node broadcasts a packet to all its neighbors and then, 
+each of those neighbors in turn rebroadcasts the packet exactly 
+one time. This continues until all reachable nodes in the 
+network receive the packet. Flooding operating like the above 
+makes a node receive the same packet several times 
+redundantly. This redundancy enables a single packet loss to be 
+compensated with other redundant packet and decrease single 
+packet loss influence. But this redundancy consumes network 
+bandwidth and it can degrade network efficiency seriously. In 
+GLOBECOM 2003 - 1263 - 0-7803-7974-8/03/$17.00 © 2003 IEEE
+wireless network, network resource is so valuable that a 
+number of research groups have proposed methods to minimize 
+the number of the redundant packets [1,2,3,4] in order to 
+prevent network efficiency degradation. These protocols permit 
+only some of all its neighbors to forward the broadcasting 
+packets unlike Flooding. In these protocols, a sender selects 
+some nodes among its neighbors as relayers based on 
+neighbor’s knowledge collected by Hello message [2,7,8]. 
+While these methods can minimize the number of the 
+redundant packet, they augment single packet loss influence. 
+Accordingly, mechanism to improve broadcast reliability 
+keeping efficiency of the broadcast protocol like [1,2,3,4] is 
+required. To solve that problem, we propose reliable broadcast 
+mechanism based RBS (Relayer Broadcast Sequence) ACK. 
+ 
+III. BASIC IDEA OF RELIABLE                                         
+AND EFFICIENT BROADCAST 
+To achieve efficient broadcasting, we adopted the AHBP 
+protocol [9]. In AHBP protocol, a source selects the relayers 
+based on the neighbor information collected by exchanging 
+periodic Hello messages. The selected relayers forward the 
+broadcast packet to its one-hop neighbors and other nodes not 
+selected as relayers stop forwarding the packet. The relayers 
+forwarding broadcast packet choose its own relayers again 
+among its one-hop neighbors using the same algorithm [8]. 
+This process is repeated until whole nodes receive the packet. 
+During this process, the broadcast packet can be lost because of 
+unreliable multicasting and broadcasting in IEEE 802.11 
+mechanism. Moreover, if multi-sources try to broadcast 
+simultaneously and broadcast data paths are overlapped, the 
+possibility to lose the broadcast data packet increases further. 
+This situation can impair the reliability of the efficient 
+broadcast protocol like AHBP seriously.  
+To prevent the degradation of reliability under multi-source 
+broadcasting, a sender must confirm the packet reception to its 
+one-hop neighbors. If some neighbor nodes lose it, a sender 
+must resend the packet. In addition a broadcast packet in 
+MANET is relayed with the help of relayers. Hence not only a 
+sender but also relayers must check packet delivery to all its 
+one-hop neighbors. If the packet from a source is delivered to 
+its entire one-hop neighbors without loss and this process is 
+repeated by the neighbor nodes selected as relayers, we can 
+sure that the broadcast packet is delivered to all nodes in 
+MANET. Consequently, our mechanism focuses on detecting 
+and retransmitting packet loss in one hop. 
+ 
+A. Loss Detection with RBS ACK 
+For a sender to detect the packet loss at the receivers, 
+acknowledgements (ACKs) for the receipt of a packet are used. 
+In MANET, ACK itself can waste bandwidth. Besides, the 
+same interface is used to send and receive a packet in MANET, 
+Hence ACK can cause severe ACK plosion. To prevent it, our 
+mechanism piggybacks ACK in periodically exchanged Hello 
+message.  
+To send ACK, a receiver must identify the receive packet. 
+Usually the source’s address and sequence number is used to 
+identify the packet. But in MANET the packet must be 
+forwarded by all relayers, so source address and sequence 
+number makes all relayers search the packet in its cache 
+because source address and sequence number are not relayer 
+specific information but source specific information. In 
+addition, the size of Hello message increases as much as source 
+address size and the number of neighbors. To reduce Hellos 
+message’s overhead like the above, we uses relayer broadcast 
+sequence number (RBS) to identify the received packet. Every 
+relayer in MANET manages its own RBS and increases its 
+RBS whenever a node sends or relays the broadcast packet. 
+Accordingly RBS in broadcast packet is changed from sender 
+to relayer in each 1 hop broadcasting like Figure 1 while 
+broadcast packet is distributed. 
+ We present Hello, broadcast message, RBS and R_RBS (ACK 
+of RBS) like followings in figure1 and 2. 
+NK : broadcast packet sender or relayer  
+NK+1, NK+2  ∈ { neighbors of  NK } 
+M( NK ) :  broadcast  message relayed or sent from NK 
+Hello( NK ) : Hello message from NK 
+RBS(NK) : RBS number of NK 
+R_RBS(NK+1 ,NK) : recently received RBS in broadcast packet from  
+NK  
+After sender or relayer broadcasts a data packet with each 
+node’s RBS to one-hop neighbors, receivers send ACK by 
+piggybacking the received packet’s RBS in the periodically 
+exchanging Hello message like figure 2. If a neighbor didn’t 
+receive the packet from NK, it will piggyback smaller RBS than 
+current RBS, which is sent from NK previously. Consequently, 
+NK detects packet loss just comparing its current RBS and 
+R_RBS in hello message from neighbors. Piggybacking ACK 
+Figure 1. RBS update in broadcasting in MANET 
+GLOBECOM 2003 - 1264 - 0-7803-7974-8/03/$17.00 © 2003 IEEE
+in Hello message can delay the ACK, but we assume that Hello 
+message interval is short enough to detect neighbor’s changes 
+and also broadcast data interval is longer than the hello 
+interval. Thus a sender or relayer can detect packet loss using 
+RBS piggybacked in Hello message. 
+B.   Mobility 
+To identify broadcasted packet between sender or relayers 
+and receivers, our mechanism uses the RBS of the sender or a 
+relayer. But RBS is valid only if sender or relayers and 
+receivers keep neighbor relationship. If a sender or a receiver 
+moves and the neighbor relationship among them is broken, 
+RBSs from ex-neighbors became invalid. In other words, to 
+support mobility keeping reliability, the lost packet must be 
+retransmitted based on the relationship between ex-neighbors 
+and new neighbors. 
+ When a node moves, packet loss situations are similar to 
+Figure 3.Maintaining the Integrity of the Specifications 
+In Figure 3.(a), the node moves to the area where the 
+broadcast packet hasn’t passed yet. In this case, a node can 
+receive the broadcast packet through its new neighbors. In 
+figure 3.(b), a node moves to the area where the broadcast 
+packet has already been passed before the node arrives in the 
+area. In this case, a moved node can’t receive the broadcast 
+packet. Observing figure 3.(b), we can find that the lost 
+broadcast packet is the packet sent after the latest packet from 
+ex-neighbors and arrived in new neighbors lately. It leads us to 
+find that a moved node can receive the lost packet due to 
+mobility from new neighbors if the packet is still is in the new 
+neighbor’s cache. To receive lost packet, moved node must 
+ask to resent it, but ex-neighbor’s RBS can’t be used to 
+identify lost packet our mechanism use broadcast source 
+address and sequence number for this special case. The moved 
+node sends source address and sequence number from ex-
+neighbors in Hello to its new neighbors, and then new 
+neighbor searches the packet in its cache. If the lost packet is 
+found, the packet is sent with new neighbor’s RBS to moved 
+node. The packet with new neighbor’s RBS help to rebuild the 
+     
+(a) Successful packet delivery checking using RBS 
+          
+(b) Lost packet detecting using RBS 
+Figure2.  Packet loss detection using RBS 
+ 
+(a) Moved node receiving the broadcasted packet   
+ 
+ 
+(b) Moved node not receiving the broadcasted packet 
+Figure 3. broadcast packet losses due to mobility 
+GLOBECOM 2003 - 1265 - 0-7803-7974-8/03/$17.00 © 2003 IEEE
+neighbor relationship between the moved node and neighbors 
+based on RBS. 
+ 
+ 
+IV. SIMULATION AND RESULT  
+To evaluate the efficiency and reliability of our mechanism, 
+exhaustive simulations using the Network Simulator 2 (ns2) 
+were conducted with simulation parameters in table 1. 
+TABLE 1. SIMULATION AND SCENARIO PARAMETERS 
+Simulation Parameters 
+Propagation Model Two Ray Ground 
+Network type IEEE 802.11 (2Mbps) 
+Transmission range 250 m 
+Scenario parameters 
+Field Size 500m * 500m 
+Simulation Time 100 sec 
+Data packet size 64 bytes payload 
+Mobility Model Random Waypoint 
+Packet Send Rate 6.4 Bps 
+ 
+We simulated Flooding, AHBP, and RAHBP. RAHBP 
+(Reliable AHBP) is RHBP to which our mechanism is applied. 
+We will call our mechanism as RAHBP after this point. 
+Flooding is selected as the most reliable broadcast protocol and 
+AHBP is selected as the most efficient broadcast protocol. We 
+evaluated the reliability with packet delivery rate (PDF) and 
+efficiency with bandwidth consumption by counting the 
+retransmitted packet number. The simulation results show that 
+our mechanism improves AHBP’s reliability similar with 
+Flooding without increasing bandwidth consumption. We tested 
+three broadcast protocols using both single-source scenario and 
+multi-sources scenario. In single-source scenario, single node 
+originates broadcast packet and in multi-source scenario, more 
+than one node originate broadcast packet at the same time.  
+We will present improved reliability at delivery rate section 
+and minimized bandwidth consumption at bandwidth 
+consumption section. In the last, we will present scalability of 
+our mechanism when the number of broadcast originator 
+increases. 
+ 
+A.  Packet Delivery Rate 
+The average PDF for Flooding, AHBP, and RAHBP with 
+RBS ACK is illustrated for single-source scenario in figure 4 
+and for multi-source scenario in figure 5. In single-source 
+scenario, Flooding, AHBP, RAHBP achieves the same 
+performance. But in multi-source scenario, the delivery rate of 
+AHBP is severely degraded and dramatically drops under 20%. 
+It’s because AHBP doesn’t check the packet loss in relayers. As 
+our mechanism is applied, AHBP’s PDF is improved similar 
+with Flooding as shown in figure 5.  
+ 
+         
+Figure 4. PDF with single-source scenario                                        Figure 5. PDF with multi-source scenario 
+           
+Figure 6. Retransmitted packet # with single-source scenario           Figure 7. Retransmitted packet # with multi-source scenario 
+GLOBECOM 2003 - 1266 - 0-7803-7974-8/03/$17.00 © 2003 IEEE
+B.  Bandwidth Consumption  
+Figure 6 illustrates the total number of the retransmitted 
+broadcast packet for three protocols with single-source 
+scenario and figure 7 illustrates it in multi-source scenario. 
+The Flooding’s retransmitted packet number increases linearly 
+with single-source scenario and increase exponentially with 
+multi-source scenario as the number of source nodes increases. 
+But in case of AHBP, the retransmitted packet number almost 
+remains under 100 with single-source scenario and under 400 
+with multi-source scenario even though total node number 
+increases. RAHBP with RBS ACK, our mechanisms applied 
+to AHBP, consumes the bandwidth as low as RHBP. It shows 
+our mechanism achieves high reliability with low bandwidth 
+consumption especially in multi source scenario 
+ 
+C.  Multi Source Rate 
+To evaluate scalability of our mechanism, we simulate our 
+mechanism increasing ω, multi-source rate. 
+ 
+ω = )(
+)(
+tN
+tSN  × 100 
+SN(t): the number of nodes originating broadcast packet at 
+time t  
+N{t}:  the number of total nodes at time t 
+Figure 8 and figure 9 illustrates the average PDF and the 
+total number of the retransmitted broadcast packet when total 
+node number is 40 and ω changes from 10 to 60. As figure 8 
+and figure 9 shows, our mechanism’s PDF is slightly superior 
+to Flooding’s and our mechanism’s retransmitted packet 
+number is as small as AHBP’s even though multi-source rate 
+increases. We conclude that our mechanism is scalable and 
+highly reliable and efficient even if originating node number is 
+increased. 
+ 
+ 
+V. CONCLUSION AND FUTURE WORK 
+When a packet is broadcasted in MANET, the receivers at 
+current time become the senders at next time. If some 
+receivers lose the broadcast packet, the receivers can’t forward 
+the packet and the distribution of the packet stops. It drops 
+packet delivery rate and impairs the broadcasting’s reliability. 
+In case of efficient broadcasting, the reliability damage is 
+more severe. To prevent this reliability impairment, we 
+propose mechanism to confirm broadcast packet delivery in 
+one hop. Our mechanism checks whether all neighbors receive 
+the broadcast packet or not using ACK scheme based RBS.  
+Our mechanism can confirm the distribution of broadcast 
+packets in whole network because the packets are broadcasted 
+by some neighbors’ forwarding and packet delivery is 
+confirmed by neighbors in one hop whenever the broadcast 
+packet is forwarded. To identify the broadcast packet, our 
+mechanism use RBS and the receivers notify packet’s 
+reception by piggybacking RBS in Hello message. As the 
+simulation results with Flooding, AHBP and RAHBP (AHBP 
+with our mechanism) shows, our mechanism improves 
+AHBP’s reliability without degrading AHBP’s efficiency. In 
+addition, simulation varying multi-source rates presents that 
+our mechanism is scalable. The weak point of RBS is that it 
+takes time to rebuild RBS if a node moves and neighbor 
+relationship is broken. But the time to rebuild RBS is the same 
+with the time to build neighbor relationship and our 
+mechanism supports mobility based on relationship between 
+ex-neighbors and new neighbor. Moreover Hello interval is 
+short enough not to lose more than 2 packets in several Hello 
+intervals except congestion situation.  
+REFERENCES 
+ 
+[1] S. Ni, Y. Tseng, Y. Chen, and J. Sheu. The broadcast storm problem in a 
+mobile ad hoc network. In Proceedings of the ACM/IEEE international 
+Conference on Mobile Computing and Networking (MOBICOM), 1999 
+[2] W.Peng and X. Lu. On the reduction of broadcast redundancy in mobile 
+ad hoc networks. In Proceedings of the ACM Symposium on Mobile Ad 
+Hoc Networking and Computing, 2000 
+[3] B. Williams and T. Camp. Comparision of broadcasting technique for 
+Mobile Ad HocNetworks, In Proceedings of the ACM/IEEE 
+international Conference on Mobile Computing and Networking, 2002 
+[4] T. H. Clausen, L. Viennot, T. Olesen and N. Larsen, Investing Data 
+Broadcast Performance In Mobile Ad-hoc NETworks, In Proceedings of 
+Wireless Personal Multimedia Communications, 2002 
+ 
+Figure 8. PDF in changing multi-source rate (ω) 
+ 
+  
+Figure 9. Retransmitted packet # in changing multi-source rate(ω) 
+GLOBECOM 2003 - 1267 - 0-7803-7974-8/03/$17.00 © 2003 IEEE
+[5] C. Ho, K. Obraczka, G. Tsudik, and K. Viswanath. Flooding for reliable 
+multicast in multi-hop ad hoc networks. In Proceedings of the 
+International Workshop on Discrete Algorithms and Methods for Mobile 
+Computing and Communication (DIALM), 1999 
+[6] J. Jetcheva, Y. Hu, D. Maltz and D. Johnson. A simple protocol for 
+multicast and broadcast in mobile ad hoc networks, Internet Draft: draft-
+ietf-manet-simple-mbcast-01.txt, July 2001 
+[7] H.Lim and C. Kim. Multicast tree construction and flooding in wireless 
+ad hoc netowkrs. In proceeding of the ACM international Workshop on 
+Modeling, Analysis and Simulation of Wireless and Mobile Systems 
+(MSWIM), 2000 
+[8] A. Qayyum, L.Vinnot, and A. Laouiti. Multipoint relaying: An efficient 
+technique for flooding in mobile wireless networks, Technical Report 
+3898, INRIA-Rocquencourt , 2000 
+[9] W. Peng and X. Lu. AHBP: An efficient broadcast protocolfor mobile 
+ad hoc networks. Journal of Science and Technology - Beijing, China, 
+2002. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+GLOBECOM 2003 - 1268 - 0-7803-7974-8/03/$17.00 © 2003 IEEE

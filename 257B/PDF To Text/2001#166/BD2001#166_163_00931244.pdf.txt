@@ -1,0 +1,865 @@
+Flight Mishap Prevention for UAVs 
+Richard D. Colgren 
+Lockheed Martin Aeronautics CompanyLJniversity of Phoenix 
+1011 Lockheed Way 
+Palmdale, CA 93599-2526 
+Richard.Colgren@lmco.com 
+Timothy L. Johnson 
+General Electric Corporate Research and Development 
+GE Corporate R&D, K15C3OA, P.O. Box 8 
+Schenectady, NY 12301 
+Timothy. Johnson@crd.ge.com 
+Abstract- For Uninhabited Air Vehicles (UAVs) to achieve 
+operational levels of flight safety comparable to those of 
+piloted aircraft, it is important to replicate the critical skills 
+and predictive capabilities of the pilot to ensure proper flight 
+mode selection and prioritization of tasking. Each 
+individual combination of modes must be able to 
+accommodate both predetermined as well as unanticipated 
+causes of uncertainty. The system must adapt to these 
+changes based on sensory inputs, as well as be robust 
+against uncertainties that have not been sensed or directly 
+measured by the system. The purpose of Technologies for 
+Reliable Autonomous Control (TRAC), a joint Lockheed 
+Martin Aeronautics Company/General Electric/Jet 
+Propulsion Laboratory mission management architecture, is 
+to autonomously accomplish this complex mission and 
+subsystem management task. To do this, it is desirable to 
+provide “outer-loop” compensation for larger sources of 
+disturbances that may require corrective maneuvers, mode 
+switching, or changes to the command inputs to the flight 
+control system. Flight Envelope Protection is one such 
+feature. Based on our analysis of recent UAV data [l], 
+emergency procedures account for about 26% of mishaps, 
+while errors in operating procedures account for about 10% 
+of mishaps. Thus, Flight Envelope Protection could prevent 
+up to about 36% of mishaps. While there are many points 
+of similarity between UAV Flight Envelope Protection 
+(FEP) and FEP for manned aircraft, a number of new issues 
+arise in the UAV case. Hence, this is not straightforward 
+extension of existing techniques. 
+TABLE OF CONTENTS 
+1. INTRODUCTION 
+3. ROBUST INNER-LOOP C NTROL 
+5. CONCLUSIONS 
+2. GUIDANCE WITH ENVELOPE PROTECTION 
+4. INTEGRATION OF GUIDANCE &CONTROL 
+6. APPENDIX: FEP ANALYSIS 
+7. REFERENCES 
+8. BIOGRAPHIES 
+1. INTRODUCTION 
+A primary goal of the TRAC architecture is to provide 
+autonomy while assuring vehicle safety. This goal can be 
+achieved by extending the proven “inner-loop, outer-loop” 
+design strategy beyond the flight control loop into the 
+guidance and mission management loops. At the same time, 
+this strategy provides a natural context for a multi-layered 
+approach to error handling. Short-term errors are handled 
+by inner-loop limit protection logic and/or robust design, 
+while outer-loop errors are corrected as part of the outer- 
+loop error handling logic [2, 31. This approach has been 
+used successfully in hierarchical control applications. In 
+this approach, an error is handled at the lowest (and fastest) 
+level where it is possible to resolve the source of the 
+difficulty. For best results, the inner flight control loop and 
+the outer guidance protection loop must be designed to 
+operate concurrently and in coordination. The focus of this 
+paper is on one functional requirement of UAV mishap 
+prevention, namely Flight Envelope Protection, where these 
+concepts can be explored in detail. 
+The goal of Flight Envelope Protection algorithms is to 
+detect, override, and/or correct mission commands that 
+would otherwise cause the flight envelope to be exceeded. 
+It serves as a “last line of defense” against flight mishaps of 
+UAV’s. It also serves as a means for enhancing mission 
+autonomy by reducing mishap rates. 
+Figure 1 provides one view of the TRAC architecture, 
+showing the inner and outer-loop features. Flight Envelope 
+Protection may be viewed as an augmentation of the 
+Guidance and Navigation Systems. Flight Envelope 
+Protection for manned aircraft has been addressed by 
+Rodgers [4]. For UAVs, researchers at the Georgia Institute 
+of Technology [5] have addressed certain limit protection 
+problems for rotorcraft, while Tomlin, et a1 [6] have 
+addressed flight envelope protection as it relates to 
+interoperability of UAVs and manned aircraft in a 
+controlled airspace environment. 
+“0-7803-6599-2/01/$10,00 0 2001 IEEE 
+2-647 
+Figure 1: TRAC GNC Architecture 
+The new element in this paper is the integrated approach to 
+flight envelope protection. It is based on an inner-loop, 
+outer-loop design approach, and the specific means of 
+defining the flight envelope in such a way that the problem 
+can be partitioned in accordance with this strategy. The 
+benefit, in terms of UAV mishap prevention, is not limited 
+to collision avoidance. It may also include the avoidance of 
+incorrect operation due to inadequate approximation of 
+vehicle dynamic properties during mission planning, or the 
+vehicle-to-vehicle variation of operating envelope due to 
+manufacturing or load (center of gravity) variations in the 
+vehicle, or improper terrain approximation, et cetera. These 
+sohare-induced errors are expected to become more 
+evident as UAV software is used to replace piloted 
+operation. 
+To understand the design separation described in the 
+following sections, the top chain of subsystems in Figure 1 
+may be qualitatively associated with a double-integrator. 
+Where the control system represents the inner acceleration 
+loop, the guidance system is associated primarily with the 
+velocity loop, and the navigation system is associated with 
+the position loop. The control system is designed using 
+robust controls to implement actuation (acceleration) limits, 
+while the guidance and navigation loops together are 
+augmented by Flight Envelope Protection system (not 
+shown separately in this figure) to jointly limit velocity and 
+position consistent with the mission, flight mode, and 
+operating envelope. By its nature, the Flight Envelope 
+represents worst-case assumptions on the actuator motions 
+for each condition (guidance mode) of steady flight. Thus, 
+it is not necessary to schedule FEP action with respect to 
+actuator motion. The concept of the operating envelope by 
+its very nature assumes the existence of flight modes 
+consisting of steady motion on some sub-manifold of the 
+full vehicle 12-degree of freedom (position x velocity) state 
+space [7] of the vehicle. The guidance, navigation and 
+control system logic serves to dynamically stabilize these 
+flight modes. Hence, we may view the Flight Envelope 
+Protection problem as adding coordinated limit protection to 
+the NavigatiodGuidance subsystem. The important 
+problem of transition fiom one guidance mode to another 
+2-648 
+(during which the operating envelope may be viewed as 
+“undefined”) is not considered in detail in this paper. The 
+means of regulating the effects of such transitions, once the 
+current flight mode has been selected, is considered. 
+In Section 2, envelope protection is defined and addressed at 
+the “outer-loop” level of the guidance and navigation 
+systems. In Section 3, the robust control design of the 
+inner-loops is addressed. In Section 4, the issues of 
+integrating inner and outer-loop strategies are described and 
+are partially resolved. The concluding section places flight 
+envelope protection in the larger context of mishap 
+prevention. 
+2. GUIDANCE WITH ENVELOPE PROTECTION 
+Flight envelope protection (FEP) may be reduced to four 
+phases or subtasks: 
+- Initialization 
+- Detection 
+- Correction 
+- Monitoring and Termination 
+For a particular envelope exceedance event, these phases 
+may occur in sequence, as they are described here. In 
+general it may be necessary to concurrently but 
+asynchronously monitor and correct several potential 
+sources of envelope violation in various phases of 
+resolution. 
+Initialization 
+The function of initialization is to set the starting values for 
+the flight envelope parameters for the current aircraft and 
+mission. Nominally, this process would be executed once at 
+the beginning of a mission, but might in the future be run at 
+an adaptation interval during which vehicle parameters 
+(mass, altitude, temperature, wind) change significantly. 
+Initialization itself requires that several prior operations be 
+completed: 
+(a) Aircraft geometry, aerodynamic parameters, and 
+(b)the extreme limits of the mission (latitude, longitude, 
+(c)the guidance and control system modes should be 
+(d)using data fiom (a)-(c), the operating envelope of the 
+(e) a means of approximating the operating envelope, 
+control limits must be known or estimated; 
+altitude, and weather parameters) should be known; 
+known; 
+aircraft (for each guidance mode) should be computed; and 
+suitable for near real-time computation, must be applied. 
+Often, steps (a)-(d) are completed off-line, and frequently 
+during the design and performance assessment of the 
+aircraft (and propulsion system). The nature of these 
+calculations is described further in the Appendix. The result 
+of these calculations is often a set of points which are 
+known to lie on the flight envelope, or a set of analytic 
+curves defining half-spaces whose intersection constitutes 
+the operating envelope. For instance, for steady 
+longitudinal flight at constant speed, the V-N and V-H 
+diagrams are common representations of the Flight 
+Envelope. In step (e) it may be necessary to further simplify 
+the description of the operating envelope boundary (e.g., by 
+spline approximation methods) in order to support the real- 
+time envelope calculations that are required in this 
+approach. All of these calculations should be completed 
+prior to the initiation of the mission. 
+Detection 
+At each time when the FEP algorithm is computed, the 
+position and velocity of the vehicle will be assumed to be 
+measured. These values will define an operating point 
+which is a point in 12-space. As usual, effects such as 
+actuator dynamics, or propulsion system variables may 
+augment the dimension of the state space. The detection 
+system must determine (a) whether the vehicle is 
+sufficiently close to steady state operation that FEP may be 
+applied; (b) whether the current state is within the operating 
+envelope, and (c) whether the projected state at or prior to 
+the next sampling time can be expected to exceed operating 
+limits. The result of these calculations is a determination of 
+(a) whether to activate the FEP algorithm; (b) whether to 
+compute a corrective strategy to return the vehicle from 
+outside the envelope to inside it; or (c) whether to compute a 
+proactive strategy which will maintain the vehicle within the 
+envelope based on an impending violation of the flight 
+envelope. The detection stage will also produce as a by- 
+product information such as which face@) of the flight 
+envelope have been violated, the minimum distance fiom 
+the nearest face of the flight envelope and/or the minimum 
+time to exit or re-enter the flight envelope. 
+Correction 
+When no threat of exceeding the flight envelope is detected, 
+the normal guidance and navigation system actions are 
+applied, and no corrective actions are generated. When the 
+current operating point is detected to be outside the 
+operating envelope, the next planned mission command is 
+modified so that the path of the operating point over time 
+will return rapidly to the flight envelope. This guidance 
+command must (in an appropriate vector space) reflect the 
+projection of the next mission command onto the normal to 
+the flight envelope at the point of closest re-entry. The 
+effect of such an action might be to limit the planned change 
+in speed or altitude. When the current operating point is 
+within the flight envelope, but is expected to exceed it after 
+issuance of the next command action, then the command is 
+modified by computing a guidance command that projects 
+the expected operating point movement along the normal to 
+the flight envelope at the point of closest approach, bringing 
+it to a point which is a safe distance within the boundary of 
+the envelope. The operating point motion is corrected to 
+move along the nearest surface of the operating envelope, 
+and just inside of it. 
+2-649  
+Monitoring and Termination 
+Several considerations may further modify the 
+implementation of the above corrections. The nature of the 
+algorithm must be such that repeated application of the 
+policy (e.g., with a constant command action) will be self- 
+consistent, and is capable of returning the flight toward the 
+original mission, or to a closest approach to it. For instance, 
+a speed restriction in one segment might be matched with a 
+higher subsequent speed in order to rejoin the mission plan. 
+The strategy must reflect the likelihood that segments of a 
+mission may commonly, and deliberately, lie near the limits 
+of the flight envelope. The strategy must reflect that, as the 
+operating point rides along one surface of the operating 
+envelope (akin to sliding mode behavior), it is likely to 
+eventually strike another, and the algorithm must at that 
+time allow continued motion of the operating point along 
+the new surface and/or the intersection of the two surfaces. 
+Clearly, when commanded changes are too large, the 
+authority of control surfaces will be exceeded; in such cases, 
+the algorithm must be sufficiently sophisticated to relax and 
+return to the flight envelope more gradually at a slower rate. 
+The foregoing strategy does not explicitly exploit maneuver 
+generation. For instance, in the short term, one may think of 
+the mission specifcation as including a guidance mode 
+setting, which is not changed by the algorithm. Finally, the 
+algorithm presumes that commands that initially violate the 
+flight envelope will trigger re-planning at the mission level, 
+and this will eventually cause a correction of future mission 
+commands to the system (and these in turn may include 
+maneuvers that involve changes in guidance modes). 
+Further discussion and analysis of these issues may be 
+found in the Appendix. 
+Dynamic Inversion in the Time Domain 
+The dynamic inversion method considered in here is 
+documented in [S, 9, lo], and has been applied to the F-117 
+and F-16. Only a summary of the key design steps is 
+provided here. The moment command variables LCV, 
+MCV, and NCV represent the variables to be controlled in 
+the roll, pitch, and yaw axes respectively. They are a blend 
+of various sensed signals. A five-step process is then used 
+to implement a dynamic inversion controller. 
+The detectiodcorrection logic is applied periodically at a 
+rate that is characteristic of guidance and navigation actions. 
+The nature of the logic (subject to the above considerations) 
+is such that actions that actually or potentially violate the 
+flight envelope result in corrections that return flight to 
+within the envelope, at which time no further corrective 
+actions will be applied (since this is part of the corrective 
+algorithm itself). The primary parameters for the algorithm 
+are: (1) the rate at which updates occur, (2) the degree of 
+accuracy of the approximation of the flight envelope, (3) the 
+rate of return to the flight envelope when a potential or 
+actual violation is detected; and, (4) how close the operating 
+point is permitted to approach the boundary. 
+3. ROBUST INNER-LOOP CONTROL 
+In this section, two dynamic inversion methods for inner- 
+loop control design will be reviewed. These methods are 
+examples of control design approaches that are appropriate 
+for inner-loop design, under the assumption that outer-loop 
+control has been designed for envelope protection or similar 
+purposes. The design integration of the inner and outer- 
+loops is considered in the following section. 
+- SteD 1: Choose a blend of variables to construct the 
+controlled variables. In a manned aircraft these are chosen 
+to provide adequate handling qualities. For example, the 
+choice of MCV must reflect the pilot's control desires. Pure 
+n, was initially, for instance used to emulate the g command 
+nature of the classically designed F-117A control laws. 
+Later a C' MCV was used to provide a natural change in 
+control priority from rotation to translation as airspeed 
+increased. Note that the open loop responses of the 
+controlled variables must have no right half plane zeros. 
+- Step 2: The aircraft model is defined. The key component 
+in this step is the development of a simplified aerodynamic 
+model that can be run in real time. This least squares model 
+can be written as Ck = ck(a, M) q. Here Ck is the vector of 
+least squares aerodynamic coefficients, Ck is the vector of 
+aerodynamic coefficients in the complete aerodynamic 
+database and is a nonlinear function of angle of attack (a) 
+and Mach number (M). Finally, h = [l, p, bp/2V, c q/2V, 
+br/2V, Sa, 6,, &IT is the vector of independent variables. 
+These variables are the sideslip angle, the scaled roll, pitch, 
+and yaw rates, and the roll, pitch, and yaw control surface 
+deflections. 
+- 
+- Step 3: Next the desired characteristics of the controlled 
+variable pdes are specified. Ideally, the dynamic inversion 
+portion of the control law, along with open loop aircraft 
+dynamics, produces an integration. The desired dynamics 
+are Vdes = b[  fCvcmd - v + 4.1 where z = b(Vcmd - V )  . 
+The two standard cases are proportional feedback (f,=l, 
+<=O) and proportional plus integral feedback (fc=0.5, 
+fi=0.25). 
+- Step 4: Here forces and moments corresponding to 
+undesired aerodynamic, gravitational, and/or inertial 
+contributions are modeled as functions of the measured state 
+variables. Opposing forces and moments are then 
+commanded to negate the undesired contributions. In the 
+simple case of the linearized aircraft roll axis model the 
+dynamic equation is p =  Lpp+L,06,. Inverting this 
+dynamic equation for the control input yields 
+6, =-[p-Lpp] .  In the general case, the nonlinear 
+equations of motion are f = F(u, x) z f(x) + g(x)u. Here x 
+is the vector of state variables and U is the vector of control 
+1 
+LJa 
+2-650 
+surfaces. The time derivative of the vector of the control 
+variables is 
+= a ( x ) +  b(x)u. The dynamic part of the control law is 
+written in terms of the desired control variables as 
+. dV dV dV 
+x )  + v = - 2 = - f( 
+d x d x  
+zg$y 
+LWD 
+1 . dV du vdes - - - f (x )  = b(x)-'[Td"" -a(x)] .  
+m u  
+ROEUPRIGHT _ _  ROLL UPRIFE ECTOR 3 BANK 
+ROLL SECTOR UPTIGHT 3 I , ,  I J .  .7. Y R q  UPRIGHT 
+-1iO '-135 . ' -90  ' ' 7 ' 9'0 ' 155 ' is0 R m  
+I I 
+(1) 
+Step 5:  In the final step the handling qualities are tuned 
+using precompensation. For example, stick and rudder 
+pedal gains and shapes are defined. In the case of the F- 
+117A, one maneuver utilizes the Pilot Activated Automatic 
+Recovery System (PAARS). This automatic maneuver 
+exercises the control design in high pitch and roll attitude 
+situations through large ranges of coupled attitude changes. 
+PAARS provides an all-attitude recovery capability to 
+protect against pilot disorientation due to sensorldisplay 
+failure, pilot vertigo induced by the lack of external visual 
+cues at night, and/or pilot distraction due to high workload. 
+PAARS generates commands to the Flight Management 
+System (outer-loop/autopilot), which in turn generates 
+commands to the Flight Control System (inner-loop) in a 
+way very similar to a Flight Envelope Protection system. 
+The recovery commands that PAARS generates emulate the 
+commands from a fully lucid pilot in the same flight 
+situation. This allows the pilot to regain control of the 
+vehicle at any time when helshe regains orientation. 
+PAARS utilizes a sector scheme that divides the attitude 
+envelope into seven operating regions. This scheme is 
+shown in Figure 2. For (unpiloted) UAV applications, 
+conformity with a human pilot's actions is no longer 
+necessary, but the flight envelope constraints are imposed 
+instead, to retain integrity of the vehicle. 
+I <gz-r6UcL) AND ZERO ROLL RATE I +NZ (PULL) AND ZERO ROLL-RATEI 
+Pilot Model 
+The F-117A simulation contains a simple nonlinear pilot 
+model. In the pitch axis there are n, or angle of attack (a) 
+command models that use a lead-lag followed by a 
+Proportional and Integrator (PI) filter to generate zero 
+steady state error. The roll axis model is more complex, 
+with different modes depending on whether a full stick 
+command is required. For small bank angle errors (and 
+lower roll rates) a bank angle is held with damping provided 
+by roll rate feedback. When the A command is large it goes 
+to a full stick input, computing the time to ease back on the 
+stick command to acquire the desired bank angle. In the 
+yaw axis during approach to a landing the pilot model 
+achieves a sideslip or a constant lateral-directional flight. 
+This model is used with the roll axis pilot model. The 
+power lever is commanded open loop (i.e. in the 
+acceleration portion of the pull and roll maneuver). 
+SECT R 5 
+-NZ ?PUSH) 
+AND 
+ROLL UPRIGHT 
+In the UAV context, the dynamics of the desired inner-loop 
+system response are not necessarily determined based on 
+handling qualities considerations, but on the desire to 
+provide predictable dynamic transitions between operating 
+points. One approach, which has been used to achieve 
+predictable transition responses in this broader context, is a 
+combination of frequency domain inversion, H, Control, 
+and simplicial stability analysis [ 111. 
+SE TOR 
+-NZ ?PUSH? 
+AND 
+SECTOR 4 
++NZ (PULL) -45 -- 
+AND 
+ROLL UPRIGHT ROLL UPRIGHT ROLL UPRIGHT 
++ N ~ ~ C ~ F ~ E L ~ Z  
+AND 
+Frequency Domain Inversion, H,  Control, and Simplicial 
+Stability Analysis 
+An H, controller for a nonlinear system using the describing 
+function based approach of [12, 13, 14, 151 was developed 
+I3 "I'UK 
+Y
+PITCH ATTITUDE (DEG) 
+NOSE UP 
+I SECTOR 7 : +NZ (P ULL) AND ZERO ROLL RATE - . 
+SECTOR 6 
++NZ (P L ) 
+SECTOR 1 
++NZ (PULL& 
+ROLL INVERTED ROLL INVERTED 
+SECTOR 6 
+  
+Figure 2: PAARS Recovery Versus Attitudes 
+2-651 
+in [ l l ,  161. The nonlinearities are modeled using the 
+describing function approach. Stability analysis is 
+conducted using simplicial algorithms. The method has 
+been demonstrated by designing H, controllers for an 
+unstable system driven by a Bang-Bang actuator. The final 
+example covered the roll axis autopilot for a cruise missile 
+controlled using a Bang-Bang actuator with dead zone. The 
+practicality of the method was highlighted by implementing 
+the closed-loop system. It was noted that the system 
+remained stable for any possible combination of actual and 
+measured amplitude of the aileron command de .  
+m 
+I 
+I 
+I Describing 
+I Function 
+U I { D F ~  
+Documented in [12, 13, 14, 151 is a nonlinear H, control 
+procedure that uses the describing function approach. In 
+this paper the example used in demonstrating this design 
+methodology is the directional control system for the low 
+altitudehigh subsonic cruise missile shown in Figure 3. 
+Lateral control to support bank-to-turn maneuvers is 
+achieved through differential deflection of a fwll span 
+trailing edge elevon. In accomplishing this function the 
+surface is used as a classical aileron. 
+I m z  
+I 
+I 
+I 
+I 
+PL1”b) I 
+I Y 
+Figure 3. Cruise Missile Three View 
+The controller is generated using the nonlinear H, optimal 
+control procedure of [13]. The describing function model is 
+introduced into the controller using the loop-shifting process 
+as shown in Figures 4 and 5. 
+Plant P(s) 
+r----------- 1 
+I 
+I 1 ’  , z  V 
+1 Actuator Limit I 
+Nonlinear Controller 
+I I Describing Linear I 
+Controller I I Function I 
+- U -  
+L- - - --- - - J 
+Nonlinear Controller K(s,a) 
+Figure 5: Loop-Shifting Procedure 
+The final step in the design process is the determination of 
+the stability domain. This is accomplished using 
+computational geometry via a simplicial algorithm [16, 171. 
+The multi-dimensional stability space is subdivided into 
+simplexes. The relevant loop properties at the vertices of 
+the simplexes are denoted by labels, which are used to 
+determine if a transition region is contained within these 
+simplexes. If the space is three-dimensional, tetrahedra are 
+used. If the space is two-dimensional, triangles are used. 
+The two-dimensional space is defined by the amplitude a 
+and fiequency o. The space is subdivided into triangular 
+subregions whose corners are labeled with either a “O”, a 
+“l”, or a “2”. The transition region lies within triangles 
+having a different label on each corner (in other words, 
+within completely labeled triangles). These completely 
+labeled triangles can be further subdivided until as fine a 
+grid as desired is generated. As discussed in [16, 171, this is 
+possible since within each completely labeled simplex there 
+is guaranteed to be at least one completely labeled simplex 
+at the finer resolution level. This is due to a property of the 
+labeling function called Sperner properness. Sperner 
+properness, which is intimately related to the “edge check,” 
+is guaranteed under some conditions of the triangulation 
+[W. 
+Figure 6 can be viewed as a three-dimensional stability 
+robustness plot. The x-axis is the actual signal amplitude 
+a 1, and the y-axis is the measured signal amplitude a 2 .  
+The vertical axis is the frequency in radians per second. 
+The line along the intersection of the O’s, 1’s and 2’s regions 
+serves the same purpose as the -l+j 0 location does for a 
+family of Nyquist curves of the loop function LCjo). 
+Figure 4: Missile Closed Loop System 
+2-652 
+Figure 6. Stability Transition Curve 
+4. INTEGRATION OF GUIDANCE AND CONTROL 
+The Flight Envelope Protection scheme described in Section 
+2 is based on the sustainable (quasi) steady state flight 
+modes of the vehicle. These correspond closely to the 
+guidance system modes of the vehicle (e.g., flight at steady 
+altitude, speed, steady climb, steady dive, banked turn, 
+unbanked turn, et cetera). In a real-time context, it is not 
+practical today to support dynamic extensions of the flight 
+envelope, although [ 5 ]  have shown that the flight envelope 
+as traditionally defined may exceed the stabilizable set of 
+operating points of an aircraft. The FEP system as 
+described, operates to override the guidance andor 
+navigation system commands into the control system, and is 
+based on flight envelope descriptions expressed as sub- 
+manifolds of the operating envelope that are suitable for 
+each steady maneuver condition. Dynamic inversion 
+(whether designed in the time domain or frequency domain) 
+provides a natural means of assuring that actuator limits are 
+also respected, while (through fkequency response shaping) 
+assuring a smooth transition from one flight condition to 
+another. For instance, a monotonic transient response (poles 
+below 45 degree line on a root locus) can assure smooth 
+transition between one operating point and another in the 
+operating envelope (implies limits to the excursion from a 
+straight line between two operating points). In this way, the 
+inner-loop system can be co-designed with the outer-loop 
+system to assure full envelope performance of a UAV Flight 
+Envelope protection system. 
+5 .  CONCLUSIONS 
+A strategy for reduction of UAV mishap rates through flight 
+envelope protection has been presented. Assessment of 
+UAV data indicates that up to 36% of UAV mishaps might 
+have been avoided had FEP been employed. The strategy 
+consists of outer-loop flight envelope protection (FEP) 
+logic, co-designed with inner-loop controls. Dynamic 
+Inversion methods for inner-loop design have properties that 
+mesh nicely with the requirements of outer-loop FEP 
+design, and allow these two types of systems to be co- 
+designed. 
+6. APPENDIX: FEP ANALYSIS 
+The flight envelope (a particular example of an operating 
+envelope for aircraft) is an engineering concept that, while 
+used for many years, has to the best of our knowledge not 
+been defined with mathematical rigor. Only when this has 
+been achieved will it be possible to test assertions 
+concerning flight within the envelope for a particular 
+aircraft, or even to rigorously verify that a given operating 
+point is in fact within the flight envelope. This appendix 
+presents an overview of how the envelope might be 
+rigorously defined, in the spirit of highlighting, rather than 
+resolving, the open issues. Two widely accepted examples 
+of the flight envelope are the V-H (velocity-altitude), and V- 
+N (velocity, normal force) diagrams, and we show how 
+these can be related to the more general theory of trim 
+trajectories, as discussed for example on page 99 of [6]. 
+Consider the dynamics of an (rigid, winged) aircraft 
+expressed in general differential equation form 
+i = f ( x ,  U), t E [O, 00) 
+(2) 
+We consider inputs u(t) E U c R" , t E [O, 00) and states 
+x ( t ) ~ X c  R". The set of trim trajectories are the 
+solutions x(-) for constant inputs 
+u(t) = U,U E U,t E [(),CO), and such that there exist 
+locally stabilizing control laws 
+Us ( t )  U + 6u(x(t)), Us ( t )  E U 
+(3) 
+for which the corresponding stabilized solution, after an 
+appropriate initial transient converges to a function 
+xs (e) E QP(X)  , where QP(X)  is the space of quasi- 
+periodic functions taking values in X . Asymptotically, 
+there must be a (minimal) period n and an order of 
+2-653 
+derivative k, , such that for all k 2 k, , x‘~’(.) is (almost) 
+periodic of period n . Note that for the minimal such value 
+of k, , some elements of the derivative of the state may be 
+zero or constant, since these functions are by definition also 
+periodic. Generically, as the constant value U varies over 
+the input set U, qualitatively different types of trajectories of 
+the state will occur. These are characterized by 
+discontinuous changes in k, , II ,  and the subspace of X 
+upon which the quasiperiodic behavior occurs. For some 
+values, U, no locally stabilizing control law may exist. (The 
+choice of locally stabilizing control, 6 , is assumed to affect 
+the above changes only parametrically). These 
+discontinuous changes induce a (flight mode) partition, 
+designated p on the input (and correspondingly) state 
+space. Define a class of projections 
+g , ( u , S ) : Q P  + Y , , Y ,  c R “  
+(4) 
+such that 
+gpx, G Y ,  
+( 5 )  
+captures those components of the state that become 
+asymptotically constant, for given values of the steady 
+input, stabilizing feedback law, and partition parameter 
+(flight mode). As U varies within one partition of U, y,  
+varies within Y,. The envelope of the locus of points 
+traced out by y,, designated by 
+Ep G { Y ,  E Y , l U € U , ) ,  
+(6)  
+and is termed the flight envelope for flight mode /l . For 
+future reference, the boundarv of the flight envelope is 
+designated as dEp . The over-bar denotes set closure in the 
+foregoing. Note that although individual points in the flight 
+envelope can be associated with specific values of the 
+steady state control settings, this is not necessarily a one-to- 
+one mapping (even for a given flight mode), and the 
+envelope is traditionally plotted as a subset of the state 
+space, or in a (subset) of variables that is a transformation of 
+it. 
+The above definition of the flight envelope, which reflects 
+the natural control and aerodynamic limits, does not reflect 
+additional aircraft design constraints that may be 
+independent of the flight condition. Such constraints are 
+usually expressible in the form 
+h(x,u) 2 0, h : X x  U + R’ 
+(7) 
+where 1 is the number of constraints. To map these into the 
+flight envelope, it is necessary to take the set 
+X, {xl h(x,u) 2 0,u E U,} 
+(8) 
+and consider its intersection with E, as defined above. 
+The approach to the flight envelope via the trim trajectories 
+is considered to be conceptually more general than the 
+traditional engineering approach to the flight envelope, 
+because it considers points which are non-stabilizable, and 
+defmes the set of flight modes via an induced partition 
+rather than as an ad hoc proposition. The traditional 
+engineering approach to the flight envelope is to postulate 
+the flight mode and flight envelope coordinate system; 
+various methods are then used to determine the envelope 
+(e.g., &om test data or from dynamic models). One method 
+is to test a point postulated to be in the flight envelope by 
+inverting (a subset of) the steady state equations to find a 
+corresponding (trim) control, and then verifying that this 
+point can be stabilized. 
+The application of the above analysis to the aerodynamics of 
+a winged aircraft are considered next. Usually, certain 
+assumptions are made to simplify the analysis, such as: 
+Constant (sea level static) pressure and temperature 
+Constant fuel loading and center of gravity location 
+No variation of gravity with altitude 
+0 
+0 
+0 Nowind 
+0 Flat earth 
+Some of the traditional flight modes that arise from the 
+preceding analysis are: 
+Steady forward flight at constant speed and altitude 
+0 Steady longitudinally symmetric climb or descent 
+0 Unbanked and banked (coordinated) turns at 
+constant speed or rates 
+0 Vertical rolls 
+0 Spiral mode flight (combination of the above 
+modes) 
+Each of these modes is accompanied by a family of trim 
+trajectories. The modes correspond closely, but not exactly 
+to standard guidance/autopilot modes of winged aircraft. 
+Guidance/autopilot modes may be viewed as 
+implementations of locally stabilizing controls, although in 
+fact they are often designed with additional handling quality 
+and limit protection considerations in mind. In the aircraft 
+design process, it is normally the intent that the flight 
+envelope reflect motions of which the aircraft is “inherently 
+capable,” and not merely human factors preferences, 
+although these constraints can be added if necessary (e.g., 
+blackout g limits of fighter pilots). 
+To relate, say, longitudinal motion at constant speed and 
+altitude to the mathematical definition above, note that in 
+this mode, the positional states of altitude and horizontal 
+position are nominally constant, while forward velocity is 
+constant, but forward position increases linearly with time. 
+The lateral rates are all identically zero. Only the forward 
+speed and altitude are plotted on the V-H plot. The upper 
+limit on altitude may be related to minimum ambient 
+pressure for which cabin pressure limits are maintainable, 
+while the upper speed boundary (in different segments) may 
+2-654 
+reflect both engine operating limits and structural limits of 
+the airframe (static bending, or possibly wing flutter 
+boundaries). 
+The above definition is capable of reflecting the conditions 
+of the V-N plot as well, although this case is more complex. 
+The maximum normal g-limit is usually experienced in a 
+vertical roll, which is one of the flight conditions indicated 
+above. Forward speed is (approximately) constant in such a 
+maneuver, providing one axis of the plot. Normally, the 
+other axis is plotted in units of g’s (vertical acceleration), 
+rather than (for instance) pitch rate. This is a case where the 
+mapping gp above can be used to map the flight envelope 
+into a different and more conventional set of coordinates 
+(note that vertical acceleration can be related to x and U via 
+the state equation). The maximum g-limit is normally 
+established by the wing root-bending limit, which is a 
+constraint that can be expressed via the function h in the 
+definition. Note that in this case, other variables, such as 
+altitude, are periodic as functions of time. 
+7. REFERENCES 
+[ l ]  Colgren, Richard D., Gulati, Sandeep, and Koneck, 
+Robert “Technologies for Reliable Autonomous Control 
+(TRAC),” IASTED CA’99, The International Association of 
+Science and Technology for Development, CONTROL 
+AND APPLICATIONS CONFERENCE, Banff, CANADA, 
+26 July 1999. 
+[2] Schaefer, Pete, Colgren, Richard D., Abbott, Rich, et al, 
+“Technologies for Reliable Autonomous Control (TRAC) of 
+UAVs,” 19th DASC, Philadelphia, PN, October 2000. 
+[3] Johnson, T., Koneck, R, and Bush, S., “Improving UAV 
+Mission Success Rate through S o h a r e  Enabled Control 
+Design,” IEEE Aerospace Conference, March 2000. 
+[4] Rogers, Ron, “Pilot Authority and Aircraft Protections,” 
+Cockpit (ISSN 0742-1508), p. 4-27, March 1999. 
+[5] Horn, Joe, Calise, Anthony J., and Prasad, J. V. R, 
+“Flight Envelope Limiting Systems Using Neural 
+Networks,” Proceedings of the AIAA Atmospheric Flight 
+Mechanics Conference and Exhibit, Boston, MA, Aug. 10- 
+12, 1998, Collection of Technical Papers (A98-37204 10- 
+OS) ,  Reston, VA, American Institute of Aeronautics and 
+Astronautics, 1998, p. 741-751. 
+[6] Tomlin, Claire, Lygeros, John, and Sastry, Shankar, 
+“Aerodynamic Envelope Protection Using Hybrid Control,” 
+Proceedings of the 1998 American Control Conference, 
+Philadelphia, PA, pp. 1793-1796. 
+[SI Colgren, Richard, and Enns, Dale, “Dynamic Inversion 
+Applied to the F-l17A,” Proceedings of the Modeling and 
+Simulation Technologies Conference, New Orleans, LA, 
+191 “Dynamic Inversion Based Flight Control Laws for the 
+HARV,” Honeywell Systems and Research Center, 
+Minneapolis, MN, 3 March 1992. 
+August, 1997, pp. 275-284. 
+[lo] “Application of Multivariable Control Theory to 
+Aircraft Control Laws - Final Report: Multivariable Control 
+Design Guidelines,” WL-TR-96-3099, Flight Dynamics 
+Directorate, Wright Laboratory, OH, May 1996. 
+[ l l ]  Colgren, Richard, and Jonckheere, Edmond, “H, 
+Control of a Class of Nonlinear Systems Using Describing 
+Functions and Simplicial Algorithms,” IEEE Transactions 
+on Automatic Control, Volume 42, Number 5 ,  May 1998, 
+pp. 707-720. 
+[12] Colgren, Richard, and Jonckheere, Edmond, “H, 
+Control of Nonlinear Systems Using Describing Functions 
+and Simplicial Algorithms,” Proceedings of the IEEE 
+Conference on Decision and Control, Tucson, AR, Volume 
+1, December 16-18, 1992, pp. 957-964. 
+[13] Colgren, R. D., “H, Control of Nonlinear Systems 
+Using Describing Functions and Simplicial Algorithms,” 
+Ph.D. thesis, Department of Electrical Engineering - 
+Systems, University of Southern California, May 1993. 
+[14] Colgren, R D., “Simplicial Stability Analysis of an 
+Unstable Plant with Adaptive Perturbation Control,” 
+Proceedings of the EEE Regional Conference on Aerospace 
+Control Systems, Thousand Oaks, CA, 25-27 May 1993, pp. 
+416-420. 
+1151 Colgren, R. D., Jonckheere, Edmond, and Cheng, Chih- 
+Yung, “H, Optimal Control of a Simple Nonlinear System 
+Analyzed using Simplicial Algorithms,” Proceedings of the 
+IEEE Regional Conference on Aerospace Control Systems, 
+Thousand Oaks, CA, 25-27 May 1993, pp. 41 1-415. 
+[16] Doup, Timothy M., “Simplicial Algorithms on the 
+Simplotope,” Lecture Notes in Economics and 
+Mathematical Systems - Number 3 18, Springer-Verlag, 
+New York, New York, 1988. 
+[17] Todd, Michael J., “The Computation of Fixed Points 
+and Applications,” Springer-Verlag, Heidelberg, Germany, 
+1976. 
+[ 181 Jonckheere, Edmond, “Algebraic and Differential 
+Topology of Robust Stability,” Oxford Press, New York, 
+New York, 1997. 
+[7] Stevens, B. L., and Lewis, F. L., “AircraR Control and 
+Simulation,” J. Wiley & Sons, New York, New York, 1992. 
+2-655  
+8. BIOGRAPHIES 
+Dr. Richard Colgren is a flight controls senior staff engineer 
+at the Lockheed Martin Skunk Works in Palmdale, 
+California. He is Flight Control Systems Lead for RECEE 
+and Advanced Programs. He earned his B.S.A.A. at the 
+University of Washington and his M.S.E.E. at the 
+University of Southern California. He completed his Ph.D. 
+in Electrical Engineering - Systems, at the University of 
+Southern California. Previously he was IPT Lead for 
+Specialist Support on the DarkStar UAV (Tier III-). He was 
+also IPT Lead for the Vehicle Management System on the 
+Uninhabited Combat Air Vehicle (UCAV), and was lead 
+flight controls engineer on the U-2s. Dr. Colgren was also 
+the lead flight controls engineer on the Air Force MCT 
+(Multivariable Control Theory) project. He has served as 
+project engineedprincipal investigator on independent 
+research and development projects including Technologies 
+for Reliable Autonomous Control (TRAC), development of 
+the Lockheed flight controls workstation, and on the state 
+reduction of structural dynamic models for control systems 
+design. Previous work includes feasibility studies and 
+preliminary/advanced design for flight control system 
+concepts such as the CRV and HL-20 mini-shuttle, 
+RockwellLockheed A-X proposal, F-22, F-l17A, B-2, F- 
+20, and other classified projects. Work on UAV 
+(Uninhabited Air Vehicle) projects includes Tier rr‘, Tier 
+III-, and Tier III, micro-UAVs, the Wraith RPV (Remotely 
+Piloted Vehicle) and other classified projects. Dr. Colgren 
+is a past chairman of the Integrated Controls Subcommittee 
+of the Lockheed Corporate Task Force. He is a Senior 
+Member of the Institute for Electrical and Electronics 
+Engineers and the Control Systems Society, for which he 
+has conducted several paper and article reviews. He also 
+organized the first session on simplicial algorithms for the 
+IEEE Regional Conference on Aerospace Controls. Dr. 
+Colgren is an ABET/EAC (Accreditation Board for 
+Engineering and Technology, Inc.) aeronautical engineering 
+evaluator. 
+Dr. Johnson received the Ph.D. in Electrical Engineering 
+and Computer Science from MIT in 1972. He then joined 
+the MIT faculty, performing research in the area of control 
+of systems governed by partial differential equations, large 
+space structures, and hybrid controls until 1980. During 
+this period he was awarded the American Automatic 
+Control Council’s Donald P. Eckman award and was named 
+Edgerton Assistant Professor of Electrical Engineering at 
+MIT. In 1980, he joined Bolt Beranek and Newman (BBN) 
+as a Senior Scientist and pursued applied research in man- 
+machine systems, robotics, and automated systems. 
+Among other projects, he led the US National Bureau of 
+Standards (later NIST) Hierarchical Control Systems 
+emulation, which operated the Automated Manufacturing 
+Research Facility. In 1984, Dr. Johnson joined GE 
+Corporate Research and Development where he has 
+subsequently held several technical and management 
+positions. Among other projects, he was involved in the 
+development of GE Aircraft Engine’s BEACON system 
+which automatically generates engine control software for 
+all GE commercial engines, the GE-1 Satellite (currently a 
+Lockheed-Martin product), GE’s Profile Dishwasher and 
+Clothes Washer, and an upgrade of NBC’s Skypath system 
+for distribution of video to its 217 affiliate stations. Dr. 
+Johnson has held several professional positions, including 
+Vice President of Technical Activities of the IEEE Control 
+Systems Society, and Finance Chair of the 1996 WAC 
+Congress. He was recognized as a Distinguished Member 
+of the IEEE Control Systems Society in 1995. 
+2-656 

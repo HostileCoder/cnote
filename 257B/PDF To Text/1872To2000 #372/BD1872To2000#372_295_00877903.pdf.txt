@@ -1,0 +1,634 @@
+Neural Network System for Helicopter Rotor Smoothing 
+Dariusz Wroblewski, Paul Grabill’ 
+OFUNCON Corporation 
+9363 Towne Centre Drive 
+San Diego, CA 92121 
+858-455-5530 
+ilariusz @o~incon.corn 
+John Berry, Robert Branhof 
+Redstone Arsenal, AL 35898 
+US Army AMCOM-AMRDEC 
+Abstract - Helicopter Rotor Smoothing (Track and 
+Balance) is a periodic maintenance task required to 
+minimize rotor induced aircraft vibrations at the 
+fundamental (once per revolution) rotor frequency. We have 
+designed and implemented a general, neural network based 
+software system for rotor smoothing. Neural networks 
+provide non-parametric mappings between the spaces of 
+adjustments and vibration measurements. In the network 
+training process, these mappings are extracted from 
+experimental data without any assumptions about their 
+functional form. On the other hand, when the experimental 
+data available for training is not complete, simulated data 
+based on model dependencies (linear or other) may be also 
+incorporated into the neural network model. The neural 
+networks are easily updated (retrained) if new data becomes 
+available thus allowing the system to evolve and mature in 
+the course of its use. 
+The customization of the system for helicopters of different 
+types is facilitated by general-purpose software for 
+application development, which includes preparation of 
+flight data and neural network training. It is worth noting 
+that the prototype applications developed up to date required 
+relatively modest amount of flight data (20-30 flights). 
+The neural network system has been applied to Apache 
+(AH-64), Blackhawk (UH-60), and Kiowa Warrior (OH- 
+58D) helicopters as part of the Vibration Management 
+Enhancement Program (VMEP). Preliminary results are 
+very encouraging. In the verification tests, we were able to 
+shorten the smoothing time for AH-64, with all of the rotor 
+smoothing procedures completed in 2 to 4 flights. In all 
+cases, the neural network approach produced solutions with 
+experimentally verified low vibration levels and small track 
+split. The system has also demonstrated the ability to detect 
+errors in implementation of the smoothing adjustments. 
+Application to other types of helicopters is considered. 
+TABLE OF CONTENTS 
+1. 
+2. 
+3. 
+4. 
+5. 
+6. 
+7. 
+INTRODUCTION 
+SYSTEM OVERVIEW 
+APPLICATION DEVELOPMENT 
+VERIFICATION TESTS 
+CONCLUSIONS 
+o€TIMJZED ROTOR SMOOTHING 
+COMPARISON WITH LINEAR METHOD 
+1. INTRODUCTION 
+VMEP program, sponsored by the South Carolina Army 
+National Guard and the US Army, aims to develop a 
+helicopter Health and Usage Monitoring System (HUMS). 
+The system includes advanced diagnostic algorithms for the 
+prediction of failures in aircraft components such as 
+engines, gearboxes, and drive train. One of the system 
+capabilities is the automatic rotor smoothing (rotor track and 
+balance) that uses an imbedded, onboard data acquisition 
+and processing system. 
+Even a slight imbalance of the helicopter rotor may lead to 
+large vibration levels in the aircraft structure and associated 
+premature failure of components. The rotor smoothing 
+process typically involves installation of special purpose 
+instrumentation and a series of maintenance test flights, in 
+which the vibration data collection is followed by rotor 
+adjustments. The adjustments usually involve changing the 
+dynamic balance (weight moves) and rotor aerodynamics 
+(pi!ch link adjustments and tab bends). The rotor 
+adjustments are traditionally calculated with the use of a 
+linear model, in which vibrational response of the helicopter 
+to the rotor adjustments is represented by a set of (linear) 
+response coefficients [l-41. This approach is an 
+oversimplification of the actual system, as it does not take 
+into account the possible non-linear effects. Usually, the 
+accuracy with which the linear coefficients may be 
+determined is no better than about 20% and in many cases it 
+is much worse. Thus in practice, the linear rotor smoothing 
+is usually accomplished in several test flights, with 
+consecutive sets of adjustments converging on an acceptable 
+solution with low measured vibrations. 
+2. SYSTEM OVERVIEW 
+We report on the development of general, non-linear 
+approach to the rotor smoothing based on the neural 
+network computational paradigm. 
+Our rotor smoothing system provides an integrated solution 
+to the problem. Two main parts of the system are: 
+1. Development software for flight data analysis and 
+construction of empirical models, 
+2. Rotor smoothing algorithm, a part of VMEP HUMS 
+software installed on a portable computer. 
+0-7803-5846-5/00/$10.00  2000 IEEE 
+- Presently at Intelligent Automation Corporation, San Diego, CA 
+27 1 
+3. APPLICATION DEVELOPMENT 
+The general approach to the rotor smoothing problem is 
+based on empirical models of aircraft response to the 
+correction moves. Thus, an application to a particular 
+aircraft type consists of two principal steps: 
+1 .  Development of a database of flight data. 
+2. Construction of parametric and neural network models, 
+which are used by a generic rotor-smoothing algorithm. 
+These models are constructed off-line and may be 
+easily updated and/or expanded as the available 
+knowledge base increases. 
+3.1 Database development 
+Development of a robust empirical model requires a large 
+database of experimental measurements, which covers as 
+much as possible the operational envelope of the aircraft. As 
+we are modeling the aircraft response to rotor adjustments, 
+the database must contain at least three types of information: 
+vibration data before the correction, adjustment (correction) 
+information, and vibration data after the correction. 
+Generally, the initial data are collected in a series of 
+dedicated maintenance test flights. Historical data, if 
+available and deemed reliable, are also included. Dedicated 
+maintenance test flights are expensive and thus it is 
+important to design the test procedure that maximizes the 
+content of resulting data set. This may be accomplished by 
+using a sequence of flights and associated adjustment 
+moves. By comparing all flights in the sequence and using 
+the ‘effective’ adjustments (sum of all corrections made 
+between two given flights), the number of available 
+examples of aircraft response may be substantially 
+increased: N(N-1)/2 flight pairs may be produced from a 
+sequence of N flights. 
+The typical test flight plan, which maximizes the usefulness 
+of sequentially collected data, consists of 
+0, One or two baseline flights. 
+Flights with corrections of the first type (e.g., pitch 
+link). Typically, a small correction is followed by a 
+large and opposite correction, which is followed by a 
+correction that effectively nulls the previous two (and 
+returns the aircraft to its baseline state). The aircraft is 
+flown and vibration data are collected after each 
+adjustment. 
+Flights with corrections of other types (e.g., weight, 
+tabs) performed according to the above scheme. 
+Small number of flights with mixed adjustments such as 
+combinations of tab and pitch link moves. 
+0 
+3.2 Linear models 
+The calculation of linear coefficients requires experimental 
+(flight test) data with a single adjustment type (e.g., weight, 
+pitch link, tab). The linear response coefficients are 
+calculated by comparing the vibration data before and after 
+the correction. The coefficients are determined for the 
+fundamental harmonic of the rotor - higher harmonics do 
+not show linear correlation with the correction magnitude. 
+The linear response Coefficients, &,lo are defined as: 
+where: A v , ~  is the change in measured vibrations for flight 
+state j and sensor k, and Ai is the correction of type i (e.g., 
+pitch link, weight, etc.). 
+Calculation of linear coefficients provides an assessment of 
+the statistical significance of the linearity assumption. 
+‘Typically, the statistical error for the linear coefficients 
+determined from a significant number of measurements is in 
+the range of 20-30%. Often, for some flight states and 
+diagnostic signals, the statistical uncertainty is much larger 
+and there is no clear linear trend in the response data. 
+It is worth noting that one of the sources of the poor 
+accuracy of the linear approach is generally poor 
+reproducibility of the vibration data. In the tests conducted 
+for the Apache and Blackhawk helicopters the vibration data 
+were acquired repeatedly during the same test flight or on 
+subsequent flights (with no rotor adjustments between the 
+flights). As shown in Figures 1 and 2, the variations in 
+vibration levels for nominally identical flights may be 
+substantial, of the order of 0.1-0.2 incldsecond (ips). This 
+should be compared to the vibration level targets for a 
+smooth aircraft, which are typically about 0.2 ips. The 
+flight-to-flight variations may be due to the airframe 
+vibrational modes (at the rotor fundamental frequency) that 
+are weakly dependent or independent of the rotor 
+adjustments but may depend on other aircraft parameters 
+(e.g., gross weight). The use of neural network model may 
+help in eliminating the airframe mode contribution, 
+provided that relevant parameters are available for use in the 
+model. 
+3.3 Neural network models 
+The advantage of neural network approach is that it provides 
+a non-parametric model of the data [5 ] .  That is, no 
+assumptions are made concerning functional form of the 
+aircraft response to the correction moves. Also, the neural 
+network paradigm provides an efficient alternative to the 
+normally used least-squares fit method. The neural network 
+learns the mappings between the adjustment and vibration 
+spaces from the experimental data. As mentioned above, the 
+drawback of this methodology, especially for the initial 
+development, is that to provide robust mapping, the data 
+used for training should cover essentially the whole 
+operational space of the aircraft. This problem is alleviated 
+with data collection during the system lifetime 
+One of the functions of the VMEP HUMS system is to 
+collect and archive the relevant data for the whole fleet of 
+serviced helicopters. Thus, it is fully expected that the data 
+requirement will be eventually met. For the initial 
+development of neural network approach, the data 
+requirement may be somewhat relaxed by building 
+parametric models. The commonly used linear model is 
+expected to be inaccurate at extremes, but it provides a 
+reasonable first approximation. Other parametric models 
+may be developed as needed. Such models are easily 
+encompassed by the general neural network architecture 
+through inclusion of model (simulated) data in the network 
+training. In the limit, if only simulated data from linear 
+model are used for training, the neural network will 
+reproduce the linear model. Thus, the neural network 
+models may range from purely empirical (no model data) to 
+purely simulated (i.e., trained solely on the parametric 
+model data). The use of general computing paradigm allows 
+the user to refine the model (e.g., to include the non-linear 
+effects) as relevant data becomes available. That is, as the 
+system matures and more data becomes available, the 
+content of model data may be changed in favor of empirical 
+data. 
+272 
+4. OPTIMIZED ROTOR SMOOTHING 
+The processing flow for the general, neural network rotor 
+smoothing algorithm is shown in Figure 3. 
+1 
+a8 
+as 
+J 
+$ 0 2  
+C 
+300 
+'s la 
+0 
+1 2 3 4 5 6 7  
+06 
+8- 
+B w  
+0 
+1 2 3 4 5 6 7  
+300 
+200 
+8 
+i 
+@ la 
+0 
+1 2 3 4 5 6 7  
+Flight states: 1= FPlOO LAT, 2=Hover LAT, 3=60k VERT, 
+4=80k VERT, 5=100k VERT, 6=120k VERT, 7=140k VERT 
+Figure 1 Variations in the Vibration Data for Nominally 
+Identical (Baseline) Flights for AH-64 helicopter. The 
+graphs show the average (+), minimum (blue bar), and 
+maximum (yellow bar) measured values - yellow band 
+represents the difference between minimum and maximum 
+values. Data from 4 flights were used to produce this graph. 
+UH-60, tail #658 baseline flights 
+0.2 
+0.1 
+1 2 3 4 5  
+F l ia l  stale 
+A+B phase (d-4 
+A-E mapilude (ips) 
+0.4  
+0 2  
+0.1 
+0 
+1 2 3 4 5  
+FI@l state 
+A-8 phase (deg) 
+0 
+1 2 3 4 5  
+F W I  stale 
+1 2 3 4 5  
+F l i~ ts la te  
+Flight states: 1 = FPG100,2 = Hover, 3 = 8OKts, 4 = 12OKts, 
+5 = 145Kts 
+Figure 2 As Figure 1 but for the UH-60 Blackhawk 
+helicopter. 6 data sets were used to produce this graph. 
+The rotor smoothing models used here are derived from a 
+combination of experimental and model (linear 
+approximation) data. This approach allows us to avoid the 
+difficulties in training the neural networks in the absence of 
+a comprehensive empirical database. In the prototype 
+implementation described here, the neural networks for 
+adjustment prediction were trained solely on the linear 
+model data. The vibration prediction networks were trained 
+mainly on experimental data with the model (simulated) 
+data providing information only about the boundaries of the 
+adjustment space. 
+I 4 \  
+Figure 3 Flow chart for the rotor-smoothing algorithm. 
+The principal components of the algorithm are described 
+below. 
+4.1. Correction calculation. 
+The vibration data are used to calculate the corrections that 
+are required to smooth the aircraft rotor. This is 
+accomplished by a series of neural networks, each 
+evaluating the correction solution for a subset of moves. 
+4.2 Vibration prediction. 
+The expected vibration level (after the correction) is 
+evaluated for each of the correction solutions. This is 
+accomplished by a separate neural network, which provides 
+the mapping from the adjustment space to the vibration 
+space. The vibration predictions are obtained for all the test 
+states that are considered relevant. 
+It should be noted that the vibration prediction accuracy of 
+the presently used models is not entirely satisfactory. For 
+our test data, the typical RMS error for the vibration 
+prediction is in the range of 0.1 ips, but the deviations for 
+individual detectors and test states may be much larger and 
+reach the levels of vibration limits for a smooth aircraft (0.2 
+- 0.3 ips). Also, it appears obvious that the prediction 
+uncertainties will increase with the number of correction 
+moves and thus our approach has been to use as few moves 
+as possible. Although our goal is to be able to smooth the 
+helicopter rotor based on the data from only one test flight, 
+it may be expected that due to the model uncertainties, more 
+flights will be occasionally required. 
+We have attempted to improve the accuracy of vibration 
+prediction by constructing purely empirical models (without 
+the linear simulated data). This study aimed at discovering a 
+possible nonlinear correlation between adjustments, 
+different vibration measurements, and the resulting change 
+in vibrations. In addition to the adjustment information, 
+these models included, as inputs to the neural network, the 
+initial state vibration data (before adjustments). Our 
+preliminary results indicate that the use of initial vibration 
+data does not improve the vibration prediction accuracy. In 
+fact, the neural network using only the adjustment 
+273 
+information performed somewhat better than the networks 
+that also employed the vibration data. This is in agreement 
+with the results of linear model analysis. Similar accuracy 
+was obtained for networks using different harmonics and for 
+networks using more than one harmonic. 
+4.3 Track optinzization. 
+The (complex) correction solution needs to be implemented 
+as adjustment moves on particular blades (spread out or 
+detailed solution). In general, there is a large number of 
+implementations corresponding to a given correction 
+solution. The detailed (implemented) solution is selected to 
+minimize the predicted track split. Presently, a linear model 
+is used for track split prediction but more advanced models 
+may be used if found useful. It should be noted that the 
+main objective is to minimize rotor vibration. Minimal track 
+split is a secondary goal. 
+4.4 Solution Selection. 
+The solutions are ranked based on: 
+A fitness function is formed using the above parameters and 
+the optimal solution (with maximum fitness) is presented to 
+the user. In an interactive mode, the user has a choice to 
+limit the number of correction moves, and to use different 
+selection criteria (e.g., the solution with the smaller number 
+of moves that is predicted to bring the vibration levels to 
+within the prescribed targets). 
+So far the optimal solution has been formed by equally 
+weighting all of the traditionally used (Aviation Vibration 
+Analyzer) flight conditions for the aircraft. An extension to 
+this program will be to determine a weighting of flight 
+conditions (or even addition or deletion of flight conditions) 
+that has the best merit. Merit will be determined based on 
+suitability for both pilotlpassenger comfort and mechanical 
+degradation over the usage spectrum. 
+4.5 Consistency check. 
+This module detects gross errors in correction 
+implementation. The vibration changes for the latest flights 
+are compared with the adjustment information recorded by 
+the operator. A large discrepancy between the measured 
+change in vibrations and that predicted from the adjustment 
+moves indicates that either the correction moves were 
+recorded incorrectly or an error was made in the 
+implementation of correction moves. Persistent 
+inconsistency between the recorded corrections and 
+measured vibration changes indicates a mechanical fault. 
+Our experience with recently collected AH-64 test data 
+indicates that mistakes are often made in one or both of 
+these steps. We examined data for 23 flight tests conducted 
+in the beginning of 1999 and found strong evidence that the 
+correction moves were incorrectly implemented (or 
+recorded) in five of these tests (error rate of about 
+20 percent!). The test crew subsequently confirmed one of 
+the errors as a pitch link move that was put on the opposite 
+blade. In three other cases, we found that the corrections 
+were probably implemented with the opposite sign (or on 
+The level of predicted vibrations (which should be 
+minimized). 
+The complexity of the adjustment (single moves are 
+preferable to multiple moves). 
+The predicted track split (which should be minimized). 
+the opposite blades - these two errors have the same effect). 
+In one case, the corrections were most probably 
+implemented on perpendicular blades (blade 1 instead of 
+blade 2, and blade 3 instead of blade 4). Thus, the 
+consistency check function will be extremely important in a 
+fielded system. Detection of possible implementation errors 
+will alleviate the frustration due to the unexpected response 
+of the aircraft. 
+5. VERIFICATION TESTS 
+The rotor smoothing system was implemented for Apache 
+,4H-64, Blackhawk UH-60 and Kiowa Warrior OH-58D 
+helicopters. Applications to other helicopter types are 
+considered. In this Section, we present a summary of 
+verification tests for Apache AH-64.helicopter. 
+The system has been employed in routine maintenance 
+]procedures for rotor track and balance at South Carolina 
+.Army National Guard in Columbia, SC. In the initial stages 
+(of system development, the vibration data collected during 
+the test flights were transmitted via Internet to ORINCON, 
+where the solutions were calculated and recommended set 
+d correction moves was transmitted back to the 
+maintenance crew. Later, we implemented the system on a 
+portable computer for direct use by the maintenance 
+personnel. 
+Five adjustment types are used in smoothing of AH-64 main 
+rotor: weight (W), pitch link length (PL), tab pockets 4-10 
+(T4), tab pockets 6-10 (T6), and tab pockets 8-10 (TS). For 
+the flight test, the vibration measurements are taken at 7 
+flight states: FPGlOO (flat pitch on ground), hover, and 
+forward flight at 60,80, 100, 120 and 140 knots (60K, 80K, 
+100K, 120K, 140K). The vibration detectors are denoted as 
+LAT (lateral) and VERT (vertical) and measure the cabin 
+vibration levels. 
+The AH-64 smoothing procedure is performed in three steps 
+(test modes): 
+Ground, with data collected at FPGlOO (the initial pitch 
+link adjustment, only), 
+Initial, with data collected at FPGlOO and Hover 
+(weight and pitch link adjustments), and 
+Flight, with data collected at all flight states (all 
+adjustments). 
+Majority of our verification tests was conducted for the 
+flight test mode, where it is expected that preliminary pitch 
+link and weight adjustments have been performed. 
+However, on few occasions we were able to conduct the 
+smoothing without the first two steps, even after major 
+maintenance tasks such as blade replacement. 
+The rotor smoothing system was demonstrated in eight 
+actual smoothing procedures of the AH-64 helicopter at the 
+South Carolina Army National Guard (SCANG) in 
+Columbia, SC. In all tests, the aircraft rotor was smoothed 
+in two to four test flights (i.e., one to three set of 
+adjustments). Two aircraft required only one adjustment set 
+(two test flights), two aircraft required two adjustment sets 
+(three test flights), and four aircraft required three 
+adjustment sets (four test flights). Thus, on average, the 
+smoothing procedure required about two adjustment sets 
+(three flights). Some of these tests were conducted during 
+the development of the smoothing algorithm. 
+274 
+As an example, we show the details of the smoothing 
+procedure for Apache AH-64 aircraft (tail # 460) performed 
+at SCNARG base in Columbia, SC - cf. Table 1 and 
+Figure 4. This aircraft was smoothed in 3 flights with two 
+sets of adjustments. 
+Table 1 Main rotor adjustments for the smoothing 
+procedure for Apache #460 at SCANG 
+May-99 Tab 6-10 (blade 1): +2.0 deg 
+Tab 6-10 (blade 4): +2.5 de 
+, T 
+I May-99 I Pitch Link (blade 4): -1.25 flats Tab 8-10 (blade 3): +1.5 deg Tab 8-10 (blade 4): -1.0 dee 
+1 2 3 4 5 6 7 
+Flight slate, FPGlM)->140k 
+LAT magnitude 
+0 
+2 3 4 5 6 7 
+FligM slate, FPGlW>140k 
+Figure 4 Vibration magnitudes for Apache tail #460 
+smoothing procedure. The data is shown for the first (o), 
+second (x), and third (I) flight in the series. 
+6 .  COMPARISON WITH THE LINEAR METHOD 
+It is interesting to compare the performance of the neural 
+network based algorithm with that of the traditional least- 
+squares linear algorithm. In the course of our verification 
+tests we found that the neural network system generally 
+produced more accurate solutions than the least-squares 
+method. That is, the neural network model produced 
+solutions with smaller number of moves and lower predicted 
+vibrations. 
+As an example we show a comparison between the solutions 
+produced by the neural network system and the least- 
+squares method for the Apache tail# 460 smoothing 
+procedure. Table 2 shows the linear and neural network 
+solutions for the second flight in the series and Figure 5 
+shows the predicted vibration levels obtained with the two 
+methods and the vibration magnitudes measured for the last 
+(third) flight in the series. 
+Table 2 Correction solution for AH-64 #460 obtained with 
+the linear least-squares method and with the neural network 
+algorithm. B 1-4 denotes blades 1 through 4. 
+Linear I NeuralNetwork 1 
+0.4 
+v) 
+Q .- 
+0.2 
+0 
+Figure 5 Predicted vibration levels for the solutions 
+obtained with the least-squares method (diamonds)) and the 
+neural network algorithm (circles) are compared with the 
+vibrations measured after the neural network corrections 
+were implemented (squares). 
+We note that the linear method produces a solution with 
+larger number of correction moves and higher predicted 
+vibration levels. Comparison between the network predicted 
+vibration magnitudes and the actually measured values 
+shows good prediction capabilities of the neural network 
+model. 
+7. CONCLUSIONS 
+We developed a general, neural network-based approach to 
+the problem of helicopter rotor smoothing. The modular 
+software may be adopted to different aircraft types and to 
+changing test conditions. Also, as the smoothing data is 
+collected and archived, the neural network models may be 
+updated and improved. 
+We note that the AH-64 and UH-60 data shows large 
+variations in the vibration measurements between nominally 
+identical flights. Further study will be required to identify 
+and quantify the sources of these variations. However, the 
+linear approximation results in only about 20-30 percent 
+accuracy in the prediction of aircraft response to a single 
+correction move. We attempted to obtain estimates of non- 
+linear effects such as dependence of the vibration change on 
+the correction magnitude or cross coupling between 
+different types of corrections. These effects seem to be 
+negligible, i.e., smaller than the inaccuracy of the linear 
+approximation. 
+With the neural network function approximator, one can 
+construct an empirical model of the helicopter response 
+without any assumptions about the functional form of the 
+275 
+response. Such a model may include different sources of 
+experimental data (sensors, aircraft configuration, etc.), and 
+is capable of finding dependencies between the aircraft 
+parameters and the vibrational response that are not obvious 
+from parametric analysis. 
+In the initial applications of the neural network-based 
+system, we observed improvement in performance with 
+respect to both the traditional (linear least-squares) scheme. 
+In particular, the neural network generally produced 
+solutions that appear more accurate than those obtained by 
+the least-squares method, i.e., solutions with a smaller 
+number of moves and lower predicted vibrations. The neural 
+network system was demonstrated in a limited number of 
+verification tests, where the AH-64 helicopter was smoothed 
+using a smaller number of the adjustment moves than 
+recommended by the linear system. 
+It should be pointed out that the observed uncertainties in 
+the response coefficients and inaccuracies of the neural 
+network predictions indicate that the data utilized by these 
+models still does not fully describe the aircraft behavior. As 
+more helicopter data are acquired in the future stages of the 
+VMEP program, we should be able to improve the 
+prediction accuracy. 
+REFERENCES 
+[l] T. P. Goodman, “A Least-Squares Method for Computing 
+Balance Corrections,” Joumal of Engineering for Industry B 86, 
+273-279, August 1964. 
+[2] A. Rosen and R. Ben-Ari, “Mathematical Modeling of a 
+Helicopter Rotor Track and Balance: Theory,” Jounzal of Sound 
+and Vibration 200, 589-603, 1997. 
+[3] R. Ben-Ari and A. Rosen , “Mathematical Modeling of a 
+Helicopter Rotor Track and Balance: Results,” Joumal of Sound 
+and Vibration 200, 605-620, 1997. 
+[4] Howard J. Taitel, Kourosh Danai, and David Gauthier, 
+“Helicopter Track and Balance with Artificial Neural Nets,” 
+Transactions of the ASME 11 7,226-231, June 1995. 
+[5] Christopher M. Bishop, Neural Networks for Pattenz 
+Recognition, Oxford Clarendon Press, 1995. 
+Dariusz Wroblewski is a Senior 
+Principal Engineer at Orincon 
+Corporation, San Diego. He received 
+his Ph.D. in Electrical Engineering 
+from the University of Wisconsin- 
+Madison. His recent research interests 
+are in application of artificial 
+intelligence methods to data modeling 
+and analysis, including problems in 
+machine health monitoring, magnetic 
+confinement of high-temperature plasma, medical devices 
+automation, and bio-informatics. 
+Paul Grabill received his B.S. degree 
+in mechanical engineering in 1986 at 
+the University of Cincinnati. He 
+worked for 10 years at General Electric 
+Aircraft Engines as a dynamics 
+engineer where he was involved in gas 
+turbine vibration testing, engine 
+balancing, and system dynamic 
+analysis. He received his M.S. degree in 
+mechanical engineering in 1992 at the 
+University of Cincinnati where he was sponsored by the 
+NASA Health Monitoring Center and UC’s Structural 
+Dynamics Research Laboratory. He is currently employed at 
+[ntelligent Automation Corporation in San Diego where he 
+is developing advanced diagnostic and prognostic systems 
+for helicopters, gas turbines, aircraft, and ship systems. 
+John Berry is a US Army engineer in 
+aviation aeromechanics technology. He 
+received his Ph.D. degree in Aerospace 
+Engineering from the Georgia Institute 
+of Technology in 1990. He has lead 
+research efforts exposing the physics 
+of rotor-fuselage interacting 
+aerodynamics using wind tunnel and 
+computational techniques. He currently 
+serves as a senior engineer for the 
+Aviation and Missile Command Directorate of Aviation 
+Engineering supporting airworthiness and new technology 
+applications for Army Aviation. 
+Bob Branhof is a US Army engineer 
+in the Aviation Engineeiing 
+Directorate at the Aviation Missile 
+Command. He received his B.S. degree 
+in Engineering Mechanics in 1988 at 
+the University of Missouri, Rolla. He 
+has worked in 
+aeromechanicsldynamics and has led 
+the development and support of US 
+Army helicopter rotor smoothing, 
+drive train vibration, engine vibration monitoring and other 
+vibration related programs. He has also been responsible 
+for the vibration qualification of components installed on all 
+army aircraft. 
+ACKNOWLEDGMENTS 
+‘This work was supported by AEDCDOT Contract No. 
+F40600-98-C-0016. We are also grateful to CW5 Lem Grant 
+and the helicopter maintenance personnel at South 
+Carolina National Guard in Columbia, SC for their 
+continuing help and encouragement. 
+276 

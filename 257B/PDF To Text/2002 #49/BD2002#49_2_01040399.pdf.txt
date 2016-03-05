@@ -1,0 +1,460 @@
+Space-time Equalization with Smart Antenna and Hard Limiter Receiver
+Frank Althaus
+CTL ETHZ
+CH-8092 Zuerich
+Telephone: +41 1 632 6918
+Fax: +41 1 632 1209
+Email: althaus@nari.ee.ethz.ch
+Michael Kuhn
+Ascom Systec AR&T
+CH-5506 Maegenwil
+Telephone: +41 62 889 5248
+Fax: +41 62 889 5290
+Email: michael.kuhn@ascom.ch
+Armin Wittneben
+CTL ETHZ
+CH-8092 Zuerich
+Telephone: +41 1 632 3611
+Fax: +41 1 632 1209
+Email: wittneben@nari.ee.ethz.ch
+Abstract—Both, adaptive antenna arrays for ISI cancella-
+tion and non-linear hard limiter receivers are well known as
+key technologies for high data rate low-cost receivers [1][2].
+However, the combination of both technologies is a big chal-
+lenge since non-linear receivers only provide phase or fre-
+quency samples. The amplitude information, which is re-
+quired for the adaptation of the antenna array, is not acces-
+sible. Therefore, adaptive antenna arrays are most often ap-
+plied in combination with linear receivers.
+In this paper we present a new very low cost receiver which
+combines adaptive antenna arrays and hard limiter receivers.
+The training of the adaptive antenna array is performed on
+basis of the complex channel impulse response (CIR), which
+is estimated only by phase samples. The performance of this
+approach is shown by means of simulations using a simple
+hard decision device and Maximum Likelihood equalization.
+Three decoding structures are compared: Optimum combin-
+ing with hard decision, optimum combining with reduced state
+Viterbi equalizer and a single antenna receiver with full state
+Viterbi equalizer.
+I. INTRODUCTION
+Hard amplitude limiting receiver structures are known
+as very low cost receivers. Compared to linear receivers
+power consumption and hardware effort can be reduced
+immensely. Due to the amplitude limitation the dynamic
+range of those systems is minimized and no automatic gain
+control (AGC) circuit is required. However, channel equal-
+izing in digital domain is difficult for non-linear receivers
+since the amplitude information is not available. Thus,
+non-linear receivers are usually clearly outperformed by
+linear receivers, especially in severe frequency selective
+mobile communication channels. Smart antennas are known
+as low cost technology for intersymbol interference (ISI)
+cancellation in the analogue domain [2][3][4]. Up to now,
+the training of the adaptive antenna array (Combiner) is
+performed using linear receiver structures because an es-
+timate of the complex channel impulse response (CIR) is
+required.
+In this paper a method to calculate the combiner co-
+efficients on basis of phase samples is shown. Thus, a
+new receiver structure, namely combiner with cascaded
+phase detector, is able to compete even severe ISI situa-
+tions (Fig. 1). The hard limiter is inherently included be-
+cause equalization and channel estimation are based only
+on phase samples. The complex weighting coefficients
+of the adaptive antenna array are represented by ci with
+i = 1..NA where NA equals the number of antennas in the
+receiver. The receive signals are amplified (or damped),
+phase shifted and summed up in the analogue domain. Thus,
+only one receive chain is required. The resulting signal is
+filtered by a bandpass prior to phase detection and sam-
+pling. An equalizer can be cascaded to obtain the estimated
+information symbols α. In combination with a Viterbi de-
+coder a new class of space-time equalizers with different
+degrees of complexity can be deduced. The performance
+of these equalizers is shown by means of simulations.
+
+
+( )cr t ( )r t
+( )BPh t arg( ) EQ/D
+*
+1c
+
+*
+2c
+
+*
+N
+c Bandpass Phase
+Detector
+Sampler Equalizer
+Decision
+Combiner
+ 
+r t  r k ˆ
+
+Fig. 1. Receiver model
+II. SYSTEM MODEL
+Figure 2 shows a block diagram of the discrete system
+model. Phase modulation of the input symbols α, α[ν] ∈
+( )BPh k arg( ) EQ/D
+Bandpass Phase
+Detector
+Equalizer
+Decision
+TX X  
+n
+ H
+c
+
+Channel CombinerAWGNTransmitter
+s
+
+cr
+cr r
+ˆ
+
+
+
+r
+Fig. 2. Discrete system model
+0-7803-7467-3/02/$17.00 ©2002 IEEE. 525
+{−1, 1}, yields the transmit sequence s. The rows of the
+channel matrix X describe the NA multipath propagation
+channels from the transmit antenna to the receive antennas.
+The combined signal rc can be written as:
+rc = cH · (Xs+ n) (1)
+n is an additive symmetric white Gaussian noise (AWGN)
+component with two sided spectral power density N0. The
+resulting impulse response of channel matrix and combiner
+is:
+hTc = c
+H ·X (2)
+The received signal behind the bandpass filter hBP (k) is
+denoted r and φr is the phase of the received signal. The
+phase detector arg( · ) is assumed to provide a mod 2π
+distributed phase signal.
+Two types of decoders are investigated: a differential phase
+threshold detector, where the ν-th symbol is decided with
+ˆα[ν] = sign
+{
+φr[ν]− φr[ν − 1]
+}
+(3)
+and a Viterbi decoder which performs a Maximum Likeli-
+hood sequence estimation [7]:
+iˆ = arg{max
+i
+p( φr | d(i))}
+ˆα = α(i)
+(4)
+p( φr | d) is the conditional probability density function
+and d is the complex desired sequence.
+III. COMBINING
+In this paper we investigate optimum combining (OC)
+and examine the impact on the system performance in com-
+bination with the cascaded equalizer. OC maximizes the
+signal-to-interference-plus-noise ratio S/(I+N). The com-
+biner coefficients are given as:
+c =
+(
+XXH + Iσ2n
+)−1 ·X[:, kopt] (5)
+σ2n is the variance of the symmetric complex additive white
+Gaussian noise, I is the unity matrix and X[:, kopt] means
+the kopt column of the channel matrix. The parameter kopt
+is a synchronization parameter which selects the signal tap.
+All other taps are considered as interference and are sup-
+pressed.
+The combiner coefficient optimization requires an es-
+timate of the complex channel impulse matrix X for the
+adaptation of the antenna array. Since the channel im-
+pulse response is generally unknown in wireless transmis-
+sion systems it has to be estimated.
+IV. MAXIMUM LIKELIHOOD SEQUENCE ESTIMATION
+The Maximum Likelihood sequence estimation (MLSE)
+is performed using some idealized assumptions: The band-
+pass is supposed to be an ideal bandpass filter. This means
+the noise samples to be statistically independent and the
+phase errors to be caused by an AWGN component. Fur-
+thermore, the knowledge of the complex desired sequence
+d is assumed . Then, the probability density function in (4)
+can be factorized:
+max
+l
+p
+(
+φr
+∣∣∣d(l))
+= max
+l
+K∏
+k=1
+p
+(
+φr[k]
+∣∣∣d(l)[k])
+= max
+l
+K∏
+k=1
+p
+(−→
+∆φ(l)[k]
+∣∣∣|d(l)[k]|)
+(6)
+with the phase error
+−→
+∆φ(l)[k] = φr[k]− φ(l)d [k]. The prob-
+ability density p
+(
+∆φ(l)
+∣∣|d(l)|) is given by Pawula in [5]:
+p∆φ|ρ(∆φ|ρ) = exp (−ρ)2π +
+√
+ρ
+4π
+exp
+(−ρ sin2(∆φ))
+· cos(∆φ) · erfc (−√ρ cos(∆φ))
+(7)
+ρ =
+|d|2
+σ2n
+(8)
+With (6) and (7) the MLSE can be evaluated using the
+Viterbi algorithm [6].
+V. CHANNEL ESTIMATION
+Wireless LAN standards (e.g. HiperLAN) often apply a
+known training sequence at the beginning of a data burst
+for CIR estimation and synchronization. Non-linear hard
+limiter receivers can estimate the complex CIR on basis of
+phase samples of this training sequence as shown in [7]:
+The training sequence (TS) consists of M consecutive m-
+sequences. This leads to an M fold observation of the same
+desired phase sequence φd:
+φ(m)r = φd + φ
+(m)
+n , m = 1...M (9)
+A phasor average yields an estimate ˆφd. The associated
+amplitude sequence |d| is estimated based on the variance
+of the observed phase values. These estimates yield a first
+estimate ˆd1 of the complex desired sequence:
+ˆ
+d1 = | ˆd| · exp(j ˆφd) (10)
+A subspace approach yields an estimate ˆhc of the complex
+CIR:
+ˆhc = arg
+{
+min
+hc
+∣∣∣SBPhc − ˆd1∣∣∣2
+}
+(11)
+0-7803-7467-3/02/$17.00 ©2002 IEEE. 526
+SBP is the convolution matrix of the transmitted training
+sequence and the bandpass impulse response. The CIR es-
+timation procedure can easily be adapted to the NA an-
+tenna receiver by switching the antennas of the antenna
+array. Note, the training sequence must be transmitted NA
+times.
+For Viterbi decoding according to (4) the complex sequence
+d is required. A second, more precise estimate
+
+d 2 is given
+by:
+
+d 2 = SBP ˆhc (12)
+VI. RESULTS
+Three receiver structures are considered here. First, a
+one antenna phase detection receiver without combiner and
+with full state Viterbi decoder is examined. The number of
+states is determined by the overall system memory which
+is given by the memory of the bandpass, channel and trans-
+mitter. With the MLSE approach from (4) this is a quasi
+optimum decoder for the phase detection receiver.
+The second structure is a three antenna receiver (NA = 3)
+with combiner. Optimum combining is used to combat the
+ISI of the propagation channel. A differential phase detec-
+tor according to (3) is used for the decision of the symbols.
+However, this structure suffers from the ISI introduced by
+the bandpass filter which cannot be combated by the com-
+biner.
+Therefore, the third structure uses combiner and phase de-
+tection with Viterbi decoder to equalize this ISI. The num-
+ber of states is reduced compared to the first structure and
+this way the complexity is reduced.
+The performance of these receiver structures are exam-
+ined by bit error ratio (BER) simulations. The curves are
+shown over Eb/N0 which is energy per bit to noise power
+density. For the three antenna receivers this is the mean
+Eb/N0 of all branches. Here, MSK modulation and NA =
+3 antennas are investigated. (The Trellis representation of
+MSK can be found in [6].) The bandpass is a second order
+butterworth filter with B ·T = 0.4; B the one sided 3dB-
+bandwidth.
+First the performance for an exemplary channel matrix X
+X =
+
+ 1 0 11 −1 0
+0 1 −1
+
+
+is examined and compared with the performance of state-
+of-the-art decoders. For a single antenna differential phase
+detection (DPD) receiver all three channels are very criti-
+cal. Fig. 3 shows the simulation results for the DPD with
+Viterbi decoder and Euclidean metric (DPD+Viterbi) as
+described in [1]. Obviously, this receiver fails and also
+simpler structures without equalizer or with decision feed-
+back equalizer fail in these channels. The reason for that
+0 5 10 15 20
+10−4
+10−3
+10−2
+10−1
+100
+Eb / N0
+B
+ER
+DPD+Viterbi
+DPD+C
+PD+Viterbi
+PD+C+Viterbi
+Linear optimum
+Fig. 3. Performance of the proposed receivers with perfect CIR know-
+ledge.
+are high amplitude ¤uctuations caused by the propagation
+channel. The special choice of X allows a very good re-
+sult of the combiner combating the ISI. With cH = [1, 1, 1]
+the resulting impulse response equals an ideal propagation
+channel:
+hTc = c
+H ·X = [2, 0, 0] (13)
+The results in Fig. 3 are achieved for this combining vector
+which also implies a perfect channel estimate. As expected
+the DPD with combiner (DPD+C) achieves good perfor-
+mance. The single antenna receiver with full state Viterbi
+and phase detection (PD+Viterbi) achieves better perfor-
+mance: about 1.5dB at a BER of 10−3. Note, using 3 an-
+tennas would increase the performance due to the diversity
+gain. The gain of the reduced state Viterbi (PD+C+Viterbi)
+is again 1.5dB at a BER of 10−3. As a reference the per-
+formance of an optimum linear receiver with one antenna
+(Linear optimum) is also shown. It achieves a gain of about
+1.5dB compared to the best phase detection receiver.
+The impact of the nonlinear channel estimation (according
+to Section V) is shown in Fig. 4. The CIR estimates are
+performed for each antenna separately by switching the an-
+tennas. This means a 3 times longer training sequence (TS)
+than for the single antenna system. With the system mem-
+ory L the length of the training sequence (TS) in times of
+the symbol period is:
+NA ·M · 2L+1 (14)
+In the simulations here L = 4 and M = 5is used and the
+length of the TS results to 480 symbols. Since T-spaced
+sampling is used at the receiver the number of samples for
+the channel estimate is also 480 which means 160 samples
+per antenna. The results show a loss of only about 1dB
+and below for BER ≤ 10−3.
+Experiences have shown that the quality of the CIR esti-
+mate is essentially determined by the number of samples
+of the TS. So, with a higher sampling rate the performance
+0-7803-7467-3/02/$17.00 ©2002 IEEE. 527
+0 2 4 6 8 10 12 14 16
+10−4
+10−3
+10−2
+10−1
+100
+Eb / N0
+B
+ER
+DPD+C
+DPD+C, CIR est.
+PD+Vit
+PD+Vit, CIR est.
+PD+C+Vit
+PD+C+Vit, CIR est.
+Fig. 4. Performance of the proposed receivers with estimated CIR.
+of the receiver can be increased or otherwise the length of
+the TS can be reduced without giving up the performance.
+Finally, a more general channel model is used to examine
+the performance of the receiver structures with combiner.
+The taps of the channel impulse response are modeled as
+randomly generated complex numbers with Rayleigh dis-
+tributed amplitudes A and uniformly distributed phases φ.
+The channel length is chosen to have 3 taps. The delay
+spread DS is set to 0.5T . With the symbol period T the
+taps of the channel matrix are given:
+X[k, ν] = Ak,ν exp(jφk,ν)
+√
+exp
+(
+− ν
+DS/T
+)
+(15)
+Fig. 5 shows the mean BER of this channel model eval-
+uated for 200 channels at eachEb/N0. Again the combiner
+with Viterbi outperforms the simpler structure. The loss of
+the channel estimation compared to the BER with perfect
+channel knowledge is up to 2dB for BER ≤ 10−3. The
+performance of a linear optimum receiver and a differen-
+tial phase detection receiver are shown as references. Of
+course, compared to the complex optimum linear receiver
+the performance of any phase detection receiver must be
+worse. However, differential phase detection with antenna
+combiner is a very low cost receiver structure that pro-
+vides very useful capabilities also in severe ISI propaga-
+tion. Compared to common nonlinear receiver structures
+0 5 10 15 20 25
+10−4
+10−3
+10−2
+10−1
+100
+Eb / N0
+B
+ER
+DPD+Hard decision
+DPD+Viterbi
+PD+C+Viterbi
+PD+C+Viterbi, CIR est.
+DPD+C
+DPD+C, CIR est.
+Linear optimum
+Fig. 5. Performance of the proposed receivers for channel model with
+exponential power delay profile.
+with differential phase detection or limiter discriminator
+detection the coverage of the phase detector with combiner
+will be much higher. As shown in the plot the differential
+phase detector fails in these ISI channels. Also, with ad-
+ditional (full state) Viterbi equalizer only a small perfor-
+mance improvement can be achieved. However, the com-
+biner structures –in particular with reduced state Viterbi–
+outperform these common structures. Therefore, they could
+be an attractive alternative to common expensive linear re-
+ceivers.
+REFERENCES
+[1] J. P. Fonseka. Noncoherent detection with viterbi decoding for gmsk
+signals. IEE Proc.-Commun., 143(6):373–378, December 1996.
+[2] A. Wittneben and U. Dettmar. A low cost noncoherent receiver with
+adaptive antenna combining for high speed wireless lans. Vehicular
+Technology Conference, 1997.
+[3] M. Kuhn. Smart Antennas as Key Technology for ISI-Cancellation
+in Low-Cost/Low-Power Receivers. PHD Thesis, Universitaet des
+Saarlandes, 2002.
+[4] M. Kuhn and A. Wittneben. Very low complexity space-time de-
+cision feedback equalization of intersymbol interference on severe
+frequency-selective fading channels. Vehicular Technology Confer-
+ence Spring 2002 (in press), 2002.
+[5] R. F. Pawula, S. O. Rice, and J. H. Roberts. Distribution of the phase
+angle between two vectors perturbed by gaussian noise. IEEE Trans-
+actions on Communications, 30(8):1828–1841, August 1982.
+[6] J. Anderson, T. Aulin, and C.-E. Sundberg. Digital Phase Modula-
+tion. Plenum Press, New York, 1986.
+[7] Frank Althaus. A New Low Cost Approach to Wireless Communica-
+tion Over Severe Multipath Fading Channels. Dissertation thesis, in
+press, Universitaet des Saarlandes, 2002.
+0-7803-7467-3/02/$17.00 ©2002 IEEE. 528

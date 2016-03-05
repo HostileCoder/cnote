@@ -1,0 +1,248 @@
+Platform and mode independent SAR data processor  
+based on the Extended Chirp Scaling Algorithm 
+Jesús Sanz, Pau Prats, Jordi J. Mallorqui 
+Dept. of Signal Theory and Communications  
+Universitat Politècnica de Catalunya (UPC) 
+Barcelona, Spain 
+jsanz@tsc.upc.es 
+Abstract— This paper describes a SAR processor implementation 
+being able to process data acquired in StripMap, ScanSAR or 
+SpotLight, from airborne and space borne platforms. Together 
+with the Radar imaging techniques, the processing software has 
+been developed to be able to dynamically adapt its performance 
+to the memory and CPU resources of the computer running it 
+and automatically calculates the optimum number of blocks used 
+to process big images. Maximum portability has also been one of 
+the major tasks and user interface has enhanced capabilities. 
+Extended Markup Language (XML) standard has been adopted 
+for parameter, setup and report files to simplify the software 
+toolkit manual and, at the same time, to improve the user 
+experience. The aim of this flexible core is to help design 
+processors for future systems where, for example, transmitter 
+and receiver are not in the same platform and thus, can follow 
+different paths. The processing kernel and the specific modules 
+for each operating mode and platform have been validated using 
+raw data from ERS-1, RADARSAT and E-SAR, while in order to 
+validate SpotLight mode, simulated data has been used for both 
+air- and space borne platforms. 
+Keywords-component; Radar, SAR, processor, StripMap, 
+ScanSAR, SpotLight, XML. 
+I. INTRODUCTION 
+The most recent and advanced synthetic aperture sensors 
+are able to work in different operating modes and are currently 
+being installed in an increasing variety of platforms. In order to 
+be ready to process data generated not only by these new 
+sensors but by the incoming ones, it is important to identify the 
+common aspects of the algorithms used to process the raw data 
+and build a kernel shared by all synthetic aperture imaging 
+processors. Some clear examples of these new modes can be 
+found on the Advanced Synthetic Aperture Radar (ASAR) 
+installed on ESA Envisat satellite and flexible processor will be 
+crucial for the success of incoming missions such as the 
+Canadian Space Agency RadarSat-2 satellite, planned to be 
+launched on 2004. Moreover, SAR systems with bistatic 
+geometry, where transmitter and receiver are in different 
+positions, are being studied and simulated, such as the bistatic 
+cartwheel/ASAR combination [10]. Another very important 
+field of research will be the processing of SAR data acquired 
+with neither non canonical trajectories (free-flight) nor beam 
+pointing modes. For all these reasons, it is important to defined 
+a software architecture for SAR processing capable of 
+transforming data acquired in any of the present operating 
+modes, such as StripMap, ScanSAR and also Spotlight, but at 
+the same time, being able to integrate in the near-future 
+incoming SAR operating modes, platform trajectories and 
+system geometries, while keeping a common core, user 
+interface and ease to use.  From the optimization point of view, 
+the open software architecture has to be CPU and memory 
+efficient independently of the operating system and machine 
+resources.  This paper describes the characteristics of the 
+software architecture that has been designed and implemented 
+to properly process raw data acquired from different kind of 
+sensors and operating modes.  First, SAR related processor 
+characteristics will be described, while in the second part of the 
+paper, software specifications will be described in detail. 
+Finally some results and conclusions will be presented in order 
+to validate the design architecture. 
+II. SAR PROCESSING SPECIFICATIONS
+A. Simulated data vs real data 
+One of the major problems that must be faced when 
+developing a new algorithm is its validation. This task must be 
+performed independently of the algorithm and, if possible, in 
+an automatic and quantitative way.   
+Figure 1. Raw data provider for processing and validating algorithms.
+0-7803-7930-6/$17.00 (C) 2003 IEEE
+0-7803-7929-2/03/$17.00 (C) 2003 IEEE 4086
+Therefore, in SAR processing, simple ideal scatterers (such 
+as, for example, simulated corner reflectors) form the first step 
+in the validation process. For this reason, the software 
+architecture has to be able, not only to properly process real 
+data coming from air- or space borne sensors, but also from 
+simulated data. That is, our architecture has to include 
+complexity increasing simulators to verify the processing 
+kernel. First of all, as shown in Figure 1, processors are 
+validated with a single corner reflector, then multiple reflectors 
+are simulated and processed and finally we test some 3D 
+simulated scenes. Once the algorithm being currently designed 
+or improved has passed all the validation tests for simulated 
+data, real data can be processed and resolution is then studied 
+to verify the whole transformation operation.  We can state that 
+there must be a strong relationship between the raw data 
+provider (real or simulated) and the validation routines.   
+B. Processing kernel and simulator  
+At this moment, the SAR processor can work with data 
+from three operating modes: StripMap, ScanSAR and 
+Spotlight. On the one hand, it uses the Extended Chirp Scaling 
+Algorithm for StripMap ([1]-[3]) and ScanSAR ([4]-[8]), and 
+the Frequency Scaling Algorithm for SpotLight ([10]). On the 
+other hand, simulation can be performed with arbitrary 
+platform trajectories, yaw steering, arbitrary antenna pointing, 
+and corner reflectors, simple surface reflectors, three-
+dimensional DEM and meshes can be used to generate raw data 
+in user defined polarizations.  The simulator is now being 
+adapted to the bistatic mode.  
+Some specific algorithm parts were developed depending 
+on the type of platform and operating mode being used to 
+acquire/simulate raw data: for example, motion compensation 
+in the case of airborne, Doppler centroid and Doppler rate 
+estimation, non-coherent multilooking for ScanSAR, 
+interferogram generation and image registration when pairs of 
+raw data of the same scene are available, etc. The increasing 
+complexity of the whole platform and mode independent 
+processor has been reduced in a great amount by using a 
+different type of programming structure. That is, SAR 
+processing algorithms for different types of environments have 
+been divided into common blocks. As can be shown in Fig. 2, 
+the complete structure of the ECS algorithm for airborne 
+processing with motion compensation and presuming is made 
+of several processing units shared by different algorithms. 
+Depending on the computer environment and system resources 
+(CPU, memory and threading-capabilities) the structure of the 
+algorithm is created after reading setup task files and can be 
+dynamically modified during execution time allowing optimum 
+results in terms of processing speed, something extremely 
+important when testing and developing new algorithms.  
+III. SOFTWARE ARCHITECTURE SPECIFICATIONS
+Based on an open software architecture where different 
+algorithms reuse processing units and generate in real time 
+their own structures, several improvements regarding 
+computer-algorithm interface have been done and validated. 
+ (a) The Extended Markup Language (XML), which is 
+becoming the standard format for parameter files, has been 
+adopted for all input and configurations files, and thus it is a 
+XML compatible application. Furthermore, an error detection 
+and correction mechanism for task parameters has been 
+implemented. 
+(b) Ability to process big blocks of raw data (order of 
+GB) and at the same time the possibility to divide raw data in 
+blocks and each block in sub-blocks to allow the application to 
+be used in computers without great memory resources. 
+(c) Portability: multi-platform compatible source code. 
+The implemented software is ready to be executed under 
+Win32, Unix 32/64 bits and Linux 32 bits machines without 
+any modification in source code. For Win32 binaries, a visual 
+graphical interface has been added. 
+ (d) Platform adaptive capabilities. For example, the 
+application is able to accept new FFT algorithms and integrate 
+them in its source, for example, arbitrary-radix FFTs. The 
+algorithm can automatically select the optimum FFT 
+processing unit and the block size in order to find an optimal 
+processing time based, for example, on memory available 
+resources and statistical extraction of FFT execution times. 
+(e) Remote control capabilities by means of being able to 
+read progress messages without opening the terminal and 
+process multiple images sequentially. The use of temporary 
+files is avoided unless strictly necessary and disk reading and 
+disk writing strategies have been carefully studied by the 
+processor to reduce data-accessing times. 
+(f) C++ programming language is used to add new 
+features to the applications. Once a processing unit is ready to 
+be inserted, compiled machine code is disassembled in a few 
+Figure 2. Example of ECS implementation for airborne SAR processing.
+0-7803-7930-6/$17.00 (C) 2003 IEEE
+0-7803-7929-2/03/$17.00 (C) 2003 IEEE 4087
+operating systems to verify optimum register and memory 
+access and if necessary, C++ source code is modified, but in 
+any case, assembly language is used as absolute portability is 
+one of the main goals.   
+Adding new functionalities to the current processor is very 
+simple and requires only a few lines of non SAR code. One 
+could say that there are some high-level programming 
+environments such as Matlab or ENVI-IDL that are specifically 
+designed for prototype test purposes. However, this C++ 
+architecture ensures optimal CPU time and memory resources 
+use while eliminates the task of converting from a high-level 
+language to C/C++ real-world. This allows SAR processing 
+researchers to focus only on the processing algorithms and not 
+on its final computer containers.  
+IV. RESULTS 
+  StripMap operating mode SAR processing has been 
+validated with real data from ERS and E-SAR sensors in 
+conjunction to the implemented simulators (corner reflectors, 
+simple plane surfaces and DEM) for air- and space borne 
+system geometries. ScanSAR is being also validated with the 
+use of the simulator and by modifying ERS data (Fig. 3) prior 
+reading directly RADARSAT raw data. Finally, SpotLight 
+mode has been validated through the simulator and by 
+modifying E-SAR data. Once available, Envisat data will be 
+used to validate processor implementation on different 
+operating modes. 
+V. CONCLUSIONS
+The current application is able to process raw SAR data 
+from an integrated simulator or from real sensors 
+independently if acquisition was in StripMap, ScanSAR or 
+SpotLight, by an airplane or a satellite. Further steps will be the 
+quantitative validation of the implemented processing 
+algorithms and the automatic validation for simulated raw data. 
+Once this is achieved, arbitrary trajectory during acquisition 
+time as well as arbitrary antenna pointing will begin to be 
+studied and the software architecture already implemented will 
+surely help us during the next challenge: simulation and 
+processing of bistatic SAR systems. 
+ACKNOWLEDGMENT
+This work has been financed by the Spanish CICYT under 
+grant TIC2002-04451-C02-01 and by the Catalan AGAUR 
+under a PhD. scholarship for the formation of research 
+personnel (2003FI-00680). 
+REFERENCES
+[1] A. Moreira.; J. Mittermayer.; R. Scheiber, “Extended chirp scaling 
+algorithm for air- and spaceborne SAR data processing in stripmap and 
+ScanSAR imaging modes”, Geoscience and Remote Sensing, IEEE 
+Transactions on , Volume: 34 Issue: 5 , pp. 1123 -1136, Sep 1996. 
+[2] R. Keith Raney, H. Runge, R. Bamler, I. G. Cumming, and F. H. Wong, 
+“Precision SAR Processing Using Chirp Scaling”, IEEE. Trans. Geosci. 
+Remote Sensing, vol. 32, No.4, pp.786-799,  Jul 1994,. 
+[3] A. Morerira and Y. Huang, “Airborne SAR Processing of Highly 
+Squinted Data Using a Chirp Scaling Approach with Integrated Motion 
+Compensation”, IEEE. Trans. Geosci. Remote Sensing, vol. 32, No.5, 
+pp.1029-1040,  Sep 1994. 
+[4] A. Monti Guarnieri and C. Prati, “ScanSAR Focusing and 
+Interferometry”, IEEE. Trans. Geosci. Remote Sensing, vol. 34, No.4, 
+pp.1029-1037,  Jul 1996. 
+[5] A. Monti Guarnieri and P. Guccione, “Optimal ‘Focusing’ for Low 
+Resolution ScanSAR”, IEEE. Trans. Geosci. Remote Sensing, vol. 39, 
+No.3, pp.479-491,  Mar 2001. 
+[6] M. Y. Jin, “Optimal Range and Doppler Centroid Estimnation for 
+ScanSAR System”, IEEE. Trans. Geosci. Remote Sensing, vol. 34, 
+No.2, pp 479-488,  Mar 1996. 
+[7] J. Holzner and R. Bamler, “Burst-Mode and ScanSAR Interferometry”, 
+IEEE. Trans. Geosci. Remote Sensing, vol. 40, No.9, pp.1917-1934,  
+Sep 2002. 
+[8] R. Bamler and M. Eineder, “ScanSAR Processing Using Standard High 
+Precision SAR Algorithms”, IEEE. Trans. Geosci. Remote Sensing, vol. 
+34, No.1, pp 212-218,  Jan 1996. 
+[9] J. Mittermayer; A. Moreira; M. Wendler, “Interferometric Performance 
+Estimation for the Interferometric Cartwheel in Combination with a 
+Transmitting SAR-Satellite”, Processing Geoscience and Remote 
+Sensing Symposium, 2000. Proceedings. IGARSS 2001. IEEE 2001
+International, pp. 2955-2957. 
+[10] J. Mittermayer; A. Moreira.;, “Spotlight SAR processing using the 
+extended chirp scaling algorithm”, Geoscience and Remote Sensing, 
+1997. IGARSS '97. 'Remote Sensing - A Scientific Vision for 
+Sustainable Development'., 1997 IEEE International , Volume: 4 , pp. 
+2021 -2023, Aug 1997. 
+Figure 3. E-SAR image processed with presumming and motion compensation
+(top). ERS-2 Barcelona International Airport image processed in StripMap 
+(left) and in simulated ScanSAR (right) . 
+0-7803-7930-6/$17.00 (C) 2003 IEEE
+0-7803-7929-2/03/$17.00 (C) 2003 IEEE 4088

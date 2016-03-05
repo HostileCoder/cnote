@@ -1,0 +1,711 @@
+Target Detection Enhancements using In-Situ Environment 
+Adaptive Clutter Modeling1 
+Michael Datum 
+Engineering Technology Center 
+Mystic, CT 06355 
+dlerro@etc.atinc.com 
+Donald Lerro 
+Engineering Technology Center 
+Mystic, CT 06355 
+dlerro@etc.atinc.com 
+Fred McMullen 
+Naval Undersea Warfare Center, Division Newport 
+Surface Undersea Warfare Department 
+Newport, RI 02841-1708 
+mcmullenfe@nuwc.npt.navy.mil 
+860-572-9600 
+860-572-9600 
+401-832- 8670 
+Abstract-The significant challenge in shallow water active 
+sonar is to provide reliable target detection and 
+classification while maintaining a reasonable false alert rate. 
+When reverberation appears target-like due to persistence in 
+location from ping to ping and exhibits a coherent intensity, 
+an extremely high false alert rate occurs. This phenomenon 
+occurs frequently in littorals where boundary interaction and 
+bathymetry effects dominate the reverberation profile. In 
+current systems the assumptions of the noise statistics are 
+based upon Gaussian derived processes. The distribution of 
+the envelope at the output of the matched filter is assumed 
+to be Rayleigh. In conditions of high clutter the distribution 
+deviates significantly from Rayleigh, where the tail of the 
+density function tends to be significantly higher than the 
+theoretical noise assumption. These conditions can be 
+predicted and certainly can be measured by estimating the 
+distribution of data at the detector output to adapt the 
+detection processing based upon changes sensed in the 
+background distribution. Performed in a spatiallrange 
+dependent manner environmental sensing can greatly reduce 
+the clutter on a display and aid the automated detection 
+process. A target detection technique based on the 
+Interacting Multiple Model estimation algorithm is 
+presented to exploit the consistency of position and motion 
+information in conjunction with accurate models for target 
+and clutter amplitudes observed over multiple pings to form 
+a detection decision. The density and nature of the 
+amplitude distribution for clutter, which is highly dependent 
+upon the environment, is shown to dramatically affect 
+detection performance. Performance improvements can be 
+obtained by adapting the statistical model for reverberation 
+based upon localized in-situ measurements to reduce the 
+adverse effects of high amplitude clutter on multiple ping 
+0-7803-6599-2/01/$10.00 0 2001 IEEE 
+detection and classification. Using this knowledge an 
+adaptive sequential likelihood ratio test that minimizes the 
+decision time and improves detection performance under a 
+vast set of environmental conditions is developed and 
+demonstrated using collected sea test data. 
+TABLE OF CONTENTS 
+1. ~ O D U C T I O N  
+2. ENVIRONMENTALLY ADAPTIVE DETECTION 
+3. 
+4. MULTIPLE PING DETECTION PERFORMANCE 
+AND TRACKING 
+TARGET PARAMETER ESTIMATION WITH THE lhfM 
+ALGORITHM 
+5. CONCLUSIONS 
+1. INTRODUCTION 
+In current surface ship active sonar signal and information 
+processing systems, the design approach is based upon 
+obtaining the best average performance in all environments. 
+In simple terms, each processing algorithm has parameter 
+settings that have been chosen so that they will work 
+sufficiently well under all conditions in all oceans; i.e., deep 
+and shallow water, all times of year, etc. Therefore, the best 
+performance under specific environmental conditions is 
+rarely obtained. The objective is to reduce false alerts in 
+high amplitude clutter environments and provide reliable 
+low signal to interference ratio detection in quiet 
+environments for lowho motion contacts. It is shown that 
+improved detection performance can be achieved by 
+adapting the amplitude clutter distribution based upon 
+observations of amplitude data obtained at the output of the 
+4-1757 
+matched filter within localized spatial regions of each ping 
+of data. By estimating the amplitude distribution parameters 
+of the regional ping data an estimated clutter amplitude 
+distribution will be used in the detector. 
+This paper presents an environmentally adaptive multiple 
+ping detection algorithm and provides performance results 
+from data collected in varying environmental conditions. 
+The detection adaptation based upon clutter amplitude 
+sensing is described in Section II. Section III provides 
+details of' the Interacting Multiple Model (IMM) detection 
+and tracking algorithm, and the performance of this adaptive 
+algorithm is compared with a current non-adaptive, 
+automated detection and tracking (ADT) algorithm in 
+Section W .  Conclusions and conjectures about future 
+improvements are contained in Section V. 
+2. E N W S 0 " T A L L Y  ADAPTIVE IMM DETECTION AND 
+TRACKING 
+Conventional implementations of the multiple ping 
+detection and tracking algorithms do not adapt the detector 
+based upon the observed clutter conditions, necessitating a 
+compromise between preventing excessive false alerts in 
+high clutter and permitting targets with low signal to 
+interference ratio (SIR) to be detected. An algorithm is 
+presented to adaptively choose the parameters of the 
+probability density function used to model the interfering 
+background amplitude so as to match the current clutter 
+conditions within a localized region of range and bearing, 
+resulting in improved detection performance for the specific 
+operating environment. The objective is to modify the 
+amplitude models in the detector so that low SNR target 
+detection performance is obtained in quiet, low amplitude 
+low density clutter (well behaved reverberation or noise 
+limited environments) and a high false alert rate is reduced 
+in high amplitude dense clutter environments (highly 
+nonstationary reverberation backgrounds). 
+The current non-adaptive detection and tracking algorithm 
+makes a static assumption of the amplitude probability 
+distribution. During performance evaluation of previous 
+trackers, it was observed that the amplitude clutter 
+probability density varies significantly with environmental 
+condition. In making one robust choice of clutter model for 
+detection, a compromise was struck between minimizing 
+false alerts in high-clutter conditions and maximizing 
+detection probability of low SIR targets. It was obvious that 
+varying the noise pdf assumption, used in both the tracker 
+and detector, with environmental conditions could result in 
+both lower false alert rates in high clutter to noise ratio 
+(CNR) conditions and higher detection probabilities (or 
+equivalently, more rapid detection) in low CNR conditions. 
+This section outlines the technique used to adapt the 
+amplitude noise probability density function, and hence the 
+amplitude log-likelihood function, to local changes in clutter 
+density. 
+Modelsfor Track Residual and Amplihrle Information 
+The data input to the tracker is assunned to be processed 
+sonar echos from multiple discrete azimuthal bearing 
+angles, olr beams. The tracker is updated once per ping 
+cycle, which is defined as the time between sonar pulse 
+transmissions. Within a ping cycle, samples are available 
+from each beam, with each beam-time sample representing a 
+unique bearing-range position relative to the receiver. 
+The acaiustic data for each beam is match-filtered 
+(correlated with the transmitted signal). then normalized. In 
+addition, the unnormalized data at each time sample in a 
+ping cycle (corresponding to a discrete range) is interpolated 
+across beams to produce bearing estimates with higher 
+resolution than the beam spacing (but still limited to one 
+estimate for each discrete beam and range). Data for which 
+the normalized amplitude exceeds a threshold and which is 
+proximal in range and bearing is grouped into clusters. The 
+bearing ,and range of each cluster is formed from an 
+amplitude weighted mean of the range and bearing of all 
+data samples in the cluster, and the amplitude is taken as the 
+maximum amplitude in the cluster. We will not describe 
+details about the system in this paper, but will simply define 
+the assumed model of the data. 
+We mlodel the complex beam output data, 
+B(k)  E {Bl (k), Bo (k)}, at time index k, as 
+B, (k) = ~ ( k )  + rt(k) , for the target present 
+Bo (k) = ~ ( k )  + n(k) , for no target 
+where s ( k )  is the target, ~ ( k )  is the clutter, and n(k) is 
+the ambient noise, all of which are assimed to be normally 
+distributed complex random processes with mean zero and 
+variances os , oc , and o,,, , respectively. 2 2  2 
+Prior to normalization, the magnitude of the complex data is 
+taken. The normalizer is here modeled as dividing each time 
+sample b y  the mean of the magnitude of the ambient noise, 
+so that thle normalized data is given by 
+The problabilistic model of the normalized amplitude data 
+will be described in more detail in the next section. 
+The range, r (k )  , and bearing, b(k) , cif each cluster passed 
+to the tracker is assumed to be of the form 
+4-1758 
+where qn,e(k) and b,,,,,(k) are the actual range and 
+bearing positions, and rHojse (k) and b,,,,, (k) are the range 
+and bearing position measurement noise, assumed to be 
+independent and normally distributed with mean zero and 
+variances or and ob2 , respectively. The tracker converts 
+r ( k )  and b(k)  into Cartesian coordinates, which are used 
+to form the measurement vector, z ( k )  , 
+2 
+where 4 (k) and q (k) represent the measured position in 
+Cartesian coordinates, having measurement noise ]v5 (k) 
+and ws (k) , respectively. The measurement noise will here 
+be assumed to be normally distributed with zero mean and 
+covariance matrix R. Note that the conversion results in the 
+measurement noise being, in general, non-zero mean and 
+correlated. This effect is accounted for in the tracker, but 
+will not be discussed here. For details of the converted 
+measurement correction, see reference [I]. These cluster 
+measurements are only used by the tracker when the 
+amplitude of the cluster exceeds an input threshold, z . 
+Zmproved Models for the Target and CZutter Amplitude 
+Feature 
+The following probabilistic models of the amplitude data are 
+assumed to be available: 
+p o  (a) = pdf of the amplitude if it is due to noise only 
+p1 (a) = pdf of the amplitude if it originated from a target, 
+with the latter parameterized by the expected minimum 
+detectable SNR of the target returns, d. In the ADT, 
+measurement amplitude was modeled as Rayleigh 
+distributed: 
+a 2 0  
+1 a= 
+for noise only (after constant false alarm rate - CFAR noise 
+normalization) and target, respectively, where the - t q  
+results from the normalizer, as described in the previous 
+section. This model assumes no clutter is present. 
+2 
+n 
+In the presence of clutter, an improved model of clutter 
+background interference amplitude is the Rayleigh mixture 
+density [2], 
+where a is the mixture probability and o? is the power in 
+the ith component. This allows for a probabilistic 
+combination of two clutter density components in the 
+model. It will be assumed that 0: = 1, and that 
+022 = 1 + C N R ,  where CNR is the clutter-to-noise power 
+ratio. 
+When the full signal-processed data set is thresholded and 
+clustered to provide a set of measurements for tracking, the 
+target detection probability is 
+(7) 
+and the false alarm probability 
+The corresponding pdf s of the amplitude of a measurement, 
+which by the validation requirement must have exceeded the 
+threshold, are 
+1 
+p i ( a )  = --po(a) a 2 z 
+PFA 
+(9) 
+1 
+p ;  (a) = --pl(a) a 2 z (10) 
+The target to clutter amplitude likelihood ratio, defined as 
+4-1759 
+will be used in the tracker and detector. 
+Models .for the Target and Clutter 
+Measurements 
+(1 1) 
+Track Residual 
+Define the predicted measurement from the tracker as 
+:(k I k -- 1) , where the notation (k I k - 1) will, 
+throughout this report, be used to indicate that this is the 
+prediction for time k given the previous value from time k- 1. 
+The pdf of the measurements resulting from the target will 
+then be defined as jointly normally distributed with mean 
+?(k I k --I) and covariance matrix S(k). Define the 
+residual (or innovation) as the vector difference 
+~ ( k )  = ~ ( k )  - ?(k I k - 1) (14) 
+The joint pdf of the residual is then normally distributed 
+with zero mean and covariance matrix S ( k ) ,  i.e. 
+N[v(k);O, S(k)]. The validation region of the track gate 
+is defined as the elliptical region centered on the 
+measurement prediction for which the target measurement 
+(given the above assumption of a normally distributed target 
+position) has a probability of PG of being within the gate. 
+The tracker produces the estimates :(k 1 k - 1) and S ( k )  , 
+so that the only measurements that are used are those 
+satisfying the inequality 
+[z(k) - ;(k(k - l ) r s - ' (k ) [ z (k )  - i?(klk -I)] I y (15) 
+where y is the gate sue  parameter, defined as the value for 
+which the probability of being in the gate is PG. Thus the 
+joint pdf of vector v ( k )  when target is present is defined as 
+p(v(k) I targe t )  = pGIN[v(k),O,S(k)] (16) 
+When no target is present, it is assumed that the 
+measurement is uniformly distributed in the track gate 
+where V is the track gate area (or volume for higher 
+dimension z), given by 
+n, is the dimension of the measurement vector, and c,~: is 
+the volume of a unit hypersphere of dimension n,,  e.g. 
+3. TARGET PARAMETER ESTIMATION WITH THE IMM 
+ALGORITHM 
+A recursive algorithm is presented in this section, which 
+utilizes multiple target motion models, each with a 
+probabilistic data association filter using amplitude 
+information (PDAFAI) estimator [3]. The probabilistic data 
+association filter (PDAF) estimator is a Kalman tracker in 
+which multiple measurements near the predicted track 
+position are utilized by the tracktx, each associated 
+according to it's probability of being the target 
+measurement. The PDAFAI estimator is a PDAF estimator 
+that mak;es use of the amplitude information of each 
+measurement [ 11. 
+The interacting multiple model (IMM) [3] is a technique in 
+which miiltiple trackers are evaluated !simultaneously, each 
+with a different target motion assumption, with the results of 
+all assumed models combined probabilistically to produce a 
+single estimate. In this paper, the IMM is implemented with 
+PDAFAI trackers used for each model, as described in 
+[11,[41 and [51. 
+The detector makes a targetlno-target decision using the 
+position information fiom the tracker, as well as the target 
+strength information, via the amplitude log-likelihood 
+function defined in the previous section. Utilizing both the 
+consistent strength (regularity in a probabilistic sense) of the 
+target returns provided by the single observation detector, 
+and consistency in target motion (again in a probabilistic 
+sense) improves detection of a target track with a small 
+number of measurements and enhances discrimination 
+against fallse tracks. 
+To summarize, the estimator consists of the IMM 
+configuration with 
+(i) PDAFAI estimation modules matched to each 
+target motion model; 
+(ii) ;a probability evaluator for each model, which uses 
+the model likelihood function that incorporates 
+the amplitude information, detailed below, and 
+the model transition probabilities; 
+(iii) an estimate mixer at the filter inputs; 
+(iv) an estimate combiner at the output of the filters. 
+The Markov chain that predicts the transitions among the 
+target maldels (model switching) has transition probabilities, 
+i.e. the probability that the target is closest to model t at time 
+k given that it was closest to model s at time k-1, 
+4-1760 
+where Mt(k)  indicates model t at time k. The transition 
+probabilities are estimator design parameters. 
+Target Motion Models 
+In practice, two of the most common forms of target motion 
+in the Cartesian plane are a target that moves with constant 
+course and speed and a target that undergoes a constant 
+radius turn. In state estimation tracking, a constant course 
+and speed target can be tracked very accurately. Tracking a 
+maneuvering target is more difficult since the maneuver 
+must be detected and a filter reasonably matched to the 
+motion must be used to gain accuracy. The IMM approach 
+uses a finite set of models to handle a wide range of target 
+dynamics. The following target motion models will be used 
+to perform track formation and track maintenance. 
+Define the state vector of the target, x(k), as including 
+both the position and velocity components in both Cartesian 
+coordinate dimensions, 5 (k) and q (k) , 
+x(k) = 
+The target motion models in Cartesian coordinates with 
+sampling period T are, in general form, defined by the state 
+equation 
+where 
+[l T 0 01 
+is the state transition matrix, and 
+is a zero-mean white noise sequence in the 5 and q 
+coordinates used to model uncertain accelerations. The 
+variations in velocity are modeled as piecewise constant 
+zero-mean white noise accelerations, thus the noise gain is 
+I "  51 
+MODELS I ,  2: White Noise Acceleration Models 
+M' is a second order kinematic model (with position and 
+velocity components) in each of the two Cartesian 
+coordinates. Assume the variances of v,(k) and v,(k) , 
+denoted as 0;: (k) and 0; (k) , respectively, are defined 
+for M' as 
+A "small" q1 yields a "nearly constant velocity" motion. 
+Model M is applicable for tracking targets moving at very 
+close to constant course and speed and, when used in 
+conjunction with MO , will provide a means of performing 
+target track detection or track formation. M 2  has the 
+same state equation as M with higher level of process 
+noise 
+1 
+1 
+Model M 2 ,  using a higher level of white noise 
+1 acceleration than M , allows for target acceleration and is 
+applicable to tracking maneuvering targets. 
+MODEL 3: The "No Target" Model 
+Model M 3  has the same state equations and noise 
+assumptions as M ' .  The difference is in the PDAFAI 
+estimation using this target model. This model assumes the 
+probability of obtaining a target measurement is zero, hence 
+the estimator is an open loop prediction with no 
+measurement update stage. The "no target" model 
+likelihood function to be described in Equation 5 1 is critical 
+to the performance of the detector since the likelihood 
+h c t i o n  is used to assess noise only track quality for 
+dismissing erratic tracks. 
+Summary of the Basic PDAFAI 
+The predicted state estimate at time k given the previous 
+state estimate, x(k - 1 1 k - 1) , is 
+.?(klk - 1) = Fi(k  - 1 k - 1) (27) 
+4-1761 
+which is a linear prediction and has associated covariance 
+P(klk - 1) = FP(k - 1 k - l)F'+Q 
+the predicted measurement is given by 
+i (klk - 1) = H?(k/k - 1) 
+where H is the measurement matrix, 
+H=[' '1 
+0 0 1 0  
+The measurement covariance matrix is 
+S ( k )  = HP(k/k - l)HT + R 
+and the filter gain is 
+W ( k )  = P(k  I k-l)H T S -1 ( k ) +  R 
+As described above, a validation region centered around the 
+predicted' measurement is set up to select the set of 
+measurements to be associated probabilistically to the 
+target. The validation region is 
+where y determines the size of the validation region. The 
+number of measurements in the gate at time k is m(k)  . The 
+set of validated measurements which exceed the detection 
+threshold at time k are used to update the state estimate. 
+The updated state is 
+2(kjk)= 2(klk - 1)+ W ( k ) v ( k )  (34) 
+and the updated covariance is 
+P(klk) = P(klk - 1) - (1- &)W(k)S(k)WT(k)  + F ( k )  
+(35) 
+where 
+is a measurement dependent term, called the "spread of the 
+innovations", and 
+nl(k)  
+v(k) = P,Vi (k) (37) 
+i = l  
+is the combined innovation formed from all the validated 
+measurements. The innovation or residual associated with 
+the i" measurement in the gate is 
+V i ( k )  = q ( k )  - i(klk - 11) 
+The association probabilities are given by 
+c e; i = 1, ..., m(k) 
+i = O  
+(39) 
+where Po is the probability that none of the measurements 
+are correct, The term that incorporates the residual 
+information is 
+J v ,  (k ) 'S (k ) - ' v , (k )  
+(40) 
+and 
+The Steps of the IMMEstimation Algorithm 
+The steps of the Ih4M algorithm with r models are 
+performed as follows: 
+A. Interaction ( j  = 1, ..., r )  : Initial estimate and 
+covarianc:e for filter j (for the current update): 
+r 
+io'@ -Ilk - 1) = C i i ( k  -Ilk - l)p+(k -Ilk - 1) 
+i=l  
+1 N k )  C P , v , ( k ) v , ? ( k )  - v ( k ) v T ( k )  W T ( k )  i=l 
+4-1762 
+r 
+pO-'(k-llk-l)= & l + ( k - l I k - l ) .  
+( p i  ( k  - Ilk - 1) + [ i ' ( k  - l/k - 1) - 
+iOJ ( k  - Ilk - l)][ii ( k  - l /k - 1) - 
+i o j  ( k  - Ilk - l)]' 1 
+i=l 
+(43) 
+B. Mode-conditioned filtering (j = 1, ..., Y)  : The filter 
+module matched to M j ( k )  (filterj) uses z (k)  to yield 
+x j ( k l k )  and p j ( k l k ) ,  which are the state estimate and 
+covariance for model j. The likelihood function, A j (k) 
+corresponding to PDAFAI model j is described in 
+equations 50 and 5 1 the next section. 
+C. Probability evaluations: Mixing probabilities 
+(i, j = 1, ..., Y): 
+1 
+'j 
+p .  I /  J . (k - l lk - l )  = y p & ( k - l )  (44) 
+r 
+C .  J =  A z p q p i ( k - l )  
+i=l 
+(45) 
+Update of the model probabilities ( j  = 1,. . . , r )  : 
+r 
+c - A C A  (k)Cj (47) 
+i=l 
+D. Combination of the model-conditioned estimates and 
+covariance's (for output purposes): 
++ [ i J ( k l k )  - i ( k J k ) ] [ i j ( k l k )  - i(klk)]') 
+The Mode Likelihood Functions for Residual and Amplitude 
+Information 
+The likelihood function of mode t at time k is the joint 
+probability density of the validated innovations fiom time 
+k and can be shown to be given by 
+where b and e are as described above. 
+For the "no target" model, the above becomes 
+j=l 
+Sequential DetectiodClassijkation Test 
+The detection processing makes a decision based on both an 
+amplitude and a kinematic-based log-likelihood function. 
+The basic form is the sequential probability ratio test, as 
+defined in [6], which forms a decision based comparing 
+accumulated statistics to a fixed detection threshold. We 
+combine two separate SPRT decisions from the amplitude 
+and kinematic statistics. 
+The kinematic likelihood function makes use of the 
+residual-only model likelihood functions (without the 
+amplitude). For the constant velocity target case, this is 
+and for the non-target case, 
+The cumulative log-likelihood ratio (CLLR) for kinematic 
+component is updated using the constant motion model and 
+noise model residual-only likelihood functions 
+The amplitude-only cumulative log-likelihood function for a 
+track is computed using the measurement in the validation 
+region with the maximum amplitude 
+4-1763 
+am, = max(a,;i = 42, ... m(k))  ( 5 5 )  
+The pdf of am, for noise-only hypothesis is, suppressing 
+the time index to simplify notation, 
+and for target hypothesis is 
+where 4, (a, ) and 4 (am, ) are the cumulative density 
+functions for noise-only and target hypotheses, respectively, 
+which may be found by integrating pi  (a,) and 
+p,'(a,) . The amplitude CLLR for the track is then 
+updated by 
+CLLR,, ( k )  = CLLR,,p ( k  - 1 )  + 
+The overdl detection decision combines the amplitude and 
+kinematic CLLR's by requiring each to exceed a threshold, 
+hence a detection is declared if 
+Detect : 
+A track dismissal occurs when either statistic drops below a 
+threshold 
+4. MULTIPLE PING DETECTION PERFORMANCE 
+Evaluation of performance improvement provided by 
+environmental adaptation is demonstrated by comparing 
+detection results fiom the non-adaptive Automatic -Detect 
+and Track (ADT) tracker/detector, which uses Rayleigh 
+noise pdf assumption, to that of the adaptive track and detect 
+method d.escribed above. The ADT tracker is a PDAFAI 
+tracker similar to that described above, with only one 
+kinematic model used, i.e., IMM is not used. ADT uses only 
+amplitude information in making the detection decision, in a 
+manner similar to the amplitude CLLR component 
+described above. 
+Both the ADT and the Environmentally Adaptive (EA) 
+IMM trackers were operated on the same sets of data. The 
+data was broken into sets of about 20 to 30 pings each, 
+which gave the tracker enough time to detect, but allowed 
+for more detection opportunities to be evaluated. 
+Performance metrics used are average time-to-detect, 
+average number of false alerts, and overall detection 
+probability. Average time-to-detect represents the average 
+number of pings fiom acoustic opportunity to detection, 
+where acoustic opportunity is defined its the time when the 
+target eclho appears as a measurement for the tracker, i.e. 
+when the amplitude of the target measurement exceeds the 
+input threshold. The average number of false alerts is the 
+average inumber of detected tracks that were not targets. 
+Probability of detection measured as the total number of 
+submarine detections divided by the total number of 
+submarine detection opportunities. 
+Evaluation Data 
+Only frequency modulated (FM) data was used for 
+evaluation, consisting of data fiom 5 different 
+areadexercises. Data was broken up into sequences of 
+approximately 20-40 pings each. An attempt was made to 
+use data with a wide range of clutter-to-noise ratios and 
+system parameters. Table 1 contains a summary of the data 
+sets used. 
+Detection Performance 
+As described above, detection performance was evaluated in 
+terms of the average time to detect, measured in pings, the 
+average number of false alerts, and the total probability of 
+detection., given in ternis of (number of detections)/(number 
+of opportunities). Table 2 summarizes the performance 
+results, including details of each data set along with totals, 
+which are computed fiom the results of individual ping 
+sequences. 
+Overall, the number of false alerts was reduced 
+significantly, fiom an average of 759.lhour to 57.6/how, 
+with only a small decrease in probability of detection, from 
+90.9% to 86.4%. The average time-to-detect increased fiom 
+5.0 to 9.4 pings. 
+Performance Results 
+4-1764 
+Table 1. Summary of Data Used for Performance Evaluation 
+5 
+Total 
+414 1561.4 2.0 414 121.1 8.8 
+40144 759.1 5.0 3 a144 57.6 9.4 
+4-1765 
+Displq Plots 
+A qualitative view of performance is illustrated by 
+looking at several display plots with auto-alert overlays. 
+The display tool was used to plot ping histories for all 
+beams. A B-Scan of 16 pings history for 24 beams is 
+displayed to illustrate performance gains. The intensity 
+indicates the amplitude of the cluster data, where shades 
+of blue represent amplitudes between 9.5 and 18 dJ3 and 
+white represents amplitudes greater than 18 dB. Figure 1 
+shows the display plot for one data sequence which 
+contains a large amount of high amplitude clutter. Each 
+column represents 16 pings of one beam of data, with 
+range increasing up the plot. The bearing center of each 
+beam in degrees is at the bottom of the plot. The green 
+lines overlaying the plot indicate the approximate grid of 
+regions where the adaptation occurred. Note how the 
+clutter density can vary greatly over space, but generally 
+tends to remain the same for a spatial region. Figures 2 
+and 3 contain again the display plot for the same ping 
+sequence, with track marks overlaying the cluster 
+amplitude, as indicated by open yellow squares. The ADT 
+results are displayed in Fig. 2, and the environmentally 
+adaptive IMM results are displayed in Fig. 3. 
+5. CONCISJSIONS 
+In this paper we have developed and tested the 
+performance of a novel, environmentally adaptive, track 
+and detect algorithm based on the multiple model Ih4M 
+tracker. Improved detection performance was achieved by 
+adapting the amplitude clutter distribution based upon 
+observations of amplitude data obtained at the output of 
+the matched filter within localized spatial regions of each 
+ping of data. In-situ estimation of the probability 
+distribution of the clutter amplitude allows for reduced 
+false alerts in high clutter conditions without sacrificing 
+detection probability in low clutter conditions. 
+Performance comparisons were made with a non-adaptive 
+single model PDAFAI tracker. We showed, that a 
+significant reduction in false alerts, approximately 13: 1 
+can be obtained with a relatively small decrease in 
+probability of detection, from 90.9% to 86.4%. 
+4-1766 
+m 
+.e 
+m 
+a, .- * .3
+8 
++ s
+.e i 
+a 
+8 
+0 
+a, 
+Y 
+* 
+m a,
+Y 6 
+m 
+.e 
+A 
+.- 2 
+2 
+I2 
+n 
+a 
+3 
+.e 
+i 
+4 - 1 7 6 7  
+I 
+4-1768 
+c. 
+3 
+0 
+a 
+YI 
+4-1769 
+REFERENCES 
+[l] Y. Bar-Shalom and X. R. Li. Multitarget-Multisensor 
+Tracking: Principles and Techniques, Y B S  Publishing, 
+Storrs, CT, 1995. 
+[2] Abraham, Douglas, “Modeling Non-Rayleigh 
+Reverberation,” SACLANT Undersea Research Centre 
+Technical Report SR-266, 1997. 
+[3] Y. Bar-Shalom and X. R. Li. Estimation and 
+Tracking: Principles, Techniques, and Sofhyare. Artech 
+House, Norwood, MA, 1993. 
+[4] D. Lerro and Y. Bar-Shalom. “Interacting Multiple 
+Model Tracking with Target Amplitude Feature,” IEEE 
+Trans. Aerospace and Electronic Systems, AES-29 
+(2):494-509, April 1993. 
+[5] A. Nuttall, E. Eby, “Signal to Noise Ratio 
+Requirements for Detection of Multiple Pulses Subject to 
+Partially Correlated Fading with Chi-squared Statistics of 
+Various Degrees of Freedom,’’ NUWC Technical Report 
+No. 7707,, June 2 1986. 
+[6] Poor, H. Vincent, An Introduction to Signal Detection 
+and Estimation, Springer-Verlag, second edition, 1994. 
+Michael Datum graduated with a MS. 
+degree iri Electrical Engineering from 
+the University of Connecticut, Storrs, in 
+1993. He has spent the last 8 years 
+working at the Engineering Technologv 
+Center in Mystic, CT, designing 
+detection, tracking and signal 
+processing algorithms for both active 
+and passive sonar systems. Specific interests include 
+automated detection and tracking algorithms and 
+associated signal processing. 
+Donald Lerro received the B.S. degree 
+in Mathematics at the University of 
+Connecticut, Storrs, 1979, the MS. 
+degree in Electrical Engineering at the 
+Hartfod Graduate Center, RPI in 
+1984, and the Ph.D. degree in 
+ElectrLcal Engineering from the 
+University of Connecticut, Storrs, in 
+1995. 
+He hay over 18 years experience in analysis, design, 
+development, testing and evaluation oj-passive and active 
+sonar signal and information processing systems. He has 
+perforfived system designs, developed requirement 
+spec$cations, analyzed and evaluated the performance 
+for several low and mid-frequency active sonars. From 
+1983 to 1995 he was with the N ~ v G ~  Undersea Warfae 
+Center (NUWC) where he worked on experimental long 
+range low frequency multistatic and monostatic sonars. 
+He currently works for the Engineering Technolog 
+Center in Mystic, Ci? He has developed automatic 
+detection, tracking and classijication algorithms to 
+sitppor,t mid and low frequency sonars for both hull 
+mounted and towed arrays. 
+Fred AkMullen received the B.S. degree in Elect;*ical 
+Engineering at Clarkson University in 1984 and the MS.  
+degree in Electrical Engineering at the Hartford 
+Graduate Center, RPI in 1988. 
+He has been employed at the Naval Undersea Warfare 
+Center since 1984 where he has worked in the analysis, 
+design, development, testing and crvaluation of active 
+sonar signal and information processing systems. He has 
+analyzed system performance of surjkce combatant sonar 
+systems and implemented automated detection algorithms 
+into jleet processing systems. He currently is working on 
+experinrental active sonar signal and control processing 
+that ad,apts to the ocean environment. 
+4-1770  

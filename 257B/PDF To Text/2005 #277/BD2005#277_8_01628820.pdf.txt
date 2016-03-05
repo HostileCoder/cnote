@@ -1,0 +1,645 @@
+0-7803-9404-6/05/$20.00 ©2005 IEEE 1428
+STATISTICAL SIGNAL PROCESSING FOR AUTOMOTIVE SAFETY SYSTEMS
+Fredrik Gustafsson
+Department of Electrical Engineering
+Linko¨ping University, SE-581 83 Linko¨ping, Sweden
+Email: fredrik@isy.liu.se
+ABSTRACT
+The amount of software in general and safety systems in
+particular increases rapidly in the automotive industry. The
+trend is that functionality is decentralized, so new safety
+functions are distributed to common shared computer hard-
+ware, sensors and actuators using central data buses. This
+paper overviews recent and future safety systems, and high-
+lights the big challenges for researchers in the signal pro-
+cessing area.
+1. INTRODUCTION
+Henry Ford revolutionized the automotive industry more than
+100 years ago with his new production ideas. We are now
+facing another major shift in automotive production, when
+an increasing part of the value of the car comes from elec-
+tronic systems. The introduction of more automotive safety
+systems plays an important role in this shift. For instance,
+one expert predicts that the value of software will increase
+from 4% in 2003, to 13% in 2010. This of course affects
+the engineering community in many ways. The automotive
+industry has always been dominated by mechanical engi-
+neers, but today we see an increasing need for engineers
+specialized in signal processing, automatic control, elec-
+tronics, communication and computer hardware.
+A key reason for this trend is the rapid development of
+safety systems. As the number of vehicles on our public
+roads increases, the requirement on safety is also increased.
+There has been a tremendous progress in this area over the
+last two decades as is evident from accident statistics. For
+instance, the number of fatalities in Sweden [12] suddenly
+started to drop around 1990. According to this report, the
+car fleet becomes safer for each year and the trend is that
+the fatality risk in a new car is reduced 5% each year. A
+research report by an insurance company [11], partly ac-
+knowledges on-board safety systems for this trend change,
+and for instance it ranks an electronic stability system (anti-
+skid control) as important as safety belts to prevent severe
+injuries on skiddy roads. The requirements on the safety
+systems will continue to increase in the future, motivating
+the continued development on improved versions of existing
+and new safety systems. The automotive executives share
+this view [23], as summarized in the conclusion “safety is
+a basic tenet to the industry now and will continue to be
+an ongoing major focus for consumers and manufacturers
+alike”. Further, “new technology will be as important as
+new models in attracting customers”.
+The research community also has to contribute to this
+shift, and the purpose of this paper is to point out certain di-
+rections in signal processing where research is needed. The
+underlying theme is sensor fusion: to utilize existing and af-
+fordable sensors as efficiently as possible for as many pur-
+poses as possible. We point out certain more or less open
+problems in spectral analysis, non-uniform sampling, sys-
+tem identification, change detection, diagnosis and fault de-
+tection and model-based filtering and prediction to mention
+a few.
+The outline of the paper is as follows. Section 2 overviews
+existing and some future control systems, where accurate
+information of the own and surrounding vehicles state is
+needed. Then, with this as a motivation, the following chal-
+lenges are discussed:
+Challenge I: Wheel speed analysis, using wheel speed as a
+generic multi-purpose sensor, is discussed in Section
+3.
+Challenge II: Virtual sensors for monitoring and control
+systems are discussed in Section 4.
+Challenge III: Navigation as dynamic state estimation for
+monitoring and control systems is discussed in Sec-
+tion 5.
+Challenge IV: Situational awareness by target tracking and
+road prediction for collision avoidance systems is dis-
+cussed in Section 6.
+Challenge V: Sensor-near signal processing, for improv-
+ing and supplementing the sensor fusion, is discussed
+in Section 7.
+Section 8 summarizes how sensor fusion may be structured
+in the future.
+1429
+2. AUTOMOTIVE SAFETY SYSTEMS
+In this section, we will list and briefly present some different
+examples of new functions or systems being developed for
+or already in use in modern, high-end vehicles. The idea is
+to highlight that a rather small number of actuators and sen-
+sors would cover all functions, and any further new function
+could thus often be added as a pure software module.
+Automotive safety systems can be grouped in many ways.
+The traditional way separates active safety (driving safety)
+systems that prevent accidents and passive safety (crash pro-
+tection) systems that protect humans at an accident.
+For passive safety, the signal processing opportunities
+are mainly in collision and roll-over detection for firing in-
+ternal airbags and seat-belt pre-tensioners. Adaptive airbags
+for the passengers can fire at two or more levels. These
+systems require quite advanced signal processing and sen-
+sors mainly for classifying the passenger size and position.
+In the future, also external airbags and bonnet lifting for
+pedestrian protection systems [25, 15] may need advanced
+situational awareness.
+However, the main challenges lie in active safety sys-
+tems. These can be grouped into preventive systems (includ-
+ing driver information and driver drowsiness monitoring),
+dynamic control systems and collision avoidance systems.
+Some functions in the latter two categories, sometimes re-
+ferred to as advanced driver assistance systems (ADAS, or
+just DAS) are summarized in Table 1. We here distinguish
+longitudinal control systems mainly used when driving straight
+ahead, lateral systems for cornering and maneuvering situa-
+tions and rate control systems.
+Table 1 illustrates that the main actuators are engine
+torque and brakes. The regulations currently say that the
+steered wheels must be physically connected to the steering
+wheel, thus steering is not currently used as an actuator. If
+these regulations change, several of the lateral control func-
+tions as yaw and roll control can be improved.
+Here we would like to stress the following underlying
+statements for this survey:
+1. Accurate state information is more important than ad-
+vanced control algorithms (many of them are simple
+P(I)D controllers). That is, often it is more important
+what to feedback than how to feedback.
+2. Using sensor fusion techniques, virtual sensors can be
+derived that compute information that would be either
+too costly or even impossible to measure in practice.
+3. Model-based control systems are in their infancy, and
+future generations may include model-based filters and
+controllers.
+The following five sections explain how this can be achieved
+by improved signal processing.
+3. CHALLENGE I: WHEEL SPEED ANALYSIS
+Without doubt, the wheel speed sensor is the potentially
+most informative sensor in the car. Today, the wheel speed
+is measured in all cars equipped with an anti-locking brak-
+ing system (ABS) system on at least one but often all four
+wheels. Since the introduction of ABS control, wheel speed
+signal has found many other uses. The different potential
+applications presented in scientific literature and patents are
+discussed in this section.
+Angular velocity: Road 
+surface and tire characteristics 
+overlayed on vehicle velocity
+Angular velocity correlation: 
+road surface and velocity
+Angular velocity model: depends on engine torque, drive 
+line, steering angle, friction relations and so on
+Angular velocity difference: 
+yaw rate
+1ω 2
+ω
+3ω 4ω
+L
+B
+Fig. 1. Wheel speed applications.
+First, the angular speeds relate to the vehicle speed at
+this tire by the tire radius. The speed content is a low fre-
+quency component. The tire dynamics can be modelled by
+three springs for torsional and radial forces in the tire rim,
+and the radial forces in the tire tread. Table 2 indicates the
+three modes. There are also wide-band noise induced from
+the road surface and low-frequency disturbance from the
+spring-damper system. Further, narrow-band disturbances
+as harmonics of the different rotating parts in the drive-line
+can sometimes be observed.
+Examples of applications of the wheel speed informa-
+tion found in the literature (mainly patents) are illustrated in
+Figure 1 and include spectral analysis, correlation analysis
+and model-based approaches in signal processing.
+0-10 10-15 15-30 30-60 60-80 80-100 100–
+Speed Mode 1 Noise Mode 2 Noise Mode 3 Noise
+Damper Narrow-band noise components
+Table 2. Frequency spectrum for the wheel speed signal,
+with approximate limits in Hz.
+4. CHALLENGE II: VIRTUAL SENSORS
+A virtual sensor [19] is here defined as a physical quan-
+tity not directly measured, which is computed from existing
+sensors. The reason could be to avoid costly sensors, as
+in the tire pressure monitoring system in Section 4.2, or to
+1430
+Actuator Primary sensors
+System Brake Acc. Steering Driver Speed IMU DME Brake Vision
+Anti-locking Brake Systems (ABS) x – – – x – – x –
+Brake Assistance Systems (BAS) x – – – – – – x –
+Cruise Control – x – – x – – – –
+Adaptive Cruise Control (ACC) – x – – x – x – –
+Stop and Go x x – – x – x – –
+Anti-spin control (v < 20 km/h) x – – – x – – – –
+Traction control (v > 20 km/h) – x – – x – – – –
+Forward Collision Warning (FCW) – – – x x – x – –
+Forward Collision Mitigation (FCM) – – – – x – x – –
+Parking aid systems – – – x – – x – x
+Forward Collision Avoidance (FCA) x – x – x – x – –
+Lane Keeping Aid systems (LKA) – – (x) x x – x – x
+Lane Change Aid systems – – – x – – x – x
+Adaptive steering – – x – x – – – –
+Yaw control x – – – x x – – –
+Roll stability control x – – – x x – – –
+Roll-over detection (airbag) – – – – x x – – –
+Table 1. Advanced driver assistance systems (ADAS) grouped by longitudinal control, lateral control and rate control,
+respectively. Driver is here considered an actuator controlled by a haptic warning (dashboard lamp, sound, vibration). IMU
+means an inertial measurement unit, comprising at least one accelerometer or gyroscope. Distance measuring equipment
+(DME) includes radar, lidar and sonar measuring range and angle to objects. Vision includes camera and IR sensors.
+compute abstract quantities as tire road friction as in Section
+4.1, where practically feasible sensors do not exist.
+4.1. Road friction monitoring
+A friction information system would be central for all dy-
+namic control systems in Table 1, and would provide valu-
+able information for the driver. The literature on this sub-
+ject is quite rich, see the survey [28], and a multitude of
+approaches have been investigated:
+• Slip based approaches, utilizing the noticable change
+in wheel slip (both lateral and longitudinal) with tire
+road friction [17].
+• Spectral analysis of wheel speeds, as discussed in Sec-
+tion 3.
+• Audio-based classification based onmicrophones ’lis-
+tening’ to each tire [35].
+• Vision-based classification based on surface texture
+and reflection properties [9].
+• Behavioural approaches analysing the driver behaviour
+[9], assuming the driver is aware of the friction and
+adapts his driving style. This is of course not an ap-
+proach for monitoring, but can be used for initializing
+ABS control for instance.
+• Sensor-based approacheswhere the sensors are mounted
+in the tires’ tread for measuring stress [9].
+Despite these efforts, no friction monitoring system exists
+on themarket. Friction is a complicated physical phenomenon,
+and the variety of tire models and possible combination of
+makes and wear has delayed the introduction of large scale
+cheap commerical friction estimators substantially. Accu-
+rate and robust friction estimation may require multiple ap-
+proaches with an over-all information fusion. Basically, all
+the approaches listed above can be used to obtain a more
+robust estimate.
+4.2. Tire pressure monitoring systems (TPMS)
+The following quote from the NHTSA press release from
+April 7, 2005, indicates the importance of development of
+reliable and affordable systems for tire pressure monitoring:
+All passenger cars will have tire pressure mon-
+itoring systems beginning with the 2006 model
+year according to a new motor vehicle safety
+standard by the National Highway Traffic Safety
+Administration (NHTSA). The regulation will
+require that manufacturers install a system that
+can detect when one or more of the vehicle’s
+tires are 25 percent or more below the recom-
+mended inflation pressure. Phase-in of the new
+regulation will begin Sept. 1, 2005. All new
+4-wheeled vehicles weighing 10,000 pounds or
+less must be equipped with the monitoring sys-
+tem by the 2008 model year.
+Further,
+NHTSA estimates that about 120 lives a year
+will be saved when all new vehicles are equipped
+1431
+with the tire pressure monitoring systems. In
+addition, consumers should see improved fuel
+economy and increased tire life.
+See http://www.nhtsa.dot.gov/cars/rules/rulings for
+more details. The user interface is suggested to be as in
+Figure 2.
+Today, most TPMS are sensor based [8, 1], using a pres-
+sure, temperature and possibly acceleration sensor in each
+wheel, each sensor kit equipped with a radio transmitter and
+battery. This is perhaps more of a sensor technology chal-
+lenge.
+However, there are indirect systems as well utilizing the
+wheel speeds at a much lower cost. More advance meth-
+ods make use of sensor fusion on different scales. First,
+wheel speed analysis as described in Section 3 may indi-
+cate tire pressure information. Second, model-based sensor
+fusion can improve the estimation of relative tire radii sub-
+stantially. High-level fusion of different principles may in
+the end enable a TPMS that satisfies the NHTSA rules.
+Fig. 2. The TPMS warning symbol.
+5. CHALLENGE III: DYNAMIC STATE
+ESTIMATION
+The dynamic control systems in Table 1 need accurate state
+information about the vehicle’s position and orientation and
+their time derivatives. This is in general a model based fil-
+tering problem where the (extended) Kalman filter applies,
+where a partial vehicle model is used to improve sensor
+measurements and for diagnosis. We will here describe two
+non-standard problems.
+Examples of application include [18]
+• Offset-free velocity and acceleration (longitudinal dy-
+namics) for cruise control and collision mitigation [37].
+• Offset-free yaw rate and drift-free yaw angle (lateral
+dynamics) that can be used for ESP, lane keeping aid
+and navigation.
+• Offset-free roll angle estimation (roll dynamics) for
+use with motorcycles (ABS, anti-spin, headlight con-
+trol) or offset-free roll rate for vehicles (air bag cur-
+tains and roll-over detection).
+• Positioning support and backup for satellite based po-
+sitioning as the Global Positioning System (GPS) [13],
+see Figure 3. This includes improved dead-reckoning
+with small drift.
+Sensor cost reduction and model based control system may
+necessitate further signal processing advances in this area.
+Fig. 3. Positioning without GPS, using the particle filter
+based on wheel speed measurements and road map only,
+here implemented in a handheld computer.
+6. CHALLENGE IV: SITUATIONAL AWARENESS
+In particular collision avoidance systems and adaptive cruise
+controllers need advanced situational awareness, and short
+time prediction of the road and other vehicles’ motion is
+crucial for safety related systems. Pre-crash systems, such
+as belt pre-tensioners and pedestrain protection systems, need
+accurate predictions and an estimate of the type of object of
+an imminient collision. Further, future engine control sys-
+tems may need a road prediction for optimizing fuel econ-
+omy and for automatic gear shifting.
+The main sensors needed for situational awareness are
+one or a combination of radar [27], laser scanner [29, 15],
+lidar ([34] describes a 3D version), IR (including so called
+thermopiles [25]) and vision [31].
+We split the situational awareness into the following sub-
+problems:
+• Classical target tracking problems, including Object
+recognition and the data association problem, which
+are more or less similar problems to what is studied
+in the area of air traffic control [4].
+• Tracking and prediction of ego-motion (estimation of
+host vehicle state).
+• Road geometry tracking and prediction.
+1432
+• Decision algorithms for warning and intervention sys-
+tems.
+Most publications in this field are concerned with target
+tracking and object recognition, describing sensor fusion
+with a subset of the sensors listed above: Sensor fusion
+of laser scanner and vision in the European Union project
+PROTECTOR is described in [21], while [16] also includes
+radar for pedestrian protection within the same project. Sen-
+sor fusion with focus on pedestrians is also treated in [26].
+A Bayesian framework for sensor fusion is described in [6,
+7], within the EU project CARSENSE. In the same project,
+[24] focuses on low speed situational awareness. Fusion of
+radar and IR is described in [32] and [30] fuses laser scan-
+ner and vision. Sensor fusion with focus on lateral tracking
+is described in [22] based on GPS, vision and radar and in
+[3, 2] based on vision and radar.
+An ACC system based on inter-vehicle communication
+is described in [36]. Sensor requirements for a stop and go
+ACC system is discussed in [20, 14, 15].
+A straightforward decentralized implementation of fil-
+ters for situational awareness might look like the upper struc-
+ture in Figure 4. The filters all need motion models for the
+road geometry, the ego-motion, the motion of tracked vehi-
+cles (often simpler than for ego-motion), and even a separate
+model for decision support.
+However, road geometry and vehicle movements are highly
+correlated, and further dependent on the type of vehicle (mo-
+torcycles have fast dynamics, bikes move slowly and close
+to the road side, etc.). More specifically, a lateral movement
+of tracked vehicles can be due to either a lane change or
+road bend, but a yaw change in the host vehicle gives quite
+similar sensor signals from the radar, lidar or vision sensor.
+Further, a displacement in two consequtive video frames of
+the radar bearing measurement from a stationary object may
+be used as a virtual yaw velocity sensor. See the left plot in
+Figure 5 for and illustration.
+This motivates a centralized filtering approach accord-
+ing to the centralized filter in Figure 4. Here, the state vec-
+tors of the tracked vehicles and the road are merged into one
+state vector. In this way, movements of the tracked vehicles
+influence the road geometry estimate and vice versa.
+The idea in centralized filtering is to merge all states in
+the models for road geometry, ego-motion and tracked vehi-
+cles into one state vector, cross-utilizing all measurements.
+One such model was developed independently in [10] and
+[22].
+7. CHALLENGE V: SENSOR-NEAR SIGNAL
+PROCESSING
+A radar system transmits a pulse and thresholds the response
+to get a range detection at each scanned bearing. The idea
+of “track before detect” in the target tracking literature [5,
+FILTERIMU, wheel speeds Vehicle state
+FILTERRadar, IR, vision Tracking states
+FILTERVision Road states
+IMU, wheel speeds Vehicle state
+FILTERRadar, IR, vision Tracking states
+Vision Road states
+Fig. 4. Decentralized versus centralized filtering.
+33], is to measure the received signal energy in each range-
+bearing(-doppler) cell of the radar. In this way, a 2D (3D)
+image is obtained from the received waveform, as illustrated
+in the right plot in Figure 5. This can be used for estimating
+the spatial size of the object and its reflectance, which fur-
+ther is very useful for object classification. One of the few
+automotive publications on this approach [25] introduces
+the term “occupancy grid” thermopile sensors.
+!
+3
+2
+1
+2
+Fig. 5. Left: Radar as a sensor. Responses from moving ob-
+jects are used for tracking and from stationary objects they
+can be used as inertial measurements. Right: The “track
+before detect” concept, where the received radar energy in
+each range-bearing cell is measured, rather than thresholded
+(detected).
+Further, camera based vision systems may be used as
+both a tracking and an inertial sensor. One basic output from
+image processing is a list of features. In signal processing
+terms, each feature is an implicit non-linear measurement
+of the relative position to other moving objects (threats) and
+stationary objects. The former is the standard use of cam-
+eras in automotive safety systems, but features from station-
+1433
+ary objects along the road hide an unexplored potential use
+as a virtual sensor of velocity and yaw, pitch and roll rate.
+8. CONCLUSIONS
+Automotive safety systems rely on accurate estimation of
+external and internal state variables as well as unobserved
+environmental parameters as friction and tire pressure. We
+have in this contribution surveyed the main needs for sig-
+nal processing development and argued for a sensor fusion
+approach where all tasks are considered jointly. First, Sec-
+tion 2 summarized a number of safety systems, and it was
+pointed out that a limited number of sensors can be suffi-
+cient to implement a variety of safety systems. Second, the
+active development of improved communication networks
+enables new sensor fusion strategies.
+Figure 6 extends Figure 4 and summarizes our view on
+sensor fusion for future automotive safety systems. All avail-
+able sensor information is communicated to the centralized
+or distributed sensor fusion algorithm. This includes vision
+sensors (camera, radar, lidar, IR), an inertial measurement
+unit (IMU) with up to three accelerometers and three gy-
+roscopes, satellite navigation, and, most importantly wheel
+speeds. The output from the sensor fusion include virtual
+sensor signals, navigation information, tracking information
+and road geometry for collision avoidance systems.
+zyx
+      
+    
+  
+,,,,, ψϕθ
+6D IMU
+Wheel speeds
+Vision
+SENSOR
+FUSION
+Sensor-near
+algorithms
+Integrated
+navigation
+and tracking
+Diagnosis
+4321 ,,, ωωωω
+zyx
+
+
+,,,,, ψϕθ
+Feature
+extraction
+Optional posi-
+tioning (GPS)
+yx,
+Optional
+sensors
+flagszT i ,,,δ
+Navigation
+information
+Tracking
+information
+Road prediction
+iiii vYX ψ,,,
+Virtual sensors
+Fig. 6. Sensor fusion in future vehicles?
+We have pointed out signal processing challenges rang-
+ing from low level sensor-near pre-processing to the high-
+level algorithms for situational awareness. These are needed
+in advanced driver assistance systems for decision support,
+feedback control and driver alerts. Model-based control sys-
+tems is one particular example, where signal processing de-
+sign becomes particularly integratedwith control system de-
+sign.
+9. ACKNOWLEDGEMENT
+The long-term and extensive collaboration with NIRA Dy-
+namics and Volvo Car Corporation is gratefully acknowl-
+edged. Dr. U. Forssell, CEO of NIRA and the many former
+and current students have substantially contributed to this
+work.
+Grants from Vinnova’s competence center ISIS and the
+IVSS (Intelligent Vehicle Safety Systems) program are also
+acknowledged.
+10. REFERENCES
+[1] National Highway Traffic Safety Administration. An
+evaluation of existing tire pressure monitoring sys-
+tems. Technical Report DOT HS 809 297, US De-
+partment of Transportation, 2001.
+[2] A. Amditis, N. Floudas, and A. Polychronopoulos.
+Lateral motion tracking of automobiles. In 7th In-
+ternational Conference on Information Fusion, Stock-
+holm, 2004.
+[3] A. Amditis, A. Polychronopoulos, I. Karaseitanidis,
+G. Katsoulis, and E. Bekiaris. Multiple sensor colli-
+sion avoidance system for automotive applications us-
+ing an imm approach for obstacle tracking. In Interna-
+tional Symposium on Information Fusion (IFIS), pages
+812–817, 2002.
+[4] Y. Bar-Shalom and X.R. Li. Estimation and tracking:
+principles, techniques, and software. Artech House,
+1993.
+[5] Y. Boers and J.N. Driessen. Particle filter based detec-
+tion for tracking. In IEEE American Control Confer-
+ence, volume 6, pages 4393–4397, Arlington, 2001.
+[6] C. Coue, T. Fraichard, P. Bessiere, and E. Mazer.
+Multi-sensor data fusion using bayesian program-
+ming: an automotive application. In IEEE Int. Conf.
+on Intelligent Robots and Systems, Switzerland, 2002.
+[7] C. Coue, T. Fraichard, P. Bessiere, and E. Mazer.
+Using bayesian programming for multi-sensor multi-
+target tracking in automotive applications. In IEEE
+Int. Conf. on Robotics and Automation (ICRA), Taipai,
+Taiwan, 2003.
+[8] Apollo Deliverable D7. Intelligent tyre systems – state
+of the art and potential technologies. Technical report,
+EU-IST-2001-34372, 2003.
+[9] U. Eichhorn and J. Roth. Prediction and monitoring of
+tyre/road friction. In Proceedings of FISITA, London,
+June 1992.
+1434
+[10] A. Eidehall and F. Gustafsson. Combined road pre-
+diction and target tracking in collision avoidance. In
+IEEE Intelligent Vehicle Symposium (IV’04), pages
+619–624, Parma, Italy, 2004.
+[11] Folksam. Hur sa¨ker a¨r bilen? (How safe is the car?).
+Technical report, http://www.folksam.se/
+resurser/pdf/sakrabilar2005.pdf, 2005.
+[12] Swedish Institute for Transport and Communica-
+tions Analysis Statistics Sweden. Road traffic in-
+juries 2003, official statistics of sweden. Tech-
+nical report, http://www.sika-institute.
+se/databas/data/ss 2004 6.pdf, 2004.
+[13] U. Forssell, P. Hall, S. Ahlqvist, and F. Gustafsson.
+Novel map-aided positioning system. In Proc. of
+FISITA, number F02-1131, Helsinki, 2002.
+[14] R. Fredriksson, Y. Ha˚land, and J. Yang. Evaluation of
+a new pedestrain head injury protection system with
+a sensor in the bumper and lifting of the bonnet’s
+rear part. In Enhanced Safety of Vehicles Conference,
+pages 1–11, 2001.
+[15] K.C. Fu¨rstenberg, D. Linzmeier, and U. Lages. Pedes-
+trian recognition and tracking of vehicles using a vehi-
+cle based multilayer laser-scanner. In World Congress
+on Intelligent Transport Systems and Services (ITS),
+Madrid, 2003.
+[16] D.M. Gavrila, M. Kunert, and U. Lages. A multi-
+sensor approach for the protection of vulnerable traffic
+participants – the protector project. In IEEE Instru-
+mentation and Measurement Technology Conference,
+Budapest, 2001.
+[17] F. Gustafsson. Slip-based estimation of tire – road fric-
+tion. Automatica, 33(6):1087–1099, 1997.
+[18] F. Gustafsson, S. Ahlqvist, U. Forssell, and N. Pers-
+son. Sensor fusion for accurate computation of yaw
+rate and absolute velocity. In Society of Automo-
+tive Engineers World Congress, number SAE 2001-
+01-1064, Detroit, 2001.
+[19] F. Gustafsson, M. Drevo¨, U. Forssell, M. Lo¨fgren,
+N. Persson, and H. Quicklund. Virtual sensors of
+tire pressure and road friction. In Society of Automo-
+tive Engineers World Congress, number SAE 2001-
+01-0796, Detroit, 2001.
+[20] R. Hallouzi, V. Verdult, H. Hellendoorn, and J. Ploeg.
+Experimental evaluation of a co-operative driving
+setup based on inter-vehicle communication. In
+IFAC/EURON Symposium on Intelligent Autonomous
+Vehicles (IAV), 2004.
+[21] N. Kaempchen, K.C. Fuerstenberg, A.G. Skibicki, and
+K.C.J. Dietmayer. Sensor fusion for multiple automo-
+tive active safety and comfort applications. In Interna-
+tional Forum on Advanced Microsystems for Automo-
+tive Applications (AMAA), Berlin, 2004.
+[22] A. Klotz, D. Hoetzer, and J. Sparbert. Lane data fu-
+sion for driver assistance systems. In 7th International
+Conference on Information Fusion, Stockholm, 2004.
+[23] KPMG. Global auto executive survey. Automotive mo-
+mentum, 1(1), 2005.
+[24] J. Langheim and A.J. Buchanan. Carsense – sensing
+of car environment at low speed driving. In World
+Congress on Intelligent Transport Systems and Ser-
+vices (ITS), Turin, 2000.
+[25] D. Linzmeier, M. Mekhaiel, J. Dickmann, and K.C.H.
+Dietmayer. Pedestrian detection with thermopiles us-
+ing an occupancy grid. In World Congress on Intelli-
+gent Transport Systems and Services (ITS), Washing-
+ton, 2004.
+[26] P. Marchal, D. Gavrila, L. Letellier, M-M. Meinecke,
+R. Morris, and M. To¨ns. Save-u : Sensor data fu-
+sion for improved vulnerable road user detection. Bu-
+dapest, 2004.
+[27] C. Metz, J. Grubert, J. Heyen, A.F. Jacob, S. Janot,
+and E. Fully integrated automotive radar sensor with
+versatile resolution. IEEE Transactions on Microwave
+Theory and Techniques, 49(12):2560–2566, 2001.
+[28] S. Mu¨ller, M. Uchanski, and K. Hedrick. Estimation
+of the maximum tire-road friction coefficient. Jour-
+nal of Dynamic Systems, Measurement, and Control,
+125:607–617, 2003.
+[29] B. Nitsche and R. Schulz. Automotive applications
+for the alasca laserscanner. In International Forum on
+Advanced Microsystems for Automotive Applications
+(AMAA), Berlin, 2004.
+[30] A. Oyaide, V. Willhoeft, C. Shooter, and A. Heenan.
+Lane and road detection using video and laserscanner
+data. In World Congress on Intelligent Transport Sys-
+tems and Services (ITS), Madrid, 2003.
+[31] H. Rehbinder and B.K. Ghosh. Pose estimation using
+line-based dynamic vision and inertial sensors. IEEE
+Transactions on Automatic Control, 48(2):186–199,
+2003.
+[32] M.E. Russell, C.A. Drubin, A.S. Marinilli, W.G.
+Woodington, and M.J. DelCheccolo. Integrated au-
+tomotive sensors. IEEE Transactions on Microwave
+Theory and Techniques, 50(3), 2002.
+1435
+[33] D.J. Salmond and H. Birch. A particle filter for track
+before detect. In IEEE American Control Conference,
+volume 6, pages 4393–4397, Arlington, 2001.
+[34] R.M. Schwarte. Breakthrough in multichannel
+laser-radar technology providing thousands of high-
+sensitive lidar receivers on a chip. In International
+Society for Optical Engineering (SPIE), volume 5575,
+pages 126–136, 2004.
+[35] A. Sva¨rdstro¨m. Classification of road surface using
+a neural net (in swedish). Technical Report UPTEC
+93 056R, Uppsala University, Uppsala, Sweden, June
+1993.
+[36] P. Venhovens, K. Naab, and B. Adiprasito. Stop and
+go cruise control. International Journal of Automotive
+Technology, 1(2):61–69, 2000.
+[37] K. Watanabe, K.C. Cheok, and K. Kobayashi. Ab-
+solute speed measurement of automobile from noisy
+acceleration and erroneous wheel speed information.
+SAE Paper, 75-82, 1992.

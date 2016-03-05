@@ -1,0 +1,1344 @@
+Investigating Software Failures with a Software 
+Black Box 
+Sebastian Elbauni 
+Computer Science and Engineering Department 
+University of Nebraska, Lincoln 
+elbaum@cse.unl.edu 
+402-472-6748 
+Absrrucf -- One of the greatest safety improvement 
+inventions for the airline industry has been the crash- 
+protected Flight Data Recorder (FDR). Today, the FDR are 
+mandatory equipment in most civil aircraft. With the data 
+retrieved from the FDR, the last moments before an accident 
+can be reconstructed. Constructing the analog of the FDR 
+for avionics software would be very beneficial. When 
+complex system fail, it is often very difficult to determine 
+the precise cause of the failure. This is largely due to 
+insufficient or inappropriate data collection process, which 
+does not permit the reconstruction of the circumstances that 
+led to the failure. 
+This research effort presents the Software Black Box 
+(SBB), which constitutes a framework that facilitates the 
+investigation and understanding of software failures. The 
+SBB specifies a mechanism to capture the essentials of an 
+executing program, and it provides a reconstruction 
+technique that allows the generation of the scenarios that 
+may have led to the software failure. The SBB architecture 
+and a validation study are presented in this document. The 
+results provide insights into the tradeoffs and potential of 
+the SBB. 
+TABLE OF CONTENTS 
+1.  Introduction 
+2. SBBmodel 
+3. Software black box recorder 
+4. Software black box decoder 
+5. An empirical investigation 
+6.  Conclusion 
+1. INTRODUCTION 
+One of the greatest safety-improvement inventions for the 
+airline industry has been the crash protected Flight Data 
+Recorder (FDR), more commonly called the Black Box. 
+Today, FDRs are mandatory pieces of equipment in civil 
+aircraft. In the event of an aircraft crash the data retrieved 
+from the FDR provides a means for reconstructing the 
+John C. Munson 
+Cylant Technology, LLC 
+Moscow, ID 83843 
+johnm@soft-metrics.com 
+208-885-5319 
+circumstances that led to the accident. 
+The pre-FDR scenario is a likely equivalent to the current 
+state of affairs in the software world. When software 
+systems fail, it is often difficult to determine the precise 
+cause of the failure. This is largely because insufficient 
+information has been retained to permit the reconstruction 
+of the circumstances that led to the failure. The aircraft 
+industry is not immune to failures, but is prepared and 
+willing to learn from them. On the other hand, the software 
+industry has not approached this area with nearly enough 
+rigor. Some of the reasons for this lack of emphasis might 
+be attributed to the immaturity of the discipline or the 
+misconception that software is not a critical matter. 
+FDRs record vital parameters of the aircraft's behavior. 
+Depending on the type and age of the airplane, specific data 
+are collected from sensors and recorded onto a medium 
+designed to survive an accident. In the event of a failure or 
+accident, the flight recorder assists investigators in 
+reconstructing the sequence of events immediately 
+preceding the failure. Without the FDR, it would be much 
+more difficult to determine the circumstances under which 
+the accident occurred, and therefore to prevent it from 
+happening again. This situation is no more acceptable in 
+some real-time computer systems than it is in aviation. 
+Computer software is now ubiquitous. Each generation of 
+software programs has more features, more complexity, and 
+more interactions with people than the last. The time of 
+simple, small, autonomous programs has passed. Computer 
+scientists and software engineers currently develop and 
+maintain software systems, which are orders of magnitude 
+more complex than those constructed in the 1960s and 
+1970s. 
+Despite recent progress in software reliability engineering, 
+design and usability, failure analysis, failure understanding 
+and failure reproduction remain primitive. Software 
+systems are still fragile. Traditional methods to understand 
+why or how the system failed seem to fall short. 
+Furthermore, software developers are not able to learn from 
+these failures to improve their software products and the 
+processes [l]. This situation is more critical in real-time 
+0-7803-5846-5/00/$10 0 2000 EEE 
+547 
+systems due to their inherent complexity. The traditional 
+failure reproduction method consists of executing the 
+program until the failure manifests itself [ 2 ] .  Then, the 
+investigator re-executes the program, stops, examines the 
+program's states, inserts assertions and re-executes the 
+program in order to collect additional information about the 
+failures. Although this cyclic approach has proven to be 
+effective with relatively small systems, with complex 
+systems it is nearly impossible because of the following: 
+Continuous operation rules out interactive debugging. 
+The systems cannot be suspended to inspect its states 
+because of their close relationship with their 
+environment, clocks, etc. 
+Non-deterministic and non-repeatable nature of real- 
+time systems makes them produce different outputs 
+even under the same inputs. 
+Compilation and linkage overhead in large systems 
+can prohibit timely compile-execute cycles. 
+Timing constraints rule out intensive intrusive 
+monitoring because the data bandwidth needed might 
+affect or perturb the system's own behavior. 
+A different metaphor for software failure investigation is 
+necessary, especially for complex real-time systems. The 
+Software Black Box (SBB) constitutes a new approach to 
+assist in the investigation of software. The key concept 
+behind the SBB is suggested by current practices in 
+aerospace and aviation industry. The SBB is the analog of 
+the FDR: it collects data regarding the main aspects of the 
+software system behavior in order to assist in a post-failure 
+investigation. 
+First Attempt to Build a Sofhvare Black Box Recorder 
+We introduced the idea of a software black box in 1996 [3]. 
+The foundations of that black box were based on the 
+observation that programs are not monolithic. Instead, they 
+consist of functionalities, which are the elements that fail. 
+This new metaphor led to the description of system 
+operation as a stochastic process and to the development of 
+a series of multinomial software profiles. That paper 
+described the information that the black box recorder should 
+gather to describe the software functional behavior. In 
+addition, the paper hypothesized the feasibility to 
+reconstruct the functionality prior to the failure from such a 
+black box recorder. 
+The SBB proposed in this document shares the objective of 
+Munson's black box, which is to assist in the analysis of 
+failures by providing information regarding the functional 
+scenario prior to the failure. However, this paper goes much 
+further. First, the data collection process is lighter (less 
+intrusive), which makes it scalable. Second, the scenario 
+generation processes have been completely designed and 
+I implemented. Furthermore, the functional scenarios have 
+been extended in order to include a sequence of 
+functionalities. Last, a subset of the results of the first 
+validation is presented. 
+2. SBB MODEL 
+The formulation of the SBB failure investigation system is 
+based on the realization that it is not the software system 
+that fails, but just the limited components executing a 
+particular sequence of functionalities [7]. This is obvious 
+when observing systems that run smoothly and reliably for 
+long intervals and suddenly become very unreliable when 
+the software mission changes. It is the execution of a new 
+set of functionalities [4]. which directly leads to the 
+unreliability. The shift from one sequence of functionalities 
+that executed "good" code to a different sequence of 
+functionalities that exercised unstable code leads to a system 
+failure. Systems are made of many functionalities and only 
+a subset of them are related to a failure. These 
+functionalities, represented within programs as sub-trees of 
+modules in a call tree, delineate a particular activity that the 
+system is performing. The idea behind the SBB is to 
+recreate the sequence of functionalities that were executing 
+prior to the software failure. Since the functionalities 
+constitute the essence of the software behavior before it 
+crashed, their understanding is a necessary step toward the 
+comprehension of the scenario prior to the failure. 
+A Behavioral Model 
+Software behavior describes the notion of a system that can 
+perform many tasks depending on the functionalities 
+exercised by the user. When a program begins executing, it 
+will distribute cycles among many of its components or 
+modules. Not all modules will execute with the same 
+probability given a certain design. The SBB is based on a 
+behavioral model that describes the association between 
+functionalities and modules. 
+Software systems are designed to fulfill a set of 
+requirements. Some of these requirements are functional 
+requirements, which specify a function that the system or a 
+system component must perform. Each one of these 
+functional requirements or functionalities expresses a user's 
+requirement. The software design process consists of 
+assigning functionalities in F to specific program modules 
+in€ , the set of program modules. The design process 
+defines a set of relations, ASSIGNS over F X such that 
+ASSIGNS(f;m) is true if functionality f is expressed in 
+module m. Table 1 shows an example of the ASSIGNS 
+relation for four of the functions of a given system S. This 
+example depicts function f 4 ,  which has been implemented 
+in the program modules {ml, m3, mI5, mz0}.  
+Table 1 Functionalities and Modules 
+548 
+When a program executes a functionality, it will apportion 
+the activities among a set of modules. As the application 
+begins executing, the operating system transfers the 
+execution control to the leading module of the intended 
+application. During software usage, the control of execution 
+passes between the different modules that constitute it 
+through software calls. A call is a transfer of control from 
+one software module to another with the implication that the 
+control will retum to the calling module at some point. This 
+behavior can be represented through a call graph, a type of 
+diagram that identifies the modules in a system or computer 
+program and shows which modules call one another [5 ] .  
+The software will apportion its activities among this set of 
+modules and the calls from one module to the next will 
+establish a transition. The transition from one module to 
+another can be observed. These transition intervals define 
+the notion of the software epoch [6].  An epoch begins with 
+the onset of execution in a particular module and ends when 
+control moves to another module. The measurable event for 
+modeling purposes is this transition among the program 
+modules. Each of these transitions to a different program 
+module from the one currently executing will represent an 
+incremental change in the epoch number. 
+Across 
+Functionalities 
+Extending the Notion of Functionalities and Modules 
+For a given system S, the set M denotes the set of all 
+program modules that constitute S. For each functionality 
+f E F , there exists a relation c over F x M  such that 
+c(f ,m) defines the number of functionalities that might be 
+able to execute a given module. Classifying these software 
+modules results in two distinct sets. One set contains the 
+modules associated exclusively with one and only one 
+functionality, that is, the set of uniquely related 
+modules,M, = { m : M  I f  E F,c(f,m)=l). The second set 
+contains the modules that might be executed by more than 
+one functionality, that is the set of shared modules: 
+M ,  = { m : M I  f e  F,c(f,m)>l) 
+From a different perspective, a relationship can also be 
+established between functionalities and the software 
+modules that they might cause to be executed. For each 
+functionality f E F , there resides a relation p over F x M  
+such that p(  f ,  m) defines the proportion of execution events 
+of module m when the system is executing functionality$ 
+Essentially, program modules pertain to one of two 
+mutually exclusive and complementary sets. If 
+p ( f , m ) < l ,  then a module m may not execute when 
+functionality f is expressed. The set of potentially involved 
+modules is: 
+M i f '  = ( m  : M ,  I3 f E F, ASSIGNS( f ,  m)=O < p (  f , m )  < 1) 
+Other program modules exhibit a tight binding between a 
+particular functionality and a set of program modules. For 
+example, every time a particular function f is executed, a 
+distinct set of software modules are always invoked. These 
+modules are said to be indispensably involved with the 
+functionality f. This set of indispensably involved modules 
+Within a 
+Functionality 
+for a particular functionality .f pertain to the set of those 
+modules with the following property: 
+These two different module classifications are shown in 
+Table 2 .  
+= ( m : M F  I b ' f ~  F,ASSIGNS(f,m)* p ( f , n z ) = I )  
+Table 2 Module Classification 
+Unique Indispensable 
+Hereafter, a functionality will be required to have at least 
+two modules and that at least one of them is an element of 
+the set of uniquely related modules and not of the set of 
+potentially involved modules. That is, f i  E F if 
+f i  = { ~ ' m ~ ~ f i , 3 n z ~ ~ ~ , " i n ~ ~ ~ ~ ,  M I1 fr II ' 
+The real problem in understanding the dynamic behavior 
+of a system and its functionalities is not necessarily 
+attributable to the set of modules, M i  or the set M ,  . These 
+two sets are tightly bound to a distinct functionality. The 
+real problem resides in the set of shared modules M ,  , and it 
+increases in severity if those modules also belong to M ,  . 
+The greater the cardinality of the set of potentially 
+executable modules, the more difficult will be the task of 
+determining the behavior of a system performing that 
+function. Later, this document will show that this module 
+classification scheme and this functionality definition 
+constitute one of the foundations of the SBBD. 
+3. SOFTWARE BLACK BOX RECORDER 
+The SBBR is the recording device where the system 
+behavioral data is stored. The major challenge of the SBBR 
+is to capture the essential characteristics of the system 
+behavior to provide useful information in case of a failure, 
+while minimizing the perturbation. This section presents 
+the model, the architecture and the primary characteristics of 
+the SBBR. 
+Representing System Behavior 
+It has been established that the system transitions from one 
+module to another are observable and can be measured. It is 
+also clear that this sequence of module transitions occurs as 
+a consequence resulting from the execution of the program 
+functionalities. Since these functionalities and their 
+execution flow constitute the essence of the system's 
+behavior, the activity of the system can be described in 
+terms of its modules and their interaction. 
+549 
+While the software is in use, the control of execution passes 
+between the different modules through software calls. The 
+software apportions its activities among this set of modules, 
+and the calls from one module to the next establish a 
+transition. A call graph can represent this behavior 
+graphically. The simplest way to represent a call graph is 
+through an 11 by 11 adjacency matrix, where 11 represents the 
+number of modules in the system. 
+Figure 1 Call Graph Example 
+An example of such a representation for the call graph in 
+Figure 1 is presented in Table 3. The value of each aij in 
+the matrix will equal True (T) if there exists a call from mi 
+to i n j .  
+Table 3 Call Graph 
+The adjacency graphs can account not only for adjacency 
+but also for associated frequency. As each module is called, 
+the transition to that module can be recorded in the matrix 
+by keeping count of how many times a certain module was 
+exercised. After each transition, an element in the matrix is 
+incremented. This describes a particular kind of matrix 
+called a frequency matrix. Derived from this matrix, a 
+second matrix can be generated to contain the different 
+transition probabilities. This new matrix, the transition 
+probability matrix, represents the probability Pij of 
+transitioning from mi to m j  . 
+More formally, let mej = mij represent the row 
+marginal for the jfh module and m, =c maithe total 
+number of observed transitions. Point estimates may be 
+derived from the steady state system activity represented by 
+the SBBR frequency matrix as follows: Pij = mu 1 m, j [6]. 
+Further, point estimates for the execution profiles may be 
+derived from: p i  = mi 1 m, , 
+As an example, consider the frequency matrix in Table 4. 
+The first row represents the number of times the system 
+transitioned from m, to in2 and m 3 .  The transition 
+probabilities extracted from Table 4 are present in Table 5. 
+Adding the frequencies on each row produces the rows' 
+marginal, which are use to obtain the estimates of the 
+probabilities. The probability of transition equals the 
+frequency divided by the marginal. 
+Table 4 Transition Frequency Matrix 
+1 Modules 1 1 1 2 I 3 I 4 1 5 1 6 I Marginals 1 
+Table 5 Transition Probability Matrix 
+Although the matrices presented above seem useful in the 
+representation of the system behavior, they provide no 
+information regarding the order in which the epochs 
+occurred. Sequences are very useful is this regard. A 
+sequence is an ordered set of events. For example, a 
+software system during execution might generate a sequence 
+of module execution events represented by 
+(ml  ,m2 , m 3  ,m4 ,m5 ,...) where m, represents the 
+execution of a module. A sequential pair of elements (vis. 
+(m I , m ) ) from this sequence represents a transition. From 
+a nomenclature standpoint, t 1 2  = (ml , m ,  ) represents the 
+transition from component ml to component m, , and it 
+constitutes one system epoch. A sample behavior for ten 
+epochs of the system presented in Figure 1 is 
+(1,2.1,3,4,3,6,3,6,3>. A new element is added to the 
+transition sequence every time a new transition is made into 
+a module. 
+Recorder Architecture 
+The proposed SBBR has a front end, a kemel and a back 
+end. The front end receives input from the target system 
+while the back end provides the mechanism to operate the 
+SBBR and retrieve information from it. The kemel is the 
+component that derives and stores all the information. The 
+front end receives and validates the input data received from 
+the target system. The input consists of the following 
+format: 
+550 
+SBBR (module-Id, operation) 
+where the module identification corresponds to a long 
+unsigned integer and either an enter (1) or an exit (0) 
+represent the operation. Although the input format should 
+remain constant, the mechanism for receiving input may 
+depend on a particular platform. 
+The kernel of the SBBR derives the transition that occurred 
+by using an internal call stack. Every time the system enters 
+a new module: 
+the new transition t is derived (from = stack[top], to = 
+modID) 
+the frequency matrix is updated with t 
+the top of the stack is incremented by one 
+the module Id. is added at the top of the call stack 
+the module Id. is added at the tail of the transition 
+sequence 
+Every time a module is exited, the module at stack[top-1] is 
+added at the tail of the transition sequence and the top of the 
+stack is decremented by one. Observe that the frequency 
+matrix only accounts for calls but not for return statements. 
+Since the number of transitions stays the same in one way or 
+the other, only the call counter needs storage. 
+The recorder contains three primary data structures: the 
+transition sequence, the frequency mamx and the call-stack 
+used to assist in the updates of the first two data structures. 
+The transition sequence is stored in a queue that contains the 
+last n transitions in the sequence. With this scheme, the 
+previous transitions disappear and the sequence only reflects 
+the latest software behavior, which can provide assistance 
+when investigating the failure. A larger sequence would 
+provide a greater sample of the software behavior but it 
+would also consume more resources. Therefore, a trade-off 
+exists between the sequence size and the amount of 
+information that is required by the SBBR to be useful. The 
+transition frequency matrix, on the other hand, complements 
+the transition sequence by reflecting the behavior of the 
+system since the beginning of execution. From the 
+transition frequency matrix a transition probability matrix 
+can be derived. This probability matrix represents the 
+program behavior in terms of the likelihood of the different 
+paths that the system could have taken. 
+The back end of the SBBR depends on the platform and 
+survivability mechanism. The back end dispatches the data 
+stored in the SBBR to safety in the case of a failure. In 
+other words, the back end takes charge in the survivability 
+of the SBBR. In addition, the back end of the SBBR allows 
+the operation and control of the recorder. Interrupts can 
+control the SBBR in order to perform operations such as 
+SBBR activatioddeactivation, download data, start over and 
+resize the sequence size. 
+Recorder Survivability 
+The flight data recorder (FDR) architecture requires a high 
+resistance to physical damage. If the FDR fails to survive 
+an accident or if the accident leads to corrupt data, then the 
+FDR becomes useless. The same holds for the SBBR. The 
+data contained in SBBR needs to survive the failure in order 
+to be valuable. There are several ways to accomplish the 
+survivability objective. Unfortunately, none of these 
+mechanisms works perfectly in a11 situations. The system’s 
+environment, the software architecture and the nature of the 
+failures are some of the factors to take into consideration 
+when analyzing the mechanism that will ensure the 
+survivability of the SBBR. 
+The simplest method to ensure the survivability of the 
+SBBR is transfemng the content of the recorder to a non- 
+volatile storage device such as the hard drive. This transfer 
+can occur periodically, or triggered by a specific event. For 
+a short period, little or no information loss occurs during the 
+failure. However, the performance of the target system 
+suffers. On the other hand, triggering the data transfer less 
+frequently decreases the impact on performance. 
+Unfortunately, a system failure may lead to a significant 
+amount of data loss. The implementation of the trigger and 
+the data transfer mechanism constitute the key to the SBBR 
+survivability. 
+Many software mechanisms may be used to provide the 
+necessary survivability capability. We have experimented 
+with exception handlers, parallel processes, remote 
+processes and operating system failure handlers. Yet 
+another survivability mechanism would be to develop a 
+special hardware device that implements the SBBR. Such a 
+device would consist mainly of a memory bank, a 
+communication port and battery unit. Transitions would be 
+recorded in the banks and transmitted to a remote site if 
+necessary. The battery would ensure that the recorder 
+performs even in a power failure event. This mechanism, 
+although not developed in this document, might constitute 
+the ideal platform for the implementation of the SBBR. 
+Target System Instrumentation 
+In order to access the recorder, the target system code must 
+include the SBBR calls. This process of inserting hooks 
+into the target system is called instrumentation. For the 
+purposes of this study, we used an instrumentation tool 
+called CLIC [SI. 
+The CLIC tool was designed to monitor the transitions 
+among a set of program modules, causing minimal 
+detriment in the target application. Although many software 
+profilers are available in the market, most profilers have 
+problems in constrained environments due to the amount of 
+data they attempt to collect. These profilers literally 
+overwhelm the user with too much data. 
+CLIC works only with transitions, so the size of the code 
+instrumented with CLIC increases only slightly. CLIC 
+inserts calls to the SBBR at the beginning and at every exit 
+point of each software module. The call parameters refer to 
+the-module identifier and whether the module undergoes an 
+55 1 
+enter or an exit. CLIC also produces a table with a list of 
+the modules found, mapping the generated ID (long integer) 
+with the module name. Once the code has been 
+instrumented, and the SBBR attached the system can be re- 
+built. 
+? l - - 2 2 2 - - - 3  
+4. SOFTWARE BLACK BOX DECODER 
+When a system fails and the SBBR is recovered, the 
+reconstruction stage starts. The SBBD includes a series of 
+techniques that allow the understanding of the data in the 
+recorder. The decoding process generates possible 
+functional scenarios, quantifies the normality of the data and 
+allows further exploratory analysis. 
+Generating Functional Scenarios 
+The generation of the functional scenarios constitutes the 
+first decoding stage. The elements collected by the recorder 
+aid in developing the functional scenarios. The decoding of 
+the transition sequence might produce several scenarios due 
+to the noise variables that make the decoding process non- 
+deterministic. 
+The first source of noise or ambiguity develops from the 
+poor mapping of functionalities to modules. There exists a 
+set M,, which contains the modules common to many 
+functionalities. The shared modules, M ,  , can make the 
+decoding process harder because they cannot be mapped to 
+only one functionality. The second source of ambiguity 
+occurs in the recording process. If the failure occurs during 
+the execution of a shared module, the functionality that 
+currently executing might not be clearly expressed. 
+I 1 
+... .... .... '.., D-*:,, . ..._._... 4 .. ;
+... ...__ ,.. '.. 
+@., .._._..... 7   c(Oc0 
+Figure 2 Call Graph 
+The algorithm to generate the functional scenarios uses the 
+data provided by the recorder and the mapping between 
+functionalities and modules. An example system S, with a 
+call graph representation shown in Figure 2, contains 3 
+functionalities and 7 modules. The mapping of 
+functionalities to modules is shown in Table 6. 
+Table 6 Functionalities and Modules 
+I M1 I M2 I M3 I M4 I M5 I M6 I M7 
+F l I T I T I  ] T I  
+The generation process attempts to map the modules in the 
+transition or modular sequence to functionalities. The idea 
+is to extract what functionality might be represented in each 
+one of the transition sequence events. The mapping of each 
+module found in the sequence to the functionalities, 
+produces a sequence of functionalities. 
+Since the unique modules present no difficulty, mapping 
+these modules first seems appropriate. The mapping of 
+unique modules is direct. The first step fills some of the 
+functional sequence cells. Assume that the recorder 
+provides the following transition sequence: 
+(1,2,1,3,5,7,5,3,1,3,6 ). After the transition to module six, 
+the system failed and the recorder stopped. At this stage the 
+first step would look like the following: 
+Not all the modules belong to Mu. The functionality 
+sequence at this point might contain some sequence cells 
+with no elements in it. These empty cells constitute gaps in 
+the functionality sequence. The gaps break down into three 
+main groups: Group One involves the gaps that are located 
+between known functionalities. Group Two contains only 
+one element, the gap that is located to the right of the last 
+identified functionality. Group Three also contains only one 
+element, the gap that is located to the left of the first 
+identified functionality. 
+The second step of the generation algorithm fills in the 
+middle gaps. This section consists of two parts, the first one 
+computes the location of the first (loc-fif) and last identified 
+552 
+functionalities (loc-lif). Then, it uses those to determine 
+which gaps belong to Group One and updates the 
+functionality sequence accordingly. Under a different 
+failure scenario, suppose that the recorder obtained a new 
+sequence (6,3,1,3,5,3,1,3). Obviously from this sequence, 
+the decoding process is more complex. The last transition 
+(1, 3) includes modules shared by two functionalities. 
+Unfortunately, no deterministic procedure exists to identify 
+which functionality was going to be executed. Under these 
+circumstances it is possible to generate all possible 
+functional scenarios that might be defined by the modules in 
+the gap belonging to Group Two. The third section of the 
+algorithm analyzes the gap of Group Two and attempts to 
+create the possible functional scenarios. A new structure 
+Cj holds the candidate functionalities for the i‘” cell in the 
+functionality sequence. 
+Common 
+After the application of the third step of the algorithm, the 
+functional scenario for (6,3,1,3,5,3,1,3 ) will look like this: 
+Variants I Complete I Collapsed 
+PS 2: 2-3 1 3-2-2-3 I 3-2-3 
+Modulesequence 
+Functionality 
+Sequence 
+3-2 
+Candidate 
+Functionalities 
+PS 5: 2-2 1 3-2-2-2 1 3-2 
+PS 6: 3-3 I 3-2-3-3 I 3-2-3 
+At this stage there are multiple possible functional 
+scenarios. Not all of these scenarios are in the feasible set 
+of scenarios. The modules involved in the right gap can 
+represent at the most two different functionalities, the first 
+one being the right-most identified functionality. Since no 
+other unique module resides within those modules in the 
+gap, representation of no more than two functionalities took 
+place. One functionality can be found only if the first 
+functionality after the last identified functionality is 
+different from it. In this case, all posterior functionalities 
+should equal the one in loc-lif+l. Based on this new 
+insight, some of the generated scenarios undergo removal. 
+The fourth step of the algorithm performs the reduction of 
+possible scenarios to just the feasible ones. A new 
+structure PS,, (Possible Scenario) holds all the possible 
+scenarios that could develop from Ci . In total, there existsj 
+possible scenarios that result as the combination of all Cj  . 
+In the previous example, the number of possible scenarios 
+equals 6. From the previous cj , the PS, in Table 7 can be 
+generated. 
+For the given example, the last identified functionality 
+equals two. The functional scenarios PS-1, PS-3 and PS-4 
+introduce two different functionalities, with the first one 
+different from l i f ,  which is a contradiction. Therefore, they 
+are not feasible scenarios. The functional scenarios PS-2. 
+PS-5 and PS-6 are feasible based on the algorithm. 
+Table 7 Possible Scenarios 
+CorresDondine Modules I MI M3 1 U I 
+PS 5 
+PS 6 
+The final step of the algorithm reduces the scenarios. By 
+joining consecutive instances of the same functionality into 
+one, the scenarios are reduced. This refinement would make 
+some scenarios equivalent. In the example, scenarios PS-2 
+and PS-6 will generate the same functionality sequence after 
+reducing them. Therefore, they are considered equivalent. 
+The reduction of the three functional scenarios is presented 
+in Table 8. 
+Table 8 Final Scenarios 
+Scenarios 1 
+be decoded using the same procedure as the one on the 
+right, but executing in the opposite direction. In general, the 
+left gap holds less importance than the one on the right, 
+since it contains the oldest events. For simplicity and 
+without loss in generality, the left gap will be ignored from 
+now on. 
+Evaluation on the Normality of the System Activity 
+The SBBR data can assist not only in the functional scenario 
+generation but also in the analysis of whether the behavior 
+of the system in the last epochs of execution was abnormal. 
+The SBBD can aid in this process by determining whether 
+the transition sequence observed before the failure equals to 
+the steady state of the system. 
+If the sequence recorded by the SBBR does not fit the 
+steady behavior of the system, then the recorder sequence 
+constitutes abnormal behavior. The analysis of the 
+functional scenarios generated by the decoder can use this 
+type of information as an aid in their interpretation. This 
+would be analog to the analysis of flight data recorder 
+information. If the recorder data does not fit the normal 
+profile of an airplane behavior, then some hypothesis such 
+as human error are more likely to be considered as the cause 
+of the accident. 
+The procedure to obtain a transition probability matrix from 
+the frequency matrix provided by the SBBR has been 
+defined. This transition matrix represents the steady state 
+activity of the system since the SBBR began execution. On 
+the other hand, the transition sequence reflects the last 11 
+553 
+epochs of the system execution before the failure. From this 
+sequence, a new frequency matrix may be derived that 
+would represent the activity of the system during the last I ?  
+epochs. The question then reduces to the evaluation of 
+whether the data in the new frequency matrix was extracted 
+from the same population as the steady behavior data. This 
+conjecture may be tested through 2 (y - m,y, )1 
+1 = I  *w, <Xt 
+where x, represents the 100% point of the chi-square 
+distribution with n-I degrees of freedom [9]. 
+Table 9 FTP Functionalities 
+In spite of its popularity, FTP is an interesting target 
+application. FTP has almost IOKLOC and 177 modules. It 
+works with sockets and interacts with daemons, making it 
+complicated enough to be worth investigating. In addition, 
+the FTP source code is publicly available making this study 
+easily reproducible. Last, there is a list of known “bugs” for 
+the target application, which set a baseline from which the 
+use and validation of the SBB can be shown. 
+Fiinctionalities and Modules 
+The process to understand and extract the target application 
+functionalities started with the collection of the basic 
+application documentation. The application did not contain 
+any formal design documents. The main sources of 
+5. AN EMPIRICAL INVESTIGATION 
+This section presents fragments of a comprehensive study 
+[lo] of the SBB. To provide evidence of the SBB 
+applicability and usefulness, a target software system is 
+exposed to a series of failures and the SBB is used to assist 
+in the understanding of those failures. 
+Target Application 
+The chosen target application is the popular program suite 
+used to transfer files across networks using the File Transfer 
+Protocol or FTP. It is composed of a client that makes 
+requests, and a server daemon that attends those requests. 
+In general, the client interprets user commands, packages 
+the command, communicates it to the local ftp server and 
+waits to hear from the server. The server analyzes the 
+request and responds. The response might generate some 
+other actions in addition to the communication with the 
+client. These actions may consist of operations on the local 
+file system or the establishment of a connection with the 
+remote ftp server with the corresponding request. The focus 
+of this experiment is specifically on the client side; any later 
+reference to the FTP application concerns only to the client. 
+There are several variants of FTP. The one chosen for this 
+study works in the Linux operating system and has all the 
+features of a typical f l P  application, such as: get, put, 
+setmode, mget, mput, open, close, macro, directory 
+operations, etc. The popularity of this package makes it a 
+good didactic example. 
+information were the source code and the 
+man pages. In spite of the recognized 
+value assigned by software engineers to 
+documentation, the lack of 
+documentation seems to be the norm 
+rather than the exception, which makes 
+this study even more valuable because of 
+this characteristic. 
+The functionality extraction process 
+started with the examination of man 
+pages, and defining the main features of 
+the apdication. Also, the source code _ _  
+documentation and the grouping of modules in files were 
+examined. A static call tree generator was used to develop 
+the basic call structure that would facilitate the mapping 
+between functionalities and modules. This call tree 
+generator gave an initial estimate of the overall call structure 
+and the mapping between functionalities and modules. 
+Unfortunately, the call tree generator had some limitations. 
+The target application used “pointers to functions”, which 
+limited the static analysis tool. As a consequence, each 
+different feature had to be exercised individually to identify 
+which modules were executed, to discover new 
+functionalities and to validate the previously defined ones. 
+This process was repeated until all the possible transitions 
+were exercised and all the features were executed. The 
+functionalities obtained by this process are enumerated in 
+Table 9. 
+The target application modules were identified using the 
+preprocessor provided by CLIC. Henceforth, the FTP 
+modules and functionalities are represented by their 
+corresponding identification numbers to have a more 
+concise representation of the problem. The mapping from 
+functionalities to modules is presented in Table 10. The 
+first step consisted in mapping the modules to the 
+functionalities. The second step was the classification of the 
+modules. When performing the mapping and classification 
+under these circumstances, it was not possible to be certain 
+that the mapping and classification were complete or 
+accurate. 
+554 
+In general, if no design documentation is available, the 
+mapping and classification are only estimates. For example, 
+a module that is always executed except under extremely 
+rare conditions might appear to be indispensable while it is 
+not. The problems that arise from these uncertainties start 
+disappearing as the software gets executed and more of its 
+behavior is known [ l l ] .  The probabilities of finding these 
+special situations diminish as the software is executed over 
+time. 
+Table 10 FTP Mapping 
+Scenario 
+Get-Fat 
+Shell- 
+Table 101 Failure Scenarios 
+Description 
+Get +99 files with the same first 
+eight characters in the name 
+Open a shell session while in 
+F 
+Debug [ debugging mode 
+KillFtpd [ Kill the local FTP daemon 
+Modules 
+Unique Unique Shared 
+Indispensable 
+1 
+2 
+3 
+162 12,49,159,160,163,164,165,166 
+31 33,34,38,37,40,41,69 
+103 13,61,62,78,99,101,102,104,114,117,119,161,32,42,43,~,45, 
+I 46,47,48,51,52,53,54,55,56,57,58,59,60,77,79,82,83,84,114 
+4 165 I 30,128,129,130,131,132,133,134,135,136,137,138,139,140, 
+6 
+7 
+8 
+9 
+10 
+I 141,142,143,144,145,146,147,148,149,150,151,152,153,154 
+5 I 16 1 14.15,17,18,19,20,21,22,35,36,40,70,71,73,75,76,81 
+100 50,60,175,176 
+86 80 
+106 23.24, 63,74,109,110, 111,112,113,115 
+108 25,26,27,29,85,107,1 I8 63,74,109,110,111,112,113,115 
+68 67,116 
+at least one module must be unique to the given 
+functionality and indispensable to it. Since the SBBD 
+requires only differentiating between unique and shared 
+modules and determining to what functionality it belongs, 
+the module classification and the mapping can be slightly 
+simplified. The modules were mapped to their proper 
+functionalities and then examined to determine whether they 
+were unique. The final step aims at finding at least one 
+indispensable module that was unique to each functionality. 
+This will ensure that each functionality was specified 
+according to the definition. A functionality might have had 
+more than one indispensable unique module but only one is 
+necessary for it to be considered a functionality. 
+Planned Failures 
+Only 3 of the failure scenarios are presented in detailed 
+form because of space limitation. The planned failures are 
+meant to illustrate how the SBB would behave under 
+different circumstances. By exercising the failures, the 
+analysis of the benefits and the limitations of the SBB can 
+be performed. In addition, the failures help assessing what 
+factors are affecting the SBB efficiency. Table 11 provides 
+a list of the failure scenarios and a short description of each 
+one. 
+Embedding the SBBR into FTP 
+The SBBR was embedded in the target application in two 
+steps. In the first one, the preprocessor provided by CLIC 
+inserted the "hooks" into the FTP modules. CLIC. 
+instrumented a total of 177 modules. 
+- - 
+application. This was done primarily through simple 
+additions to the original FTP makefile that were meant to 
+incorporate the SBBR modules to the target application. 
+The embedded SBBR was implemented in C .  The only 
+aspect from the SBBR perspective that deserved more 
+attention was the survivability issue. The SBBR data had to 
+endure failures at the application level by dumping the data 
+to the hard drive in the event of an application failure. The 
+SBBR used in this case had a mechanism controlled by an 
+exception handler, a construction within the language that 
+allows catching errors before exiting the program. The 
+SBBR transfer mechanism was triggered by the exception 
+handler before the program finished, independently of the 
+exit status. 
+SBBR Calibration: Determining the minimum length of the 
+sequence 
+Several different approaches were attempted in order to 
+determine the length or size of the SBBR sequence needed 
+by the target application. Independently of the chosen 
+approach, it was clear that the size of the sequence should 
+be proportional to the size of the system. More precisely, it 
+should be a function of the variance in the behavior of the 
+system. To determine the sequence size, it is necessary to 
+understand the variability of the transition space. If the 
+target system presents large variation in its behavior, more 
+data is necessary to determine its distribution with a certain 
+level of confidence. 
+Based on these ideas, it was determined that a calibration 
+period was needed in order to define the transition space and 
+555 
+its distribution. At the beginning of this calibration period, 
+the target application is executed with the embedded SBBR 
+and a sequence of size IZ = 1. The purpose of this initial 
+calibration is to understand how the system distributes its 
+activity across the modules, and what is the variance of this 
+distribution. Based on the variance of the distribution, the 
+size of the sequence is estimated using the same formula 
+that was presented in Section 4 to determine the normality 
+of the sequence. This differs from 
+'I (p -111.p; )I 6=E 
+r = l  '%Pi 
+because instead of obtaining variances, 6,  with samples of 
+the same size, 12 ,  the sample size, 11, is incremented until the 
+system provides the same variance across consecutive 
+samples. When the equation provides a set of consecutive 
+variances with the same value, then the size, 11, is fixed and 
+becomes the target size of the sequence. 
+Graph 3 presents the plot of sequences with different size, 11, 
+and the corresponding observed variance, 6, for the target 
+FTP application. Initially, the sequence size was set to 1. 
+Then, the sequence size was incremented. After oscillating 
+for sequences of size below 50, the variance obtained from 
+sequences of different sizes did not change substantially. 
+The lower threshold for the sequence size should be set after 
+the oscillation period. For the FTP application, a sequence 
+of size 500 was selected. At that point, the incremental 
+gains of having hundreds of extra transitions recorded in the 
+sequence are minimum. In order to determine the sequence 
+size for FTP, over 300K transitions were needed, that is, 
+over one megabyte of transition information. It can be 
+expected that larger systems, with larger behavioral 
+variance, will need more execution to stabilize, generating a 
+larger amount of data. 
+The sequence size obtained through this procedure is meant 
+to be a guideline. Specific needs of the target system might 
+unacceptable. On the other hand,' such large behavioral 
+variation might in some cases indicate design weaknesses 
+from a testability perspective. A larger sequence will not 
+necessarily provide more information. On the contrary, 
+when analyzing the normality of the transition sequence, a 
+larger sequence might include so many aspects of the 
+system behavior that most behaviors would be considered 
+abnormal. 
+This technique for determining the appropriate sequence 
+size has also been applied to other systems of different types 
+and sizes to ensure that it is not dependent on the data 
+collected from this specific application. Successful 
+calibration attempts have been performed on xv (graphs 
+manipulation, +800 modules), a matrix library (12 
+modules), an embedded real-time system (+1600 modules) 
+and chess game (33 modules). 
+Understanding what happened through the SBBD 
+Once the characteristics of the SBBR for the specific 
+environment have been determined, the challenges 
+presented by the decoding mechanism can be faced. This 
+section presents the steps that follow the recovery of the 
+SBBR. The information is decoded by the SBBD for a 
+subset of the failures specified in Table I1 following the 
+procedures already established. The following is a 
+synthesized version of the decoding procedure performed by 
+the SBBD: 
++ 
++ Remove middle gaps 
+4 Generate Candidate Functionalities 
++ 
++ Collapse functional scenarios 
++ Phase 1 : Generation of Functional Sequence 
+Map unique modules to functionalities 
+Reduce to feasible functional scenarios 
++ Phase 2: Analysis of Sequence Nonnality 
+Since the decoding Drocess follows the same exact 
+I 3 0 1  I 
+procedure independently of the scenario, only 
+the unique decoding procedure details for each 
+scenario are introduced. The explanation of 
+each scenario includes a description of it, the 
+main objective, the generated scenario or 
+scenarios and the analysis of the sequence in 
+terms of its normality. 
+Sequence Size 'n' J 
+Graph 1 FTP Calibration 
+alter the size estimation provided by this procedure. generated. 
+1.5% of the full transition matrix had any values, which Systems exist such that the variance in the behavior is so 
+size the system which is running each test scenario, the target application was put 
+large that to and keep a sequence Of the suggested emphasizes the sparse nature of the call graph. Before 
+For all the scenarios, the FTP application was 
+run from Linux. The sessions were opened to a 
+local terminal and several remote terminals that 
+operated HP-UX, Windows NT and DOS. The 
+transition matrix was initialized only once, 
+when the SBBR was introduced into FTP for 
+the first time. Next, the transition matrix 
+accumulated all the transition information 
+including the scenario's data as they were being 
+After running the 10 planned scenarios, only 
+556 
+through a regular battery of tests to exercise some normal 
+operations and establish a minimal operational baseline 
+before the failure. 
+L 
+12 1 108 [ 9 1  9 1 -  
+13 I 103 I 3 1  3 1  3 
+Failure “Get-Fat” 
+15 
+16 
+When files are retrieved from a remote system using a file 
+naming convention of 8 characters, FTP transforms the file 
+name to fit those restrictions by renaming the files using 6 
+characters plus an index. It was known that the application 
+had a limitation if more than 99 files were transferred 
+because it exceeded the index capabilities and it produced a 
+buffer overflow. This test scenario was meant to analyze 
+this failure scenario. When the looth file was transferred 
+from MS-DOS to a Linux partition with FAT format, the 
+application died. In spite of that, the SBBR survived the 
+failure, which means that the data was safely stored and the 
+SBBD was applied to the data. 
+111 ? 
+112 ? 
+The first step of the decoding algorithm worked very well, 
+mapping 86.5% of the module sequence to the 
+functionalities. The main reason for this effectiveness is the 
+small number of shared modules across the functionalities. 
+The second step removed all the remaining ambiguity, 
+making the third and fourth steps unnecessary. Table 12 
+presents a subset of the sequence obtained from the SBBR, 
+more specifically the last 25 epochs before the failure. This 
+table also contains the functional sequence generated 
+derived from the modular sequence. 
+26 
+27 
+In the generated failure scenario, the following three 
+functionalities appeared consistently and cyclically: Manage 
+Connection (3), Transfer From (9) and Translate (4). The 
+last module to be executed was mapped to the Translate (4) 
+functionality, which indicates that this functionality is likely 
+to be associated with the failure. The repetition of these 
+functionalities in the sequence also indicates that the same 
+set of operations was executed in repeated occasions. Under 
+these circumstances it is reasonable to consider that one of 
+the possible causes of the failure is related to memory 
+management (e.g., memory leak, out of array bounds, etc). 
+30 1 4 1  4 1  4 
+Failure 
+To test the module sequence for normality, the probabilities 
+for a normal distribution had to be extracted from the 
+SBBR. Table 13 holds a sample of how the probabilities 
+from the transition matrix were generated. These 
+probabilities and the module sequence data retained by the 
+SBBR were used in the equation introduced in Section 4 to 
+test the module sequence for normality. 
+158 
+159 
+When analyzed, the failure scenario was considered 
+abnormal mainly because the functional sequence repeated 
+itself, which did not match statistically with the probabilities 
+extracted from the SBBR matrix. In addition, the number of 
+ger operations was extremely high. 
+0 0 ... 0 0 0.00004 
+0 0 ... 0 1169 0.04255 
+The result of comparing the module sequence distribution 
+against the nominal distribution using Equation 4.1 
+produced a value of 17147. Since the x2 for an a of 0.05 
+... 
+Table 12 Failure Sequence for “Get-Fat’’ 
+. . . . . . . . . ... ... ... 
+8 102 3 3 ) -  
+9 108 9 9 1  9 
+I 1 0  I 1 1 0  I ? I - I - I 
+t I 1  I 108 I 9 1  9 1 - 1  
+I I I I 1 14 1 108 I 9 1  9 1  9 1  
+1 I I I I 1 
+Table 13 Probabilities Generation for “Get-Fat’’ 
+Called 
+157 ... 
+I I I I I I I 
+127472 I 1 I 
+and 177 degrees of freedom is approximately 147, the 
+sequence can be defined as abnormal. This difference can 
+557 
+also be appreciated from a graphical perspective by 
+contrasting the SBBR transition matrix distribution with the 
+sequence distribution. 
+Graph 2 presents both distributions in terms of their 
+probabilities estimates. On the X-axis of the graph are the 
+modules and on the Y-axis the execution probabilities of 
+each module. It can be observed in the graph that some 
+modules with a high probability of being executed under the 
+normal SBBR scenario were not executed under Scenario 1. 
+0.35 1 7 
+.- 6 03 
+025 
+4- .- 
+n 
+e 02 
+015  .-  c
+E 0 1  
+m 
+005 
+0 
+I--- SBBR - sc.11 
+Graph 2 Normality of Failure “Get-Fat” 
+On the other hand, some modules that executed often under 
+Scenario 1 are not likely to be executed with the same 
+proportion under the normal SBBR scenario. These 
+differences led to the determination of the scenario as 
+abnormal. 
+Failure “Shell-Debug ” 
+The shell facility included in the target application is not 
+very stable in the current release. If the shell was used, 
+the debug feature should not be activated. In spite of this, 
+the shell works well if debug is not activated. In this test 
+scenario, the shell was used successfully in repeated 
+occasions with the debug option deactivated. Next, the 
+debug option was activated and the attempt of using the 
+shell subsequently produced a failure. 
+The decoding process followed the same steps as the 
+previous scenario. Only steps one and five were 
+necessary to produce a functional sequence with no 
+ambiguity. The last executed functionality was Commander 
+(1) and the last module was shell (49). The shell module 
+had executed previously with no failure, which indicates 
+that there must be a special condition or system state under 
+which that module fails. The sequence was determined to 
+be abnormal with a value of 476. The last executed 
+functionality, the Commalider (3) functionality, does not say 
+much about the nature of the scenario, because it is the most 
+common one in any execution. From this perspective, the 
+fact that the shell is not implemented in its own 
+functionality has negatively affected the decoding process at 
+the functionality level. 
+For this scenario, the SBB cannot determine exactly which 
+conditions lead to the failure. The SBB can only assist by 
+specifying the modules and transitions that were executed 
+before the failure. In this case, it is known from the 
+transition matrix that the module setdebug (41) executed 
+prior to the shell module where the failure occurred and this 
+might be used to perform the root cause analysis. 
+Failure ”Kill FTPd” 
+The FTP application works by communicating through a 
+port with an FI’P daemon. For this scenario, the daemon is 
+killed while doing a file transfer. The file had to be large 
+enough to allow the daemon to be killed while the transfer 
+was being done. In addition, killing the daemon required 
+access to a system with root permissions, so the transfer was 
+done locally under Linux. Under normal circumstances, 
+FTP stops the file transfer and reports an error. The 
+objective of this scenario was to analyze the behavior of the 
+application when the FTP server goes down. Two 
+altematives were available: 1) force a failure in the target 
+application at the time that the file transfer is aborted and 2) 
+use the download mechanism provided by the SBBR. The 
+second alternative was chosen to demonstrate another aspect 
+of the SBBD. 
+The transition sequence shows a normal scenario. It can be 
+seen in Graph 3 that the distribution is considered normal, 
+0.25 
+Graph 3 Normality of Failure “KillFtpd” 
+as extracted from the SBBR transition matrix against the 
+distribution from the sequence. They both appear 
+proportional graphically, which is confirmed from a 
+statistical perspective with a normality value of 110, which 
+is under the chi-square value established in 147 for 177 
+degrees of freedom. 
+This failure is also different from the previous ones because 
+it generates two possible failure scenarios. Up to this point 
+all the failures have had generated one scenario. This failure 
+is unique in the sense that it generates multiple failure 
+scenarios that need to be analyzed to assess the likelihood of 
+each. Since the failure occurred in a module shared by two 
+functionalities, there is some ambiguity at the decoding 
+stage. The decoding steps needed for this scenario can be 
+seen in Table 14. Except for Step 2 (filling the middle 
+558 
+gaps), all the steps of the decoding algorithm needed to be 
+performed. The ambiguity only appears at the end of the 
+sequence because the execution stopped at a shared module. 
+Table 14 Failure Sequence for “KillFtpd” 
+Epoch 
+M +  
+1 
+Module Functionality Sequence 
+Sequence Step 1 I Step 3 I Step4 Step 5 
+26 9 1  9 1  9 1  9 
+2 
+3 
+I I I I I 
+14 I 164 1 1 1  1 1  1 1 -  
+162 1 1 1  1 1 
+162 1 1 1  1 
+5 
+6 
+7 
+165 1 1 1 
+164 1 1 1 
+165 1 1 1 
+8 
+9 
+10 
+13 I 104 [ 3 1  3 1  3 1 -  
+14 1 117 1 3 1  3 1  3 1 -  
+164 1 1 1 
+162 1 1 1 
+163 1 1 1 
+I I I I ~ l  
+I15 I 108 I 9 1  9 1  9 1  9 1  
+11 
+12 
+162 1 1 1 
+117 3 3 3 3 
+I I I I I 
+119 I 119 I 3 1  3 1  3 1 - 1  
+16 
+17 
+18 
+22 103 
+23 119 
+24 107 9 9 9 9 
+25 111 ? ~8.91 8 9 9 8 9 
+107 9 9 9 
+119 3 3 3 3 
+104 3 3 3 
+27 I 111 1 ? I (return) 1 - 1 - 
+Failure 
+From Phase One of the decoding stage it is known that the 
+functionalities that were executed before the failure were: 
+Transfer From (9) ,  Commander ( I ) ,  Manage Connection 
+(3), Transfer From (9),  Manage Connectioiz (3). Transfer 
+From(9) and the last functionality was either Transfer To 
+(8) or it remained in Transfer From (9).  
+It is also known from the normality analysis that this 
+scenario had a sequence that was considered normal. Next, 
+it was necessary to quantify those scenarios. First, the 
+module sequence needed to be extended until modules 
+classified as unique were found. Since the module 112 is a 
+terminal module (leaf of the call tree), the expansion had 
+length 0; in other words, no expansion was possible. Since 
+a unique module could not be reached from the present 
+module, then the last module had to be executing the same 
+last known functionality. Hence, the last functionality to be 
+executed had to be Transfer From (9).  Under this example, 
+this conclusion is obvious, but when dealing with larger 
+applications and domains, it may not be that obvious. The 
+decoding mechanism has to be consistent and unambiguous 
+in order to be part of a decoding script that runs on any 
+SBBR data, independent of the size and mapping 
+complexity of the target application. 
+Scenarios Summary 
+A summary of a more complete set of failure scenarios is 
+provided as an overview of the opportunities opened by the 
+SBB and the limitations of it. For each scenario, the 
+usefulness of the SBBR can be qualitatively estimated using 
+the following scheme: 
+Low: the SBBR triggers are not activated by the type of 
+failure. As a result, no data is gathered. The only lesson 
+that can be learned is that the failure occurred at a level 
+not handled by the SBBR. 
+Medium: the SBBR survives and provides data. The 
+decoding process finds the possible scenario or scenarios 
+that led to the failure. The sequence is considered normal 
+but it provides no additional hint regarding the nature of 
+the failure. The failure might have been caused by a 
+condition or state of the system or by an external 
+component not observable by the SBBR. 
+High: the SBBR survives and provides data. The 
+decoding process finds the possible scenario or scenarios 
+that led to the failure. The sequence is considered 
+abnormal indicating that the anomaly that caused the 
+failure is likely to be reflected in the SBBR sequence. 
+Outstanding: the SBBR survives and provides data. 
+The decoding process finds the possible scenario or 
+scenarios that led to the failure. The sequence is 
+considered abnormal indicating that the anomaly that 
+caused the failure is likely to be reflected in the SBBR 
+sequence. The generated scenarios are likely to explain 
+the sequence of events that led to the failure and they can 
+assist in the reproduction of the failure. 
+Table 15 summarizes the results of the failure scenarios. 
+Each failure scenario is identified by a number and a name, 
+and characterized by what makes it unique. The next 
+column specifies whether the SBBR survived or not. The 
+next column specifies the number of functional scenarios 
+(F.S.) generated by the SBBD. As it was stated previously, 
+the small number of shared modules contributed to generate 
+a low number of possible scenarios by reducing the system 
+ambiguity. The last column classifies the SBB performance 
+based on the classification specified above. 
+Scenario “Get-Fat”, “Shell-Debug” and “Kill-FTPd’ were 
+analyzed previously. Each of the other scenarios exhibits 
+additional perspectives of the SBB. For example, the “Kill- 
+FI’PApp” scenario shows the SBB usefulness when the 
+SBBR data is not recoverable. Scenario “Put-Sync’’ tests 
+the SBB when a failure propagates through the code. These 
+scenarios are not exhaustive; they are part of a more 
+comprehensive SBB validation study. The intention has 
+been to present some of the scenarios that show the potential 
+and the uniqueness of the SBB. 
+559 
+Table 115 Summary of Failure Scenarios determine the likelihood of the last 17 epochs under a normal 
+scenario. 
+We can derive from the investigation 
+that the degree of effectiveness of the 
+SBB in assisting on a failure 
+investigation depends on several 
+factors. The traceability from 
+functionalities to modules. the levels of 
+cohesiveness and coupling, the 
+structures and mechanism being used, 
+and the implemented SBBR 
+survivability features influence the 
+effectiveness of the SBB. More work is 
+needed to determine what other 
+architectural factors have an impact in 
+the SBB. 
+From the empirical study we can 
+determine that the SBB can be very 
+useful under most scenarios. 
+Something can be learned about the 
+nature of the failure even in the extreme 
+case when the SBBR data is no 
+6. CONCLUSION 
+When software fails it is often very difficult to determine 
+the cause of the failure. This constitutes a major obstacle to 
+learn from the failures, to produce more reliable software 
+and to improve the software development process. The 
+SBB is a framework that attempts to solve this problem by 
+assisting in the understanding of software failures. The 
+SBB framework provides two key features: 
+A recording device that captures interesting aspects of the 
+software behavior 
+A reconstruction mechanism through which the scenarios 
+that might have led to the failure may be analyzed 
+The recorder mechanism is the SBBR. The SBBR keeps a 
+synthesized version of the system behavior by recording a 
+minimized representation based on the transition model 
+presented. The architecture of the SBBR aims to minimize 
+the perturbation in the target system making especially 
+suitable for large real-time systems. The information 
+gathered in the SBBR constitutes the input to the SBBD. 
+The SBBD generates the functional scenarios that might 
+have led to the failure based on the SBBR data. The idea of 
+functional scenario is a powerful one. Since the mapping of 
+functionalities to modules is ambiguous, and a module can 
+be mapped to many functionalities, knowing what module 
+was executing when the system failed does not exactly 
+specifies what the system was doing when it failed. 
+Although there are several tools to determine the module 
+that was executing at the time of the failure, only the SBBD 
+determines the functionality that was executing at the time 
+of the failure and also the sequence of functionalities that 
+might have led to the failure. Finally, the SBBD analyzes 
+the normality of the SBBR module sequence in order to 
+recoverable. The objective of this research effort was 
+to develop the software analog of the Flight Data Recorder 
+(FDR). That objective has been accomplished. The SBB 
+framework, which is the equivalent of the FDR, can 
+effectively assist in the understanding of software failures. 
+REFERENCES 
+[ 11 P.G.Neumann, “Computer Related Risks“, Addison- 
+Wesley Publishing Company. New York 1995. ISBN: 
+020155805. 
+[2] J.P.Tsai and S.H.Yang, “Monitoring and Debugging of 
+Distributed Real-Time Systems”, 1-19, IEEE Computer 
+Society Press. ISBN: 0471 160075. 
+[3] J. Munson, “A Software Black Box Recorder”, 
+Proceedings of the 1996 IEEE Aerospace Conference. 
+Aspen, Colorado. February 1996. 
+[4] J. Munson and S. Elbaum, “Software Reliability as a 
+Function of the Executed Patterns”, Hawaii International 
+Conference on System Science. January 1999. 
+[5] IEEE Standard 610-12-1990. Software Engineering 
+Terminology. 1994 Edition. Institute of Electrical and 
+Electronics Engineers, Inc. New York. 1994. 
+[6] J. Munson, “Software Reliability Model as a 
+Measurement Problem”, TR-97-03. Computer Science 
+Department. University of Idaho. April 1997. 
+[7] J. Munson, “A Functional Approach to Software 
+Reliability Modeling”, Quality of Numerical Software, 
+Assessment and Enhancement, Chapman & Hill. London, 
+England. ISBN: 04 12805308. 
+[8] .S .  Elbaum and J. Munson, “CLIC: Understanding 
+Program Dynamics”, TR-98-02. Computer Science 
+Department. University of Idaho. February 1998. 
+[9] S. Wilks, “Mathematical Statistics”, John Wiley and 
+Sons Inc. New York 1962. 
+560 
+[IO] S .  Elbaum, “Conceptual Framework for a Software 
+Black Box”. Dissertation. Computer Science Department. 
+University of Idaho. July 1999. 
+1111 G. Hall, “Usage Patterns: Extracting System 
+Functionality from Observed Profiles”. Dissertation. 
+Computer Science Department. University of Idaho, April 
+1997. 
+561 
+Dr. Sebastian Elbaum is an Assistaizt Professor at 
+University of Nebraska-Lincoln, where he holds a 
+J.D.Edwards Professorship. His research interests are 
+software measurement, software testing, software reliabiliiy, 
+and intrusion detection. Ue got his P1z.D. at the University 
+of Idaho. He obtained his MS in Science with a software 
+engineerirzg orientation at the University of Idaho in 1997. 
+He has a BS in Systems Engineering from the Universidad 
+Catolica, of Cordoba, Argentiria in 1995. He is a " m e r  of 
+the IEEE. 
+Dr. John Munson is one of the founders of Cylant 
+Technologies, a Professor of Computer Scierzce at the 
+University of Idaho arid a member of IEEE. He has been 
+closely associated with the IEEE Sqftware Reliability, 
+Metrics and Maintenance coininunities. He currently is 
+jimded for research efforts at Storage Technology 
+Corporation, DOD and the Jet Propulsion Lnboratoiy. 
+562 

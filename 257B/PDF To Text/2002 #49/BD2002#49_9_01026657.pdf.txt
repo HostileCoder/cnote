@@ -1,0 +1,145 @@
+VIPromCom-2002,4th EURASIP - IEEE Region 8 International Symposium on 
+Video / Image Processing and Multimedia Communications, 16-19 June 2002, Zadar, Croatia 
+MODIFIED BTC ALGORITHM FOR SATELLITE IMAGE 
+CODING 
+Gregor Rozinaj ', Sergio Herrera2, Juraj Mikula' 
+Department of Telecommunications, Faculty of Electrical Engineering and Information 
+Technology, Slovak University of Technology, Ilkovicova 3, 8 12 19 Bratislava, Slovakia, 
+fax: +42 1-26827960 1 ,  e-mail:gregor@ktl.elf.stuba.sk 
+Instituto Politecnico Nacional, Centro de Investigacion y Desarrollo de Tecnologia 
+Digital CITEDI-IPN, 2498 Roll Dr. #757 Otay Mesa, San Diego, CA 92173 
+1 
+2 
+Abstract: Codes BTC (Block Truncation Coding) and their variations are lost-block codes 
+often used in narrowband systems with a lower sensitivity for transported picture impairment. 
+Our preferred modiJication of these codes goes to better compression with a v e v  low picture 
+impairment against to original BTC methods. The modijkation uses conveniences of low-level 
+changes of successive pictures, which are inserted into the ,, difference byte ". In this way the 
+whole levels need not to be transported. In the case of big differences between levels, this 
+code uses non-linear quantisation for the level differences and it brings approximately 
+capacity decrease of 30%. 
+Keywords: satellite images, image compression, BTC 
+1. INTRODUCTION 
+Using BTC for image compression is still very popular because of the simple software and 
+hardware implementation. Several modifications of this well-known method have been 
+published already. Some of them are quite sophisticated. Last research are oriented to region 
+based BTC [l] or morphological shape representation [2]. 
+Our paper deals with modified BTC based on special coding of image blocks. The 
+method has been developed for satellite images and enhances the features of BTC from speed 
+point of view either preserving or slightly deteriorating the quality of standard BTC. 
+2. BLOCK CODE MODIFICATED-BTC (MBTC) 
+The output of BTC is created with bytes represented upper block level, lower block level and 
+mask. In the phase of MBTC developing we worked with block size 4x4 pixels, because the 
+bigger block sizes can cause quality lost of coded picture, which is in satellite pictures critical. 
+Code BTC with block size 4x4 sends to the output 4 bytes (2 bytes are block levels and 2 
+bytes represents the block mask). The base difference between BTC and MBTC codes is that 
+code MBTC does not send to the output always both block levels (upper and lower), but it 
+sends only the difference between these levels and the levels of previous block. The first 
+block of picture must be, of course, coded by BTC code, but the others can be coded by 
+MBTC. Coder and decoder have to save in their memory last calculated block levels. The 
+principle can be shown on the following example (Fig. 1). 
+212 
+VIPromCom-2002,4th EURASIP - IEEE Region 8 International Symposium on 
+Video I lmaae Processing and Multimedia Communications, 16-19 June 2002, Zadar, Croatia 
+26 159 48 56 46 56 55 89 46 85 72 64 
+75 84 122 135 79 155 145 187 59 115 113 109 
+164 15 124 13 162 220 12 35 145 215 218 220 
+17 144 156 56 46 15 122 113 11 42 13 16 
+Fig. 1. Three successive blocks 
+We have three successive blocks from the beginning of coding picture (fig. 1). First block is 
+coded by BTC code. Block average is 87, upper block level is 143, lower block level is 43 
+and mask are two bytes (0100001 1 101001 10)2=(67 l66)10. The coder must remember values 
+of both levels (143, 43) because the coding of next block will require them. The next one is 
+coded by the MBTC code: Block average is 96, lower block level is 48, upper block level is 
+158 and mask are two bytes (000001 11 1100001 1)2=(7 195)lo. Coder does not send levels to 
+the output, but it sends only their differences from previous block. So instead of sending 48- 
+lower level value it sends +5 and instead of sending 158-upper level value it sends +15 to the 
+output. It must rewrite new values (48, 158) into its memory. The process is the same with the 
+third block, as well. Code MBTC includes protocol, which allows the differences between 
+actual, and previous levels insert into one byte - ,,Difference Byte" (DB) (see Fig. 2). It 
+causes to spare one byte per each coded block in ideal case. 
+X - sign of the low difference 
+D - Bit of the low difference 
+Y - sign of the high difference 
+H - Bit of the high difference 
+[X D D D Y H H HI 
+Pig. 2. Difference Byte 
+In three bits DDD (HHH) it is possible to insert difference of maximal seven. So that is the 
+reason, why the protocol is constructed, which specifies that if DDD is equal to 11 1 (HHH is 
+equal to 11 1) it means overflow (absolute difference is bigger than six) and the new byte with 
+whole lower (upper) level has to be sent. MBTC in this modification is qualitative the same as 
+BTC, because there is only the difference in the type of code writing and no difference in 
+values. In ideal case (there is no overflow) the capacity profit against BTC is 25 %, because 
+every block is coded into three bytes instead of four. The probability of this case is very low. 
+213 
+VIPromCom9002,4th EURASIP - IEEE Region 8 International Symposium on 
+Video I Image Processing and Multimedia Communications, 16-19 June 2002, Zadar, Croatia 
+Difference code 
+code 
+We can compare original and coded image on the figure 3. The picture is coded with MBTC 
+code. The quality against BTC code has been unchanged but the compression ratio is better 
+(1 1,5 % profit). We have registered 6941 overflows in this picture during the coding phase. 
+0 1 2 3 4 5 6 
+0 1 2 4 8 1 6  32 
+3. BLOCK CODE MODIFICATED-IBTC-1 (MIBTC-1) 
+Difference code 
+code 
+Difference between codes MBTC and MIBTC-1 is that MIBTC-1 is built on the base of 
+IBTC-1 code. It means that on the output the reduced mask will be sent. Other aspects are the 
+same as in the code MBTC. MIBTC-1 is qualitative the same as IBTC-1. The smaller is the 
+amount of overflows the better is the compression ratio. In our illustrating picture is the 
+capacity profit between MIBTC- 1 and IBTC- 1 the same as between MBTC and BTC. 
+0 1 2 3 4 5 6 
+0 4 8 16 2 4  4 0  5 6  
+3.1. MBTC, MIBTC-1 code quality stabilization 
+Codes MBTC and MIBTC-1 described in this publication offer very good results but it is 
+required to stabilize their parameters, because they are too dependent on the type of coded 
+picture. We can increase ability of these codes in two aspects, in qualitative aspect and in 
+quantitative aspect. With the change of qualitative parameters of code we can decrease the 
+error difference between original and decoded image. For this we can use every well-known 
+type of arithmetical or numerical optimisation methods in the calculating of average and 
+block levels. With the change of quantitative parameters we can decrease the capacity of 
+coded output. For this capacity stabilization we designed non-linear quantisation for 
+transported level differences. It offers to transport in three bits for difference the number 
+which is bigger than six. In the practise it means, that value which is transported by DB is 
+only key, that points into the ,,Difference Table" (DT) (fig. 4). 
+Fig. 4. Difference table 
+In the coding phase we insert into DB always such a key that shows to the difference, which 
+is closest to difference, we want to translate. For instance difference 9 is coded as 4 in DT. 
+This value points to difference 8 in DT. In this way we can code big differences. But this 
+modifications type inserts into the coding some errors. The choice of DT is very important. 
+We have tried several DTs. On Fig. 5 we can see the optimal DT for satellite images. For this 
+DT we have obtained very good results. 
+Fig. 5. Optimal difference table 
+However, it is very important to store in coders and decoders memory always the same values 
+from previous block. It means that the coder has to insert into memory the value located on 
+214 
+ViPromCom-2002,4th EURASIP - IEEE Region 8 international Symposium on 
+Video / Image Processing and Multimedia Communications, 16-19 June 2002, Zadar, Croatia 
+specific place in DT, which was sent to decoder. If it would be different, the process of coding 
+and decoding would crash. For example: let last values of lower and upper block differences 
+to be 45, 150. New, coded block has lower and upper level 54, 165. It means, that coder wants 
+to write values 4, 5 which points on differences 8, 16. In its own memory coder wanted to 
+write values +9, +15, so values 8, 16 are the best from DT. In its memory it has to write 
+values 45+8=53, 150+16=166 and not values 54, 165. For the illustration on figure 6 is our 
+picture coded with DT from figure 5. The capacity parameter is increased in this picture for 
+32 %. But there are some little new errors inserted into the picture. 
+Fig. 6. Image coded with MIBTC-1 with optimal difference table from Fig. 5 .  
+4. CONCLUSION 
+In this paper a new modified method of BTC algorithm has been presented. The method has 
+been developed and tested on satellite images of the Earth. The modification of the method 
+can lead either to the faster compression using BTC preserving the quality of BTC or even 
+faster method than the previous one with slightly deteriorated quality. 
+It is required to find an optimal DT for concrete application in which we want to use these 
+BTC modifications. The optimal DT should be transmitted to the decoder before the coded 
+data. 
+REFERENCES 
+[ 11 J. Polec and J. Pavlovicova, A New Version of Region Based BTC, EUROCON 2001, 
+Bratislava, 2001, 88-90 
+[2] P. Brigger, Morphological Shape Representation Using the Skeleton Decomposition, 
+thesis, http://ltssg3 .epfl.ch/pub files/brigger/thesis html/node99.html#SECTIONOO920 
+[3] D.Levick9-P.Petruliik-P.Radoczi-M.Surin: Hybrid Coding of Image Sequences by using 
+wavelets Transform. "RADIOELEKTRONIKA 99", 9th International Czech -Slovak 
+Scientific Conference, Brno, Czech Republic, April 27-28, 1999,20 1-204. 
+215 
+

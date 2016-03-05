@@ -1,0 +1,791 @@
+Reconfigurable Semi-virtual Computer Architecture for 
+Long Available Small Space Vehicles 
+Esau Vicente-Vivas and Fabih Garcia-Nocetti 
+Instituto de Ingenieria, U", Cd. Universitaria Coyoacan, 045 10, Mexico DF, 525-6228 128, evvf~~servidor.unani.inx 
+Instituto de Investigacion en Matematicas Aplicadas y en Sistemas, U", Mexico DF, 525-6223569, 
+fabian;'~uudea4.iin~~s.unam.mx 
+Abstract-This paper presents a new hardware 
+architecture for a hybrid space computer composed of 
+both physical and virtual processors. The architecture 
+emulates a multiple modular computer, including both 
+physical and virtual spares, with a small amount of 
+physical processors (flight computer) and virtual 
+redundancies (payload processors). The flight computer 
+contains a main processor, as well as a backup and a 
+redundant processor. However, the instrumentation for the 
+Satex mission also includes a redundant LAN with 
+autonomous capabilities to detect its failures, to 
+reconfigure by itself and to provide on-line maintenance 
+by automated means. Communications between flight 
+computer and payload microcomputers are accomplished 
+over this LAN, allowing a versatile operating behavior in 
+terms of data communication as well as in terms of 
+distributed fault tolerance. Under this scenario a semi- 
+virtual expanded flight architecture is periodically 
+implemented in the microsatellite in order to emulate a 
+bigger and safer computer with increased fault-tolerant 
+features. Previous topology is conformed periodically 
+aiming at failure detection, fault isolation, and hardware 
+reconfiguration of processors to obtain high availability; 
+moreover, the architecture can be applied in any small 
+space vehicle. The paper also concerns with fault 
+containment regions, Byzantine majority voting 
+mechanisms, reconfiguration procedures, hardware 
+protections, hardware and software diversity and flight 
+computer interface with satellite instrumentation. 
+TABLE OF C 0 " T S  
+1. INTRODUCTION 
+2. MICROCOMPUTERS ON BOARD SATEX MISSION 
+3. SEMI-VIRTUAL FLIGHT COMPUTER ARCHITECTURE 
+4. FAULT-DIAGNOSIS AND FAULT-DETECTION AT 
+SVFC 
+INSTRUCTION RE-EXECUTION 
+5. NEW AF'LICATION FOR ROLLBACK AND 
+6. FAULT-TOLERANT REDUNDANT LAN 
+7. DISCUSSION OF PRELIMINARY OPERATIONAL 
+TESTS i 
+8. CONCLUSIONS 
+1. INTRODUCTION 
+Fault-tolerant (FT) computers have always been attractive 
+for space applications in view of failure risks involved 
+with launching and operation into an aggressive 
+environment [l], and [2]. However it is known that some 
+properties of high reliability hardware, such as the amount 
+of redundancies, failure detection scheme, fault isolation, 
+hardware reconfiguration and on-line maintenance, 
+involve significant overhead in weight, volume and power 
+consumption, which are also the main constraints in space 
+vehicles. On the other hand, important issues such as: 
+short time schedule projects, research infrastructure, and 
+limited budgets, have restricted the exploitation of fault- 
+tolerant technology in microsatellites and in a general 
+overview in space vehicles. Furthermore, many current- 
+microsatellite missions show an important growth in 
+payload complexity and in financial investment, which 
+jus@ the use of highly dependable instrumentation 
+architectures, specially if they can be provided at similar 
+costs to those from conventional microsatellite hardware. 
+In addition, the inaccessibility of satellites and minor 
+communications provided by LEO orbits complicates 
+even more satellite maintenance. Nevertheless the 
+microsatellite field has experienced an outstanding growth 
+in the last decade, but so far very few vehicles are 
+reported to use FT or FT-like computers. 
+Taking into account that microsatellites are classified in 
+the 10- 100 Kg mass range, most of the reported cases with 
+redundancies belong to a superior category. For instance, 
+in [3] an AMSAT minisatellite of 400 Kg is detailed and 
+reported to be controlled with redundant microcomputers. 
+Other cases such as the enhanced platform developed at 
+the University of Surrey, UK, described in [4] or the 
+OSCAR spacecraft presented in [5] are minisatellites of 
+about 350 Kg. Both cases are reported to use cold 
+redundant on-board computers. There are other less 
+fkequent publications where fault-tolerant computers are 
+described such as the one presented in [6] or the JPL 
+research presented in [7] which discuses the preliminary 
+design concept for a reconfigurable flight computer on a 
+scientific mission to Pluto after the year 2000. The fact is 
+that most of the instrumentation literature reported for 
+' 0-7803-6599-2/01/$10.00 0 2001 IEEE 
+5-2217 
+microsatellites is based on centralized systems like those 
+presented in [2], [SI, and [9]. One very important reported 
+FT space computer is found in [lo], where an architecture 
+based on the Byzantine theory for fault tolerance was 
+reported to be used in space for the first time. The 
+computer is already in orbit in the Russian service :module 
+for the International Space Station [l 11. 
+Under this scenario, the instrumentation reported in this 
+paper presents a Byzantine resilient architecture with 
+efficient use of payload microcomputers. The architecture 
+was especially developed for low earth orbit, and 
+integrated for the first time in a microsatellite. 
+Space Segment 
+~~ ~ _ _  
+Ground Segment 
+Figure 1. Distributed control architecture on board the 
+Satex mission. 
+2. MICROCOMPUTERS ON BOARD SATEX MISSION 
+The Satex microsatellite weights 50 Kg and integrates a 
+fault-tolerant distributed control architecture, [ 1211, figure 
+1. Among main modules are a reconfigurablc: flight 
+computer (FC) with processor board redundancies, 
+payload microcomputers and a power subsystem 
+microcomputer, all interconnected through a redundant 
+LAN specially developed for the project. 
+The first payload consists of a point to point downlink 
+infrared communications experiment controlled with a 
+SABSOC166 RISC microcontroller. The second is a 
+remote sensing digital camera controlled with a Tiger 32- 
+bit WSC single chip microcomputer with 4 h4b of local 
+SRAM. The third is a backup tone communications link 
+with capabilities to program low level survival tasks in the 
+space vehicle. The last payload is controlled with an Intel 
+microcontroller enabling among other functions the 
+satellite mode (ground supervised, fault-tolerant, new 
+program, reset, and so on). The fourth payload is a Ka 
+band communications transponder intended to perform 
+signal propagation experiments under the control of the 
+flight computer. 
+The flight computer is based on the SABSOC166 RISC 
+microcontroller, which takes over following tasks: 
+1. Satellite operations (stabilization, sensor data 
+collecting and mission scheduling); 
+2. Communications with ground (command and 
+mission acquisition, captiue of new program, 
+generation of telemetry packages and telemetry 
+transmission); 
+3. Network server operations to control trafEc 
+communications between ground and LAN 
+microcomputers, including the Byzantine voting 
+process. 
+3. SEMI-VIRTUAL FLIGHT COMPU’ER 
+ARCHITECTURE 
+As described in the previous paragraph, the networked 
+microcomputer with the greatest responsibilities and hence 
+the most critical one for satellite availability is the flight 
+computer. Under this scenario a FT computer was desired 
+for the project, but strong constraints about weight, size, 
+and power availability severely limited the application of 
+current fault-tolerant architectures. On the other hand, the 
+Satex project was born with budgetary restrictions 
+although intended for the design and development of new 
+microsatellite technology. As an answer to this challenge a 
+major analysis and research effort was done to generate a 
+fault-tolerant solution making use of all computer 
+resources available in the microsatellite. The project had 
+ambitious goals to ensure satellite availability, 
+achievement of fault diagnosis, fault detection, and fault 
+recovery on board the space vehicle, including not only 
+the handling of conventional failures but also treatment of 
+malicious behavior in the flight computer. The proposed 
+goals raised the fault-tolerant demands on the 
+microsatellite instrumentation even further, in such a way 
+that both FC architecture and the fault-detection 
+mechanism were revealed as the main obstacles to 
+provide a realistic FT solution. 
+Three major problems were clearly identified at this stage. 
+First, the flight computer had to integrate a reconfigurable 
+architecture with spares and with FT attributes in order to 
+5-2218 
+tolerate its processor board failures. Second, the weight, 
+size and power of known FT computer architectures 
+would be impractical for a microsatellite. Third, the 
+redundancies required to conform a conventional 
+Byzantine resilience FC architecture as well as needed 
+channel links among processors would constitute the 
+major obstacles to generate a practical solution. For those 
+reasons a special computer architecture was proposed and 
+developed for the project which efficiently utilizes the 
+computer resources already installed on board the 
+microsatellite. The generated architecture is a semi-virtual 
+flight computer (SVFC) with spares, implemented with a 
+special design of flight computer (the physical part of the 
+computer) and payload computers (virtual computers), 
+figure 2. The architecture accomplishes an otherwise 
+difficult to implement “N” modular redundancy machine 
+capable of being installed in a 50 Kg microsatellite. 
+- VIRTUAL PROCESSORS 
+FLIGHT COMPUTER 
+PHYSICAL PROCESSORS 
+Figure 2. Semi-virtual computer architecture integrated on 
+board the microsatellite. 
+The Physical Part of the SVFC 
+The flight computer (the physical part of SVFC) integrates 
+three single board microcomputers (SBM) with flexible 
+enough architecture to connect any of its processors to the 
+whole satellite instrumentation. The first one is the main 
+microcomputer and the two other are backup cold standby 
+spares. Every SBM in the FC contains a SAB80C166 
+RISC microcontroller, which includes the following 
+resources: a four stage pipeline, 10 channels of 10-bit for 
+A/D conversion, five timersfcounters, three serial 
+channels, a watch dog timer, an interrupt system and 76 
+I/O lines. The board also contains 64 Kb ROM and 256 
+Kb SRAM with EDAC protection. Most of the electronic 
+components are surface mount MIL-STD883 devices 
+placed on both sides of PCBs. The RISC microcontroller 
+is the only industrial electronic device. To avoid latch-up 
+phenomena in this component additional circuitry is 
+aggregated at every SBM for processor protection. 
+The FC architecture design took into account satellite 
+demands to switch all sensors, actuators and other I/O 
+lines to any one of the back up microcomputers, as can be 
+seen in figure 3. This is accomplished by a switching unit, 
+which enables any one of the three SBM to be connected 
+to the whole satellite instrumentation. As also can be 
+appreciated in the same figure, main and backup channels 
+for LAN hardware are obtained fiom different sources, to 
+eliminate network generic faults. Another important 
+feature incorporated in the FC is a solid state multiplexer 
+(SSM) that allows up to 48 sensors to be captured by the 
+flight s o h a r e  (additional sensors are connected to 
+payload processors). SSM outputs are routed to noise 
+filtering electronics as well as to voltage limiting circuits, 
+and then taken to eight A/D converter channels. In 
+addition, the FC also integrates current sensors to 
+supervise any one of the FC microcomputers as well as 
+current sensors to monitor the operation of other 
+electronic modules. 
+V 
+Figure 3. Physical part of the SWC. 
+When an architectural reconfiguration is commanded in 
+the flight computer, it allows the automatic substitution of 
+all microsatellite resources to the new SBM. In other 
+words, LAN channels, YO ports, memory (SRAM and 
+ROM), clock, latch-up protection circuits and processor 
+are entirely replaced, enabling a wide degree of fault 
+coverage to overcome flight computer failures. At the 
+same time the FC reconfiguration takes place, automatic 
+electronic isolation of the failed microcomputer is 
+provided through the switching unit followed by power 
+interruption of the failed processor. Therefore, each 
+5-2219 
+microcomputer board provides containment areas to avoid 
+failure propagation. 
+Figure 4a. Engineering model of flight computer, left, 
+processor board; center, connector interface board; right, 
+switching board. 
+Figure 4b. Flight computer connected to satellite 
+emulator. 
+FC integration into a small size was possible with the 
+development of multi-layer printed circuit 'boards, 
+including three microcomputer boards assembled in 
+piggyback. The printed circuit size is 4 by 6 inches., as can 
+be seen in the engineering model shown in figures 4a and 
+4b. To offer safe processor activation and deactiivation, 
+the associated controlling circuits were arranged with 
+quad schemes. 
+Another feature of the FC architecture is the capatdity of 
+the current SBM to control power application from 
+sensors and related conditioning electronics which are not 
+required to be activated in a continuous fashion. This 
+working scheme is part of the power management 
+philosophy applied in the Microsatellite to save power 
+resources. 
+Furthermore SBM printed circuit boards integrate 
+strategically located hardware jumpers planned for failure 
+insertion in data, address and control lines which were 
+helpfully utilized for fault-detection validation purposes. 
+FC Multiprocessing and Parallel Processing Capabilities 
+The development of the FC architecture anticipated not 
+only a fault-tolerant architecture operation, but also the 
+possibility of operating in a multiprocessing or parallel 
+processing scheme. This mode is initiated when power 
+activation is commanded for two processor boards, 
+followed by commanded tasks delivered to both 
+processors through the main LAN channel. Under this 
+mode the FC design still keeps one backup processor to be 
+used in case of a processor failure. Some basic software 
+tools and tests have been developed regarding this subject, 
+and are planned stabilization experiments using this 
+operating mode. However, this subject does not constitute 
+a current priority for the project, so more results will be 
+obtained in the future. 
+4. FAULT DIAGNOSIS AND FAULT DETECTION IN 
+THE SVFC 
+The physical part of the SVFC allows the current 
+microcomputer board to be substituted whenever a failure 
+is detected on it, allowing the SVFC core to be restored 
+after a processor failure. Nevertheless, this action requires 
+a media to detect failures in any one of the networked 
+processors, as well as a media to generate the architecture 
+reconfiguration when a failure is located. 
+For fault diagnosis purposes a global test started by 
+command at every computing node was proposed. The test 
+aimed to see the failure mechanism at SBM as a virus 
+infection that would affect (infect) a process being 
+executed in the diagnosed node. In this case the infection 
+process would generate a result deviation which could be 
+detected by simple comparison of results within the 
+inquirer microcomputer. As can be seen at the top of 
+figure 5 ,  the global test is applied to any processing node 
+installed in the microsatellite according to its internal 
+resources. The test covers following microcomputer 
+resources in direct form: accumulators, physical registers, 
+addressing modes, temporal data, arithmetic unit, logic 
+unit, and RAM memory. At the same time following 
+resources are tested in indkect form: crystal, stack pointer, 
+program status word, address bus, data bus, and program 
+memory, as well as decoding and memory map circuits. 
+On the other hand, most of the aeronautical and space real 
+time FT computers reported in the literature propose 
+architectures where few processors are operated 
+concurrently to mask processor failures (duplication with 
+comparison, pair and a spare, NMR, Nh4R with spares). 
+However, they pay for the solution with hardware 
+overhead [13] as well as with financial overhead. These 
+last reasons added to the research and 'time investments 
+required to develop high availability instrumentation for 
+microsatellites have limited the progress in this area. 
+5 - 2 2 2 0  
+Direct Testing 
+/ '\ /'Indirect Testins 
+Figure 5. The fault diagnosis and fault detection approach 
+applied in the SVFC architecture. 
+In the case of microsatellites, real time concurrent 
+architectures and even TMR-like architectures are avoided 
+because of the extra weight, size, and power consumption 
+added to the vehicle. For this reason the Byzantine 
+Resilience-like (BRL) architecture integrates 
+microcomputers which are already available in the 
+microsatellite. In this way the architecture is periodically 
+armed and operated for short times, aiming at the 
+diagnosis of networked processors as well as the detection 
+of failures, including those of malicious character. The 
+reason to regularly integrate the SVFC is to avoid the 
+generation of an operation overhead in payload 
+processors. 
+The semi-virtual architecture is catalogued as a BRL 
+because of one modification made to the Byzantine 
+Resilience approach [14] to survive "F" simultaneous 
+faults, which states: 
+There must be at least (3F+1) containment 
+regions. 
+Each fault containment region must be 
+interconnected through at least (2F+1) individual 
+communication paths. 
+The protocol must consist of a minimum of (F+1) 
+rounds of communication among the containment 
+regions. 
+4. The fault containment regions must be 
+synchronized, which in the fault-tolerant area 
+means that a region bas the property of always 
+responding to a message within a known system 
+bound if it is working. 
+The modification of point '2,' takes into account the fact 
+that this prerequisite is absent in most proposed parallel 
+computers [13]. Also taken into account was the solution 
+for the fault-tolerant parallel processor proposed in [13], 
+integrating a relatively modest region of theoretically 
+sufficient interprocessor connectivity shared by few 
+networked processors. This idea enabled the integration of 
+processing elements into virtual groups [15] to overcome 
+hardware overhead and reliability penalties. 
+Prerequisite 1 was easily satisfied because Satex 
+contains autonomous computing nodes with serial ports 
+electrically isolated, so each processor board establishes a 
+fault containment region. Prerequisites "3" and "4" were 
+fully incorporated in dedicated software for the FT 
+redundant LAN. 
+Under this scenario, the Satex solution uses F=l to survive 
+one simultaneous failure in the SVFC and makes use of a 
+redundant LAN with dedicated software for subsequent 
+rounds of communication. 
+The majority voting process for the SVFC occurs every 
+ten minutes. During this process all diagnosis results from 
+each node are broadcast, one by one, enabling a 
+consensual algorithm to establish a majority voting 
+mechanism to detect microcomputer failures. 
+It is crucial that the SVFC architecture includes 
+redundancies both for the FC (two such redundancies) as 
+well as for virtual computers (one redundancy) in order to 
+conserve the SVFC core after the detection of computing 
+node failures. This allows the FT architecture to be 
+utilized even when serious failures are present either in the 
+flight computer or in any virtual processor. Figure 6 shows 
+the components of the SVFC and also contains a logical 
+representation (right side of the figure) for the BRL voting 
+process implanted to detect Byzantine failures. 
+5. NEW APPLICATION FOR ROLLBACK AND 
+INSTRUCTION RE-EXECUTION 
+Ifthe majority voting process detects a node failure and in 
+the case of virtual processor failures, the process is 
+rearranged in all networked microcomputers by FC 
+command to substitute a virtual redundant node for the 
+damaged node. At the same time telemetry information is 
+updated to keep ground station personnel informed about 
+instrumentation status. When a failure is detected in the 
+FC, all of the virtual processors react sending electronic 
+signals in order to recodgure the flight computer, figure 
+6, even when just one of them might command the 
+, 
+5 -2221  
+reconfiguration process. 
+Figure 6. Components and logical operation for the BRL 
+SVFC architecture. 
+So, in the case of a microcomputer failure in the I T ,  any 
+one of the backup spares may be commanded to tak Le over. 
+When such a condition occurs, the current :satellite 
+mission is aborted and the flight software forces the 
+initialization of satellite operations. However, when 
+communication between satellite and ground statioin starts, 
+a flag and identification fi-om the new microcomputer is 
+downloaded. This event is recognized by the ground 
+software, which answers automatically resending the 
+previous mission commands to the satellite. In this way, 
+the FC failure is tolerated by re-execution of the plrevious 
+aborted mission. This is a new conceptualizatiain from 
+known fault-tolerance concepts such as rollback and 
+instruction re-execution [16] applied for the fvst time to 
+microsatellite mission recovery. This operating mode also 
+enables the ground software to calculate statistics about 
+microsatellite computer failures. 
+The FT BRL mode can be utilized with at least four 
+healthy nodes or until the space vehicle is commanded 
+through the backup TCPC to switch from FT mode to the 
+ground-supervised mode. 
+6.  FAULT-TOLERANT REDUNDANT LAN 
+The FT redundant LAN integrated in the Satex 
+microsatellite supports the operation of the BRL SVFC 
+architecture. 
+The onboard LAN was designed using both hardware and 
+software diversity to avoid common mode failures. 
+Frames and protocols for network operation were 
+specially designed for the project; consequentlly, they 
+accomplish the microsatellite goals in terms of speed, 
+length and content overhead. These features were 
+carefblly evaluated and a decision was made to 1, Jenerat e 
+proprietary protocols based on simplicity and elimination 
+of overheads. From a general point of view two different 
+frames are utilized. The first one allows command 
+programming with the following specifications: origin and 
+destination node, type of command with options area, data 
+field, and data integrity information. The second one 
+enables program code transmission by ordered blocks with 
+subsequent fields: origin and destination nodes, options, 
+number of blocks to be transmitted, current transmitted 
+block, data field and data integrity information. Once all 
+code blocks are transferred, an acknowledgement 
+indicates the presence or absence of damaged blocks. In 
+accordance with it, the origin node may send again 
+replacement blocks until the process is successful. More 
+information about this subject can be found in [17]. 
+Tightly coupled software is utilized to ensure fiame 
+interchange between nodes. Protocols are fault-tolerant 
+synchronized and also were designed to tolerate channel 
+failures. In particular, when a set of programmed 
+co"ications faults are reached, the FC starts 
+communication with the backup channel (on-line 
+maintenance). As payload processors are also 
+programmed with the same network driver, they detect the 
+order to use the new channel until a new order is given by 
+FC. In case 'of a continuing communication problem with 
+the same payload, a programmed number of iterations are 
+executed before a new channel conmutation takes place, 
+figure 7. During this process, telemetry data is updated 
+with LAN and payload behavior to report their working 
+status to ground. 
+If MaxT is defined as the maxi" allowed waiting time 
+for a command acknowledge from any receptor node and 
+MaxTrials as the maximum number allowed of command 
+re-transmissions in any transmitter node, the conditions 
+for status changes in figure 7 are as follows: 
+C1= NOT(ACKCMD) & (t < MaxT) 
+C2 = NOT(ACKCMD) & (t > MaxT) 
+C3 = Trial < MaxTrials 
+C4 = (Trial > MaxTrials) & (Chann = 0) 
+C5 = NOT(ACKCMD) & (Chann = 1) 
+5-2222 
+TRANSMITTER 
+XmitCmd 7 4  
+r. 
+7. DISCUSSION OF PRELIMINARY OPERATTONAL 
+TESTS 
+A major effort in the project has been applied to develop 
+and validate the BRL SVFC with microsatellite software, 
+which can be divided into following parts: 
+1. Flight software for the flight computer; 
+2. Protocols and software for network 
+communications; 
+3. Emulation solhare for network testing and 
+validation purposes; 
+4. Ground station software. 
+One of the major problems faced in the evolution of the 
+exposed architecture was the fact that all the microsatellite 
+subsystems were developed in parallel. This implied that 
+payload equipment was not available during several 
+testing stages of the semi-virtual architecture. The same 
+problem was experienced with 
+LAN actuators and sensors. To overcome these constraints 
+we undertook a deep mission analysis that took us to the 
+formal planning of traffic communications within the 
+microsatellite network, This allowed us to develop an 
+emulator software (ES) which contains the whole traflic 
+communications for every computing node installed on 
+board the satellite (the software runs on PC platforms). 
+The diagnostic functions for every payload as well as the 
+Figure 7. FT protocol utilized in the FT redundant LAN. 
+5-2223 
+majority voting BRL software that allowed the operating 
+validation of the SVFC architecture were tested with' this 
+software. 
+The ES also helped in the visualization of otherwise 
+invisible network operations. In this case messages 
+generated in the flight computer and sent to specific 
+payloads are detected, processed, and also shown on the 
+screen. This feature has allowed the progressive validation 
+of both the flight computer software and the ground 
+station software. The ES divides the PC screen in two 
+areas. The top one shows all the traffic commands 
+detected in any LAN channel, decodes them, and prints 
+explicative information on the screen. Hexadecimal 
+information is also printed to ease the process of software 
+debugging. The down area of the screen contains 
+programmable options for each of the payload 
+subsystems; at this step a menu allows the user either to 
+emulate a specific software command or to program 
+answers for specific events to be emulated. 
+The emulation software also provides automatic response 
+to fault-detection procedures sent by any of the networked 
+nodes (FC or payloads). Once the diagnosis process is 
+over for every computing node, the software has facilities 
+to perform a majority local voting as well as hardware 
+facilities to send a reconfiguration command to the FC if 
+needed. As can be understood, the last option enables 
+failure introduction to the majority voting process for 
+testing purposes. By those reasons, ES became a vialuable 
+tool to validate network operations for the flight 
+computer as well as for payload computers. 
+The flight software for FC is based on interrupt handling 
+procedures, because it was decided not to use a RTOS in 
+the project. The main tasks of the software are: 
+1. 
+2. 
+3. 
+4. 
+5. 
+6. 
+7. 
+8. 
+9. 
+Start of life; 
+Power management; 
+Command acquisition and command execution. 
+Mission acquisition and offline mission execution 
+(the set of commands to be executed when the 
+vehicle is out of reach from the ground stat ion); 
+Acquisition of new programs and delivery to the 
+specified processor; 
+Several types of telemetry acquisition and reports 
+to ground; 
+LAN communication to accomplish traffic 
+demands between onboard processors as well as 
+between processors and ground station; 
+Inter-processor diagnosis and majority voting. 
+Satellite stabilization and gravity gradient release; 
+10. Provisions for different operating modes in the 
+satellite, such as BRL fault-tolerant, ground 
+supervised control, new program, etc. 
+The ground station software was developed with object 
+oriented programming tools under Borland C++. The user 
+fiiendly software provides facilities for: 
+1. 
+2. 
+3. 
+4. 
+5. 
+6. 
+7. 
+8. 
+9. 
+10. 
+11. 
+Telemetry visualization of up to 16 orbits, each 
+containing 10 full telemetry packets from sensors; 
+Programmable visual buttons for on line 
+commands; 
+Visual display of important events such as testing 
+procedure at launch site, release from laiunching 
+system, and gravity gradient deployment; 
+Programmable alarm thresholds for every satellite 
+sensor; 
+Visual and sound alarms for telemetry datal; 
+Failure indication buttons for satellite equipment 
+(FC processors, payload processors, LAN 
+channels, LAN hardware and radio links). 
+Offline mission programming; 
+Automatic or manual delivery of programmed 
+missions; 
+Programmable communication speed; 
+Telemetry storage for data post-processing,; 
+A small window where the current image received 
+from the satellite can be seen in low resolution for 
+fast tracking, figure 8. 
+Figure 8. Ground Station Software. 
+Reliability Study under Way 
+A reliability prediction study is under way for the whole 
+satellite instrumentation, based on serial and parallel 
+models, the MIL-HDBK-217 standard, and programs in 
+MatLab to generate reliability curves. Preliminary results 
+show a very important life and reliability increase in the 
+FC architecture compared with a similar instrumentation 
+without processors and LAN redundancies. This study will 
+be published separately with special focus on the type of 
+redundancies, failure modes and instrumentation 
+configurations to allow different kinds of vehicle 
+survivability. 
+7. CONCLUSIONS 
+This paper presented a new reconfigurable distributed 
+architecture that enables the implantation of a semi-virtual 
+flight computer with spares on board a 50 Kg 
+microsatellite. The semi-virtual computer is composed of 
+a specially designed flight computer (physical processors) 
+and payload microcomputers (virtual processors). The 
+flight microcomputer is in charge of such critical functions 
+as communication with ground, satellite control, and 
+performs server tasks for the onboard redundant LAN. It 
+constitutes the most critical networked node in the 
+microsatellite and is a crucial element that would affect 
+satellite availability in case of failure. For these reasons 
+the semi-virtual computer was designed mainly to 
+supervise and reconfigure the flight computer in case of 
+failures. Nevertheless, diagnostics and fault-detection on 
+board the space vehicle are extended to all the networked 
+microcomputers. 
+The critical operation of the flight computer also 
+conducted to the development of a special hardware 
+architecture to integrate three physical processor boards (a 
+main microcomputer board and two cold standby spares) 
+with wide reconfiguration capabilities. 
+The semi-virtual architecture efficiently utilizes the 
+5-2224 
+already available onboard computing resources to 
+integrate a larger and safer semi-virtual architecture. In 
+this way satellite payload processors are integrated with 
+the FC to virtually implant an otherwise difficult to 
+compose computer architecture with enough FT 
+capabilities to ensure high microsatellite availability. In 
+this sense the SVFC allows concurrent diagnosis of 
+networked physical and virtual nodes and uses a tightly 
+coupled majority voting process implanted in software to 
+periodically identify processor failures. The voting 
+process consists of a Byzantine resilient-like algorithm 
+that allows failure detection of malicious processors. 
+Failure detection and architecture reconfguration for both 
+the physical and virtual modules of SVFC is explained 
+with some details. A new application of rollback and 
+instruction re-execution for microsatellite recovery is also 
+presented in this work. In addition the general 
+characteristics of an algorithm to diagnose networked 
+processors is also explained. 
+Details of a developed redundant FT LAN along with a 
+BRL voting process utilized to detect onboard 
+microcomputer failures are given as well. 
+As a complement, enough information about developed 
+software for both mission operations and validation 
+purposes is explained in this work. Also the developed 
+tests with special emulator software to validate operations 
+of networked processors and tests performed with a 
+satellite emulator are described. 
+The outlined architecture has received preliminary testing. 
+However, more analysis and laboratory work has to be 
+done in order to determine qualitatively the architecture 
+fault coverage according to experimental tests. Burning 
+tests are also needed to validate the periodical fault- 
+detection approach applied to the Satex mission. . 
+REFERENCES 
+[l] Winokur, P.S., Fleetwood, D.M., and Sexton, F.W., 
+"Radiation-Hardened Microelectronics for Space 
+Applications", Radiation Phys. Chem. Vol 43., 1994, 
+Great Britain. 
+[2] Milanil, D.B. and Pokoski, J., "Design of a Low-Cost 
+Single Board Computer System for use in Low-Earth 
+Orbit Small Satellite Missions", Proceedings ZZ 
+AAIMUSU Small satellite Conference, Logan Utah, 
+August 1997. 
+[3] Sperber, F. "Amsat-Phase 3-D a 400 Kgs International 
+Communication and Experimental Satellite in a High- 
+Elliptical Orbit", 3rd International Symposium on Small 
+Satellite Systems and Services, Annecy, France, 1996. 
+[4] Allery M., Sweeting M., and Ward J., "University of 
+Surrey Small Satellite Systems: In orbit capabilities and 
+development programme", 3rd International Symposium 
+on Small Satellite Systems and Services, Annecy, France, 
+1996. 
+[5] Jackson, C. "UoSAT-12/OSCAR-36 Succesfully in 
+Orbit", The AMSAT Journal, Volume 22,  NO.^., MayIJune 
+1999. 
+[6] Neri J.A.C.F, Dos Santos W.A., et al., "SACI-1 A 
+Cost-Effective Microsatellite Bus for Multiple Mission 
+Payloads", International Conference on Small Satellites: 
+Missions and Technology, Madrid, Spain, Sept. 1996. 
+[7] Chau S.N., "Fault-Tolerant Flight Computer", Nasa 
+Tech BrieJ; V01.20, No 4, from JPL New Technology 
+Report "0-1 9675, JPL, Caltech, Pasadena, California, 
+April 1996. 
+[8] Stone, J.M. and Kroesche J.L., "A Spacecraft 
+Computer for High-Performance Applications, American 
+Institute of Aeronautics and Astronautics, AIAA-92-1672 
+1992. 
+[9] Alonso C., et all, "SAC-C MISSION", International 
+Conference on Small Satellites, Missions and Technology, 
+Madrid, Spain, Sept., 1996. 
+[lo] Graf, J., Reimers, C., and Errington, A. "ESA's Data 
+Management System for the Russian Segment of the 
+International Space Station", ESA Bulletin 93, February 
+1998. 
+[ 1 11 Feichtinger, C., "The Zvezda Module, a Cornerstone 
+of the International Space Station", On Station, The 
+Newsletter of the Directorate of Manned Spaceflight and 
+Microgravity, European Space Agency, number 2, March 
+2000. 
+[12] Vicente-Vivas E. et al., "Fault-Detection and 
+Reconfiguration Capabilities for the Distributed Computer 
+Architecture on board the Satex Microsatellite", Seminars 
+of the United Nations Programme on Space Applications, 
+Selected papers on Space Education, Remote Sensing and 
+Small satellites, N0.8, pp. 176-182. 
+[13] Harper, RE., and Lala, J. "Fault-Tolerant Parallel 
+Processor", Journal of Guidance, Control and Dynamics, 
+vol.14, No. 3, May-June 1991. 
+[ 141 Tanenbaum, A. Distributed Operating Systems, 
+Prentice Hall, 1995. 
+[15] Babikyan, C., "The Fault Tolerant Parallel Processor 
+Operating System Concepts and Performance 
+Measurement Overview", 9th Digital Avionics System 
+Conference, October 1990, Virginia Beach, VA. 
+5-2225 
+' [I61 Johnson, B., Design and Analysis of Fault-Tolerant 
+Digital Systems, Addison-Wesley, 1989. 
+171 Vicente-Vivas E. et al., "Hardware and 
+Communications Protocols for a Fault-Tolerant 
+Distributed Computer Network in the Satex Microsatellite 
+System", 3": International Symposium on Small Satellite 
+Systems and Services, Annecy, France, 1996. 
+Esari Vicente-Vivas received the BS 
+(1 982) and M Sc. (1 987) degrees in 
+electrical engineering from the 
+National University of Mbxico 
+(UVAIY) and currently is about to 
+obtain the Ph.D. degree at the same 
+University in the area of high 
+availability and fault-tolerant 
+instrumentation. Since 1982 he has 
+done research for the Institute of Engineering anti since 
+1985 and 1989 he has been a lecturer at the School of 
+Engineering and at the Postgraduate School of 
+Engineering, WAIL? Mhico. 
+In 1985 he was part of a Mexican team developing GAS- 
+CAN experiments for the Space Shuttle at Utah State 
+University and in 1988 he spent a research visit at the 
+Space Applications Center, ISRO, Ahmedabad, India, 
+developing hardware for image processing. 
+His research interests include computer system 
+architecture, digital image processing, human machine 
+inteflaces, high available and fault-tolerant system, and 
+microsatellite instrumentation. Presently, he is 
+responsible for the automation hardware and s o h a r e  for 
+the Satex microsatellite being constructed by several 
+research institutions from Mhxico. 
+Fabih  Garcia-Nocetti received the 
+BSEE from UNAM (I 984), and the 
+M.Sc (1988) and Ph.D. (1991) ?om 
+the University of Wales, Bangor, 
+UK He held a Postdoctoral 
+position at the same universityfiom 
+1991 to 1992 in real time 
+applications for parallel processing 
+of images and signals. 
+From 1992 he has headed the department of computing 
+systems and automation engineering at IIMAS, W A M  
+From he has been a lecturer at the Science & Computing 
+Engineering Postgraduate Program at IIMAS, U"4M 
+His research interests include Hardware Architectures 
+and Algorithms for High throughput Computing, Parallel 
+Processing Applied to Image and Signal Processi,ng, and 
+Distributed Systems. 
+He is a member of IFAC, IEEE and IEEE Computer 
+Society. 
+5-2226 

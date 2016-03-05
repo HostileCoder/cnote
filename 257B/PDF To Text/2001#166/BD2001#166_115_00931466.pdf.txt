@@ -1,0 +1,846 @@
+Strategy Builder Software for Atmospheric Retrievals 
+Sassaneh Hojaiji Poosti 
+Jet Propulsion Laboratory, California Institute of Technology 
+4800 Oak Grove Dr., Pasadena, CA 91 109 
+poosti@tes-mail.jpl.nasa.gov 
+(818) 354-3770 
+Abstract- This paper introduces the concept of using a 
+Strategy Builder object to automate selection of initial 
+parameters needed to perform an atmospheric retrieval for 
+the Tropospheric Emission Spectrometer (TES) data 
+processing system. Atmospheric retrievals consist of 
+scientific algorithms used to ascertain the actual state of the 
+atmosphere in terms of its temperature and chemical 
+constituents. 
+Atmospheric retrieval algorithms are computationally 
+expensive and convergence of the retrieval is sensitive to 
+input, therefore it is important to provide the best input that 
+will result in the best atmospheric profile. TES has complex 
+requirements in terms of the variety of input data and 
+observations. So it requires a sophisticated system such as 
+Strategy Builder to automate the selection of the optimum 
+strategy for performing the retrieval algorithm on its various 
+types of observation. Strategy Builder also increases the 
+lifetime of the retrieval software by improving its flexibility 
+in implementing various research approaches. 
+Strategy Builder software uses strategy selection logic based 
+on specific strategy selection rules for retrieval of various 
+target scenes. This paper also addresses the issues involved 
+in retrieving the atmosphere of one target scene in a 
+sequence of retrievals. 
+With the robustness that Strategy Builder provides the 
+retrieval software can be used for a longer time, for more 
+research and the produced output is more reliable. It also 
+mitigates the needs for development of extra software for 
+trying different ideas in research. 
+TABLE OF CONTENTS 
+1. INTRODUCTION 
+3. STRATEGY BUILDER 
+5. OBJECT DESIGN 
+6. CONCLUSION 
+2. TES RETRIEVAL ALGORITHM 
+4. STRATEGY BUILDER CONCEPTS 
+1. INTRODUCTION 
+Atmospheric research software systems can greatly benefit 
+from modifiable and flexible designs. Such software 
+systems are being developed to do research around new 
+ideas. In these cases, since new theories, algorithms, and/or 
+input are being used, there are many unknowns involved. 
+Therefore, the software is developed with the minimum 
+known requirements, and for this reason many changes may 
+be anticipated after the software is used for a while and the 
+produced output is analyzed. Therefore, modifiability is the 
+important feature that can save the project a lot of money 
+while allowing the researchers to try various methods and 
+ideas using the same software as opposed to the limited 
+flexibility that they’ll face otherwise. 
+Tropospheric Emission Spectrometer (TES) is an 
+atmospheric research project that uses a wide range of input 
+data and more observation types compared to similar 
+projects. TES is developing Strategy Builder software to be 
+included in its retrieval software system architecture as a 
+solution for providing the required flexibility for research. 
+The objective of this paper is to introduce the effort that has 
+been made to develop this software for TES and introduce 
+the potential for its use in other atmospheric retrieval 
+software developments. TES is one of the first NASA 
+projects developing its science data processing software 
+using object-oriented technology. This provides the 
+opportunity to develop software that is more robust and 
+maintainable. This paper is based on the work done for the 
+Graduate project at California State University, Northridge 
+in association with the TES data processing software 
+system. 
+Tropospheric Emission Spectrometer 
+TES is one of the instruments of the EOS Aura mission that 
+is a part of the NASA’s Earth Science Enterprise program. 
+This program consists of missions that will help scientists to 
+observe and understand the changes of natural processes and 
+their effects on Earth. Oceans, clouds, land surface, and 
+chemistry of the atmosphere are the major areas of study in 
+these projects. TES will provide the global concentration 
+map of atmospheric chemicals in the troposphere layer and 
+its focus will be on the global distribution of tropospheric 
+ozone and the factors that affect ozone formation [6, 81. 
+Atmospheric Retrieval 
+Atmospheric retrieval refers to the scientific algorithms 
+performed to retrieve the state of the atmosphere in terms of 
+its temperature, constituents, etc. These algorithms include 
+parts for converting the radiances from the atmosphere 
+gases, received by the instruments, to quantities such as 
+parts per volume of the gas. The resulted quantities are then 
+0-7803-6599-2/01/$10.00 0 2001 IEEE 
+4-1645 
+available to other scientists for studies of the various 
+Characteristics of the Earth system. 
+TES Data Processing 
+TES uses the following iterative process for retrievals: 
+1 We guess a profile. 
+2 
+3 
+The “‘Forward Model’’ algorithm provides the radiance 
+with respect to frequency. 
+If the radiance vector computed fiom the guess profile 
+minus the real scanned radiance vector has a difference 
+below a set threshold, then we decide to keep the guess 
+profile as real profile. 
+If not, the guess profile is adjusted until the difference 
+between the real radiance data and the computed data is 
+small. 
+We repeat steps 2 to 4 until we find a match to the 
+radiance data. 
+4 
+5 
+TES dataL processing software system consists of several 
+subsystems. Above processing steps are performed by Level 
+2 subsystem [6, 81. 
+2. TES RETRIEVAL ALGORITHM 
+The complete retrieval of the state of the atmosphere at each 
+target scene requires sequential performances of the above 
+retrieval where at each retrieval, a specific set of the 
+atmospheric elements will be retrieved. Figure 1 shows the 
+loop that carries out the sequential retrievals in TES Level 2 
+software. Each Retrieval in this loop is called a Retrieval 
+Step. In this loop, a sequence of Strategy and input 
+building, Retrieval, and Results processing take place. The 
+series of Retrieval Steps that produce the complete profiles 
+of the atmospheric constituents is called Retrieval Sequence. 
+The number of times that this loop will be executed is the 
+number of Retrieval Steps in the Retrieval Sequence. After 
+each Retrieval Step the results will be analyzed, and based 
+on those results the strategy for the next step will be built. I 
+External 
+Databases 
+I 
+would like to emphasize on the concept that the strategy of 
+each Retrieval Step may be built dynamically and based on 
+any relevant parameter including the results of another 
+previousty done retrieval. 
+3. STRATEGY BUILDER 
+Improving the Robustness 
+Flexibility and robustness are particularly beneficial in 
+atmospheric research software such as TES Level 2 
+software. The algorithm as described earlier starts with an 
+initial guess for the value of the retrieval element. The initial 
+guess value should be the closest value to the actual value of 
+the element among all available data for that element. But it 
+is known that this closest value is not as accurate as desired. 
+As the whole purpose of the scientific project is to obtain 
+the accmate values for these elements, Retrieval software’s 
+output is supposed to be an accuraite value. Since the 
+algorithms used in the Retrieval software are being used for 
+the project’s specific purpose for the first time, it is not 
+proven that the algorithms will result in the desired accurate 
+values. The only time that this may be proven is after the 
+spacecraft is launched. At this time the developed software 
+will be used to process the real atmospheric data received 
+from the instrument instead of simulated data. Therefore, 
+the modifications to the algorithm software might seem 
+necessary in order to obtain more accurate data. Most often 
+the implementation of the modifications for producing 
+retrieval values with less error are very costly for the 
+project. 
+Parameterization helps in achieving more flexibility in the 
+software. It is possible to have a dynamic and intelligent 
+system to provide appropriate value:; for parameters in 
+various situations. This can be accomp’lished by developing 
+Strategy .Builder software. It is an additional component to 
+the architecture for packaging the parameters and their 
+providers by which greater encapsulation and higher 
+modifiability of the software is made passible. 
+Strategy 
+There is a set of parameters that deternline the way that the 
+atmosphere of a particular target scene should be retrieved. 
+Strategy refers to the entity that contains the values for the 
+parameters. The collection of these values for a specific set 
+of Retrieval parameters is called the “Strategy” for a 
+specific .retrieval. The specified strategy for a particular 
+Retrieval, then will be used to build the input for that 
+Retrieval. 
+The objective of the program that builds the strategy 
+(Strategy Builder program) is 1) to select the best suitable 
+source for obtaining the parameters’ values and 2) return 
+these data values from the selected sources. Then these 
+values will be put together to form the Strategy. The 
+Strategy for one retrieval program can be thought of as a set 
+of “name=value’’ pairs. 
+Figure 1 - Loop of Sequential Retrievals 
+4-1646 
+The complete retrieval of the atmosphere is consisted of a 
+set of consecutive retrievals, and each retrieval in this 
+sequence is called a Retrieval Step. The strategy for the 
+entire retrieval sequence may be presented as a table with 
+the retrieval parameter as its fields and the retrieval steps as 
+its rows. Strategy in the form of tables is discussed in detail 
+and examples of Strategy are given later in this paper. 
+The retrieval 
+element 
+The retrievals 
+order 
+The retrieval 
+type 
+Mapping and 
+inverse 
+mappins 
+specifications 
+The initial 
+guess 
+The a priori 
+data 
+Here is an overview of the major responsibilities of Strategy 
+Builder software: 
+Obtaining the atmospheric profiles is better done when they are being retrieved by a sequence 
+of retrievals as opposed to retrieving them all at the same time. The combination of the species 
+for each retrieval is one of the parameters. 
+The results of one retrieval will be used in the next retrieval. Therefore, the order in which the 
+sequential retrievals are taking place is another parameter. 
+The retrieval type is another parameter that can be different in each retrieval. The types are 
+normal, shape retrieval, and the type in which the calculations of jacobians, radiances, and 
+transmittances in previous retrievals are reused in the current retrieval. 
+Another element that the software allows to be different for each retrieval is the functions that 
+map the retrieval levels to the reporting grid levels and vice versa. 
+The initial guess value for the Volume Mixing Ratio of every retrieval element such as 
+Temperature or Water Vapor can be derived ftom different external climatology and 
+meteorology sources. It is also possible to use previously processed data as an initial guess for 
+a new retrieval process. This is in fact the most desirable initial guess whenever possible and 
+available. 
+The a priori data usually comprise of climatological estimate of the state of the atmosphere plus 
+some amount of uncertainty. It is usually expressed as a covariance matrix. 
+1. 
+2. 
+3. 
+4. 
+5. 
+For each one of the Retrieval Steps, a Strategy is built 
+that guides the execution of that retrieval. Every step’s 
+strategy uses the sequence-level Strategy that is built in 
+advance. Sequence-level Strategy contains the values 
+for the parameters that are the same for all retrieval 
+steps. 
+One of the tasks of Strategy Builder software is keeping 
+the track of the state of the retrieval software in 
+performing this sequence of retrievals. At any given 
+time, Strategy Builder software should know what is 
+the next step in the sequence to be performed. State of 
+Strategy Builder determines if the software needs to 
+build the sequence-level Strategy or the sequence-level 
+Strategy is built and its task at the current state is to 
+build the Strategy for a Retrieval Step. 
+Strategy Builder should be able to perform strategy 
+selection based on the strategy selection rules provided 
+by the scientists. This includes selection of the best 
+values or sources containing the best values for the 
+retrieval parameters for any given input point on Earth. 
+Strategy Builder may use “suppliers” to obtain data 
+from the sources specified by the strategy. Each 
+retrieval parameter may have its own supplier. 
+Using suppliers or otherwise, Strategy Builder software 
+provides the optimal values for all retrieval parameter 
+values for every Retrieval Step. Once the parameter 
+values for one Retrieval Step are specified, then the 
+retrieval input for that step can be built using these 
+values. 
+Pat-am eter-ization of Retrieval 
+Some of the identified retrieval parameters in TES are 
+Shown in Table 1. 
+Some of these parameters such as the a priori and initial 
+guess data exist in the algorithms used by similar 
+atmospheric retrieval projects. 
+Dynamic Strategv Selection 
+Providing dynamic values for each parameter is one of the 
+goals of the Strategy Builder. We want to be able to choose 
+the best possible value for the parameter based on the 
+current state. For instance, we obtain the initial guess value 
+for H20 from different sources based on some particular set 
+of logic. Since every parameter can have such logic, simple 
+or complicated, a supplier of the parameter value will carry 
+out the task of providing the best value for the parameter 
+based on that logic. As an example of the logic for selecting 
+one of these parameters, the flowchart for initial guess 
+selection logic is shown in Figure 2. 
+Sequential Retrieval of the Atmosphere 
+One of the results of the analysis of Strategy Builder 
+problem was that the retrieval of the atmospheric profiles of 
+each Target Scene would not be done in one step. We will 
+have a sequence of retrievals each performed on a specific 
+set of atmospheric molecules. This sequence is called 
+Retrieval Sequence, and each retrieval of this sequence is 
+called Retrieval Step. Each retrieval will be done separately, 
+although the sequence follows a particular order and each 
+Retrieval Step depends on the results of the previous one. 
+Table 1 - Examples of Retrieval Parameters in TES Retrieval Algorithm 
+4-1647 
+A = Current measured radiance 
+B Reference FM radiance 
+C Current FM model radiance afler 
+surface retrieval with A using stored 
+atmosphere from B calculation I 
+I No 
+f7 1""""""- 
+Figure 2 - Flowchart for Initial Guess Selection Logic 
+retrieval steps and the Strategy parameters' values for 
+each step. 
+Domain Objects 
+By domain analysis common reusable classes and objects 
+can be identified for the projects within this particular 
+domain [ :5 ,  71. The following domain objects are identified 
+as the result of the investigating the problem and the 
+problem domain in similar atmospheric retrieval projects. 
+5 .  
+6. 
+7. 
+8. 
+9. 
+Step Strategy 
+The :strategy parameters' values for one retrieval step. 
+Sequence Controller 
+This object is responsible for controlling the loop of the 
+retrievals. It contains the attributes that are important in 
+this control and the operations that perform the control. 
+Retrieval Algorithm 
+This object can carry out retrieving a set of elements 
+simultaneously 
+Reusable Calculations 
+Reusable Calculations can be an aggregate class with 
+the reusable aggregations that will be a part of the 
+Retrieval Input. 
+Retrieval Sequence 
+This object encapsulates the information about a 
+sequence of retrievals that altogether complete the 
+retrieval of constituents of one column of atmosphere at 
+a particular geolocation. Level 1 Data 
+The Level 1 spectrum data that is input to the Strategy 
+Buillder. Retrieval Step When the retrievals are divided into several steps, this 
+object can encapsulate the information about each step. Strategy Parameter 
+The data structure that contains the attributes of a 
+Retrieval algorithm parameter. The object can also 
+include the supplier method for parameter values. 
+Sequence Strategy 
+The list of parameters values that need to be known in 
+advance, in order to be able to specify a sequence of 
+4-1648 
+10. 
+11. 
+12. 
+Parameter Supplying Algorithm 
+In case of multiple implementations of the supplier 
+algorithm, it can be generalized in an abstract class and 
+implemented in inherited objects for every specific 
+usage. 
+Source Data Store 
+The information about a data source that is 
+encapsulated to be used by the supplier algorithm. 
+Initial Guess Data 
+The data structure containing the initial profiles of the 
+retrieval elements. 
+These objects are several candidates for use in the 
+atmospheric retrieval software. However, the domain 
+analysis of the atmospheric retrievals can certainly result 
+many other domain objects, which is a good research effort 
+in the context of reuse in atmospheric science software [5 ] .  
+The list presented in this paper contains only the objects 
+related to the Strategy Builder software for retrieval 
+algorithms. 
+Strategy Builder’s Architecture 
+Strategy Builder’s high level architecture is shown in 
+Figure 3. Databases are mostly used for the data store 
+components such as LIB data and atmospheric profiles in 
+this architecture [3,4]. L1B data and Retrieval process are 
+the only external entities to the Strategy Builder software 
+architecture shown in this figure. The Retrieval Analyzer is 
+the component that is able to analyze the recorded results 
+fi-om the previous retrievals and update the strategies. 
+However, currently TES retrieval software system does not 
+include this component. More detail on Analyzer 
+component and implementation of a learning capability to 
+the Strategy Builder system can be found in the author’s 
+graduate paper [9]. 
+4. STRATEGY BUILDER CONCEPTS 
+Based on the results of the analysis effort, tables seemed to 
+be the most appropriate structure for demonstrating a typical 
+strategy. Tables are able to communicate well the concepts 
+such as the Sequence Strategy, Step Strategy, Strategy 
+Parameters, etc. as shown in Figure 4. 
+The table’s fields are Strategy parameters of the Retrieval 
+algorithm. Each row in the table contains the strategy 
+parameters values for one specific Retrieval Step. The 
+number of rows can be different for each Target Scene. The 
+table as a whole is the Target Scene’s Retrieval Strategy. It 
+is a structure that contains the parameter values of the entire 
+retrieval of a Target Scene. One example of the strategy 
+tables is shown in Figure 5. 
+By means of the tables the scientists were able to have a 
+clear picture of the potential variables, which would 
+construct the parameter list of the Retrieval Strategies in the 
+software. Tables also gave a better opportunity to study the 
+parameters further. They were also used for analyzing the 
+dependencies between the parameters, as well as the 
+relationships between the parameter’s selection rules and the 
+Retrieval algorithm. 
+L1B Data 
+--------------- 
+Atmospheric 
+Data Stores 
+Data supply 
+Tmget Scene 
+Processing 
+Controller -b Selection Strategy 
+I 
+t t t 
+LEI Building 
+1 
+Retrieval *- Retrieval 
+Analyzer I I i Retrieval 
+Figure 3 - Strategy Builder’s Architecture 
+4-1649 
+t Seauence 
+TGT 
+scene 
+Step v Strategv 
+Supplier provided parameters Parameters obtained from table lookup 
+Figure 4 - Strategy Table Comlponents 
+IFSV Source Retrieval I gprg Levels 
+ECMWF 
+ECMWF 
+ASTER 
+ECMWF 
+OMI, 
+Climatology 
+Previous Step 
+Previous Step 
+Previous Step 
+Previous Step 
+Previous Step 
+ASTER 
+ASTER 
+Previous Step 
+L1, ... ---EE- 
+~~ 
+L1, _ _ _  I ECMWF 
+oarams. I 
+LI, ... I Climatology 
+L1, ... 
+L1, ...  L1. ... 
+L1, ... 
+L1, ... 
+L1, ... -t- L1. ... 
+Figure 5 - Retrieval Strategy Table for Nadir Retrieval Parameters Case of 1' Data Set in Time/Space Bin 
+4-16'50 
+Static Strategy Tables versus Dynamic Strategy Selection 
+In TES there are different strategies for nadir and limb 
+cases. Therefore, the view mode can be one of the strategy 
+selection parameters. The other strategy selection parameter 
+relates to the reusability of the radiance calculations. In 
+some cases, the strategy specifies the use of some previous 
+calculations. In this case the reusability flag will be set. 
+Retrieval Inpul 
+~ - 
+The static Strategy Tables fit to the requirements of TES 
+software very well. In this case, the scientists provide 
+several Strategy Tables, each suitable for some particular 
+cases. Then based on the strategy selection parameters, such 
+as observation mode, reusability flag, etc., the suitable 
+Strategy will be selected for the retrieval of a particular . 
+Target Scene. However, it is also possible to build the 
+strategies dynamically. 
+. i 
+In TES Strategy Builder sohare ,  the strategies have the 
+same parameter list in every case. Therefore, here, we are 
+dealing with a static parameter list. However, as it was 
+mentioned earlier, a dynamic parameter list is more 
+desirable. The mentioned alternatives to the TES approach 
+will be discussed later in this paper. 
+Sequence Level Strategy and Step Level strategy 
+As mentioned earlier, the complete retrieval of the 
+atmospheric constituents is done by a set of sequential 
+retrievals. Analysis of the retrieval parameters and the 
+sequence of the retrievals and their relationships with each 
+other indicates that there could be two separate sets of 
+strategy parameters in the overall Retrieval Strategy. 1) The 
+set of the parameters that can be specified for the entire 
+Target Scenes S e l ~ ~ ~ ~ u , e s  S quence Level 
+Strategy 
+sequence of retrievals and their values remain the same for 
+every individual retrieval. 2) The set of parameters whose 
+values can be different for each individual retrieval. 
+To make it clear, consider the example of the sequence level 
+parameters in TES case. The retrieval sequence is the 
+parameter that specifies the number and order of sequential 
+retrievals as well as the combinations of the retrieval 
+elements. These values are generic and remain unchanged 
+throughout the sequence, whereas the values of the Step 
+Strategy parameters may differ fiom one step to another. 
+Data Flow Diagrams 
+The diagram in Figure 6 expands the Retrieval Strategy and 
+Input Building process in Figure 1 one level down. As 
+shown in this diagram, the first bubble will specify the 
+values for the strategy parameters that are generic for all the 
+steps of the sequence. These values are called the Sequence 
+Level Strategy. In TES case and probably many other cases, 
+thebe include the retrieval elements arrangement for the 
+entire sequence. This arrangement is shown as the second 
+column in the strategy table shown previously. Once this 
+arrangement is known, at each step, the elements to be 
+retrieved are known. Then the value of other parameters 
+such as the Initial Guess, A Priori data (as shown in the 
+strategy table) can be specified for the identified retrieval 
+elements for a particular Retrieval Step. The collection of 
+these values is called the Step Level Strategy. Then the Get 
+Input process can build the appropriate input for the 
+Retrieval process by using the Step Level Strategy. The 
+results of the Retrieval process will then be analyzed and the 
+loop decides to quit or move on to building strategy for the 
+next Retrieval Step. If the loop decides to continue, then the 
+Get Strategy process will build the Strategy for the next 
+Retrieval Step, knowing about the Retrieval Step that was 
+just done and what comes next by looking at the Sequence 
+Level Strategy that was built in the beginning of the loop. 
+The diagram Figure 7 expands the Get Strategy process. 
+During this process, the tasks of specifying the Sequence 
+Level strategy building, and Step Level Strategy building 
+for every Step Strategy are carried out. 
+As it is shown in the diagram, the Sequence Level Strategy 
+building will be done by using the Target Scene 
+characteristics and Spectrum data as well as Strategy 
+Selection Rules. The Strategy Selection Rules are a set of 
+rules and logic which the “Get Sequence Level Strategy” 
+process uses to choose the appropriate Sequence Level 
+andor Step Level strategies. An example of a rule for 
+specifying a Step Level Strategy would be the rule which 
+determines which source is the best to use as an Initial 
+Guess source for retrieving H20 in a particular Retrieval 
+Step (e.g., Col. 4, Row 2 of table in Figilre 5). 
+The diagram in Figure 8 shows the Strategy Builder with the 
+sequence loop. It shows the major components of the 
+software for building strategy and input for one LIB 
+spectrum data of one target scene. 
+Strategy 
+Selection Rules Sequence 
+8 Parameters Level Strategy 
+Sequence 
+Target Level 
+Scene 
+Figure 7 - Get Strategy Data Flow Diagram 
+\ >-- b 
+d Retrieve 
+.--/ 
+\ 
+.
+/ .’ \ 
+/ \ 
+/ 
+/ 
+\ 
+Resuns L q  
+- 
+Analyzer 
+Figure 8 - Strategy Builder with the Sequence Loop Data Flow Diagam 
+4 - 1 6 5 2  
+When starting the processing of one target scene, the 
+controller uses the Sequence Level Strategy Builder to build 
+the sequence level parameters. Once the sequence level 
+parameters are built, the controller will use the Step Level 
+Strategy Builder to initialize the strategy parameters for the 
+first retrieval in the sequence of retrievals. The Step level 
+Strategy Builder will also build the Retrieval's input and 
+pass it to the Retrieval Engine. Once the Retrieval is done, 
+the results will be passed back to the Step Level Strategy 
+Builder and then to the controller. By analyzing these 
+results, the controller will decide to continue the sequence 
+Builder 
+I 
+YeS 
+i 
+of the retrievals or to quit the sequence for this target scene 
+and start processing the next target scene. In the first case, it 
+will take the path number 2 to build a strategy and get the 
+input object for the next retrieval in the sequence. In the 
+other case, after getting the next target scene (LIB 
+spectrum), it will start on path 1 again. The flowchart in 
+Figure 9 shows the conditions on which the different paths 
+are taken as described. 
+Figures 10 and 11 are the data flow diagrams for the 
+Sequence-Level and Step-Level Strategy Builders. 
+Get the Next Step 
+of the Strategy 
+No I 
+YeS 
+Quit 
+Log from the last 
+Retrieval. 
+' . . . . - . . . . 
+1 Strategy, 
+I FSV 
+r 
+Strategy Builder 
+State Log 
+4 
+Update Strategy 
+Builder State Log 
+%ea Level - 
+Strategy Budcle: 
+Re:rieve 
+Figure 9 - Controller Flowchart 
+4-1653 
+\ I RebiekalLog 
+\ 
+.............. ... . . .  
+// Controller '! .............. --.t Targetscene . - Select Strategy 
+. ,  
+,,, ,,' 
+Bin Reference Target / 
+Scene 
+Strategy Table 
+Index 
+Initialize Strategy 
+Parameters 
+Strategy DB 
+Figure 10 - Sequence Level Strategy Builder 
+- \ I /  
+Parameter Set 
+Retrieval Log 
+j'l, Supplier I 
+. . . . . . . . . . . . . .  
+' Based on the vif!w mode, 
+' availablilty of a predously 
+' retrieved Target Scene, and 
+~ . ~ , reuse possibilitits, a particular 
+, strategy will be chosen for the 
+current Target Scene 
+, . . . . . . . . . . . . .  
+. . . . . . . . . . . . . .  
+, m e  strategy will contain static 
+I kalues for some of the 
+' parameters and sourci? 
+' selectors for the others;. m e  I 
+balues for the latter palameters ' 
+, will be supplied by the 
+suppliers. 
+~ 
+. . . . . . . . . . . . . .  
+Strategy Step 
+-c Parameters 
+Climatology lFSV AT-/ 
+nput Microvindaws/ 
+List 
+1 Retrieval 
+Retneve 
+r . . . . . . . . .  
+, The r e b i d  results All 
+rbeusedfaumngthe , ~ , . 
+' Rccessing State Lcg 
+' m d  s t a d  in the r e b i d  
+, 
+' Iql. 
+. . . . . . . . .  3 
+Retrieval 
+Results 
+7- 
+....... .A .......... 
+:: Controller j 
+.... ...... ................ 
+Figure 11 - Step Level Strategy Builder 
+4-1654 
+5. OBJECT DESIGN 
+In this section high-level object design of major concepts of 
+Strategy Builder is presented. Object Models with UML 
+notations [2]. 
+The diagram in Figure 12 shows that Strategy consists of 
+Sequence Strategy and Step Strategy. This diagram shows 
+the structure of the Strategy as a whole. It consists of the 
+strategy for all steps of the retrieval. The entire strategy 
+object could be useful for results analysis. 
+This diagram also shows the StrategyBuilderController class 
+which changes state during the sequence of the retrievals. 
+For this reason, the StrategyBuilderState class will help the 
+controller to have different behaviors in different situations. 
+When the internal state of the controller object changes, we 
+would like to have the methods behave differently. For 
+example if the Sequence Strategy is not built yet, we would 
+like some buildstrategy method build the Sequence 
+Strategy, but once it is built we would like the same method 
+build the next Step Strategy. In other words different 
+implementations are needed for different situations 
+depending on the state of the controller object. The state 
+class for the controller helps the methods in the controller 
+class behave according to the state of the strategy building. 
+State class uses the State design pattem [l]. The 
+StrategyBuilderState class has two subclasses, 
+Sequencestate and Stepstate, which implement state- 
+specific behavior. The StrategyBuilderState abstract class 
+has the same interface for all the classes that represent 
+different states, i.e. Stepstate and Sequencestate. Here, we 
+can take advantage of polymorphism to choose the method 
+in the appropriate class. Depending on an object of which of 
+these two subclasses (Sequencestate or Stepstate) is 
+instantiated by the controller class, the methods in that class 
+will be invoked. 
+Figure 13 shows the class structure of the Step Strategy and 
+its components. As shown in this diagram, the Step 
+Strategy, which is a part of the Strategy class consists of 
+several objects of the StepStrategyParameter .class. The Step 
+Strategy Parameter class is a generalized class with the 
+individual parameters as its subclasse. InitilGuess, Apriori, 
+and the MicrowindowList classes are three examples of the 
+atmospheric retrieval parameters. 
+~ __ -- .__- 
+Strategy BuiIderConVolIer StrategyBui Iderstate 
+Sequencestate Stepstate dl 
+.- .. - ._ 
+1 
+I 
+Figure 12 - Strategy and Input Building High-Level Class Diagram 
+Stepstrategy Parameter 
+a 
+Figwe 13 - Step Strategy High-Level Class Diagram 
+4-1655 
+The diagram in Figure 14 is the high-level class diagram for 
+an example parameter. Based on the need of the software a 
+supplier class can carry out the task of supplying data for a 
+particular strategy parameter such as Initial Guess based on 
+the required parameter. Examples of the required parameters 
+for Initial Guess selection methods are the species and 
+source. In this diagram the suppliers subclasses of the DAO 
+and ECMWF meteorology sources are shown as examples. 
+A parameterized Factory method [l] may be used to 
+instantiate any of these subclasses as needed. 
+IrWalGuessStrategy SelectbnParams 
+The high-level structure of the Retrieval Input class is 
+shown in Figure 15. Since the retrieval input consists of 
+AprDriStrategy SdectionParams 
+other components other than what the strategy provides, the 
+Retrieval Input aggregate three classes as shown. As it is 
+shown here for building the input we will need to initialize 
+the Step Strategy as well as other compcments. 
+Strategy Selection is a major part of Strategy building. The 
+diagram in Figure 16 shows the strategy selection classes 
+with their relationships. The design used here allows each 
+parameter have its own strategy selection logic. This design 
+also allows dynamic strategy selection. There is a parallel 
+structure lbetween the strategy parameters with their selector 
+classes. 
+IniralGuess ' ~ lnitia IGu e& upplier 
+" ..... .. . ~- 
+ECMWFSuppIier D M S u  ppl ie r --A
+. . __ 
+Figure 14 - Example Supplier Class Diagram 
+~ MeasuredSpectnim 1 
+I I 
+1 Stepstrategy 1 
+I 
+\ 
+/ 
+1 Rtriemllnput 1 
+I I 
+Figure 15 - Retrieval Input Class Diagram 
+! 
+/'\ -r 
+i 
+I' 1 1 
+I I 1  I 
+Figure 16 - Strategy Selection Class Diagram 
+4-1656 
+, 
+Please note that in the diagram, the inheritance hierarchy is 
+only shown for the StepStrategySelectionF'arameters class. 
+The same hierarchy may exist for 
+SequenceStrategySelectionParameters class as well. In this 
+diagram only the Step Strategy related hierarchy is shown 
+for simplicity. 
+6 .  CONCLUSION 
+TES retrieval software system is developing a new software 
+component for its retrieval software system that improves 
+flexibility in its retrieval software. This component that 
+guides the execution of the retrieval software is called 
+Strategy Builder. This software is being developed to meet 
+the complex requirements of TES. Domain analysis, 
+Architectural, Conceptual and High-Level design of 
+Strategy Builder was briefly discussed in this paper. By 
+analyzing other atmospheric retrievals common concepts 
+and objectives can be identified from which common object 
+can be defined for the domain of atmospheric retrievals. 
+Therefore there are possibilities of using this new approach 
+to development of retrieval software taken by TES data 
+processing system for future retrieval software. More details 
+on the Strategy Builder software, especially on its domain 
+analysis, and architectural, high-level and detail designs, can 
+be found in the author's Graduate Project paper [9]. 
+Design of the Strategy Builder allows the values for 
+retrieval parameters to be selected dynamically if necessary. 
+This flexibility makes the implementation of a leaming 
+system such as analyzer possible. The design of the analyzer 
+is not discussed in this paper and is left for future work. 
+The design presented encompasses several common 
+concepts in atmospheric retrieval software such as potential 
+Retrieval parameters and sequential Retrievals. Specific 
+project can adapt the design to the level of extensibility that 
+the project needs and still benefit from the flexibility that it 
+provides to their atmospheric research software. 
+ACKNOWLEDGMENTS 
+I would like to extend my appreciation to my colleagues at 
+Jet Propulsion Laboratory especially Steve Larson, Robert 
+Vargo and Michael Lampel for supporting me in producing 
+this work. I would also like to thank Kenneth Scott for his 
+help in preparation of some of the data flow diagrams. 
+This work was performed at the Jet propulsion Laboratory, 
+California Institute of Technology, under a contract with the 
+National Aeronautics and Space Administration. 
+REFERENCES 
+[ 13 Gamma, Helm, Johnson, Vlissides, Design Patterns, 
+Elements of Reusable Object-Oriented Somare, 
+Addison- Wesley, June 1999 
+[2] OMG UniJed Modeling Language V 1.3 SpeciJication, 
+Object Mangement Group, Inc., Rational Software 
+Corp., June 1999 
+Bass, Clements, and Kazman, Sofiare Architecture in 
+Practice, Addison-Wesley 1997 
+Mary Shaw, David Garlan, Carnegie Mellon 
+University. Software Architecture, Perspectives on an 
+emerging discipline, Prentice-Hall, Inc. 1996 
+Roger S. Pressman, Software Engineering, A 
+practitioner 's approach, McGraw-Hill, 2000 
+TES Algorithm Theoretical Basis Document, Version 
+1.1, Jet Propulsion Laboratory Internal Document D- 
+1674, October 1,1999 
+Firesmith, D. G., Object-Oriented requirements 
+Analysis and logical Design, John Wiley & Sons 1996 
+Larson, Steve, Overview of Tropospheric Emission 
+Spectrometer, Proceedings: 200 1 IEEE Aerospace 
+Conference, Big Sky, MT: IEEE Computer Society 
+Press, 2001. 
+Poosti, S., ModiJiability in Scientijk Research software, 
+California State University, 2000 
+Sassaneh Hojaiji Poosti has a 
+B.S. degree in Mechanical 
+Engineering from University of 
+Tehran and M.S. degree in 
+Computer Science from 
+California State University, 
+Northridge. She has been 
+working on TES project at Jet 
+Propulsion Laboratov, 
+Pasadena, California since 
+1998. 
+_- 4-1657 
+This page intentionally left blank. 
+4-1658 

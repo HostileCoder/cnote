@@ -1,0 +1,640 @@
+Link Layer Assisted IP Mobility Protocol
+Guo-Yuan Mikko Wang, Chunhung Richard Lin
+Abstract: As the popularity of IEEE 802.11 rises, many problems
+have been arisen that were absent in the traditional wired net-
+works. A serious problem has arrived from the movement of mo-
+bile nodes - this mobility characteristic will make the data trans-
+mission mechanisms differ from before. A general solution to this
+problem is Mobile IP. But Mobile IP in itself has problems and will
+create a big latency. The roaming nodes will need to complete all
+registrations before being able to receive data. The registrations
+then become the bottleneck in data transmission. In this paper, it is
+proposed that a novel link layer handoff is designed to deliver that
+data to a destination before the roaming nodes complete its Mobile
+IP registrations. The proposed method is completely independent
+of network layer; therefore, no matter Mobile IPv4 or Mobile IPv6
+is used, the proposed method can work correctly. No modification
+to the existing specification is necessary in Mobile IP.
+Index Terms: Bridge, Handoff, IEEE 802.11, Moblie IP, Router,
+Wireless.
+I. INTRODUCTION
+The IEEE 802.1 1-based wireless local area networks (LANs)
+are becoming an important part in the networking environment.
+A growing number ofwireless LANs have been set up in univer-
+sity campus or public buildings as access networks to the Inter-
+net. These wireless LANs are consisting ofmobile nodes (MNs)
+which access services hosted on servers residing on the wired
+network, and access point (AP) that serves as a layer-2 bridge
+between wired and wireless network.
+With the growing popularity of IEEE 802.11 technology,
+many problems have been arisen which were absent in the tra-
+ditional wired networks. One of the problems caused by the
+MN characteristic - mobility is that it will make data transmis-
+sion mechanisms in a traditional wired network fault, requiring
+a new approach to solve this problem.
+A general solution to the problem of data transmission of the
+MN is Mobile IP [ 101, [7]. It provides IP level mobility to allow
+MNs to roam across wireless LANs without loss of network-
+layer connectivity and disrupting transport sessions. In Mobile
+IP, there are home agents (HAs) and foreign agents (FAs) run-
+ning on the wired network. These mobile agents (MAs) periodi-
+cally broadcast Mobile IP advertisements on the wireless LANs.
+Whenever a MN migrates from one subnet to another, it will
+receive Mobile IP advertisements from the corresponding FA.
+The MN intercepts these advertisements and sends a registra-
+tion request to the newly discovered FA. There is an IP-over-IP
+tunnel between FA and HA be established after due authentica-
+tion. Finally, the MN sent a Binding Update message to the HA.
+From this point onwards, the data transferred between MN and
+servers can through the bidirectional tunnel. Ifthe MN migrates
+G.-Y. M. Wang is with the Department of Computer Science and Engineering,
+National Sun Yet-Sen University, Taiwan (email: mikko@net.nsysu.edu.tw).
+C. R. Lin is with the Department of Computer Science and Engineenrng, Na-
+tional Sun Yet-Sen University, Taiwan (email: lin@cse.nsysu.edu.tw).
+to a new foreign subnet, it needs to bind with the FA of the new
+foreign subnet, and needs to dismantle the association with the
+FA in the previous subnet. This procedure is performed every
+time the-MN enters a new wireless IP subnet. The entire process
+of switching from one MA to another as a MN moves across
+adjacent wireless IP subnets is called Mobile IP handoff.
+Before the Mobile IP handoffcompletes, packets destined for
+the MN will not be delivered. The MN is essentially discon-
+nected with the wired network. This handoff latency may cause
+degradation in communication quality, specifically when real-
+time applications such as audio or video are used. The faster the
+link speed, the more packets will be lost during handoff. In ad-
+dition when the TCP is used for data transmission, roam around
+wireless networks may diminish the performance due to TCP
+retransmission policy. Therefore, it is important to reduce this
+handoff latency.
+In this paper, it is proposed that a novel link layer handoff is
+designed to deliver data to a correct destination before a roam-
+ing node completes its Mobile IP handoff. No modification
+to the existing specifications is necessary in Mobile IP. Since
+the proposed approach is worked in link layer, whatever Mo-
+bile IPv4 or Mobile lPv6 is used, the proposed approach still
+works correctly. To the best of the authors' knowledge, the pro-
+posed approach is the fastest known handoff performance for
+such infrastructure-mode wireless LANs.
+The remainder of this paper is arranged as follows. Section II
+summarizes related work. Section III introduces the Fast Link
+Layer Handoff (FLLH) and an enhanced version of the FLLH
+to eliminate the problem caused by message delays. The re-
+sults of experiments with UDP and TCP packet transmissions to
+evaluate performance enhancement are presented in Section IV.
+In Section V the influence ofTCP retransmission policy and a
+buffer agent designed are discussed. Finally, Section VI evalu-
+ates the research and the conclusions are presented.
+II. RELATED WORK
+The delay caused by the Mobile IP handoff can be divided
+into two elements; firstly the movement detection and secondly
+the registrations.
+Micro-Mobility [2]: A network that is divided into a hier-
+archical structure and location management is handled locally
+while the MN enters into a smaller area at a lower hierarchical
+level. This approach is intended to reduce the round trip time
+registrations and the handoff delay when there is a large dis-
+tance between the visited network and the home network of the
+MN.
+Cellular IP [16]: It is a technique to use proprietary con-
+trol messages for location management. The messages will be
+routed in a regional area therefore speeding up the registrations
+and reducing the handoff delay.
+The above solutions to reduce the handoff delay are focused
+1-4244-OOO-7/05/$20.00 02005 IEEE. 1114
+on registration signaling delay and have no discussions about
+movement detection.
+NeighborCasting [14]: This mechanism is based on utilizing
+of collected information. During the handoff, each MN inforns
+the new MA about the previous MA, helping it to build a map
+of its neighbors. When a notification from the link layer is re-
+ceived, each MA utilizes the neighbor map to forward the data
+to all the neighboring MAs. In stable state, this mechanism can
+make MN continuously receiving data from wired network be-
+fore the registration completed. This mechanism requires mod-
+ifications to Mobile IP to support the discovery of neighbor-
+ing MAs. Although the movement detection and registration
+have few influences to handoff in this mechanism, it wasting the
+wired bandwidth in order to multicast data to the neighbors and
+violates the standard ofIEEE 802. 11-based infrastructure-mode
+to make wireless interface card communicate with the previous
+MA during the handoff. This mechanism also assumes the avail-
+ability ofa notification mechanism from link layer to the Mobile
+IP software about the impending handoff, but it is incompatible
+for the existing wireless interface card.
+Fast Handoff [17]: This proposal is based on link layer and
+uses a bridge and AP to reduce the handoff delay of the Mobile
+IP allowing for a better performance. In addition, this approach
+also has problems, including the lack of ability to oversee the
+entire network, restricting it to a simple LAN network which can
+not be enlarged to an Extended LAN environment. The change
+in the message transmission of a bridge causes many differences
+when compared to the traditional bridge, because of this it may
+not be used on an existing bridge directly.
+Low-Latency Handoff [13]: This proposal combines link
+layer and network layer. It uses a software probing mechanism
+to reduce the latency of movement detection and adds caching
+agent into each wireless subnet to replay Mobile IP advertise-
+ment. It sets some policies in HUT dynamic Mobile IP soft-
+ware implementation [5] to accelerate the registration request
+sent from MN to reduce the latency of registrations. The hand-
+off latency in this approach can reduce to 100 ms. Although
+it gives low handoff latency, there are some problems exist-
+ing. The caching agent needs to broadcast a dummy Ethernet
+frame periodically to trick switches and bridges. The period-
+ically broadcast may affect the traffic in the network. All the
+MNs and caching agents have been required to know a well-
+known MAC address to make this approach work. The policies
+used to accelerate the registration are not completely compatible
+with Mobile IP standard.
+Therefore a novel approach is needed to eliminate the prob-
+lems mentioned before, which is compatible with existing net-
+work devices to be able work correctly in an infrastructure-mode
+wireless network and has no modifications to the existing spec-
+ifications in Mobile IP.
+III. FAST LINK LAYER HANDOFF
+A. Preliminary
+The function ofthe Mobile IP has been implemented in many
+commercial products. It may be impractical to change any spec-
+ifications of the Mobile IP as the result of doing this may mean
+an extensive change in the backbone ofthe networks. Therefore
+it is essential not to alter any characteristics of the Mobile IP. In
+the proposal, the approach that is used is based on link layer to
+reduce the handoff delay which is compatible with the existing
+Mobile IP specifications. A software probing mechanism is used
+to detect the link-layer handoffand trigger a control message. A
+dedicated router and bridge with a control message can reduce
+the handoff delay successfully. The control message will notify
+the router and bridge to change the forvarding path, making the
+roaming node receive the data before the Mobile IP registrations
+are completed.
+B. Fast Link Layer Handoff
+B. I Movement detection
+In an IEEE 802.1 1-based infrastructure-mode wireless LANs,
+the movement of MN can be detected after its wireless inter-
+face card compares the difference between the signal strengths
+of the two APs and initiates a link-layer handoff. In all known
+IEEE 802.1 1 cards, this link-layer handofflogic is built into the
+firmware of the wireless interface card, and does not generate
+any interrupts to notify the system. Although the wireless inter-
+face cards do not provide any information to notify the system
+about link-layer handoff happened, there is a hardware control
+functionality that allows software to probe the identity ofthe AP
+with which a wireless interface card is currently associated.
+The proposed approach uses the software probing algorithm
+in the Fig. 2 of [13] to detect the movement of MN. The de-
+signed control message will be sent when the associated AP
+changed. If vendors support to generate an interrupt when the
+associated AP changed in the future, the cost of this software
+probing mechanism can be removed completely.
+B.2 Fast data forwarding
+The handoff delay is a serious consequence in real-time ap-
+plication and will degrade the transmission quality. So the pro-
+posed method endeavors to reduce this handoff delay and make
+sure data packets can be delivered to the correct communication
+range before the MN completes its Mobile IP registration.
+Bridge and L2-Module are used to change the transmission
+path of the data frame before the Mobile IP registration is com-
+plete. This can reduce the handoff delay to prevent the loss of
+many packets allowing the data packets to be continually re-
+ceived by the receiver. This approach requires the following
+changes to be made in an existing network.
+MN: When the MN detects its migration by the software
+probing, a control message will be sent - the routing update mes-
+sage (RUM). The MN will put its own MAC address in the mes-
+sage then it has the same source and destination MAC address
+in the Ethemet header.
+Bridge: When the bridge receives a RUM, it will forward the
+data frame to all the ports exclusive ofthe received port and then
+rely on the MAC address in this frame to update its FDB table.
+Other forwarding procedures remain unchanged. The algorithm
+in Algorithm I is used to describe this method1.
+L2-Module: This module is worked as a bridge and added
+into router to create a fast forwarding data path. The different is
+'The bridge also needs to use Distributed Spanning Tree Algorithm [I1 to
+prevent the loop-path situation.
+1115
+Algorithm 1. The operations of the bridge.
+80
+B | 3 | 2 |
+70 .. ..
+Table 1. FDB table in enhanced FLLH.
+60
+-
+so
+40
+it only forwards the frame which destination matches the entry 40
+in FDB table, if it passes all other frames to upper layer. The 30
+algorithm in Algorithm 2 is used to describe this method. 5 1
+C. Enhanced Fast Link Layer Handoff
+Regardless of a wired or wireless network, the data transmis-
+sion has a message delay problem. Therefore, this problem may
+also affect the RUM. In the Fast Handoff method [17], if the
+message delay problem occurs in any control message, it will
+result in the data frame continuing to deliver to an incorrect des-
+tination until the Mobile IP registration is completed. This will
+lead to the Fast Handoff method becoming useless.
+In the proposed approach, the MN will add a Sequence Num-
+ber (SN) into every RUM. This SN will increment every time
+the MN sends out the RUM. As the bridge and L2-Module can
+only process the data frame of link layer, so the SN is to be
+placed into the type field of Ethernet header. If the bridge and
+L2-Module receive a RUM, it will compare whether the SN in
+the control message is larger than the SN in its FDB table or not.
+If it is larger, the entry in FDB table will be updated in addition
+to discarding the control message2.
+The FDB table is used by enhanced FLLH similar to Table
+1, if the bridge and L2-Module receive a RUM from A and its
+SN is 3, this means that a message delay has occurred and the
+control message will be discarded. The SN must be larger than
+4, then the FDB table can be updated by the control message.
+IV. PERFORMANCE ANALYSIS
+In this section, the performance of the FLLH is analyzed
+in an experimental network environment as shown in Fig. 1.
+Mobile-IP releases for FreeBSD 4.9 of Secure Mobile Network-
+ing project developed by PSU [12] are used as a Mobile IP soft-
+2The type field only has two bytes, so it has an opportunity for wrapped SN.
+Therefore, if the SN in RUM is smaller and far from the one in FDB table, e.g.
+3 in RUM and 65530 in FDB table, the FDB table still will be updated.
+10 10 20 25 30 35 40 45 50
+Link-layer HandoffNumber
+Fig. 2. Link-layer Handoff Latencies.
+ware suite. The driver used for the Orinoco wireless interface
+card is a modified version. The modification is to provide the
+software probing functionality to retrieve the ID of the current
+AP. The HA, AP1 and FA, AP2 are multi-function stations and
+work as a Mobile Agent and Access Point at the same time. The
+L2-Module is added into router. The wired LAN portion was
+constructed with l0OBase-T and the wireless LAN portion was
+constructed with 802.1 l b.
+A. Link-layer HandoffExperiment
+The link-layer handoff is controlled by the wireless interface
+card itself From the empirical analysis by Mishra et. al [9], it
+shows that link-layer handoff latency has large variation. This
+handoff duration is between 30 to 550 ms due to the particular
+AP and wireless interface card are used. In this experiment, the
+beginning and the end of link-layer handoff latency are marked
+by reception of the last packet on the old subnet and the first
+packet on the new subnet. The Fig. 2 illustrates the link-layer
+handoff time measurements. It can be observed that the differ-
+ent values ranging from 30 to 90 ms with no apparent distri-
+bution. However, most of the link-layer handoffs are observed
+to be completed in the range from 40 to 50 ms. The average
+value of the link-layer handoff in our testing bed is 46.72 ms.
+Thus, the control message usually can be triggered after 50-60
+ms from the link-layer handoff begins if the Threshold of soft-
+ware probing [13] sets to two.
+1116
+When the bridge receives a frame from port x, it determines the physical addresses of its
+source, i , and of its destination, j. If j is a multicast address, the frame is then forwarded
+through all other ports except the port x.
+If the pair [i, x l does not exist in the FDB table, it is added.
+If [j, x ] is in the FDB table and j != x then
+the frame is discarded
+else if i = j then (this means the received frame is routing update message)
+it is forwarded to all ports except x and update the FDB table
+else if there is a pair [ ji y] in the cache then
+the frame is forwarded through port y
+else
+it is forwarded to all ports except x
+When the L2-Module receives a frame from port x, it determines the physical addresses
+of its source, i, and of its destination, j.
+Ifi j then (this means the received frame is routing update message)
+it is forwarded to all ports except x and update the FDB table
+If there is a pair [ j, y] in the cache then
+the frame is forwarded through port y
+else
+it is passed to upper layer
+Algorithm 2. The operations of the L2-Module.
+CN 140.117.176.34
+LD AP *,
+AP 2,F)
+S2 Router, Bridge S Route
+140.117.175x 140.117176.x Bndg
+CN
+140.117.176.36;
+1A AMD K6-2 450MHz Realtek 8139c(wired) 'FreeBSD 4.9
+Accton EW-3201(wireless)
+-A AMD K6-2 450MHz Realtek 8139c(w-ired) FreeBSD 4.9
+_Accton EW-3201(wireless)
+IA,YL C3 IGHz VIA VT6103(PoTlI) FeeBSD 49
+ge D-Link DFE-530TX(Port2) ree
+AMD K6-2 450MHz Realtek S139c RedHat Linux 9.0
+Intel Pentium-3 500MHz Orinoco 802.1 lb Silver FreeBSD 4.9
+Fig. 1. Experiment Network.
+30 - EB. UDP Transmission Experiment
+25
+- 20
+s:
+v.
+1
+Ic 10
+The Corresponding Node (CN) is made to transmit 64 bytes
+of UDP packets to the MN at 50 ms intervals to measure the
+handoff period, the results are shown in Fig. 3. The Fig. 3(a)
+shows the case where only the Mobile IP is used and it can be
+seen that 2.4 seconds of disruption occurs during handoff and
+47 packets are lost. It can also be seen that the transmission
+times ofthe 20th, 98th and the 184th packets in the same figure
+are larger than those of the other packets. This is thought to
+have been caused by retransmission on the wireless link. After
+Mobile IP registration is completed, the transmission times of
+the first packet (87th) received by the MN is 3 ms more than the
+other packets. This is caused by updating of the routing table.
+Fig. 3(b) shows the case where the FLLH has been used. In
+this figure, it can be seen that the FLLH takes about 60 ms to es-
+tablish a new forwarding path and causes only one packet to be
+lost. Although the FLLH still causes a packet to be lost, it can
+forward UDP packets to the correct destination before Mobile
+IP registration complete. About I ms is added to the transmis-
+sion time due to the processing in the L2-Module. The results
+show that the proposed method can make the data continue to
+be received by the roaming MN before completing its Mobile IP
+registration process and reduce the influence caused by handoff
+effectively. The real-time applications such as audio and video
+(e.g., QuickTime Player [I]) usually have a buffer to eliminate
+the lag. If the proposed method is used and the player keeps few
+buffers, then the lag can be eliminated completely.
+20
+18
+16
+14
+12
+10
+8
+6
+4
+20 40 60 80 100 120 140 160 180 2
+Packet No.
+(a) Mobile IP only.
+DO
+2 *0 ..
+0 20 40 60 80 100 120 140 160 180 200
+Packet No.
+(b) Mobile IP with FLLH.
+Fig. 3. UDP Packet Transmission Experiment.
+C. TCP Transmission Experiment
+To be able to evaluate the TCP transmission experiment the
+CN was used as the File Server and the MN was used to down-
+load a 15 mega byte file from the CN through a File Transfer
+1117
+........
+.... ........................... .... .... .... .. .
+M: il Mobil ........ n osplte
+... .. , ...
+... ...~~~~~~~~~~~~~~~~~~~~~~~......,,,,,, . ..... 7 .
+.,....... .............
+,......
+.........
+.....................
+........................
+Moil .P R.itr compl.te
+.......... ... .........
+1. 1,
+4LuLd"
+3469000000 r I I
+3468500000
+3468000000
+= 34675QO000C
+3467000000
+3466500000
+3466000000
+2908500000
+2908000000
+2987500000
+2987000000
+z£i
+ni
+6 7 0 9 10 I11 12 13
+Time (s)
+(a) Mobile IP only (retransmit twice).
+......... .......... ........... ............
+M. bl- wdf Peio ....
+- s -
+-MobieIPandSenodMobile]:}Z b { co~'mpletc
+.
+.. .. ............
+2986500000'
+8 10 12 14
+Tine (s)
+(b) Mobile IP only (retransmit thri
+1453000000
+1452500000 .
+14500000
+1451000000 . .;.
+14505000..00_.
+1450 5000000
+1449500000
+7 S 9
+Time (s)
+(c) Mobile IP with FLLI
+Fig. 4. TCP Packet Transmission
+Protocol (FTP). The sender follows Ren
+ceiver uses the delayed ACK. On the rec(
+16K bytes (the default setting). During th
+handoff is made by moving the MN fro:
+range of AP, to AP2. The evaluation of
+Fig. 4.
+The cases where only the Mobile IP is i
+4(a) and 4(b), it can be seen that the 3.3.
+disruption occurs respectively. Fig. 4(c)
+the FLLH method is used and 1.02 secc
+curs. In the following section the reason:
+be discussed. In the before mentioned s
+that if the connection is bi-directional (e.E
+larger communication disruption compar
+one (e.g., UDP). In Table 2, the static I
+base of the measurement and then it iscc
+situations in Fig. 4. From this table, it is
+off degrades the transmission performanc
+comparison shows that the proposed me
+eliminate the harm caused by the handoff
+.y---
+Static MN 573.10 26.8 100%
+Fig. 4(a) 514.41 29.86 89.76%
+Fig. 4(b) 453.64 33.86 79.16%
+Fig. 4(c) 549.39 27.96 95.86%
+Table 2. Transmission performance comparison.
+V. DISCUSSION
+A. TCP retransmission
+lPRegisir$el
+A ig The TCP retransmission policy is responsible for retransmit-
+ting lost packets to guarantee the reliability of the transmission
+data. But it will degrade the throughput if the handoff has oc-
+..............................curred. Fig. 4(a) shows that packet loss occurs at the 7.4th sec-
+............ ond when theMN started to move. The Mobile IP handoff is
+completed by the 10.1 st second; however theMN is not able to
+16 18 receive packets again until the 10.75th second. Therefore there
+-ee times). is a space 0.65 seconds of silent time which is caused by TCP
+retransmission.
+toide IP Regis0ation _e44ete - In Fig. 4(b), the throughput degradation is more serious. The
+z packet loss occurs at the 9.1st second and the Mobile IP hand-
+<................ off is completed at the 12.4th second, however it is not until the
+16.56th second that the MN continues to receive packets again.
+The silent time duration is 7.46 seconds. The TCP retransmis-
+. .... .............
+sion causes the extra 4.16 seconds of silent time which is much
+larger than the condition in Fig. 4(a). The condition in Fig. 4(a)
+,0 11 Ii2 is evaluated in a very low loading network environment (only the
+necessary connections exist). The experiment network environ-
+ment in Fig. 4(b) has some other data transmissions and is close
+to the real network environment; therefore it will be discussed
+Experiment. below.
+In a typical TCP implementation, the lower and upper bound
+of the retransmission timer are1 second and 64 seconds, re-
+spectively [15]. The retransmission timer was set to1 second
+o TCP [3] and the re- (the minimum value) at the 9.1st second. The retransmission
+eiver side the buffer is timer expires during the MN handoff then approximately I sec-
+e file transmission the ond later (at the 10.15th second) the lost packet was then re-
+m the communication transmitted. At this time, the retransmission timer is multiplied
+the results is shown in by an element of the array for the exponential backoff{1, 2,
+4, ..., 64}, and is set to 2. At the 12.2nd second, the packet is
+used are shown in Fig. retransmitted for the second time and the retransmission timer
+5 and 7.56 seconds of is set to 4, therefore the third retransmission is invoked at the
+shows the case where 16.3rd second. It can be seen in the Fig. 4(b), that the packet
+)nds of disruption oc- is retransmitted three times. Since the Mobile IP handoff mayfor this difference will occupy 3 seconds, retransmission could occur 2 to 3 times, so
+tatement, it is known that the interruption of the data transmission due to handoffmay
+g., TCP) it will cause a be between 3 to 7 seconds.
+e to the unidirectional The fast forwarding data path is established in 60 ms when the
+MIN is used to be the proposed method is used as shown in Fig. 4(c). Since the mini-
+mpared with the three mum value of the TCP retransmission timer is1 second, so the
+,
+known that the hand- packet will be retransmitted at the 8.96th second. The duration
+w
+e and the result of the of time that data transmission is interrupted does not depend on
+thod can substantially the Mobile IP handoff, and its maximum value is always1 sec-
+ond. Even in a network with Large Extended LANs, the FLLH
+1118
+UFAIMMM
+29xsoowon
+.... ........ .................... ...............
+Complete
+..............
+.............. ............ .............
+0
+ist 2nd
+.I ..............
+........
+E
+0ze)1
+CT1
+6
+handoff period only increased with the number of network seg-
+ments which the RUM went through. This proves that the lost
+packet is being retransmitted for the first time and will reduce
+the degradation of transmission performance substantially, only
+if the moving speed of the MN is less than the transmission rate
+of electric signal.
+When noting that multiple packets could be lost during hand-
+off, Reno TCP terminates the fast retransmit as soon as one
+packet is lost and subsequent packets lost causes a slow start
+making it more difficult to reduce the influence of interruptions
+in data transmission [6]. In this case of multiple packets lost
+during handoff, the NewReno TCP [4] or the SACK option [8]
+will effectively improve the situation.
+B. Buffer Agent
+To achieve seamless handoff, the packet lost of bidirectional
+connection (e.g., TCP) should be eliminated. Some proposals
+suggest using a network device to buffer the connection data,
+but with no further discussions on how many packets should be
+cached. In this paper, a network device called Buffer Agent (BA)
+is proposed to solve the problem and is described as follows.
+(i) BA should be added to each network segment intended to
+provide wireless communication.
+(ii) BA is not necessarily an independent network device. It
+could be bound with MA or any other devices on the
+WLANs.
+(iii) All frames sending out fromBA after receiving a RUMwill
+use the MAC address in the RUM as their destination.
+(iv) There is a reference table in BA to record each IP address
+and its corresponding MAC address.
+(v) Since a bidirectional connection could be identified by its
+socket pairs, BA will buffer only one packet for each direc-
+tion ofthe connection. After receiving a RUM, BA will
+(I) Check its reference table to find the corresponding IP
+address of the MAC address in RUM.
+(2) Search in the buffer for the packet with the IP address
+as its destination.
+(3) Send the packet to the IP address.
+(vi) BA will also cache the latest ICMP router advertisement
+and send it out upon receiving a RUM. The recipient of
+the ICMP router advertisement will then change its default
+router setting and then be able to send packets out.
+Considering an example in Fig. 1, BA1 and BA2 are added
+to S1 and S2 respectively. After MN detects AP2 and sends
+a RUM, the RUM will be received by BA2. BA2 will then re-
+spond by sending the latest ICMP router advertisement it cached
+to MN. The RUM will also be received by BA1. BA1 will then
+respond by sending all the buffered packets with destination ad-
+dress same with MN's IP address to MN. Since the RUM has
+changed the forwarding data path of all routers and bridges, the
+packets responded from BA1 can reach MN without any prob-
+lem. Therefore, no packet lost will occur in this method.
+Since there is no packet lost, TCP retransmission policy will
+not start. The factors causing performance degradation such as
+slow start will also be eliminated. The transmission time in Ta-
+ble 2 can reduce to 26.89 seconds and achieve a high perfor-
+mance ratio as 99.67%.
+VI. CONCLUSIONS
+In this paper the Fast Link Layer Handoff method which is
+completely independent of network layer has been discussed;
+therefore, no matter Mobile IPv4 or Mobile IPv6 is used, the
+proposed method can work correctly. A software probing mech-
+anism is used to detect the link-layer handoff and trigger a
+control message. A routing update message (RUM) is used to
+change the forwarding path in a bridge and router. These can
+help the data be delivered to the correct destination before all
+Mobile IP registrations are completed. This method can be
+used in either a simple wireless network or the network with
+Large Extended LANs. The enhanced version can further solve
+the problem within the message delay. By using the proposed
+method, the packet transmission interruption due to Mobile IP is
+reduced to the same time as a FLLH handoff. The TCP retrans-
+mission times can be reduced only once. Furthermore, a buffer
+agent designed can eliminate the packet lost of bidirectional
+connection completely. Therefore the communication quality
+can be kept at a reasonable level. Even real-time applications
+can also work under an acceptable situation.
+REFERENCES
+[1] Apple Computer, Inc., http://www.apple.com/quicktime/
+[2] A.T. Campbell and J. Gomez, "IP Micro-Mobility Protocols," ACM SIG-
+MOBILE Mobile Computer and Communication Review (MC2R), Vol. 4,
+No. 4, pp. 45-54, October 2001.
+[31 K. Fall and S. Floyd, "Simulation-based Comparison of Tahoe, Reno and
+SACK TCP,"? Computer Communication Review, Vol. 26, pp.5-21, July
+1996.
+[4] S. Floyd and T. Henderson, "The New Reno Modification to TCP's Fast
+Recovery Algorithm," RFC2582, IETF, April 1999.
+[5] D. Forsberg, J. Malinen, T. Weckstrom and M. Tiusanen, "Distributing
+mobility agents hierarchically under frequent location updates," in Proc.
+6th IEEE Int. Workshop on Mobile Computing Systems Applications, San
+Diego, CA, Feb. 1999, pp. 159-168.
+[6] J. Hoe, "Improving the Start-up Behavior of a Congestion Control Scheme
+for TCP," in ACMSIGCOMM96, August 1996.
+[7] D. Johnson, C. Perkins and J. Arkko, "Mobility Support in IPv6,"
+RFC3775, IETF, June 2004.
+[8] M. Mathis, J. Mahdavi, S. Floyd and A. Romanow, "TCP Selective Ac-
+knowledgment Options," RFC2018, IETF, October 1996.
+[9] A. Mishra, M. Shin and W. Arbaugh, "An Empirical Analysis of the IEEE
+802.11 MAC Layer Handoff Process," ACMSIGCOMM Computer Com-
+munication Review, Vol. 33, Issue 2, April 2003.
+[10] C. Perkins, "IP Mobility Support for IPv4," RFC3344, IETF, August 2002.
+[11] R. Perlman, "An algorithm for distributed computation of a spanning tree
+in an extended LANN," ACM SIGCOMM Computer and Communication
+Review, Vol. 15, No. 4, pp. 44-53, September 1985.
+[12] "PSU Secure Mobile Networking project,"
+http://www.cs.pdx.edu/research/SMN/
+[13] S. Sharma, N. Zhu and T. Chiueh, "Low-Latency Mobile IP for
+Infrastructure-Mode Wireless LANs,'" IEEE Journal on Selected Areas in
+Communication, Vol. 22, No. 4, pp.643-652, May 2004.
+[14] E. Shim and R. Gitlin, "NeighborCasting: A fast handoff mechanism in
+wireless IP using neighboring foreign agent information,' presented at the
+New York Metro Area Networking Workshop, New York, 2001.
+[15] W.R. Stevens, TCP/IPRllustrated, Volume 1. Addison Wesley, 1994.
+[16] A. G. Valk6, "Cellular IP: A New Approach to Intemet Host Mobility,"
+ACMSIGCOMM Computer and Communication Review, Vol. 29, No. 1,
+pp. 50-65, January 1999.
+[17] H. Yokota, A. Idoue, T. Hasegawa and T. Kato, "Link Layer Assisted Mo-
+bile IP Fast Handoff Method over Wireless LAN Networks," in MOBI-
+COM'02.
+1119
