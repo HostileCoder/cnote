@@ -11,6 +11,8 @@ public class ProjUtil {
 			 return new RC4();	
 		}else if(s.equals("DESede")){
 			 return new DESede();	
+		}else if(s.equals("RC5")){
+			 return new DESede();	
 		}
 		return null;
 	}

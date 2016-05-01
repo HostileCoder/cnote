@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.net.*;
+import java.util.Arrays;
 
 class MSP extends Thread {
 
@@ -48,7 +49,7 @@ class MSP extends Thread {
 					System.out.println("MSP:Got Msg1 from the sensor. Sending Msg2 to the sensor");
 					IPAddress = receivePacket.getAddress();
 					port = receivePacket.getPort();
-					msg = "2 ";
+					msg = "2 "+Arrays.toString(ciphertext);
 					sendData = msg.getBytes();
 					sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
 					UDPSocket.send(sendPacket);
