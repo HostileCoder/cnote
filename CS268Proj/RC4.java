@@ -3,6 +3,8 @@
 
 
 import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 public class RC4 implements Symmetric {
 	private byte[] plaintext;
@@ -13,7 +15,10 @@ public class RC4 implements Symmetric {
 
 	
 	public RC4() throws Exception{
-	
+//		KeyGenerator keyGen = KeyGenerator.getInstance("RC4");
+//		keyGen.init(128);
+//		key = keyGen.generateKey();
+		
 		keyBytes = new byte[] { 0x00, 0x01, 0x02, 0x03, 
 								0x04, 0x05, 0x06, 0x07, 
 								0x08, 0x09, 0x0a, 0x0b, 
@@ -26,7 +31,7 @@ public class RC4 implements Symmetric {
 	public byte[] encrypt(byte[] plaintext) throws Exception{
 		cipher.init(Cipher.ENCRYPT_MODE, key);
 		byte[] ciphertext = cipher.doFinal(plaintext);
-	   // System.out.println("ciphertext: " + new String(ciphertext));
+	    //System.out.println(ciphertext.length);
 	    return ciphertext;
 	}
 	

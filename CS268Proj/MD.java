@@ -10,7 +10,11 @@ class MD extends Thread {
 	private int port;
 	private DatagramSocket UDPSocket;
 	private Symmetric alg;
-	private String text = "RANDOMRANDOMRANDOMRANDOMRANDOMRANDOMRANDOM\0\0\0\0\0\0";
+	private String text="RANDOMRANDOMRANDOMRANDOMRANDOMRANDOMRANDOM\0\0\0\0\0\0"
+						+ "RANDOMRANDOMRANDOMRANDOMRANDOMRANDOMRANDOM\0\0\0\0\0\0"
+						+ "RANDOMRANDOMRANDOMRANDOMRANDOMRANDOMRANDOM\0\0\0\0\0\0"
+						+ "RANDOMRANDOMRANDOMRANDOMRANDOMRANDOMRANDOM\0\0\0\0\0\0"
+						+ "RANDOMRANDOMRANDOMRANDOMRANDOMRANDOMRANDOM\0\0\0\0\0\0";
 
 	// 1111
 	public MD(int port, String s) throws Exception {
@@ -32,7 +36,7 @@ class MD extends Thread {
 				byte[] receiveData = new byte[1024];
 				byte[] sendData = new byte[1024];
 				DatagramPacket sendPacket;
-				String msg = "1 "+Arrays.toString(ciphertext);
+				String msg = "1 "+text;
 				
 				if (begin == true) {
 					alg.encrypt(text.getBytes());
@@ -59,7 +63,7 @@ class MD extends Thread {
 					System.out.println("MD:Got Msg3 from the sensor. Sending Msg4 to the sensor");
 					IPAddress = receivePacket.getAddress();
 					port = receivePacket.getPort();
-					msg = "4 "+Arrays.toString(ciphertext);
+					msg = "4 "+text;
 					sendData = msg.getBytes();
 					sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
 					UDPSocket.send(sendPacket);
@@ -73,7 +77,7 @@ class MD extends Thread {
 					System.out.println("MD:Got Msg5 from the sensor. Sending Msg6 to the sensor");
 					IPAddress = receivePacket.getAddress();
 					port = receivePacket.getPort();
-					msg = "6 "+Arrays.toString(ciphertext);
+					msg = "6 "+text;
 					sendData = msg.getBytes();
 					sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
 					UDPSocket.send(sendPacket);
@@ -91,7 +95,7 @@ class MD extends Thread {
 					break;
 				}
 
-				if (c==1000) {
+				if (c==1) {
 					break;
 				}
 		

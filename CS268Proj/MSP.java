@@ -10,7 +10,12 @@ class MSP extends Thread {
 	private byte[] ciphertext;
 	private byte[] plaintext;
 	private Symmetric alg;
-	private String text="RANDOMRANDOMRANDOMRANDOMRANDOMRANDOMRANDOM\0\0\0\0\0\0";
+	private String text="RANDOMRANDOMRANDOMRANDOMRANDOMRANDOMRANDOM\0\0\0\0\0\0"
+						+ "RANDOMRANDOMRANDOMRANDOMRANDOMRANDOMRANDOM\0\0\0\0\0\0"
+						+ "RANDOMRANDOMRANDOMRANDOMRANDOMRANDOMRANDOM\0\0\0\0\0\0"
+						+ "RANDOMRANDOMRANDOMRANDOMRANDOMRANDOMRANDOM\0\0\0\0\0\0"
+						+ "RANDOMRANDOMRANDOMRANDOMRANDOMRANDOMRANDOM\0\0\0\0\0\0";
+	//private String text="abcdefghijklmnopqrstuvwxyz123456";
 	//1112
 	public MSP(int port,String s) throws Exception {
 		IPAddress = InetAddress.getByName("localhost");
@@ -49,7 +54,7 @@ class MSP extends Thread {
 					System.out.println("MSP:Got Msg1 from the sensor. Sending Msg2 to the sensor");
 					IPAddress = receivePacket.getAddress();
 					port = receivePacket.getPort();
-					msg = "2 "+Arrays.toString(ciphertext);
+					msg = "2 "+text;
 					sendData = msg.getBytes();
 					sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
 					UDPSocket.send(sendPacket);
