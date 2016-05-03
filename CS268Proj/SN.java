@@ -12,11 +12,8 @@ class SN extends Thread {
 	private byte[] ciphertext;
 	private byte[] plaintext;
 	private Symmetric alg;
-	private String text="RANDOMRANDOMRANDOMRANDOMRANDOMRANDOMRANDOM\0\0\0\0\0\0"
-						+ "RANDOMRANDOMRANDOMRANDOMRANDOMRANDOMRANDOM\0\0\0\0\0\0"
-						+ "RANDOMRANDOMRANDOMRANDOMRANDOMRANDOMRANDOM\0\0\0\0\0\0"
-						+ "RANDOMRANDOMRANDOMRANDOMRANDOMRANDOMRANDOM\0\0\0\0\0\0"
-						+ "RANDOMRANDOMRANDOMRANDOMRANDOMRANDOMRANDOM\0\0\0\0\0\0";
+	private String text="RANDOMRANDOMRANDOMRANDOMRANDOMRANDOMRANDOM123456"
+						;
 	private int bitS;
 	private int bitR;
 	//1113
@@ -51,14 +48,18 @@ class SN extends Thread {
 				switch (msgID) {
 				case 1:
 					System.out.println("SN:Got Msg1 from MD. Sending Msg1 to the MSP");
-					msg = "1 "+text;
+					msg = "1 "+new String(ciphertext);
 					sendData = msg.getBytes();
 					sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 1112);
 					UDPSocket.send(sendPacket);
 					
 					
 					System.out.println("bits sent:"+text.length()+" "+ciphertext.length);
-
+					
+					//System.out.println(text);
+//					System.out.println(new String(ciphertext).length());
+//					System.out.println(new String(alg.decrypt(ciphertext)).length());
+//					System.out.println(new String(ciphertext).getBytes().length);
 					
 					bitS=bitS+sendPacket.getLength()*8;
 					bitR=bitR+receivePacket.getLength()*8;
@@ -69,7 +70,7 @@ class SN extends Thread {
 					alg.decrypt(ciphertext);
 					alg.encrypt(text.getBytes());				
 					System.out.println("SN:Got Msg2 from MSP. Sending Msg3 to the MD");
-					msg = "3 "+text;
+					msg = "3 "+new String(ciphertext);
 					sendData = msg.getBytes();
 					sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 1111);
 					UDPSocket.send(sendPacket);
@@ -88,7 +89,7 @@ class SN extends Thread {
 					System.out.println("SN:Got Msg4 from MD. Sending Msg5 to the MD");
 					IPAddress = receivePacket.getAddress();
 					port = receivePacket.getPort();
-					msg = "5 "+text;
+					msg = "5 "+new String(ciphertext);
 					sendData = msg.getBytes();
 					sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
 					UDPSocket.send(sendPacket);
@@ -107,7 +108,7 @@ class SN extends Thread {
 					System.out.println("SN:Got Msg6 from MD. Sending Msg7 to the MD");
 					IPAddress = receivePacket.getAddress();
 					port = receivePacket.getPort();
-					msg = "7 "+text;
+					msg = "7 "+new String(ciphertext);
 					sendData = msg.getBytes();
 					sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
 					UDPSocket.send(sendPacket);

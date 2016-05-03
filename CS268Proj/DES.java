@@ -29,9 +29,9 @@ public class DES implements Symmetric {
 	    return ciphertext;
 	}
 	
-	public void decrypt(byte[] ciphertext) throws Exception{
+	public byte[] decrypt(byte[] ciphertext) throws Exception{
 		cipher.init(Cipher.DECRYPT_MODE, key);
 		byte[] plaintext = cipher.doFinal(ciphertext);
-		//System.out.println("plaintext: " + new String(plaintext));
+		return plaintext;
 	}
 }
