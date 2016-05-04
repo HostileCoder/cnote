@@ -91,7 +91,7 @@ class MD extends Thread {
 					break;
 				}
 
-				if (c==1) {
+				if (c==1000) {
 					break;
 				}
 		
