@@ -12,7 +12,7 @@ public class ProjUtil {
 		}else if(s.equals("DESede")){
 			 return new DESede();	
 		}else if(s.equals("RC5")){
-			 return new DESede();	
+			 return new RC5();	
 		}
 		return null;
 	}

@@ -55,12 +55,12 @@ class SN extends Thread {
 					
 					
 					System.out.println("bits sent:"+text.length()+" "+ciphertext.length);
-					
+//					System.out.println("bits sent:"+sendPacket.getLength()+" "+receivePacket.getLength());
 					//System.out.println(text);
-//					System.out.println(new String(ciphertext).length());
-//					System.out.println(new String(alg.decrypt(ciphertext)).length());
+					//System.out.println(new String(ciphertext)+"|");
+//					System.out.println(new String(alg.decrypt(ciphertext)));
 //					System.out.println(new String(ciphertext).getBytes().length);
-					
+
 					bitS=bitS+sendPacket.getLength()*8;
 					bitR=bitR+receivePacket.getLength()*8;
 					

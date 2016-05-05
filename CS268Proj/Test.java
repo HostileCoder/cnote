@@ -4,7 +4,9 @@ public class Test {
 
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
-		  String s="RC5";
+		  //String s="DESede";
+		  String s="AES";
+		  //String s="RC4";
 	      Thread MSP = new MSP(1112,s);
 	      Thread SN = new SN(1113,s);
 	      Thread MD = new MD(1111,s);
